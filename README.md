@@ -1,0 +1,3 @@
+# Ncube
+
+> Enter the hypercube.
