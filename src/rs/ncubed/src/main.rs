@@ -3,6 +3,8 @@ use std::convert::Infallible;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use warp::Filter;
 
+use ncubed::db;
+
 fn with_tx(tx: Sender<()>) -> impl Filter<Extract = (Sender<()>,), Error = Infallible> + Clone {
     warp::any().map(move || tx.clone())
 }
@@ -23,6 +25,8 @@ async fn quit_signal(mut rx: Receiver<()>) {
 
 #[tokio::main]
 async fn main() {
+    db::migrate("ncube.db".to_string()).unwrap();
+
     let (tx, rx) = mpsc::channel(1);
     let (tx1, rx1) = mpsc::channel(1);
 
