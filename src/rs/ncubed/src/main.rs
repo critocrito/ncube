@@ -1,3 +1,4 @@
+use anyhow::Result;
 use futures::join;
 use std::convert::Infallible;
 use tokio::sync::mpsc::{self, Receiver, Sender};
@@ -23,10 +24,37 @@ async fn quit_signal(mut rx: Receiver<()>) {
     println!("Quitting!");
 }
 
+struct Ncube {
+    ncube_store: Box<dyn NcubeStore>,
+}
+
+impl Ncube {
+    fn new(cfg: Config) -> Result<Self> {
+        let ncube_store = NcubeStoreSqlite::new(cfg.ncube_db_path)?;
+        Ok(Ncube {
+            ncube_store: Box::new(ncube_store),
+        })
+    }
+}
+
+struct Config {
+    ncube_db_path: String,
+}
+
+async fn run(cfg: Config) -> Result<()> {
+    let mut ncube = Ncube::new(cfg)?;
+    ncube.ncube_store.upgrade()?;
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
-    let mut ncube_store = NcubeStoreSqlite::new("ncube.db".to_string()).unwrap();
-    ncube_store.upgrade().unwrap();
+    // FIXME: supply config from command args/environment/config file
+    let config = Config {
+        ncube_db_path: "ncube.db".to_string(),
+    };
+
+    run(config).await.unwrap();
 
     let (tx, rx) = mpsc::channel(1);
     let (tx1, rx1) = mpsc::channel(1);

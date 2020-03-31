@@ -24,19 +24,19 @@ impl From<refinery_migrations::Error> for DataStoreError {
 }
 
 pub struct NcubeStoreSqlite {
-    conn: Connection,
+    db_path: String,
 }
 
 impl NcubeStoreSqlite {
-    pub fn new(path: String) -> Result<Self, DataStoreError> {
-        let conn = Connection::open(path)?;
-        Ok(NcubeStoreSqlite { conn })
+    pub fn new(db_path: String) -> Result<Self, DataStoreError> {
+        Ok(NcubeStoreSqlite { db_path })
     }
 }
 
 impl NcubeStore for NcubeStoreSqlite {
     fn upgrade(&mut self) -> Result<(), DataStoreError> {
-        embedded::migrations::runner().run(&mut self.conn)?;
+        let mut conn = Connection::open(&self.db_path)?;
+        embedded::migrations::runner().run(&mut conn)?;
         Ok(())
     }
 }

@@ -12,3 +12,4 @@ rusqlite = "0.21.0"
 refinery = { version = "0.2", features = ["rusqlite"]}
 refinery-migrations = "0.2"
 thiserror = "1.0"
+anyhow = "1.0"
