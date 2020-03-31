@@ -7,9 +7,11 @@ edition = "2018"
 [dependencies]
 futures = "0.3.4"
 tokio = { version = "0.2", features = ["macros", "sync", "time"] }
-warp = "0.2.2"
-rusqlite = "0.21.0"
-refinery = { version = "0.2", features = ["rusqlite"]}
-refinery-migrations = "0.2"
+async-trait = "0.1"
 thiserror = "1.0"
 anyhow = "1.0"
+warp = "0.2.2"
+rusqlite = "0.21.0"
+sqlx = { version = "0.3", default-features = false, features = [ "runtime-tokio", "macros", "sqlite" ] }
+refinery = { version = "0.2", features = ["rusqlite"]}
+refinery-migrations = "0.2"

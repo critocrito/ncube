@@ -29,8 +29,8 @@ struct Ncube {
 }
 
 impl Ncube {
-    fn new(cfg: Config) -> Result<Self> {
-        let ncube_store = NcubeStoreSqlite::new(cfg.ncube_db_path)?;
+    async fn new(cfg: Config) -> Result<Self> {
+        let ncube_store = NcubeStoreSqlite::new(cfg.ncube_db_path).await?;
         Ok(Ncube {
             ncube_store: Box::new(ncube_store),
         })
@@ -42,8 +42,10 @@ struct Config {
 }
 
 async fn run(cfg: Config) -> Result<()> {
-    let mut ncube = Ncube::new(cfg)?;
+    let mut ncube = Ncube::new(cfg).await?;
     ncube.ncube_store.upgrade()?;
+    let num = ncube.ncube_store.show_number().await?;
+    println!("{}", num);
     Ok(())
 }
 
@@ -51,7 +53,7 @@ async fn run(cfg: Config) -> Result<()> {
 async fn main() {
     // FIXME: supply config from command args/environment/config file
     let config = Config {
-        ncube_db_path: "ncube.db".to_string(),
+        ncube_db_path: "ncube.db".into(),
     };
 
     run(config).await.unwrap();
