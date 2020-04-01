@@ -8,11 +8,3 @@ use crate::errors::DataStoreError;
 pub trait Pool {
     async fn exec(&self) -> Result<i64, DataStoreError>;
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(1, 1);
-    }
-}
