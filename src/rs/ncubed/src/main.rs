@@ -44,8 +44,8 @@ struct Config {
 async fn run(cfg: Config) -> Result<()> {
     let mut ncube = Ncube::new(cfg).await?;
     ncube.ncube_store.upgrade()?;
-    let num = ncube.ncube_store.show_number().await?;
-    println!("{}", num);
+    let collections = ncube.ncube_store.list_collections().await?;
+    println!("{:?}", collections);
     Ok(())
 }
 

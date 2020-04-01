@@ -1,14 +1,22 @@
 use async_trait::async_trait;
+use ncube_data::Collection;
 use refinery_migrations;
 use rusqlite::{self, Connection};
+use sqlx::{self, error::Error as SqlxError, sqlite::SqlitePool as SqlxSqlitePool, Cursor, Row};
 
 use crate::errors::DataStoreError;
-use crate::pools::{sqlite::SqlitePool, Pool};
 use crate::stores::NcubeStore;
 
 mod embedded {
     use refinery::embed_migrations;
     embed_migrations!("migrations");
+}
+
+// FIXME: Handle error cases and reasons
+impl From<SqlxError> for DataStoreError {
+    fn from(_: SqlxError) -> DataStoreError {
+        DataStoreError::FailedConnection
+    }
 }
 
 // FIXME: Handle error cases and reasons
@@ -27,16 +35,15 @@ impl From<refinery_migrations::Error> for DataStoreError {
 
 pub struct NcubeStoreSqlite {
     db_path: String,
-    pool: Box<dyn Pool + Send + Sync>,
+    pool: SqlxSqlitePool,
 }
 
 impl NcubeStoreSqlite {
     pub async fn new(db_path: String) -> Result<Self, DataStoreError> {
-        let pool = SqlitePool::new(&db_path.clone().into()).await?;
-        Ok(NcubeStoreSqlite {
-            db_path,
-            pool: Box::new(pool),
-        })
+        let conn_str = format!("sqlite://{}", db_path);
+        let pool = SqlxSqlitePool::new(&conn_str).await?;
+
+        Ok(NcubeStoreSqlite { db_path, pool })
     }
 }
 
@@ -48,9 +55,19 @@ impl NcubeStore for NcubeStoreSqlite {
         Ok(())
     }
 
-    async fn show_number(&mut self) -> Result<i64, DataStoreError> {
-        let pool = &self.pool;
-        let num1 = pool.exec();
-        num1.await
+    async fn list_collections(&mut self) -> Result<Vec<Collection>, DataStoreError> {
+        let mut conn = self.pool.acquire().await?;
+        let mut cursor =
+            sqlx::query(include_str!("../sql/sqlite/list_collections.sql")).fetch(&mut conn);
+
+        let mut collections: Vec<Collection> = vec![];
+        while let Some(row) = cursor.next().await? {
+            collections.push(Collection {
+                id: row.get("id"),
+                title: row.get("title"),
+            })
+        }
+
+        Ok(collections)
     }
 }

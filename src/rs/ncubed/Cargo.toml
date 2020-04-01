@@ -15,3 +15,5 @@ rusqlite = "0.21.0"
 sqlx = { version = "0.3", default-features = false, features = [ "runtime-tokio", "macros", "sqlite" ] }
 refinery = { version = "0.2", features = ["rusqlite"]}
 refinery-migrations = "0.2"
+
+ncube-data = { path = "../ncube-data" }
