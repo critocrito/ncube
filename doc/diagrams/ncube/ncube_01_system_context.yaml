@@ -1,0 +1,75 @@
+link__for_use_with: https://structurizr.com/express
+link__diagram_scheme_description: https://c4model.com
+---
+type: System Context
+scope: Ncube
+description: The container diagram for the Ncube data investigation application.
+
+elements:
+- type: Person
+  name: Investigator
+  description: A human rights investigator.
+  position: '325,350'
+- type: Software System
+  name: Ncube
+  description: Allows human rights investigators to preserve, explore and verify data.
+  tags: Local
+  position: '300,1200'
+- type: Software System
+  name: Remote Ncube
+  description: A Ncube installation on a remote server.
+  tags: Remote
+  position: '1000,1200'
+- type: Software System
+  name: Remote Sugarcube
+  description: Data process pipelines for preservation
+  tags: Remote
+  position: '1700,1200'
+- type: Software System
+  name: Sugarcube
+  description: Data process pipelines for preservation.
+  tags: Local
+  position: '1000,600'
+
+relationships:
+- source: Investigator
+  description: uses
+  destination: Ncube
+  technology: Local First Software
+- source: Ncube
+  description: connects to
+  destination: Remote Ncube
+  technology: JSON/HTTPS
+- source: Ncube
+  description: runs
+  destination: Sugarcube
+  technology: OS Processes
+- source: Remote Ncube
+  description: runs
+  destination: Remote Sugarcube
+  technology: OS Processes
+
+styles:
+- type: element
+  tag: Container
+  background: '#438dd5'
+- type: element
+  tag: Database
+  shape: Cylinder
+- type: element
+  tag: Element
+  color: '#ffffff'
+- type: element
+  tag: Person
+  background: '#08427b'
+  shape: Person
+- type: element
+  tag: Remote
+  background: '#d6d6da'
+  shape: RoundedBox
+- type: element
+  tag: Software System
+  background: '#1168bd'
+  shape: RoundedBox
+
+size: A5_Landscape

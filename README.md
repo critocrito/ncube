@@ -30,6 +30,14 @@ In another terminal start the UI:
 cargo run --bin ncube
 ```
 
+To generate the architecture diagrams install
+[`fc4`](https://fundingcircle.github.io/fc4-framework/docs/get-started) and
+regenerate the images:
+
+``` sh
+fc4 -fsr doc/diagrams
+```
+
 ## License
 
 All code is copyrighted by *christo@cryptodrunks.net* and licensed under the [GPL3](https://www.gnu.org/licenses/gpl-3.0.html). 

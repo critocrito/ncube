@@ -1,0 +1,211 @@
+links:
+  The FC4 Framework: https://fundingcircle.github.io/fc4-framework/
+  Structurizr Express: https://structurizr.com/express
+---
+type: Container
+scope: Ncube
+description: Preserving, exploring and verifying data for the human rights.
+
+elements:
+- type: Person
+  name: Investigator
+  description: A human rights investigator.
+  position: '125,50'
+- type: Person
+  name: Ncube Administrator
+  description: An administrator of a remote Ncube installation.
+  position: '125,1650'
+- type: Software System
+  name: Ncube
+  description: Data investigations for the human rights.
+  tags: Internal
+  containers:
+  - type: Container
+    name: HTTP Endpoints
+    description: A REST-like HTTP API.
+    technology: Rust
+    position: '1400,700'
+  - type: Container
+    name: Local Workspace Y
+    description: Manage and operate a local Ncube workspace.
+    technology: Rust
+    position: '2100,1300'
+  - type: Container
+    name: More Workspaces
+    description: Manage and operate a Ncube workspace.
+    technology: Rust
+    position: '2100,500'
+  - type: Container
+    name: Ncube Host
+    description: Manage the local Ncube installation.
+    technology: Rust
+    position: '800,1200'
+  - type: Container
+    name: Ncube Router
+    description: The thing that glues the different parts together.
+    technology: Rust
+    tags: hub
+    position: '1400,1100'
+  - type: Container
+    name: Remote Call Auth
+    description: Authorize requests for remote workspaces.
+    technology: Rust
+    position: '800,700'
+  - type: Container
+    name: Remote Workspace X
+    description: Manage and operate a remote Ncube workspace.
+    technology: Rust
+    position: '2100,900'
+  - type: Container
+    name: Run Queue
+    description: An asynchronous queue that executes data process invocations.
+    technology: Rust/OS
+    position: '1400,1800'
+  - type: Container
+    name: Single-Page Application
+    description: The UI frontend of Ncube.
+    technology: HTML, CSS and JavaScript
+    tags: browser
+    position: '1400,100'
+  - type: Container
+    name: Web View
+    description: A minimal browser window that runs in an OS specific application.
+    technology: Rust
+    position: '800,100'
+- type: Software System
+  name: Ncube CLI
+  description: A command line tool for privileged management of Ncube.
+  position: '800,1800'
+- type: Software System
+  name: Ncube Config Database
+  description: The Ncube store.
+  tags: Database
+  position: '100,1200'
+- type: Software System
+  name: Remote Ncube
+  description: An installation of Ncube on a remote server.
+  tags: Internal
+  position: '2900,400'
+- type: Software System
+  name: Workspace Database
+  description: A workspace database.
+  tags: Database
+  position: '2900,900'
+- type: Software System
+  name: Workspace Filesystem
+  description: A directory location on the local file system.
+  tags: folder
+  position: '2900,1300'
+- type: Software System
+  name: Workspace Sugarcube
+  description: A Sugarcube installation for a workspace.
+  tags: process
+  position: '2900,1700'
+
+relationships:
+- source: HTTP Endpoints
+  description: messages
+  destination: Ncube Router
+  technology: CSP Channel
+- source: HTTP Endpoints
+  description: validates
+  destination: Remote Call Auth
+- source: Investigator
+  description: uses
+  destination: Web View
+  technology: Local First
+- source: Local Workspace Y
+  description: queries
+  destination: Workspace Database
+  technology: SQL
+- source: Local Workspace Y
+  description: queries
+  destination: Workspace Filesystem
+  technology: fs
+- source: Local Workspace Y
+  description: manages
+  destination: Workspace Sugarcube
+- source: Ncube Administrator
+  description: uses
+  destination: Ncube CLI
+  technology: Shell
+- source: Ncube CLI
+  description: instruments
+  destination: Ncube Router
+  technology: IPC/Rust
+- source: Ncube Host
+  description: queries
+  destination: Ncube Config Database
+  technology: SQL
+- source: Ncube Router
+  description: messages
+  destination: Local Workspace Y
+  technology: CSP Channel
+- source: Ncube Router
+  description: messages
+  destination: More Workspaces
+  technology: CSP Channel
+- source: Ncube Router
+  description: messages
+  destination: Ncube Host
+  technology: CSP Channel
+- source: Ncube Router
+  description: messages
+  destination: Remote Workspace X
+  technology: CSP Channel
+- source: Ncube Router
+  description: messages
+  destination: Run Queue
+  technology: CSP Channel
+- source: Remote Call Auth
+  description: queries
+  destination: Ncube Host
+- source: Remote Workspace X
+  description: queries
+  destination: Remote Ncube
+  technology: JSON/HTTP
+- source: Run Queue
+  description: run process
+  destination: Workspace Sugarcube
+  technology: spawn
+- source: Single-Page Application
+  description: requests
+  destination: HTTP Endpoints
+  technology: JSON/HTTP
+- source: Web View
+  description: hosts
+  destination: Single-Page Application
+
+styles:
+- type: element
+  tag: Container
+  background: '#438dd5'
+  shape: RoundedBox
+- type: element
+  tag: Database
+  shape: Cylinder
+- type: element
+  tag: Element
+  color: '#ffffff'
+- type: element
+  tag: Person
+  background: '#08427b'
+  shape: Person
+- type: element
+  tag: Software System
+  background: '#1168bd'
+  shape: RoundedBox
+- type: element
+  tag: browser
+  shape: WebBrowser
+- type: element
+  tag: folder
+  shape: Folder
+- type: element
+  tag: hub
+  shape: Hexagon
+- type: element
+  tag: process
+  shape: Circle
+
+size: A4_Landscape
