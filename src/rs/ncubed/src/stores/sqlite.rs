@@ -1,8 +1,9 @@
 use async_trait::async_trait;
 use ncube_data::Collection;
+use r2d2::{self, Pool};
+use r2d2_sqlite::SqliteConnectionManager;
 use refinery_migrations;
-use rusqlite::{self, Connection};
-use sqlx::{self, error::Error as SqlxError, sqlite::SqlitePool as SqlxSqlitePool, Cursor, Row};
+use rusqlite::{self, params, Connection};
 
 use crate::errors::DataStoreError;
 use crate::stores::NcubeStore;
@@ -13,8 +14,8 @@ mod embedded {
 }
 
 // FIXME: Handle error cases and reasons
-impl From<SqlxError> for DataStoreError {
-    fn from(_: SqlxError) -> DataStoreError {
+impl From<r2d2::Error> for DataStoreError {
+    fn from(_: r2d2::Error) -> DataStoreError {
         DataStoreError::FailedConnection
     }
 }
@@ -35,18 +36,13 @@ impl From<refinery_migrations::Error> for DataStoreError {
 
 pub struct NcubeStoreSqlite {
     db_path: String,
-    pool: SqlxSqlitePool,
+    pool: Pool<SqliteConnectionManager>,
 }
 
 impl NcubeStoreSqlite {
     pub async fn new(db_path: String) -> Result<Self, DataStoreError> {
-        let conn_str = format!("sqlite://{}", db_path);
-        let pool = SqlxSqlitePool::new(&conn_str).await?;
-        // let pool = SqlxSqlitePool::builder()
-        //     .min_size(5)
-        //     .max_size(10)
-        //     .build(&conn_str)
-        //     .await?;
+        let manager = SqliteConnectionManager::file(&db_path);
+        let pool = r2d2::Pool::new(manager)?;
 
         Ok(NcubeStoreSqlite { db_path, pool })
     }
@@ -61,16 +57,19 @@ impl NcubeStore for NcubeStoreSqlite {
     }
 
     async fn list_collections(&mut self) -> Result<Vec<Collection>, DataStoreError> {
-        let mut conn = self.pool.acquire().await?;
-        let mut cursor =
-            sqlx::query(include_str!("../sql/sqlite/list_collections.sql")).fetch(&mut conn);
+        let conn = self.pool.get()?;
+        let mut stmt = conn.prepare(include_str!("../sql/sqlite/list_collections.sql"))?;
+
+        let collections_iter = stmt.query_map(params![], |row| {
+            Ok(Collection {
+                id: row.get(0)?,
+                title: row.get(1)?,
+            })
+        })?;
 
         let mut collections: Vec<Collection> = vec![];
-        while let Some(row) = cursor.next().await? {
-            collections.push(Collection {
-                id: row.get("id"),
-                title: row.get("title"),
-            })
+        for collection in collections_iter {
+            collections.push(collection.unwrap());
         }
 
         Ok(collections)

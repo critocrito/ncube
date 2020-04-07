@@ -1,5 +1,5 @@
 use anyhow::Result;
-use futures::{join, Future};
+use futures::join;
 use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 use tokio::{
@@ -33,11 +33,8 @@ struct Ncube {
 }
 
 async fn wait_msgs(mut rx: Receiver<()>, mut ncube: Ncube) -> Result<()> {
-    while let Some(i) = rx.recv().await {
-        async {
-            println!("got = {:?}", i);
-        }
-        .await;
+    while let Some(_i) = rx.recv().await {
+        // FIXME: This is just a dummy to test that the DB connection works.
         let _collections = ncube.ncube_store.list_collections().await?;
     }
     Ok(())
@@ -71,10 +68,10 @@ struct NcubeConfig {
 }
 
 async fn handler(mut s: Sender<()>) -> Result<impl warp::Reply, Infallible> {
+    // FIXME: Need to implement From trait for SendError.
     match s.send(()).await {
-        Ok(_) => println!("Send the damn thing."),
-
-        Err(_) => println!("Error the damn thing."),
+        Ok(_) => (),
+        Err(_) => (),
     }
     let cfg = NcubeConfig {
         workspace_root: "haha".to_string(),
@@ -91,14 +88,14 @@ async fn main() {
         ncube_db_path: "ncube.db".into(),
     };
 
-    let mut ncube = run(config).await.unwrap();
+    let ncube = run(config).await.unwrap();
 
     let (tx, rx) = mpsc::channel(1);
     let (tx1, rx1) = mpsc::channel(1);
 
-    let (mut tx2, mut rx2) = mpsc::channel(100);
+    let (tx2, rx2) = mpsc::channel(100);
 
-    let xx = wait_msgs(rx2, ncube); // tokio::spawn(move || wait_msgs(rx2, ncube));
+    let fix_later = wait_msgs(rx2, ncube);
 
     let static_assets = warp::path!("index.html").and(warp::fs::file("./public/index.html"));
 
@@ -120,5 +117,5 @@ async fn main() {
     let (_addr, mgmt_server) =
         warp::serve(mgmt).bind_with_graceful_shutdown(([127, 0, 0, 1], 40667), quit_signal(rx1));
 
-    join!(xx, data_server, mgmt_server);
+    let _ = join!(data_server, mgmt_server, fix_later);
 }
