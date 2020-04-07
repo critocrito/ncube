@@ -1,0 +1,10 @@
+# -*- restclient -*-
+
+:api = localhost:40666
+:headers = <<
+Content-Type: application/json
+
+#
+
+# Query the global Ncube configuration
+GET http://:api/

@@ -42,6 +42,11 @@ impl NcubeStoreSqlite {
     pub async fn new(db_path: String) -> Result<Self, DataStoreError> {
         let conn_str = format!("sqlite://{}", db_path);
         let pool = SqlxSqlitePool::new(&conn_str).await?;
+        // let pool = SqlxSqlitePool::builder()
+        //     .min_size(5)
+        //     .max_size(10)
+        //     .build(&conn_str)
+        //     .await?;
 
         Ok(NcubeStoreSqlite { db_path, pool })
     }
