@@ -47,11 +47,6 @@ elements:
     tags: hub
     position: '1400,1100'
   - type: Container
-    name: Remote Call Auth
-    description: Authorize requests for remote workspaces.
-    technology: Rust
-    position: '800,700'
-  - type: Container
     name: Remote Workspace X
     description: Manage and operate a remote Ncube workspace.
     technology: Rust
@@ -104,12 +99,12 @@ elements:
 
 relationships:
 - source: HTTP Endpoints
+  description: validates request
+  destination: Ncube Host
+- source: HTTP Endpoints
   description: messages
   destination: Ncube Router
   technology: CSP Channel
-- source: HTTP Endpoints
-  description: validates
-  destination: Remote Call Auth
 - source: Investigator
   description: uses
   destination: Web View
@@ -157,9 +152,6 @@ relationships:
   description: messages
   destination: Run Queue
   technology: CSP Channel
-- source: Remote Call Auth
-  description: queries
-  destination: Ncube Host
 - source: Remote Workspace X
   description: queries
   destination: Remote Ncube
