@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_data::Collection;
+use ncube_data::{Collection, NcubeConfig};
 use r2d2::{self, Pool};
 use r2d2_sqlite::SqliteConnectionManager;
 use refinery_migrations;
@@ -73,5 +73,20 @@ impl NcubeStore for NcubeStoreSqlite {
         }
 
         Ok(collections)
+    }
+
+    async fn is_bootstrapped(&mut self) -> Result<bool, DataStoreError> {
+        let conn = self.pool.get()?;
+        let result: i32 = conn.query_row(
+            include_str!("../sql/sqlite/is_bootstrapped.sql"),
+            params![],
+            |row| row.get(0),
+        )?;
+
+        if result == 0 {
+            Ok(false)
+        } else {
+            Ok(true)
+        }
     }
 }

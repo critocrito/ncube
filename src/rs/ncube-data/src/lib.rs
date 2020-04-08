@@ -24,3 +24,20 @@ pub struct DataSegment {
 }
 
 impl NcubeEntity for Collection {}
+
+#[derive(Debug)]
+pub struct NcubeConfig {
+    pub workspace_root: String,
+    pub name: Option<String>,
+    pub email: Option<String>,
+}
+
+impl Default for NcubeConfig {
+    fn default() -> Self {
+        NcubeConfig {
+            workspace_root: "./ncube.db".to_string(),
+            name: None,
+            email: None,
+        }
+    }
+}
