@@ -6,4 +6,8 @@ pub enum DataStoreError {
     FailedConnection,
     #[error("database upgrade failed")]
     Upgrade,
+    #[error("data serialization error")]
+    Serialization,
+    #[error("record not found")]
+    NotFound,
 }

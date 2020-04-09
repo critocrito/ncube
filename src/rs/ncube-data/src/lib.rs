@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 pub struct Ncube;
 
 pub trait NcubeEntity {}
@@ -25,19 +26,12 @@ pub struct DataSegment {
 
 impl NcubeEntity for Collection {}
 
-#[derive(Debug)]
-pub struct NcubeConfig {
-    pub workspace_root: String,
-    pub name: Option<String>,
-    pub email: Option<String>,
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ConfigSetting {
+    pub name: String,
+    pub value: String,
+    pub required: bool,
+    pub description: String,
 }
 
-impl Default for NcubeConfig {
-    fn default() -> Self {
-        NcubeConfig {
-            workspace_root: "./ncube.db".to_string(),
-            name: None,
-            email: None,
-        }
-    }
-}
+pub type NcubeConfig = Vec<ConfigSetting>;

@@ -1,9 +1,10 @@
 use async_trait::async_trait;
-use ncube_data::{Collection, NcubeConfig};
+use ncube_data::{Collection, ConfigSetting, NcubeConfig};
 use r2d2::{self, Pool};
 use r2d2_sqlite::SqliteConnectionManager;
 use refinery_migrations;
-use rusqlite::{self, params, Connection};
+use rusqlite::{self, params, Connection, NO_PARAMS};
+use serde_rusqlite::{self, from_rows};
 
 use crate::errors::DataStoreError;
 use crate::stores::NcubeStore;
@@ -24,6 +25,13 @@ impl From<r2d2::Error> for DataStoreError {
 impl From<rusqlite::Error> for DataStoreError {
     fn from(_: rusqlite::Error) -> DataStoreError {
         DataStoreError::FailedConnection
+    }
+}
+
+// FIXME: Handle error cases and reasons
+impl From<serde_rusqlite::error::Error> for DataStoreError {
+    fn from(_: serde_rusqlite::Error) -> DataStoreError {
+        DataStoreError::Serialization
     }
 }
 
@@ -69,7 +77,7 @@ impl NcubeStore for NcubeStoreSqlite {
 
         let mut collections: Vec<Collection> = vec![];
         for collection in collections_iter {
-            collections.push(collection.unwrap());
+            collections.push(collection?);
         }
 
         Ok(collections)
@@ -88,5 +96,20 @@ impl NcubeStore for NcubeStoreSqlite {
         } else {
             Ok(true)
         }
+    }
+
+    async fn show(&mut self) -> Result<NcubeConfig, DataStoreError> {
+        let conn = self.pool.get()?;
+        let mut stmt = conn.prepare(include_str!("../sql/sqlite/show_ncube_config.sql"))?;
+
+        let config_iter = from_rows::<ConfigSetting>(stmt.query(NO_PARAMS)?);
+
+        let mut ncube_config: NcubeConfig = vec![];
+
+        for setting in config_iter {
+            ncube_config.push(setting?);
+        }
+
+        Ok(ncube_config)
     }
 }

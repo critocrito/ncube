@@ -36,6 +36,10 @@ async fn wait_msgs(mut rx: Receiver<()>, mut ncube: Ncube) -> Result<()> {
     while let Some(_i) = rx.recv().await {
         // FIXME: This is just a dummy to test that the DB connection works.
         let _collections = ncube.ncube_store.list_collections().await?;
+        let is_bootstrapped = ncube.ncube_store.is_bootstrapped().await?;
+        let cfg = ncube.ncube_store.show().await?;
+        println!("Bootstrapped: {}", is_bootstrapped);
+        println!("{:?}", cfg);
     }
     Ok(())
 }
