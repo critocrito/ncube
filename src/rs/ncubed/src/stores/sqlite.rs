@@ -2,8 +2,7 @@ use async_trait::async_trait;
 use ncube_data::{Collection, ConfigSetting, NcubeConfig};
 use r2d2::{self, Pool};
 use r2d2_sqlite::SqliteConnectionManager;
-use refinery_migrations;
-use rusqlite::{self, params, Connection, NO_PARAMS};
+use rusqlite::{self, Connection, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 
 use crate::errors::DataStoreError;
@@ -12,34 +11,6 @@ use crate::stores::NcubeStore;
 mod embedded {
     use refinery::embed_migrations;
     embed_migrations!("migrations");
-}
-
-// FIXME: Handle error cases and reasons
-impl From<r2d2::Error> for DataStoreError {
-    fn from(_: r2d2::Error) -> DataStoreError {
-        DataStoreError::FailedConnection
-    }
-}
-
-// FIXME: Handle error cases and reasons
-impl From<rusqlite::Error> for DataStoreError {
-    fn from(_: rusqlite::Error) -> DataStoreError {
-        DataStoreError::FailedConnection
-    }
-}
-
-// FIXME: Handle error cases and reasons
-impl From<serde_rusqlite::error::Error> for DataStoreError {
-    fn from(_: serde_rusqlite::Error) -> DataStoreError {
-        DataStoreError::Serialization
-    }
-}
-
-// FIXME: Handle error cases and reasons
-impl From<refinery_migrations::Error> for DataStoreError {
-    fn from(_: refinery_migrations::Error) -> DataStoreError {
-        DataStoreError::Upgrade
-    }
 }
 
 pub struct NcubeStoreSqlite {
@@ -68,12 +39,7 @@ impl NcubeStore for NcubeStoreSqlite {
         let conn = self.pool.get()?;
         let mut stmt = conn.prepare(include_str!("../sql/sqlite/list_collections.sql"))?;
 
-        let collections_iter = stmt.query_map(params![], |row| {
-            Ok(Collection {
-                id: row.get(0)?,
-                title: row.get(1)?,
-            })
-        })?;
+        let collections_iter = from_rows::<Collection>(stmt.query(NO_PARAMS)?);
 
         let mut collections: Vec<Collection> = vec![];
         for collection in collections_iter {
@@ -87,7 +53,7 @@ impl NcubeStore for NcubeStoreSqlite {
         let conn = self.pool.get()?;
         let result: i32 = conn.query_row(
             include_str!("../sql/sqlite/is_bootstrapped.sql"),
-            params![],
+            NO_PARAMS,
             |row| row.get(0),
         )?;
 
@@ -105,7 +71,6 @@ impl NcubeStore for NcubeStoreSqlite {
         let config_iter = from_rows::<ConfigSetting>(stmt.query(NO_PARAMS)?);
 
         let mut ncube_config: NcubeConfig = vec![];
-
         for setting in config_iter {
             ncube_config.push(setting?);
         }

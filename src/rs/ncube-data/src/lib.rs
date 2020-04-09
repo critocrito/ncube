@@ -3,7 +3,7 @@ pub struct Ncube;
 
 pub trait NcubeEntity {}
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Collection {
     pub id: i32,
     pub title: String,
@@ -11,13 +11,13 @@ pub struct Collection {
     // pub data_segments: Vec<DataSegment>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Investigation {
     pub id: i32,
     pub title: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct DataSegment {
     pub id: i32,
     pub title: String,
