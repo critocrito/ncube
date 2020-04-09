@@ -43,3 +43,11 @@ impl From<RefineryMigrationsError> for DataStoreError {
         DataStoreError::Upgrade
     }
 }
+
+#[derive(Error, Debug)]
+pub enum RouteRejection {
+    #[error("channel was dropped")]
+    ChannelError,
+    #[error("failed to fetch data")]
+    DataError,
+}
