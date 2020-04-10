@@ -13,6 +13,7 @@ mod embedded {
     embed_migrations!("migrations");
 }
 
+#[derive(Debug)]
 pub struct NcubeStoreSqlite {
     db_path: String,
     pool: Pool<SqliteConnectionManager>,
@@ -78,7 +79,7 @@ impl NcubeStore for NcubeStoreSqlite {
         Ok(ncube_config)
     }
 
-    async fn insert(&mut self, name: &String, value: &String) -> Result<(), DataStoreError> {
+    async fn insert(&mut self, name: &str, value: &str) -> Result<(), DataStoreError> {
         let conn = self.pool.get()?;
         let setting_id: i32 = conn.query_row(
             include_str!("../sql/sqlite/setting_exists.sql"),

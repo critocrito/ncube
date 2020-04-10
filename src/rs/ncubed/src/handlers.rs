@@ -12,19 +12,18 @@ pub mod ncube_config {
     ) -> Result<impl warp::Reply, warp::Rejection> {
         let (tx, rx) = oneshot::channel();
 
-        let _ = s
-            .send(NcubeStoreCmd::IsBootstrapped(tx))
+        s.send(NcubeStoreCmd::IsBootstrapped(tx))
             .await
             .map_err(|_| RouteRejection::ChannelError)?;
 
         if let Ok(false) = rx.await.map_err(|_| RouteRejection::ChannelError)? {
+            // FIXME: This actually triggers a Method Not Allowed.
             return Err(warp::reject::not_found());
         }
 
         let (tx, rx) = oneshot::channel();
 
-        let _ = s
-            .send(NcubeStoreCmd::ShowConfig(tx))
+        s.send(NcubeStoreCmd::ShowConfig(tx))
             .await
             .map_err(|_| RouteRejection::ChannelError)?;
 
@@ -42,8 +41,7 @@ pub mod ncube_config {
     ) -> Result<impl warp::Reply, warp::Rejection> {
         let (tx, rx) = oneshot::channel();
 
-        let _ = s
-            .send(NcubeStoreCmd::IsBootstrapped(tx))
+        s.send(NcubeStoreCmd::IsBootstrapped(tx))
             .await
             .map_err(|_| RouteRejection::ChannelError)?;
 
@@ -54,14 +52,13 @@ pub mod ncube_config {
         for setting in settings {
             let (tx, _rx) = oneshot::channel();
 
-            let _ = s
-                .send(NcubeStoreCmd::InsertSetting(
-                    tx,
-                    setting.name,
-                    setting.value,
-                ))
-                .await
-                .map_err(|_| RouteRejection::ChannelError)?;
+            s.send(NcubeStoreCmd::InsertSetting(
+                tx,
+                setting.name,
+                setting.value,
+            ))
+            .await
+            .map_err(|_| RouteRejection::ChannelError)?;
         }
 
         Ok(warp::reply())
@@ -73,8 +70,7 @@ pub mod ncube_config {
     ) -> Result<impl warp::Reply, warp::Rejection> {
         let (tx, rx) = oneshot::channel();
 
-        let _ = s
-            .send(NcubeStoreCmd::IsBootstrapped(tx))
+        s.send(NcubeStoreCmd::IsBootstrapped(tx))
             .await
             .map_err(|_| RouteRejection::ChannelError)?;
 
@@ -85,14 +81,13 @@ pub mod ncube_config {
         for setting in settings {
             let (tx, _rx) = oneshot::channel();
 
-            let _ = s
-                .send(NcubeStoreCmd::InsertSetting(
-                    tx,
-                    setting.name,
-                    setting.value,
-                ))
-                .await
-                .map_err(|_| RouteRejection::ChannelError)?;
+            s.send(NcubeStoreCmd::InsertSetting(
+                tx,
+                setting.name,
+                setting.value,
+            ))
+            .await
+            .map_err(|_| RouteRejection::ChannelError)?;
         }
 
         Ok(warp::reply())

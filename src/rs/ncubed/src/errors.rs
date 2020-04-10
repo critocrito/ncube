@@ -55,4 +55,6 @@ pub enum RouteRejection {
     ChannelError,
     #[error("failed to fetch data")]
     DataError,
+    #[error("resource not found")]
+    NotFound,
 }

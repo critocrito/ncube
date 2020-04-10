@@ -39,7 +39,6 @@ pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, 
     let code;
     let message;
 
-    eprintln!("{:?}", err);
     if err.is_not_found() {
         code = StatusCode::NOT_FOUND;
         message = "NOT_FOUND";
@@ -49,7 +48,7 @@ pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, 
     } else if let Some(RouteRejection::DataError) = err.find() {
         code = StatusCode::BAD_REQUEST;
         message = "data error";
-    } else if let Some(_) = err.find::<warp::reject::MethodNotAllowed>() {
+    } else if err.find::<warp::reject::MethodNotAllowed>().is_some() {
         code = StatusCode::METHOD_NOT_ALLOWED;
         message = "METHOD_NOT_ALLOWED";
     } else {
@@ -111,8 +110,6 @@ pub mod ncube_config {
     pub fn routes(
         tx: Sender<NcubeStoreCmd>,
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        show(tx.clone())
-            .or(create(tx.clone()))
-            .or(update(tx.clone()))
+        show(tx.clone()).or(create(tx.clone())).or(update(tx))
     }
 }

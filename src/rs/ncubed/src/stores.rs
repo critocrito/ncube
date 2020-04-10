@@ -11,5 +11,5 @@ pub trait NcubeStore {
     async fn list_collections(&mut self) -> Result<Vec<Collection>, DataStoreError>;
     async fn is_bootstrapped(&mut self) -> Result<bool, DataStoreError>;
     async fn show(&mut self) -> Result<NcubeConfig, DataStoreError>;
-    async fn insert(&mut self, name: &String, value: &String) -> Result<(), DataStoreError>;
+    async fn insert(&mut self, name: &str, value: &str) -> Result<(), DataStoreError>;
 }
