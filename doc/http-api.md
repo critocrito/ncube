@@ -53,3 +53,4 @@ all errors.
 
 * [Show Ncube Configuration](http-api/ncube/get.md) `GET /`
 * [Bootstrap Ncube](http-api/ncube/post.md) `POST /`
+* [Update Ncube Configuration](http-api/ncube/put.md) `PUT /`

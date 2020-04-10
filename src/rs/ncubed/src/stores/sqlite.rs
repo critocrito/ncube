@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use ncube_data::{Collection, ConfigSetting, NcubeConfig};
 use r2d2::{self, Pool};
 use r2d2_sqlite::SqliteConnectionManager;
-use rusqlite::{self, Connection, NO_PARAMS};
+use rusqlite::{self, params, Connection, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 
 use crate::errors::DataStoreError;
@@ -76,5 +76,21 @@ impl NcubeStore for NcubeStoreSqlite {
         }
 
         Ok(ncube_config)
+    }
+
+    async fn insert(&mut self, name: &String, value: &String) -> Result<(), DataStoreError> {
+        let conn = self.pool.get()?;
+        let setting_id: i32 = conn.query_row(
+            include_str!("../sql/sqlite/setting_exists.sql"),
+            params![&name],
+            |row| row.get(0),
+        )?;
+
+        conn.execute(
+            include_str!("../sql/sqlite/create_ncube_config.sql"),
+            params![&setting_id, &value],
+        )?;
+
+        Ok(())
     }
 }

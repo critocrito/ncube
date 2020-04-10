@@ -3,5 +3,5 @@ INSERT INTO ncube_config (
   setting,
   value
 ) VALUES
-(2, 'alice')
+(?1, ?2)
 ON CONFLICT(setting) DO UPDATE SET value=excluded.value;

@@ -14,6 +14,8 @@ pub enum DataStoreError {
     Serialization,
     #[error("record not found")]
     NotFound,
+    #[error("invalid")]
+    Invalid,
 }
 
 // FIXME: Handle error cases and reasons
@@ -25,8 +27,11 @@ impl From<R2d2Error> for DataStoreError {
 
 // FIXME: Handle error cases and reasons
 impl From<RusqliteError> for DataStoreError {
-    fn from(_: RusqliteError) -> DataStoreError {
-        DataStoreError::FailedConnection
+    fn from(e: RusqliteError) -> DataStoreError {
+        match e {
+            RusqliteError::QueryReturnedNoRows => DataStoreError::Invalid,
+            _ => DataStoreError::FailedConnection,
+        }
     }
 }
 

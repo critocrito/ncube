@@ -10,6 +10,7 @@
 
 ## Installation
 
+No packages are available at this point. Ncube needs to be build from source.
 Make sure to have a recent version of [Rust](https://www.rust-lang.org/)
 installed. [Rustup](https://rustup.rs/) is a great way to do so.
 
@@ -30,7 +31,17 @@ In another terminal start the UI:
 cargo run --bin ncube
 ```
 
-To generate the architecture diagrams install
+## Documentation
+
+All documentation can be [found in the `doc`](doc) directory.
+
+The HTTP endpoints of `ncubed` are described in the [HTTP API
+documentation](doc/http-api.md).
+
+The architecture choices for Ncube are described as a series of [architecture
+decision
+records](https://www.thoughtworks.com/de/radar/techniques/lightweight-architecture-decision-records).
+They are supported with a series of [diagrams](doc/diagrams/ncube). To re-generate the architecture diagrams install
 [`fc4`](https://fundingcircle.github.io/fc4-framework/docs/get-started) and
 regenerate the images:
 

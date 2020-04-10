@@ -1,6 +1,6 @@
 # Bootstrap Ncube
 
-Create the initial configuration of the Ncube host application.
+Create the initial configuration (bootstrap) of the Ncube host application.
 
 **URL** : `/`
 
@@ -13,11 +13,10 @@ Create the initial configuration of the Ncube host application.
 **Data**
 
 ```json
-{
-    "workspace_root": "String",
-    "name": "String, Optional",
-    "email": "String, Optional"
-}
+[
+    {"name": "workspace_root", "value": "~/ncubed"},
+    {"name": "email", "value": "alice@example.org"}
+]
 ```
 
 **Example Request**
@@ -26,11 +25,10 @@ Create the initial configuration of the Ncube host application.
 POST /
 Content-Type: application/json
 
-{
-    "workspace_root": "~/ncube",
-    "name": "Christo",
-    "email": "christo@cryptodrunks.net"
-}
+[
+    {"name": "workspace_root", "value": "~/ncubed"},
+    {"name": "email", "value": "alice@example.org"}
+]
 ```
 
 ## Success Response
@@ -57,3 +55,8 @@ Data provided fails the validation.
     }
 }
 ```
+
+### `405 Method Not Allowed`
+
+Ncube can be bootstrapped only once. Attempting to bootstrap Ncube multiple
+times lead to this error.
