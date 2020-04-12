@@ -1,8 +1,9 @@
-use crate::errors::RouteRejection;
-use crate::services::NcubeStoreCmd;
-use ncubed::types::NcubeConfigRequest;
 use tokio::sync::{mpsc, oneshot};
 use warp;
+
+use crate::errors::RouteRejection;
+use crate::services::NcubeStoreCmd;
+use crate::types::NcubeConfigRequest;
 
 pub mod ncube_config {
     use super::*;

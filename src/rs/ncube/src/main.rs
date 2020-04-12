@@ -1,7 +1,27 @@
+use ncubed::{Config, Ncube};
+use std::thread;
+use tokio::runtime;
 use web_view::*;
 
 fn main() {
-    let port = 40666;
+    let port: i32 = 40666;
+
+    // FIXME: supply config from command args/environment/config file
+    let config = Config {
+        ncube_db_path: "ncube.db".into(),
+    };
+
+    thread::spawn(move || {
+        let mut rt = runtime::Builder::new()
+            .threaded_scheduler()
+            .enable_all()
+            .build()
+            .unwrap();
+        rt.block_on(async {
+            let mut ncube = Ncube::new(config).await.unwrap();
+            ncube.run().await.unwrap();
+        });
+    });
 
     web_view::builder()
         .title("Ncube")

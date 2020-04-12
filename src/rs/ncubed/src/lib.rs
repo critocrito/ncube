@@ -3,5 +3,12 @@
 #![cfg_attr(test, deny(warnings))]
 
 pub mod errors;
+pub(crate) mod filters;
+pub(crate) mod handlers;
+pub mod ncube;
+pub(crate) mod services;
 pub mod stores;
-pub mod types;
+pub(crate) mod types;
+
+pub use self::ncube::Config;
+pub use self::ncube::Ncube;

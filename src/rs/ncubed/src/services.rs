@@ -1,5 +1,5 @@
 use crate::errors::DataStoreError;
-use crate::ncube::Ncube;
+use crate::stores::NcubeStore;
 use anyhow::Result;
 use ncube_data::NcubeConfig;
 use tokio::sync::{mpsc, oneshot};
@@ -11,13 +11,13 @@ pub enum NcubeStoreCmd {
     InsertSetting(oneshot::Sender<Result<(), DataStoreError>>, String, String),
 }
 
-pub async fn ncube_store_service(
+pub async fn ncube_store_service<T: NcubeStore>(
     mut rx: mpsc::Receiver<NcubeStoreCmd>,
-    mut ncube: Ncube,
+    mut ncube_store: T,
 ) -> Result<()> {
     while let Some(cmd) = rx.recv().await {
         match cmd {
-            NcubeStoreCmd::IsBootstrapped(tx) => match ncube.ncube_store.is_bootstrapped().await {
+            NcubeStoreCmd::IsBootstrapped(tx) => match ncube_store.is_bootstrapped().await {
                 Ok(is_bootstrapped) => {
                     let _ = tx.send(Ok(is_bootstrapped));
                 }
@@ -25,7 +25,7 @@ pub async fn ncube_store_service(
                     let _ = tx.send(Err(err));
                 }
             },
-            NcubeStoreCmd::ShowConfig(tx) => match ncube.ncube_store.show().await {
+            NcubeStoreCmd::ShowConfig(tx) => match ncube_store.show().await {
                 Ok(config) => {
                     let _ = tx.send(Ok(config));
                 }
@@ -34,7 +34,7 @@ pub async fn ncube_store_service(
                 }
             },
             NcubeStoreCmd::InsertSetting(tx, name, value) => {
-                match ncube.ncube_store.insert(&name, &value).await {
+                match ncube_store.insert(&name, &value).await {
                     Ok(()) => {
                         let _ = tx.send(Ok(()));
                     }
