@@ -41,7 +41,8 @@ documentation](doc/http-api.md).
 The architecture choices for Ncube are described as a series of [architecture
 decision
 records](https://www.thoughtworks.com/de/radar/techniques/lightweight-architecture-decision-records).
-They are supported with a series of [diagrams](doc/diagrams/ncube). To re-generate the architecture diagrams install
+They are supported with a series of [diagrams](doc/diagrams/ncube). To
+re-generate the architecture diagrams install
 [`fc4`](https://fundingcircle.github.io/fc4-framework/docs/get-started) and
 regenerate the images:
 
