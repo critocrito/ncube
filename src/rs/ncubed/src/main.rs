@@ -36,17 +36,6 @@ async fn quit_signal(mut rx: Receiver<()>) {
     println!("Quitting!");
 }
 
-async fn run(cfg: Config) -> Result<Ncube> {
-    let mut ncube = Ncube::new(cfg).await?;
-    ncube.ncube_store.upgrade()?;
-
-    ncube
-        .ncube_store
-        .insert(&"email".to_string(), &"haha@example.com".to_string())
-        .await?;
-    Ok(ncube)
-}
-
 #[tokio::main]
 async fn main() {
     // FIXME: supply config from command args/environment/config file
@@ -54,7 +43,8 @@ async fn main() {
         ncube_db_path: "ncube.db".into(),
     };
 
-    let ncube = run(config).await.unwrap();
+    let mut ncube = Ncube::new(config).await.unwrap();
+    ncube.run().await.unwrap();
 
     let (tx, rx) = mpsc::channel(1);
     let (tx1, rx1) = mpsc::channel(1);

@@ -13,6 +13,14 @@ impl Ncube {
             ncube_store: Box::new(ncube_store),
         })
     }
+
+    pub async fn run(&mut self) -> Result<()> {
+        self.ncube_store.upgrade()?;
+        self.ncube_store
+            .insert(&"email".to_string(), &"haha@example.com".to_string())
+            .await?;
+        Ok(())
+    }
 }
 
 pub struct Config {
