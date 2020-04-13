@@ -1,8 +1,10 @@
-use crate::errors::DataStoreError;
-use crate::stores::NcubeStore;
 use anyhow::Result;
 use ncube_data::NcubeConfig;
+use std::fmt::Debug;
 use tokio::sync::{mpsc, oneshot};
+
+use crate::errors::DataStoreError;
+use crate::stores::NcubeStore;
 
 #[derive(Debug)]
 pub enum NcubeStoreCmd {
@@ -11,10 +13,13 @@ pub enum NcubeStoreCmd {
     InsertSetting(oneshot::Sender<Result<(), DataStoreError>>, String, String),
 }
 
-pub async fn ncube_store_service<T: NcubeStore>(
+pub async fn ncube_store_service<T>(
     mut rx: mpsc::Receiver<NcubeStoreCmd>,
     mut ncube_store: T,
-) -> Result<()> {
+) -> Result<()>
+where
+    T: NcubeStore + Debug,
+{
     while let Some(cmd) = rx.recv().await {
         match cmd {
             NcubeStoreCmd::IsBootstrapped(tx) => match ncube_store.is_bootstrapped().await {

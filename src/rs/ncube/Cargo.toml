@@ -9,6 +9,9 @@ edition = "2018"
 [dependencies]
 futures = "0.3.4"
 tokio = { version = "0.2", features = ["macros", "rt-threaded", "sync", "time"] }
+tracing = "0.1"
+tracing-futures = "0.2"
+tracing-subscriber = "0.2"
 web-view = { version = "0.5.4" }
 
 ncubed = { path = "../ncubed" }

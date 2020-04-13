@@ -1,6 +1,8 @@
 use ncubed::{Config, Ncube};
 use std::thread;
 use tokio::runtime;
+use tracing::Level;
+use tracing_subscriber;
 use web_view::*;
 
 fn main() {
@@ -10,6 +12,8 @@ fn main() {
     let config = Config {
         ncube_db_path: "ncube.db".into(),
     };
+
+    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
 
     thread::spawn(move || {
         let mut rt = runtime::Builder::new()

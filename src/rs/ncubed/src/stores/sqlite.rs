@@ -4,6 +4,7 @@ use r2d2::{self, Pool};
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::{self, params, Connection, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
+use std::fmt::{self, Debug};
 
 use crate::errors::DataStoreError;
 use crate::stores::NcubeStore;
@@ -13,7 +14,6 @@ mod embedded {
     embed_migrations!("migrations");
 }
 
-#[derive(Debug)]
 pub struct NcubeStoreSqlite {
     db_path: String,
     pool: Pool<SqliteConnectionManager>,
@@ -25,6 +25,14 @@ impl NcubeStoreSqlite {
         let pool = r2d2::Pool::new(manager)?;
 
         Ok(NcubeStoreSqlite { db_path, pool })
+    }
+}
+
+impl Debug for NcubeStoreSqlite {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("NcubeStoreSqlite")
+            .field("db_path", &self.db_path)
+            .finish()
     }
 }
 
