@@ -35,7 +35,8 @@ impl Ncube {
         let ncube_store_srv = ncube_store_service(rx, ncube_store);
         let static_assets = warp::get()
             .and(warp::path::end())
-            .and(warp::fs::file("./public/index.html"));
+            .map(|| include_str!("../../../../resources/dist/index.html"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "text/html"));
         let routes = static_assets.or(warp::path!("api")
             .and(filters::ncube_config::routes(tx).recover(filters::handle_rejection))
             .with(log));

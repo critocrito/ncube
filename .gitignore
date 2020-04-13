@@ -2,3 +2,5 @@
 Cargo.lock
 ncube.db*
 .DS_Store
+*.dmg
+Ncube

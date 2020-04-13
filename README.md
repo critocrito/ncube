@@ -50,6 +50,15 @@ regenerate the images:
 fc4 -fsr doc/diagrams
 ```
 
+## Building App
+
+At the current stage only MacOS DMG images can be build. It depends on
+[`create-dmg`](https://github.com/andreyvit/create-dmg).
+
+``` sh
+rm -rf target && ./scripts/build_macos.sh
+```
+
 ## License
 
 All code is copyrighted by *christo@cryptodrunks.net* and licensed under the [GPL3](https://www.gnu.org/licenses/gpl-3.0.html). 
