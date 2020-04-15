@@ -1,12 +1,12 @@
 use anyhow::Result;
-use futures::join;
 use std::fmt;
-use tokio::{self, sync::mpsc};
 use tracing::info;
 use warp::Filter;
+use xactor::Actor;
 
+use crate::actors::NcubeActor;
 use crate::filters;
-use crate::services::ncube_store_service;
+use crate::registry::Registry;
 use crate::stores::{sqlite::NcubeStoreSqlite, NcubeStore};
 
 pub struct Ncube {
@@ -31,18 +31,18 @@ impl Ncube {
 
         ncube_store.upgrade()?;
 
-        let (tx, rx) = mpsc::channel(100);
-        let ncube_store_srv = ncube_store_service(rx, ncube_store);
+        let ncube_actor = NcubeActor::new(ncube_store).start().await;
+        NcubeActor::register_once(ncube_actor).await;
+
         let static_assets = warp::get()
             .and(warp::path::end())
             .map(|| include_str!("../../../../resources/dist/index.html"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/html"));
         let routes = static_assets.or(warp::path!("api")
-            .and(filters::ncube_config::routes(tx).recover(filters::handle_rejection))
+            .and(filters::ncube_config::routes().recover(filters::handle_rejection))
             .with(log));
-        let server = warp::serve(routes).run(([127, 0, 0, 1], 40666));
+        let _ = warp::serve(routes).run(([127, 0, 0, 1], 40666)).await;
 
-        let _ = join!(server, ncube_store_srv);
         Ok(())
     }
 }

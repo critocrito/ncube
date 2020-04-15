@@ -1,12 +1,9 @@
 use serde::Serialize;
 use std::convert::Infallible;
-use tokio::sync::mpsc::{error::SendError, Sender};
-
 use warp::{http::StatusCode, Filter};
 
 use crate::errors::{DataStoreError, RouteRejection};
 use crate::handlers;
-use crate::services::NcubeStoreCmd;
 
 /// An API error serializable to JSON.
 #[derive(Serialize)]
@@ -20,12 +17,6 @@ impl warp::reject::Reject for RouteRejection {}
 impl From<RouteRejection> for warp::Rejection {
     fn from(rejection: RouteRejection) -> warp::Rejection {
         warp::reject::custom(rejection)
-    }
-}
-
-impl From<SendError<NcubeStoreCmd>> for RouteRejection {
-    fn from(_: SendError<NcubeStoreCmd>) -> RouteRejection {
-        RouteRejection::ChannelError
     }
 }
 
@@ -66,50 +57,33 @@ pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, 
     Ok(warp::reply::with_status(json, code))
 }
 
-fn with_ncube_store(
-    tx: Sender<NcubeStoreCmd>,
-) -> impl Filter<Extract = (Sender<NcubeStoreCmd>,), Error = Infallible> + Clone {
-    warp::any().map(move || tx.clone())
-}
-
 pub mod ncube_config {
     use super::*;
 
-    fn show(
-        tx: Sender<NcubeStoreCmd>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    fn show() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::get()
             .and(warp::path::end())
-            .and(with_ncube_store(tx))
             .and_then(handlers::ncube_config::show)
     }
 
-    fn create(
-        tx: Sender<NcubeStoreCmd>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    fn create() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::post()
             .and(warp::path::end())
             .and(warp::body::json())
-            .and(with_ncube_store(tx))
             .and_then(handlers::ncube_config::create)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
             .map(|reply| warp::reply::with_header(reply, "location", "/"))
     }
 
-    fn update(
-        tx: Sender<NcubeStoreCmd>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    fn update() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::put()
             .and(warp::path::end())
             .and(warp::body::json())
-            .and(with_ncube_store(tx))
             .and_then(handlers::ncube_config::insert)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT))
     }
 
-    pub fn routes(
-        tx: Sender<NcubeStoreCmd>,
-    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        show(tx.clone()).or(create(tx.clone())).or(update(tx))
+    pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        show().or(create()).or(update())
     }
 }

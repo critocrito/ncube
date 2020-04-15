@@ -1,34 +1,28 @@
-use tokio::sync::{mpsc, oneshot};
 use warp;
 
+use crate::actors::NcubeActor;
 use crate::errors::RouteRejection;
-use crate::services::NcubeStoreCmd;
+use crate::messages::{InsertSetting, IsBootstrapped, ShowConfig};
+use crate::registry::Registry;
+
 use crate::types::NcubeConfigRequest;
 
 pub mod ncube_config {
     use super::*;
 
-    pub async fn show(
-        mut s: mpsc::Sender<NcubeStoreCmd>,
-    ) -> Result<impl warp::Reply, warp::Rejection> {
-        let (tx, rx) = oneshot::channel();
+    pub async fn show() -> Result<impl warp::Reply, warp::Rejection> {
+        let mut actor = NcubeActor::from_registry().await.unwrap();
 
-        s.send(NcubeStoreCmd::IsBootstrapped(tx))
+        if let Ok(false) = actor
+            .call(IsBootstrapped)
             .await
-            .map_err(|_| RouteRejection::ChannelError)?;
-
-        if let Ok(false) = rx.await.map_err(|_| RouteRejection::ChannelError)? {
-            // FIXME: This actually triggers a Method Not Allowed.
+            .map_err(|_| RouteRejection::ChannelError)?
+        {
             return Err(warp::reject::not_found());
         }
 
-        let (tx, rx) = oneshot::channel();
-
-        s.send(NcubeStoreCmd::ShowConfig(tx))
-            .await
-            .map_err(|_| RouteRejection::ChannelError)?;
-
-        let config = rx
+        let config = actor
+            .call(ShowConfig)
             .await
             .map_err(|_| RouteRejection::ChannelError)?
             .map_err(|_| RouteRejection::DataError)?;
@@ -36,59 +30,49 @@ pub mod ncube_config {
         Ok(warp::reply::json(&config))
     }
 
-    pub async fn create(
-        settings: NcubeConfigRequest,
-        mut s: mpsc::Sender<NcubeStoreCmd>,
-    ) -> Result<impl warp::Reply, warp::Rejection> {
-        let (tx, rx) = oneshot::channel();
+    pub async fn create(settings: NcubeConfigRequest) -> Result<impl warp::Reply, warp::Rejection> {
+        let mut actor = NcubeActor::from_registry().await.unwrap();
 
-        s.send(NcubeStoreCmd::IsBootstrapped(tx))
+        if let Ok(true) = actor
+            .call(IsBootstrapped)
             .await
-            .map_err(|_| RouteRejection::ChannelError)?;
-
-        if let Ok(true) = rx.await.map_err(|_| RouteRejection::ChannelError)? {
+            .map_err(|_| RouteRejection::ChannelError)?
+        {
             return Err(warp::reject());
         }
 
         for setting in settings {
-            let (tx, _rx) = oneshot::channel();
-
-            s.send(NcubeStoreCmd::InsertSetting(
-                tx,
-                setting.name,
-                setting.value,
-            ))
-            .await
-            .map_err(|_| RouteRejection::ChannelError)?;
+            let _ = actor
+                .call(InsertSetting::new(
+                    setting.name.to_string(),
+                    setting.value.to_string(),
+                ))
+                .await
+                .map_err(|_| RouteRejection::ChannelError)?;
         }
 
         Ok(warp::reply())
     }
 
-    pub async fn insert(
-        settings: NcubeConfigRequest,
-        mut s: mpsc::Sender<NcubeStoreCmd>,
-    ) -> Result<impl warp::Reply, warp::Rejection> {
-        let (tx, rx) = oneshot::channel();
+    pub async fn insert(settings: NcubeConfigRequest) -> Result<impl warp::Reply, warp::Rejection> {
+        let mut actor = NcubeActor::from_registry().await.unwrap();
 
-        s.send(NcubeStoreCmd::IsBootstrapped(tx))
+        if let Ok(false) = actor
+            .call(IsBootstrapped)
             .await
-            .map_err(|_| RouteRejection::ChannelError)?;
-
-        if let Ok(false) = rx.await.map_err(|_| RouteRejection::ChannelError)? {
+            .map_err(|_| RouteRejection::ChannelError)?
+        {
             return Err(warp::reject());
         }
 
         for setting in settings {
-            let (tx, _rx) = oneshot::channel();
-
-            s.send(NcubeStoreCmd::InsertSetting(
-                tx,
-                setting.name,
-                setting.value,
-            ))
-            .await
-            .map_err(|_| RouteRejection::ChannelError)?;
+            let _ = actor
+                .call(InsertSetting::new(
+                    setting.name.to_string(),
+                    setting.value.to_string(),
+                ))
+                .await
+                .map_err(|_| RouteRejection::ChannelError)?;
         }
 
         Ok(warp::reply())
