@@ -39,8 +39,6 @@ echo "Creating dmg"
 mkdir "$MACOS_APP_NAME"
 mv "$MACOS_APP_DIR" "$MACOS_APP_NAME"
 ln -s /Applications "$MACOS_APP_NAME/Applications"
-cp -r "$RESOURCES/dmg_background.png" "$MACOS_APP_NAME/.ncube.png"
-cp -r "$RESOURCES/DS_STORE" "$MACOS_APP_NAME/.DS_STORE"
 rm -rf "$MACOS_APP_NAME/.Trashes"
 
 FULL_NAME="$MACOS_APP_NAME-$OS-$MACHINE"
