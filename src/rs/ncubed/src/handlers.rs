@@ -18,7 +18,11 @@ pub mod ncube_config {
             .await
             .map_err(|_| RouteRejection::ChannelError)?
         {
-            return Err(warp::reject::not_found());
+            // warp::reject::not_found() returns a 405 Method Not Allowed status
+            // code. To ensure a 404 Not Found I create a custom rejection
+            // error (RouteRejection::NotFound).
+            // See: https://github.com/seanmonstar/warp/issues/77
+            return Err(warp::reject::custom(RouteRejection::NotFound));
         }
 
         let config = actor

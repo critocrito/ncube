@@ -30,9 +30,16 @@ pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, 
     let code;
     let message;
 
+    // warp::reject::not_found() returns a 405 Method Not Allowed status
+    // code. To ensure a 404 Not Found I create a custom rejection
+    // error (RouteRejection::NotFound).
+    // See: https://github.com/seanmonstar/warp/issues/77
     if err.is_not_found() {
         code = StatusCode::NOT_FOUND;
         message = "NOT_FOUND";
+    } else if let Some(RouteRejection::NotFound) = err.find() {
+        code = StatusCode::NOT_FOUND;
+        message = "NOT FOUND";
     } else if let Some(RouteRejection::ChannelError) = err.find() {
         code = StatusCode::INTERNAL_SERVER_ERROR;
         message = "channel error";
