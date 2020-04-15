@@ -3,4 +3,7 @@ Cargo.lock
 ncube.db*
 .DS_Store
 *.dmg
-Ncube
+.cpcache
+.nrepl-port
+resources/dist/*
+!.keep

@@ -11,6 +11,9 @@
 ## Installation
 
 No packages are available at this point. Ncube needs to be build from source.
+
+### Backend
+
 Make sure to have a recent version of [Rust](https://www.rust-lang.org/)
 installed. [Rustup](https://rustup.rs/) is a great way to do so.
 
@@ -29,6 +32,15 @@ In another terminal start the UI:
 
 ``` sh
 cargo run --bin ncube
+```
+
+### UI
+
+The UI is developed in Clojurescript and therefore requires Java and [Clojure](https://clojure.org/guides/getting_started
+). To build the UI run:
+
+``` sh
+make build
 ```
 
 ## Documentation
