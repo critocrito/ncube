@@ -7,9 +7,8 @@ use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
 use xactor::{Actor, Addr};
 
-static REGISTRY: OnceCell<
-    Mutex<HashMap<TypeId, Box<dyn Any + Send>, BuildHasherDefault<FnvHasher>>>,
-> = OnceCell::new();
+type ActorRegistry = HashMap<TypeId, Box<dyn Any + Send>, BuildHasherDefault<FnvHasher>>;
+static REGISTRY: OnceCell<Mutex<ActorRegistry>> = OnceCell::new();
 
 /// Create a global registry for actors. This registry stores at most one instance of an actor.
 ///
@@ -40,8 +39,8 @@ pub(crate) trait Registry: Actor {
     ///
     /// Actors can only be registered once. This function panics if one tries to register the same actor twice.
     ///
-    async fn register_once(addr: Addr<Self>) -> () {
-        let registry = REGISTRY.get_or_init(|| Default::default());
+    async fn register_once(addr: Addr<Self>) {
+        let registry = REGISTRY.get_or_init(Default::default);
         let mut registry = registry.lock().await;
 
         match registry.get_mut(&TypeId::of::<Self>()) {
@@ -54,7 +53,7 @@ pub(crate) trait Registry: Actor {
     }
 
     async fn from_registry() -> Option<Addr<Self>> {
-        let registry = REGISTRY.get_or_init(|| Default::default());
+        let registry = REGISTRY.get_or_init(Default::default);
         let mut registry = registry.lock().await;
 
         registry

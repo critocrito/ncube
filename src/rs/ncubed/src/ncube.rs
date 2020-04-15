@@ -41,7 +41,8 @@ impl Ncube {
         let routes = static_assets.or(warp::path!("api")
             .and(filters::ncube_config::routes().recover(filters::handle_rejection))
             .with(log));
-        let _ = warp::serve(routes).run(([127, 0, 0, 1], 40666)).await;
+
+        warp::serve(routes).run(([127, 0, 0, 1], 40666)).await;
 
         Ok(())
     }
