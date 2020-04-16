@@ -5,5 +5,5 @@ ncube.db*
 *.dmg
 .cpcache
 .nrepl-port
-resources/dist/*
+/resources/dist
 !.keep

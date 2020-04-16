@@ -40,8 +40,26 @@ The UI is developed in Clojurescript and therefore requires Java and [Clojure](h
 ). To build the UI run:
 
 ``` sh
-make build
+make
 ```
+
+This creates a production version of the UI in `resources/dist`.
+
+The Clojurescript development environment is based on
+[Figwheel](https://figwheel.org/). To start a development REPL run:
+
+``` sh
+make dev
+```
+
+This opens the browser at port 9500 on `localhost`. The tests can be inspected
+on `http://localhost:9500/figwheel-extra-main/auto-testing`. This project
+provides [`devcards`](https://github.com/bhauman/devcards/) to display its
+design system. They can be inspected at
+`http://localhost:9500/figwheel-extra-main/devcards`.
+
+A standalone version of `devcards` is build when compiling the production
+distribution (`make/make build`). The output directory is `resources/dist`.
 
 ## Documentation
 

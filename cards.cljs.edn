@@ -1,0 +1,3 @@
+^{:open-url "http://localhost:[[server-port]]/devcards.html"}
+{:main ncube.cards
+ :devcards true}

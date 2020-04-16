@@ -2,23 +2,34 @@
 
 all: build
 
+dist:
+	mkdir resources/dist
+
 clean:
-	rm -f target/public/cljs-out/prod-main.js
-	rm -f resources/dist/app.js
-	rm -f resources/dist/index.html
+	rm -rf target/public
+	rm -rf resources/dist
 
 target/public/cljs-out/prod-main.js:
 	clojure -A:fig-deps:prod-deps:min
 
-resources/dist/app.js: target/public/cljs-out/prod-main.js
+target/public/cljs-out/cards-main.js:
+	clojure -A:fig-deps:prod-deps:cards-deps:cards
+
+resources/dist/app.js: dist target/public/cljs-out/prod-main.js
 	cp target/public/cljs-out/prod-main.js resources/dist/app.js
 
-resources/dist/index.html:
+resources/dist/cards.js: dist target/public/cljs-out/cards-main.js
+	cp target/public/cljs-out/cards-main.js resources/dist/cards.js
+
+resources/dist/index.html: dist
 	cp resources/public/prod.html resources/dist/index.html
 
-js: resources/dist/app.js
+resources/dist/cards.html: dist
+	cp resources/public/cards.html resources/dist/cards.html
 
-html: resources/dist/index.html
+js: resources/dist/app.js resources/dist/cards.js
+
+html: resources/dist/index.html resources/dist/cards.html
 
 build: js html
 
@@ -29,6 +40,9 @@ prod:
 
 dev:
 	clj -A:fig-deps:dev-deps:dev
+
+cards:
+	clj -A:fig-deps:prod-deps:cards-deps:cards
 
 outdated:
 	clj -A:fig-deps:dev-deps:prod-deps:outdated

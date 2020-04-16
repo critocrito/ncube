@@ -1,12 +1,12 @@
 (ns ^:figwheel-hooks ncube.core
-  (:require [reagent.core :as reagent]
+  (:require [reagent.core :as r]
             [reagent.dom :as rdom]
             [re-frame.core :as rf]
             [re-frame.std-interceptors :refer [debug]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [clojure.string :as str]))
 
-(def app-db  (reagent/atom {}))
+(def app-db  (r/atom {}))
 
 (rf/reg-event-db
  :initialize
