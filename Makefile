@@ -3,7 +3,7 @@
 all: build
 
 dist:
-	mkdir resources/dist
+	mkdir -p resources/dist
 
 clean:
 	rm -rf target/public
@@ -27,13 +27,18 @@ resources/dist/index.html: dist
 resources/dist/cards.html: dist
 	cp resources/public/cards.html resources/dist/cards.html
 
+resources/dist/index.css: dist
+	postcss -o resources/dist/index.css src/css/*.css
+
+css: resources/dist/index.css
+
 js: resources/dist/app.js resources/dist/cards.js
 
 html: resources/dist/index.html resources/dist/cards.html
 
-build: js html
+build: js html css
 
-release: js html
+release: js html css
 
 prod:
 	clj -A:fig-deps:prod-deps:prod

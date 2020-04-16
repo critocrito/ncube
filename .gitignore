@@ -7,3 +7,4 @@ ncube.db*
 .nrepl-port
 /resources/dist
 !.keep
+node_modules

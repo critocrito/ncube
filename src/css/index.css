@@ -1,0 +1,130 @@
+@import "tachyons";
+
+:root {
+  --color-background: #faf8f7;
+
+  --color-disabled: #f8ece8;
+  --color-primary: #fd7268;
+  --color-secondary: #0a2463;
+  --color-caution: #000000;
+
+  --color-success: #78d397;
+  --color-warning: #ece28e;
+  --color-error: #e19f9f;
+  --color-info: #7eb8e2;
+  --color-new: #7a197c;
+}
+
+.buzzy-boop {
+  color: var(--color-background);
+}
+
+.bg-buzzy-boop {
+  background: var(--color-background);
+}
+
+.nasty-color {
+  color: var(--color-disabled);
+}
+
+.b--nasty-color {
+  border-color: var(--color-disabled);
+}
+
+.bg-nasty-color {
+  background: var(--color-disabled);
+}
+
+.fresh-frivolous {
+  color: var(--color-primary);
+}
+
+.bg-fresh-frivolous {
+  background: var(--color-primary);
+}
+
+.back-to-reality {
+  color: var(--color-secondary);
+}
+
+.bg-back-to-reality {
+  background: var(--color-secondary);
+}
+
+.success {
+  color: var(--color-success);
+}
+
+.bg-success {
+  background: var(--color-success);
+}
+
+.warning {
+  color: var(--color-warning);
+}
+
+.bg-warning {
+  background: var(--color-warning);
+}
+
+.error {
+  color: var(--color-error);
+}
+
+.bg-error {
+  background: var(--color-error);
+}
+
+.info {
+  color: var(--color-info);
+}
+
+.bg-info {
+  background: var(--color-info);
+}
+
+.new {
+  color: var(--color-new);
+}
+
+.bg-new {
+  background: var(--color-new);
+}
+
+.btn {
+  @insert .link .ma2 .pa2 .ttu .br2 .w5 .tc;
+  cursor: pointer;
+}
+
+.btn-primary {
+  @insert .btn .bg-fresh-frivolous;
+  color: white !important;
+}
+
+.btn-primary:hover {
+  opacity: 0.5;
+}
+
+.btn-secondary {
+  @insert .btn .bg-back-to-reality;
+  color: white !important;
+}
+
+.btn-secondary:hover {
+  opacity: 0.5;
+}
+
+.btn-caution {
+  @insert .btn .bg-black;
+  color: white !important;
+}
+
+.btn-caution:hover {
+  opacity: 0.5;
+}
+
+.btn-disabled {
+  @insert .btn .bg-white .ba .b--nasty-color;
+  color: var(--color-disabled) !important;
+  cursor: not-allowed;
+}
