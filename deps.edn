@@ -2,7 +2,9 @@
  {org.clojure/clojure {:mvn/version "1.10.1"}
   org.clojure/clojurescript {:mvn/version "1.10.597"}
   reagent {:mvn/version "0.10.0"}
-  re-frame {:mvn/version "0.12.0"}}
+  re-frame {:mvn/version "0.12.0"}
+  bidi {:mvn/version "2.1.6"}
+  kibu/pushy {:mvn/version "0.3.8"}}
  :paths
  ["src/cljs" "resources" "target"]
  :aliases
