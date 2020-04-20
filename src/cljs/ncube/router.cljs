@@ -1,22 +1,35 @@
 (ns ncube.router
-  (:require [bidi.bidi :as bidi]
-            [pushy.core :as pushy]
-            [re-frame.core :refer [dispatch]]))
+  (:require
+   [re-frame.core :refer [dispatch subscribe]]
+   [reitit.core :as r]
+   [reitit.frontend :as rf]
+   [reitit.coercion.spec :as rss]
+   [reitit.frontend.easy :as rfe]
+   [ncube.views :refer [home-panel bootstrap-panel]]))
 
 (def routes
-  ["/" {"" :home}])
+  ["/"
+   [""
+    {:name :home
+     :view home-panel}]
+   ["bootstrap"
+    {:name :bootstrap
+     :view bootstrap-panel}]])
 
-(def history
-  (let [dispatch #(dispatch [:set-active-page {:page (:handler %)}])
-        match #(bidi/match-route routes %)]
-    (pushy/pushy dispatch match)))
+(defn on-navigate
+  [new-match]
+  (when new-match
+    (dispatch [:navigated new-match])))
 
-(defn start!
+(def router
+  (rf/router
+   routes
+   {:data {:coercion rss/coercion}}))
+
+(defn init-routes!
   []
-  (pushy/start! history))
-
-(def url-for (partial bidi/path-for routes))
-
-(defn set-token!
-  [token]
-  (pushy/set-token! history token))
+  (js/console.log "initializing routes")
+  (rfe/start!
+   router
+   on-navigate
+   {:use-fragment true}))

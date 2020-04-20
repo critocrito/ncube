@@ -12,22 +12,7 @@
   (js/console.log "initialize")
   default-db))
 
-(reg-event-fx
- :set-active-page
- (fn-traced [{:keys [db]} [_ {:keys [page]}]]
-   (let [set-page (assoc db :active-page page)]
-     (case page
-       :home
-       {:db set-page}))))
-
 (reg-event-db
- :inc-counter
- (fn-traced
-  [{:keys [count]}]
-   {:count (+ count 1)}))
-
-(reg-event-db
- :dec-counter
- (fn-traced
-  [{:keys [count]}]
-  {:count (- count 1)}))
+ :navigated
+ (fn-traced [db [_ new-match]]
+   (assoc db :current-route new-match)))

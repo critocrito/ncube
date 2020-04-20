@@ -2,8 +2,6 @@
   (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub
- :counter
- (fn
-  [{:keys [count]}]
-  count))
-
+ :current-route
+ (fn [db]
+   (:current-route db)))
