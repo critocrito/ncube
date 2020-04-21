@@ -13,6 +13,8 @@
   --color-error: #e19f9f;
   --color-info: #7eb8e2;
   --color-new: #7a197c;
+
+  --color-barrier: #dfe2ec;
 }
 
 @font-face {
@@ -105,6 +107,10 @@
 
 .bg-new {
   background: var(--color-new);
+}
+
+.b--barrier {
+  border-color: var(--color-barrier);
 }
 
 .btn {
