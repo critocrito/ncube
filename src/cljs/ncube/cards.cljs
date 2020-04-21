@@ -1,6 +1,7 @@
 (ns ^:figwheel-hooks ncube.cards
   (:require [devcards.core]
             [ncube.cards.colors]
+            [ncube.cards.fonts]
             [ncube.cards.buttons]))
 
 (enable-console-print!)

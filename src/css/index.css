@@ -15,6 +15,22 @@
   --color-new: #7a197c;
 }
 
+@font-face {
+  font-family: "Noto Sans Bold";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/NotoSans-Bold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/NotoSans-Regular.ttf) format("truetype");
+}
+
 .buzzy-boop {
   color: var(--color-background);
 }
@@ -127,4 +143,65 @@
   @insert .btn .bg-white .ba .b--nasty-color;
   color: var(--color-disabled) !important;
   cursor: not-allowed;
+}
+
+.header-font {
+  font-family: "Noto Sans Bold", sans-serif;
+  font-style: normal;
+  font-weight: bold;
+  letter-spacing: 0.01em;
+  color: var(--color-secondary);
+}
+
+.fh1 {
+  @insert .header-font;
+  font-size: 50.5px;
+  line-height: 150%;
+}
+
+.fh2 {
+  @insert .header-font;
+  font-size: 37.98px;
+  line-height: 150%;
+}
+
+.fh3 {
+  @insert .header-font;
+  font-size: 28.42px;
+  line-height: 150%;
+}
+
+.fh4 {
+  @insert .header-font;
+  font-size: 21.32px;
+  line-height: 120%;
+}
+
+.fh5 {
+  @insert .header-font;
+  font-size: 16px;
+  line-height: 120%;
+}
+
+.body-font {
+  font-family: "Noto Sans Regular", sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  letter-spacing: 0.01em;
+  color: var(--color-secondary);
+}
+
+.fb1 {
+  font-size: 12px;
+  line-height: 150%;
+}
+
+.fb2 {
+  font-size: 10px;
+  line-height: 120%;
+}
+
+.fb3 {
+  font-size: 6.75px;
+  line-height: 120%;
 }

@@ -9,6 +9,7 @@
   pez/clerk {:mvn/version "1.0.0"}}
  :paths
  ["src/cljs" "resources" "target"]
+ :resource-paths ["resources"]
  :aliases
  {:fig-deps {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.4-SNAPSHOT"}}}
   :dev-deps {:extra-paths ["test/cljs"]

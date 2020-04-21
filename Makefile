@@ -3,7 +3,7 @@
 all: build
 
 dist:
-	mkdir -p resources/dist
+	mkdir -p resources/dist/fonts
 
 clean:
 	rm -rf target/public
@@ -30,15 +30,23 @@ resources/dist/cards.html: dist
 resources/dist/index.css: dist
 	postcss -o resources/dist/index.css src/css/*.css
 
+resources/dist/fonts/NotoSans-Regular.ttf: dist
+	cp resources/public/fonts/NotoSans-Regular.ttf resources/dist/fonts
+
+resources/dist/fonts/NotoSans-Bold.ttf: dist
+	cp resources/public/fonts/NotoSans-Bold.ttf resources/dist/fonts
+
 css: resources/dist/index.css
+
+fonts: resources/dist/fonts/NotoSans-Regular.ttf resources/dist/fonts/NotoSans-Bold.ttf
 
 js: resources/dist/app.js resources/dist/cards.js
 
 html: resources/dist/index.html resources/dist/cards.html
 
-build: js html css
+build: js html css fonts
 
-release: js html css
+release: build
 
 prod:
 	clj -A:fig-deps:prod-deps:prod
