@@ -24,7 +24,7 @@
 }
 
 @font-face {
-  font-family: "Noto Sans";
+  font-family: "Noto Sans Regular";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -192,16 +192,19 @@
 }
 
 .fb1 {
-  font-size: 12px;
+  @insert .body-font;
+  font-size: 16px;
   line-height: 150%;
 }
 
 .fb2 {
+  @insert .body-font;
   font-size: 10px;
   line-height: 120%;
 }
 
 .fb3 {
+  @insert .body-font;
   font-size: 6.75px;
   line-height: 120%;
 }
