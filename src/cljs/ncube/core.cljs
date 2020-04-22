@@ -3,7 +3,10 @@
             [reagent.dom :as dom]
             [re-frame.core :as rf]
             [re-frame.std-interceptors :refer [debug]]
+            [day8.re-frame.async-flow-fx]
+            [day8.re-frame.http-fx]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
+            [reitit.core :as reitit]
             [reitit.frontend.easy :as rfe]
             [clerk.core :as clerk]
             [ncube.router :refer [router init-routes!]]
@@ -20,9 +23,11 @@
 
 (rf/reg-fx
  :navigate!
- (fn [route]
-   (apply rfe/push-state route)
-   (clerk/navigate-page! (:path route))))
+ (fn [route-name]
+   ;; FIXME: Handle routes not found
+   (let [route (reitit/match-by-name router route-name)]
+     (rfe/push-state (-> route :data :name))
+     (clerk/navigate-page! (:path route)))))
 
 (defn mount
   []
@@ -37,5 +42,5 @@
 (defn ^:export startup
   []
   (js/console.log "Starting Ncube.")
-  (rf/dispatch-sync [:initialize])
+  (rf/dispatch-sync [:boot])
   (mount))

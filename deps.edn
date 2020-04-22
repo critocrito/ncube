@@ -3,17 +3,20 @@
   org.clojure/clojurescript {:mvn/version "1.10.597"}
   reagent {:mvn/version "0.10.0"}
   re-frame {:mvn/version "0.12.0"}
+  day8.re-frame/async-flow-fx {:mvn/version "0.1.0"}
+  day8.re-frame/http-fx {:mvn/version "v0.2.0"}
   metosin/reitit-core {:mvn/version "0.4.2"}
   metosin/reitit-frontend {:mvn/version "0.4.2"}
   metosin/reitit-spec {:mvn/version "0.4.2"}
-  pez/clerk {:mvn/version "1.0.0"}}
+  pez/clerk {:mvn/version "1.0.0"}
+  fork {:mvn/version "1.2.5"}}
  :paths
- ["src/cljs" "resources" "target"]
- :resource-paths ["resources"]
+ ["src/clj", "src/cljs" "resources" "target"]
  :aliases
  {:fig-deps {:extra-deps {com.bhauman/figwheel-main {:mvn/version "0.2.4-SNAPSHOT"}}}
   :dev-deps {:extra-paths ["test/cljs"]
              :extra-deps {com.bhauman/rebel-readline-cljs {:mvn/version "0.1.4"}
+                          ring {:mvn/version "1.8.0"}
                           day8.re-frame/re-frame-10x {:mvn/version "0.6.2"}
                           day8.re-frame/tracing {:mvn/version "0.5.1"}
                           metosin/reitit-dev {:mvn/version "0.4.2"}

@@ -5,16 +5,17 @@
    [reitit.frontend :as rf]
    [reitit.coercion.spec :as rss]
    [reitit.frontend.easy :as rfe]
-   [ncube.views :refer [home-panel bootstrap-panel]]))
+   [ncube.onboarding.views :as onboarding]
+   [ncube.views :refer [home-panel]]))
 
 (def routes
   ["/"
    [""
     {:name :home
      :view home-panel}]
-   ["bootstrap"
-    {:name :bootstrap
-     :view bootstrap-panel}]])
+   ["onboarding"
+    {:name :onboarding
+     :view onboarding/panel}]])
 
 (defn on-navigate
   [new-match]
@@ -32,4 +33,4 @@
   (rfe/start!
    router
    on-navigate
-   {:use-fragment true}))
+   {:use-fragment false}))

@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::fmt;
 use tracing::info;
-use warp::Filter;
+use warp::{http::Method, Filter};
 use xactor::Actor;
 
 use crate::actors::NcubeActor;
@@ -34,12 +34,21 @@ impl Ncube {
         let ncube_actor = NcubeActor::new(ncube_store).start().await;
         NcubeActor::register_once(ncube_actor).await;
 
+        let cors = warp::cors()
+            .allow_any_origin()
+            .allow_methods(&[Method::GET, Method::POST, Method::DELETE])
+            .allow_headers(vec!["content-type"]);
+
         let static_assets = warp::get()
             .and(warp::path::end())
             .map(|| include_str!("../../../../resources/dist/index.html"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/html"));
         let routes = static_assets.or(warp::path!("api")
-            .and(filters::ncube_config::routes().recover(filters::handle_rejection))
+            .and(
+                filters::ncube_config::routes()
+                    .with(cors)
+                    .recover(filters::handle_rejection),
+            )
             .with(log));
 
         warp::serve(routes).run(([127, 0, 0, 1], 40666)).await;

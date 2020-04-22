@@ -1,2 +1,3 @@
 {:css-dirs ["src/css"]
- :watch-dirs ["src/cljs"]}
+ :watch-dirs ["src/cljs"]
+ :ring-handler ncube.dev-server/handler}

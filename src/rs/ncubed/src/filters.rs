@@ -30,6 +30,7 @@ pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, 
     let code;
     let message;
 
+    eprintln!("{:?}", err);
     // warp::reject::not_found() returns a 405 Method Not Allowed status
     // code. To ensure a 404 Not Found I create a custom rejection
     // error (RouteRejection::NotFound).
