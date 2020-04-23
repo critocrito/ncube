@@ -38,7 +38,7 @@ jobs:
 
     - uses: actions/setup-node@v1
       with:
-        node-version: 12.x
+        node-version: '12.x'
         
     - name: Install Rust
       uses: actions-rs/toolchain@v1
@@ -47,7 +47,8 @@ jobs:
         profile: minimal
         override: true
 
-    - run: npm install
+    - name: Install Node dependencies
+      run: yarn install
       
     - name: Build Ncube
       run: make 
