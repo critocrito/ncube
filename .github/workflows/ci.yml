@@ -1,0 +1,77 @@
+name: CI
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  test:
+    env:
+      RUST_BACKTRACE: 1
+    runs-on: ${{ matrix.os }}
+    name: test
+
+    strategy:
+      matrix:
+        # FIXME: Windows builds are missing.
+        build: [pinned, stable, beta, macos]
+        include:
+          - build: pinned
+            os: ubuntu-18.04
+            rust: 1.42.0
+          - build: stable
+            os: ubuntu-18.04
+            rust: stable
+          - build: beta
+            os: ubuntu-18.04
+            rust: beta
+          - build: macos
+            os: macos-latest
+            rust: stable
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: DeLaGuardo/setup-clojure@2.0
+      with:
+        tools-deps: '1.10.1.469'
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+        
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+
+    - run: npm install
+      
+    - name: Build Ncube
+      run: make 
+
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+
+  rustfmt:
+    name: rustfmt
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+        profile: minimal
+        components: rustfmt
+
+    - name: Run cargo fmt
+      uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --all -- --check
