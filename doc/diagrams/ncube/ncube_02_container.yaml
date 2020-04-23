@@ -14,159 +14,230 @@ elements:
 - type: Person
   name: Ncube Administrator
   description: An administrator of a remote Ncube installation.
-  position: '125,1650'
+  position: '125,2750'
+- type: Software System
+  name: Local Tasks
+  description: Execute local tasks.
+  position: '4400,2800'
 - type: Software System
   name: Ncube
   description: Data investigations for the human rights.
   tags: Internal
   containers:
   - type: Container
+    name: Collection
+    description: The data collection of a workspace.
+    technology: Rust
+    tags: actor
+    position: '2300,2000'
+  - type: Container
+    name: Database Router
+    description: On-demand pool access to various concrete workspace pools.
+    technology: Rust
+    tags: actor
+    position: '3100,1100'
+  - type: Container
+    name: Handlers
+    description: Domain specific interfaces to Ncube.
+    technology: Rust
+    tags: hub
+    position: '1500,1500'
+  - type: Container
     name: HTTP Endpoints
     description: A REST-like HTTP API.
     technology: Rust
-    position: '1400,700'
+    position: '800,1200'
   - type: Container
-    name: Local Workspace Y
-    description: Manage and operate a local Ncube workspace.
+    name: Metrics
+    description: Query and generate metrics about a workspace.
     technology: Rust
-    position: '2100,1300'
-  - type: Container
-    name: More Workspaces
-    description: Manage and operate a Ncube workspace.
-    technology: Rust
-    position: '2100,500'
+    tags: actor
+    position: '2300,400'
   - type: Container
     name: Ncube Host
     description: Manage the local Ncube installation.
     technology: Rust
-    position: '800,1200'
+    tags: actor
+    position: '1500,100'
   - type: Container
-    name: Ncube Router
-    description: The thing that glues the different parts together.
+    name: Process
+    description: Manage tasks executed on the host platform.
     technology: Rust
-    tags: hub
-    position: '1400,1100'
+    tags: actor
+    position: '2300,800'
   - type: Container
-    name: Remote Workspace X
-    description: Manage and operate a remote Ncube workspace.
+    name: Query
+    description: Manage query sources for a Ncube workspace.
     technology: Rust
-    position: '2100,900'
+    tags: actor
+    position: '2300,1600'
+  - type: Container
+    name: Remote Proxy
+    description: Relay to remote Ncube installations.
+    technology: Rust
+    tags: actor
+    position: '3100,1900'
   - type: Container
     name: Run Queue
     description: An asynchronous queue that executes data process invocations.
     technology: Rust/OS
-    position: '1400,1800'
+    tags: actor
+    position: '2300,2800'
+  - type: Container
+    name: Segment
+    description: Segments into the collection.
+    technology: Rust
+    tags: actor
+    position: '2300,1200'
   - type: Container
     name: Single-Page Application
     description: The UI frontend of Ncube.
     technology: HTML, CSS and JavaScript
     tags: browser
-    position: '1400,100'
+    position: '800,700'
+  - type: Container
+    name: Sqlite Pool
+    description: A pool interface to a local Sqlite database.
+    technology: Rust
+    position: '3800,100'
   - type: Container
     name: Web View
     description: A minimal browser window that runs in an OS specific application.
     technology: Rust
     position: '800,100'
+  - type: Container
+    name: Workspace Pool PostgreSQL
+    description: A concrete pool for a PostgreSQL database.
+    technology: Rust
+    position: '3800,1400'
+  - type: Container
+    name: Workspace Pool Sqlite
+    description: A concrete pool for a Sqlite database.
+    technology: Rust
+    position: '3800,900'
 - type: Software System
   name: Ncube CLI
   description: A command line tool for privileged management of Ncube.
-  position: '800,1800'
+  position: '800,2800'
 - type: Software System
   name: Ncube Config Database
   description: The Ncube store.
   tags: Database
-  position: '100,1200'
+  position: '4400,100'
 - type: Software System
   name: Remote Ncube
   description: An installation of Ncube on a remote server.
   tags: Internal
-  position: '2900,400'
+  position: '4400,1900'
 - type: Software System
-  name: Workspace Database
+  name: Workspace Database PostgreSQL
   description: A workspace database.
   tags: Database
-  position: '2900,900'
+  position: '4400,1400'
+- type: Software System
+  name: Workspace Database Sqlite
+  description: A workspace database.
+  tags: Database
+  position: '4400,900'
 - type: Software System
   name: Workspace Filesystem
   description: A directory location on the local file system.
   tags: folder
-  position: '2900,1300'
-- type: Software System
-  name: Workspace Sugarcube
-  description: A Sugarcube installation for a workspace.
-  tags: process
-  position: '2900,1700'
+  position: '4400,2300'
 
 relationships:
+- source: Collection
+  destination: Database Router
+- source: Collection
+  destination: Remote Proxy
+- source: Collection
+  destination: Workspace Filesystem
+- source: Database Router
+  description: manages
+  destination: Workspace Pool PostgreSQL
+- source: Database Router
+  description: manages
+  destination: Workspace Pool Sqlite
 - source: HTTP Endpoints
-  description: validates request
-  destination: Ncube Host
-- source: HTTP Endpoints
+  description: instruments
+  destination: Handlers
+  technology: IPC/Rust
+- source: Handlers
   description: messages
-  destination: Ncube Router
-  technology: CSP Channel
+  destination: Collection
+- source: Handlers
+  description: messages
+  destination: Metrics
+- source: Handlers
+  description: messages
+  destination: Ncube Host
+- source: Handlers
+  description: messages
+  destination: Process
+- source: Handlers
+  description: messages
+  destination: Query
+- source: Handlers
+  description: messages
+  destination: Run Queue
+- source: Handlers
+  description: messages
+  destination: Segment
 - source: Investigator
   description: uses
   destination: Web View
   technology: Local First
-- source: Local Workspace Y
-  description: queries
-  destination: Workspace Database
-  technology: SQL
-- source: Local Workspace Y
-  description: queries
-  destination: Workspace Filesystem
-  technology: fs
-- source: Local Workspace Y
-  description: manages
-  destination: Workspace Sugarcube
+- source: Metrics
+  destination: Database Router
+- source: Metrics
+  destination: Remote Proxy
 - source: Ncube Administrator
   description: uses
   destination: Ncube CLI
   technology: Shell
 - source: Ncube CLI
   description: instruments
-  destination: Ncube Router
+  destination: Handlers
   technology: IPC/Rust
 - source: Ncube Host
   description: queries
-  destination: Ncube Config Database
-  technology: SQL
-- source: Ncube Router
-  description: messages
-  destination: Local Workspace Y
-  technology: CSP Channel
-- source: Ncube Router
-  description: messages
-  destination: More Workspaces
-  technology: CSP Channel
-- source: Ncube Router
-  description: messages
-  destination: Ncube Host
-  technology: CSP Channel
-- source: Ncube Router
-  description: messages
-  destination: Remote Workspace X
-  technology: CSP Channel
-- source: Ncube Router
-  description: messages
-  destination: Run Queue
-  technology: CSP Channel
-- source: Remote Workspace X
-  description: queries
+  destination: Sqlite Pool
+- source: Process
+  destination: Database Router
+- source: Process
+  destination: Remote Proxy
+- source: Query
+  destination: Database Router
+- source: Query
+  destination: Remote Proxy
+- source: Remote Proxy
   destination: Remote Ncube
-  technology: JSON/HTTP
 - source: Run Queue
-  description: run process
-  destination: Workspace Sugarcube
-  technology: spawn
+  description: executes
+  destination: Local Tasks
+- source: Run Queue
+  destination: Remote Proxy
+- source: Segment
+  destination: Database Router
+- source: Segment
+  destination: Remote Proxy
 - source: Single-Page Application
   description: requests
   destination: HTTP Endpoints
   technology: JSON/HTTP
+- source: Sqlite Pool
+  description: queries
+  destination: Ncube Config Database
+  technology: SQL
 - source: Web View
   description: hosts
   destination: Single-Page Application
+- source: Workspace Pool PostgreSQL
+  description: queries
+  destination: Workspace Database PostgreSQL
+- source: Workspace Pool Sqlite
+  description: queries
+  destination: Workspace Database Sqlite
 
 styles:
 - type: element
@@ -185,8 +256,11 @@ styles:
   shape: Person
 - type: element
   tag: Software System
-  background: '#1168bd'
+  background: '#44959a'
   shape: RoundedBox
+- type: element
+  tag: actor
+  background: '#2462b8'
 - type: element
   tag: browser
   shape: WebBrowser
@@ -200,4 +274,4 @@ styles:
   tag: process
   shape: Circle
 
-size: A4_Landscape
+size: A3_Landscape
