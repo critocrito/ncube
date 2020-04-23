@@ -32,6 +32,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Install packages (Ubuntu)
+      if: matrix.os == 'ubuntu-18.04'
+      run: scripts/ci/ubuntu-install-packages
+        
     - uses: DeLaGuardo/setup-clojure@2.0
       with:
         tools-deps: '1.10.1.469'
