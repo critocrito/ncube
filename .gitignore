@@ -1,12 +1,11 @@
 /target
+/pkgs
 Cargo.lock
 ncube.db*
 .DS_Store
-*.dmg
 .cpcache
 .nrepl-port
-/resources/dist
 !.keep
 node_modules
 .rebel_readline_history
-Ncube
+devcards
