@@ -116,7 +116,7 @@ clean:
 # error. To make make not choke up on that I force a good return.
 pkg-dmg: $(pkg_build_macos)
 	@mkdir -p  $(pkgs_release_dir)
-	node_modules/.bin/create-dmg --overwrite $(pkg_build_macos) $(pkgs_release_dir) | true
+	npx create-dmg --overwrite $(pkg_build_macos) $(pkgs_release_dir) | true
 
 ui: $(dist_dir)/app.js \
 	$(dist_dir)/index.html \
