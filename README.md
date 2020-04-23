@@ -2,6 +2,8 @@
 
 > Enter the hypercube.
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) ![Build Status](https://github.com/critocrito/ncube/workflows/ci/badge.svg)
+
 <p align="center">
   <img src="/resources/logo.png" alt="Ncube - Data exploration and verification for human rights">
 </p>
