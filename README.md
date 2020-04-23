@@ -58,12 +58,19 @@ $ yarn --version
 1.22.0
 ```
 
+Begin by compiling the stylesheets. I usually leave this command running in a
+terminal. It will watch the stylesheets for any changes and recompile if needed.
+
+```sh
+node_modules/.bin/postcss -w -o target/public/cljs-out/styles.css src/css/*.css
+```
+
 The UI development environment is based on [Figwheel](https://figwheel.org/).
 The [`dev.cljs.edn`](./dev.cljs.edn) configuration starts a development REPL for
 the UI development. When using Emacs with Cider permit the
 [`.dir-locals.el`](./.dir-locals.el) to configure the REPL.
 
-Alternatively start a development REPL manually:
+Alternatively start a development REPL manually in another terminal window:
 
 ```sh
 clj -A:fig-deps:dev-deps:dev
@@ -74,7 +81,8 @@ This opens the browser at port 9500 on `localhost`.
 Since the backend delivers the frontend using it's own HTTP server, the frontend
 assets must be available when compiling the backend. This is the case even if
 you use Figwheel to load the UI on port 9500 and have it communicate with the
-backend on port 40666.
+backend on port 40666 since they produce different assets in a different
+locations. Open yet another terminal and run the following:
 
 ```sh
 make ui
