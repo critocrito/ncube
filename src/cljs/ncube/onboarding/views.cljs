@@ -38,7 +38,7 @@
   {:db (fork/set-submitting db :form false)
    :http-xhrio
    {:method :post
-    :uri "http://localhost:40666/api"
+    :uri "http://127.0.0.1:40666/api"
     :params (cfg->body values)
     :format (ajax/json-request-format)
     :response-format (ajax/raw-response-format)

@@ -9,9 +9,10 @@ MACOS_APP_DIR=$MACOS_APP_NAME.app
 
 echo "Creating app directory structure"
 rm -rf "$MACOS_APP_DIR"
+rm -rf "$MACOS_APP_NAME"
 mkdir -p "$MACOS_APP_DIR/Contents/MacOS"
 
-cargo build --bin ncube --release
+make
 
 echo "Copying binary"
 MACOS_APP_BIN="$MACOS_APP_DIR/Contents/MacOS/$MACOS_BIN_NAME"
@@ -26,7 +27,6 @@ cp target/release/ncube "$MACOS_APP_BIN"
 
 echo "Copying resources directory"
 mkdir "$MACOS_APP_DIR/Contents/Resources"
-cp -r "$RESOURCES/dist" "$MACOS_APP_DIR/Contents/Resources"
 cp -r "$RESOURCES/Info.plist" "$MACOS_APP_DIR/Contents"
 
 echo "Copying launcher"

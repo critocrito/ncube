@@ -1,7 +1,10 @@
 use anyhow::Result;
 use std::fmt;
 use tracing::info;
-use warp::{http::Method, Filter};
+use warp::{
+    http::{Method, Response, StatusCode},
+    Filter,
+};
 use xactor::Actor;
 
 use crate::actors::NcubeActor;
@@ -39,17 +42,35 @@ impl Ncube {
             .allow_methods(&[Method::GET, Method::POST, Method::DELETE])
             .allow_headers(vec!["content-type"]);
 
-        let static_assets = warp::get()
-            .and(warp::path::end())
+        let routes = warp::path("index.html")
             .map(|| include_str!("../../../../resources/dist/index.html"))
-            .map(|reply| warp::reply::with_header(reply, "content-type", "text/html"));
-        let routes = static_assets.or(warp::path!("api")
-            .and(
-                filters::ncube_config::routes()
-                    .with(cors)
-                    .recover(filters::handle_rejection),
-            )
-            .with(log));
+            .map(|reply| warp::reply::with_header(reply, "content-type", "text/html"))
+            .or(warp::path("index.css")
+                .map(|| include_str!("../../../../resources/dist/index.css"))
+                .map(|reply| warp::reply::with_header(reply, "content-type", "text/css")))
+            .or(warp::path("app.js")
+                .map(|| include_str!("../../../../resources/dist/app.js"))
+                .map(|reply| warp::reply::with_header(reply, "content-type", "text/javascript")))
+            .or(warp::path!("fonts" / "NotoSans-Regular.ttf")
+                .map(|| {
+                    let file =
+                        include_bytes!("../../../../resources/dist/fonts/NotoSans-Regular.ttf");
+                    Response::builder()
+                        .status(StatusCode::OK)
+                        .body(file.to_vec())
+                })
+                .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
+            .or(warp::path!("fonts" / "NotoSans-Bold.ttf")
+                .map(|| {
+                    let file = include_bytes!("../../../../resources/dist/fonts/NotoSans-Bold.ttf");
+                    Response::builder()
+                        .status(StatusCode::OK)
+                        .body(file.to_vec())
+                })
+                .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
+            .or(warp::path("api").and(filters::ncube_config::routes().with(cors)))
+            .recover(filters::handle_rejection)
+            .with(log);
 
         warp::serve(routes).run(([127, 0, 0, 1], 40666)).await;
 

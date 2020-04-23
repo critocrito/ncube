@@ -13,7 +13,9 @@ fn main() {
         ncube_db_path: "./ncube.db".into(),
     };
 
-    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
+    tracing_subscriber::fmt()
+        .with_max_level(Level::DEBUG)
+        .init();
 
     thread::spawn(move || {
         let mut rt = runtime::Builder::new()
@@ -29,7 +31,10 @@ fn main() {
 
     web_view::builder()
         .title("Ncube")
-        .content(Content::Url(format!("http://127.0.0.1:{}", port)))
+        .content(Content::Url(format!(
+            "http://127.0.0.1:{}/index.html",
+            port
+        )))
         .size(1024, 800)
         .resizable(true)
         .debug(true)

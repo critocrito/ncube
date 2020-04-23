@@ -1,11 +1,12 @@
-.PHONY: prod dev js html build release clean
+.PHONY: prod dev cards js css fonts html ui ncube release clean
 
-all: build
+all: release
 
 dist:
 	mkdir -p resources/dist/fonts
 
 clean:
+	rm -rf target/release/ncube
 	rm -rf target/public
 	rm -rf resources/dist
 
@@ -14,6 +15,9 @@ target/public/cljs-out/prod-main.js:
 
 target/public/cljs-out/cards-main.js:
 	clojure -A:fig-deps:prod-deps:cards-deps:cards
+
+target/release/ncube:
+	cargo build --bin ncube --release
 
 resources/dist/app.js: dist target/public/cljs-out/prod-main.js
 	cp target/public/cljs-out/prod-main.js resources/dist/app.js
@@ -36,17 +40,19 @@ resources/dist/fonts/NotoSans-Regular.ttf: dist
 resources/dist/fonts/NotoSans-Bold.ttf: dist
 	cp resources/public/fonts/NotoSans-Bold.ttf resources/dist/fonts
 
+ncube: target/release/ncube
+
 css: resources/dist/index.css
 
 fonts: resources/dist/fonts/NotoSans-Regular.ttf resources/dist/fonts/NotoSans-Bold.ttf
 
-js: resources/dist/app.js resources/dist/cards.js
+js: resources/dist/app.js
 
-html: resources/dist/index.html resources/dist/cards.html
+html: resources/dist/index.html
 
-build: js html css fonts
+ui: js html css fonts
 
-release: build
+release: clean ui ncube
 
 prod:
 	clj -A:fig-deps:prod-deps:prod

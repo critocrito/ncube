@@ -29,7 +29,7 @@
  (fn-traced
   [_ _]
   {:http-xhrio {:method :get
-                :uri "http://localhost:40666/api"
+                :uri "http://127.0.0.1:40666/api"
                 :response-format (ajax/json-response-format {:keywords? true})
                 :on-success [:bootstrap-found]
                 :on-failure [:bootstrap]}}))
