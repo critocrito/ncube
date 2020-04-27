@@ -2,7 +2,7 @@ use serde::Serialize;
 use std::convert::Infallible;
 use warp::{http::StatusCode, Filter};
 
-use crate::errors::{DataStoreError, RouteRejection};
+use crate::errors::{RouteRejection, StoreError};
 use crate::handlers;
 
 /// An API error serializable to JSON.
@@ -20,8 +20,8 @@ impl From<RouteRejection> for warp::Rejection {
     }
 }
 
-impl From<DataStoreError> for RouteRejection {
-    fn from(_: DataStoreError) -> RouteRejection {
+impl From<StoreError> for RouteRejection {
+    fn from(_: StoreError) -> RouteRejection {
         RouteRejection::DataError
     }
 }

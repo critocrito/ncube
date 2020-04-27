@@ -2,15 +2,15 @@ use anyhow::Result;
 use ncube_data::NcubeConfig;
 use xactor::*;
 
-use crate::errors::DataStoreError;
+use crate::errors::StoreError;
 
-#[message(result = "Result<bool, DataStoreError>")]
+#[message(result = "Result<bool, StoreError>")]
 pub(crate) struct IsBootstrapped;
 
-#[message(result = "Result<NcubeConfig, DataStoreError>")]
+#[message(result = "Result<NcubeConfig, StoreError>")]
 pub(crate) struct ShowConfig;
 
-#[message(result = "Result<(), DataStoreError>")]
+#[message(result = "Result<(), StoreError>")]
 pub(crate) struct InsertSetting {
     pub name: String,
     pub value: String,
