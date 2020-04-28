@@ -93,27 +93,40 @@ pub fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection>
         .allow_methods(&[Method::GET, Method::POST, Method::DELETE])
         .allow_headers(vec!["content-type"]);
 
-    warp::path("api").and(ncube_config::routes().with(cors))
+    warp::path("api").and(ncube::routes().with(cors))
 }
 
-pub mod ncube_config {
+pub mod ncube {
+    use serde::Deserialize;
     use warp::Filter;
 
-    use crate::handlers::ncube_config as handlers;
-    use crate::types::NcubeConfigRequest;
+    use crate::handlers::ncube as handlers;
+
+    #[derive(Debug, Deserialize)]
+    struct SettingRequest {
+        name: String,
+        value: String,
+    }
 
     async fn show() -> Result<impl warp::Reply, warp::Rejection> {
         let config = handlers::show().await?;
+
         Ok(warp::reply::json(&config))
     }
 
-    async fn create(settings: NcubeConfigRequest) -> Result<impl warp::Reply, warp::Rejection> {
-        handlers::create(settings).await?;
+    async fn create(settings: Vec<SettingRequest>) -> Result<impl warp::Reply, warp::Rejection> {
+        for SettingRequest { name, value } in settings {
+            handlers::create(&name, &value).await?;
+        }
+
         Ok(warp::reply())
     }
 
-    async fn update(settings: NcubeConfigRequest) -> Result<impl warp::Reply, warp::Rejection> {
-        handlers::insert(settings).await?;
+    async fn update(settings: Vec<SettingRequest>) -> Result<impl warp::Reply, warp::Rejection> {
+        for SettingRequest { name, value } in settings {
+            handlers::upsert(&name, &value).await?;
+        }
+
         Ok(warp::reply())
     }
 
