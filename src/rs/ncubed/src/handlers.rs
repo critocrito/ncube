@@ -1,53 +1,61 @@
-pub mod ncube {
-    use ncube_data::NcubeConfig;
+use ncube_data::NcubeConfig;
 
-    use crate::actors::{
-        ncube::{InsertSetting, IsBootstrapped, ShowConfig},
-        NcubeHost,
-    };
-    use crate::errors::HandlerError;
-    use crate::registry::Registry;
+use crate::actors::{
+    host::{InsertSetting, IsBootstrapped, ShowConfig},
+    HostActor,
+};
+use crate::errors::HandlerError;
+use crate::registry::Registry;
 
-    pub async fn show() -> Result<NcubeConfig, HandlerError> {
-        let mut actor = NcubeHost::from_registry().await.unwrap();
+pub async fn is_bootstrapped() -> Result<bool, HandlerError> {
+    let mut actor = HostActor::from_registry().await.unwrap();
 
-        if let Ok(false) = actor.call(IsBootstrapped).await? {
-            return Err(HandlerError::BootstrapMissing);
-        }
+    let is_bootstrapped = actor.call(IsBootstrapped).await?;
 
-        let result = actor.call(ShowConfig).await?;
-        let config = result?;
+    Ok(is_bootstrapped?)
+}
 
-        Ok(config)
+pub async fn show_config() -> Result<NcubeConfig, HandlerError> {
+    let mut actor = HostActor::from_registry().await.unwrap();
+
+    if !is_bootstrapped().await? {
+        return Err(HandlerError::BootstrapMissing);
     }
 
-    pub async fn create(name: &str, value: &str) -> Result<(), HandlerError> {
-        let mut actor = NcubeHost::from_registry().await.unwrap();
+    let result = actor.call(ShowConfig).await?;
+    let config = result?;
 
-        if let Ok(true) = actor.call(IsBootstrapped).await? {
-            return Err(HandlerError::NotAllowed(
-                "Ncube already bootstrapped".into(),
-            ));
-        }
+    Ok(config)
+}
 
+pub async fn bootstrap(settings: Vec<(String, String)>) -> Result<(), HandlerError> {
+    let mut actor = HostActor::from_registry().await.unwrap();
+
+    if is_bootstrapped().await? {
+        return Err(HandlerError::NotAllowed(
+            "Ncube already bootstrapped".into(),
+        ));
+    }
+
+    for (name, value) in settings {
         let _ = actor
             .call(InsertSetting::new(name.to_string(), value.to_string()))
             .await?;
-
-        Ok(())
     }
 
-    pub async fn upsert(name: &str, value: &str) -> Result<(), HandlerError> {
-        let mut actor = NcubeHost::from_registry().await.unwrap();
+    Ok(())
+}
 
-        if let Ok(false) = actor.call(IsBootstrapped).await? {
-            return Err(HandlerError::BootstrapMissing);
-        }
+pub async fn insert_config_setting(name: &str, value: &str) -> Result<(), HandlerError> {
+    let mut actor = HostActor::from_registry().await.unwrap();
 
-        let _ = actor
-            .call(InsertSetting::new(name.to_string(), value.to_string()))
-            .await?;
-
-        Ok(())
+    if !is_bootstrapped().await? {
+        return Err(HandlerError::BootstrapMissing);
     }
+
+    let _ = actor
+        .call(InsertSetting::new(name.to_string(), value.to_string()))
+        .await?;
+
+    Ok(())
 }
