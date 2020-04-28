@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use ncube_data::{Collection, ConfigSetting, NcubeConfig};
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
-use std::fmt::{self, Debug};
+use std::fmt::Debug;
 
 use crate::db::sqlite;
 use crate::errors::StoreError;
@@ -13,6 +13,7 @@ mod embedded {
     embed_migrations!("migrations");
 }
 
+#[derive(Debug)]
 pub struct NcubeStoreSqlite {
     db: sqlite::Database,
 }
@@ -23,14 +24,6 @@ impl NcubeStoreSqlite {
         let db = sqlite::Database::new(config, 10);
 
         Ok(NcubeStoreSqlite { db })
-    }
-}
-
-impl Debug for NcubeStoreSqlite {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("NcubeStoreSqlite")
-            .field("config", &self.db.config)
-            .finish()
     }
 }
 
