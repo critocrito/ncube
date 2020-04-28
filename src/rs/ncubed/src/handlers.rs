@@ -1,17 +1,15 @@
-use ncube_data::NcubeConfig;
+pub mod ncube {
+    use ncube_data::NcubeConfig;
 
-use crate::actors::NcubeActor;
-use crate::errors::HandlerError;
-use crate::messages::{InsertSetting, IsBootstrapped, ShowConfig};
-use crate::registry::Registry;
-
-use crate::types::NcubeConfigRequest;
-
-pub mod ncube_config {
-    use super::*;
+    use crate::actors::{
+        ncube::{InsertSetting, IsBootstrapped, ShowConfig},
+        NcubeHost,
+    };
+    use crate::errors::HandlerError;
+    use crate::registry::Registry;
 
     pub async fn show() -> Result<NcubeConfig, HandlerError> {
-        let mut actor = NcubeActor::from_registry().await.unwrap();
+        let mut actor = NcubeHost::from_registry().await.unwrap();
 
         if let Ok(false) = actor.call(IsBootstrapped).await? {
             return Err(HandlerError::BootstrapMissing);
@@ -23,8 +21,8 @@ pub mod ncube_config {
         Ok(config)
     }
 
-    pub async fn create(settings: NcubeConfigRequest) -> Result<(), HandlerError> {
-        let mut actor = NcubeActor::from_registry().await.unwrap();
+    pub async fn create(name: &str, value: &str) -> Result<(), HandlerError> {
+        let mut actor = NcubeHost::from_registry().await.unwrap();
 
         if let Ok(true) = actor.call(IsBootstrapped).await? {
             return Err(HandlerError::NotAllowed(
@@ -32,32 +30,23 @@ pub mod ncube_config {
             ));
         }
 
-        for setting in settings {
-            let _ = actor
-                .call(InsertSetting::new(
-                    setting.name.to_string(),
-                    setting.value.to_string(),
-                ))
-                .await?;
-        }
+        let _ = actor
+            .call(InsertSetting::new(name.to_string(), value.to_string()))
+            .await?;
+
         Ok(())
     }
 
-    pub async fn insert(settings: NcubeConfigRequest) -> Result<(), HandlerError> {
-        let mut actor = NcubeActor::from_registry().await.unwrap();
+    pub async fn upsert(name: &str, value: &str) -> Result<(), HandlerError> {
+        let mut actor = NcubeHost::from_registry().await.unwrap();
 
         if let Ok(false) = actor.call(IsBootstrapped).await? {
             return Err(HandlerError::BootstrapMissing);
         }
 
-        for setting in settings {
-            let _ = actor
-                .call(InsertSetting::new(
-                    setting.name.to_string(),
-                    setting.value.to_string(),
-                ))
-                .await;
-        }
+        let _ = actor
+            .call(InsertSetting::new(name.to_string(), value.to_string()))
+            .await?;
 
         Ok(())
     }

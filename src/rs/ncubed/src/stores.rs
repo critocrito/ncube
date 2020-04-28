@@ -1,4 +1,4 @@
-pub mod sqlite;
+pub(crate) mod sqlite;
 
 use async_trait::async_trait;
 use ncube_data::{Collection, NcubeConfig};
