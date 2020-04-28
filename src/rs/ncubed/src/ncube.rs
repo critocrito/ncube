@@ -1,10 +1,10 @@
-use anyhow::Result;
 use std::fmt;
 use tracing::info;
 use warp::{http::Method, Filter};
 use xactor::Actor;
 
 use crate::actors::NcubeActor;
+use crate::errors::ActorError;
 use crate::filters;
 use crate::registry::Registry;
 use crate::stores::{sqlite::NcubeStoreSqlite, NcubeStore};
@@ -14,11 +14,11 @@ pub struct Ncube {
 }
 
 impl Ncube {
-    pub async fn new(cfg: Config) -> Result<Self> {
-        Ok(Ncube { cfg })
+    pub fn new(cfg: Config) -> Self {
+        Ncube { cfg }
     }
 
-    pub async fn run(&mut self) -> Result<()> {
+    pub async fn run(&mut self) -> Result<(), ActorError> {
         let log = warp::log::custom(|info| {
             let method = info.method();
             let path = info.path();

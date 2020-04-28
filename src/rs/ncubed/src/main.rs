@@ -15,6 +15,6 @@ async fn main() {
         .with_max_level(Level::DEBUG)
         .init();
 
-    let mut ncube = Ncube::new(config).await.unwrap();
+    let mut ncube = Ncube::new(config);
     ncube.run().await.unwrap();
 }

@@ -1,16 +1,16 @@
-use anyhow::Result;
 use ncube_data::NcubeConfig;
+use std::result::Result;
 use xactor::*;
 
-use crate::errors::StoreError;
+use crate::errors::ActorError;
 
-#[message(result = "Result<bool, StoreError>")]
+#[message(result = "Result<bool, ActorError>")]
 pub(crate) struct IsBootstrapped;
 
-#[message(result = "Result<NcubeConfig, StoreError>")]
+#[message(result = "Result<NcubeConfig, ActorError>")]
 pub(crate) struct ShowConfig;
 
-#[message(result = "Result<(), StoreError>")]
+#[message(result = "Result<(), ActorError>")]
 pub(crate) struct InsertSetting {
     pub name: String,
     pub value: String,
