@@ -3,7 +3,7 @@
 #![cfg_attr(test, deny(warnings))]
 
 pub(crate) mod actors;
-pub(crate) mod db;
+pub mod db;
 pub mod errors;
 pub(crate) mod filters;
 pub(crate) mod handlers;
