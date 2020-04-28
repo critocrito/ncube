@@ -29,7 +29,7 @@ impl Ncube {
 
         let mut ncube_store = NcubeStoreSqlite::new(self.cfg.ncube_db_path.clone()).await?;
 
-        ncube_store.upgrade()?;
+        ncube_store.upgrade().await?;
 
         let ncube_actor = NcubeActor::new(ncube_store).start().await;
         NcubeActor::register_once(ncube_actor).await;

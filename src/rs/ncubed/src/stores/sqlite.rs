@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use ncube_data::{Collection, ConfigSetting, NcubeConfig};
-use rusqlite::{self, params, Connection, NO_PARAMS};
+use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 use std::fmt::{self, Debug};
 
@@ -36,13 +36,12 @@ impl Debug for NcubeStoreSqlite {
 
 #[async_trait]
 impl NcubeStore for NcubeStoreSqlite {
-    fn upgrade(&mut self) -> Result<(), StoreError> {
-        let mut conn = match self.db.config.source {
-            sqlite::Source::File(ref path) => Connection::open(&path),
-            sqlite::Source::Memory => Connection::open_in_memory(),
-        }
-        .unwrap();
-        embedded::migrations::runner().run(&mut conn)?;
+    async fn upgrade(&mut self) -> Result<(), StoreError> {
+        let mut conn = self.db.connection().await?;
+        // The actual sqlite connection is hidden inside a deadpool Object
+        // inside a ClientWrapper. We deref those two levels to make refinery
+        // happy.
+        embedded::migrations::runner().run(&mut **conn)?;
         Ok(())
     }
 
