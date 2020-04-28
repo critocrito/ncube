@@ -14,9 +14,9 @@ static REGISTRY: OnceCell<Mutex<ActorRegistry>> = OnceCell::new();
 ///
 /// # Examples
 ///
-/// ```ignore
+/// ```no_run
 /// use xactor::Actor;
-/// use crate::registry::Registry;
+/// use ncubed::registry::Registry;
 ///
 /// # #[tokio::main]
 /// # async fn main() {
@@ -32,7 +32,7 @@ static REGISTRY: OnceCell<Mutex<ActorRegistry>> = OnceCell::new();
 /// # }
 /// ```
 #[async_trait]
-pub(crate) trait Registry: Actor {
+pub trait Registry: Actor {
     /// Add a new actor to the registry. Panic if the actor is already registered.
     ///
     /// # Panics

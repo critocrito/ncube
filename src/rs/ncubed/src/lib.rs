@@ -2,13 +2,15 @@
 #![deny(missing_debug_implementations)]
 #![cfg_attr(test, deny(warnings))]
 
-mod actors;
-mod db;
-mod errors;
-mod handlers;
-mod registry;
-mod routes;
-mod stores;
+// I set all modules to pub in order to use them inside doc tests. This is not
+// intended to be a proper crate but rather a standalone application.
+pub mod actors;
+pub mod db;
+pub mod errors;
+pub mod handlers;
+pub mod registry;
+pub mod routes;
+pub mod stores;
 
 use std::net::SocketAddr;
 use xactor::Actor;

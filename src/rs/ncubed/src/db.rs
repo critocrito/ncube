@@ -1,11 +1,11 @@
-pub(crate) mod sqlite {
+pub mod sqlite {
     //! [Sqlite](https://www.sqlite.org/index.html) is one of the supported
     //! databases of Ncube.
     //!
     //! # Example
     //!
-    //! ```
-    //! # use ncubed::db::sqlite;
+    //! ```no_run
+    //! use ncubed::db::sqlite;
     //! # #[tokio::main]
     //! # async fn main() {
     //! let db_path = "sqlite://:memory:";
@@ -78,13 +78,15 @@ pub(crate) mod sqlite {
     /// only require a connection string. The `Config` object can easily be
     /// parsed from that.
     ///
-    /// ```
-    /// # use ncubed::db::sqlite;
+    /// ```no_run
+    /// use ncubed::db::sqlite;
+    /// # fn main() {
     /// let url = "sqlite://:memory:";
     /// let config = url.parse::<sqlite::Config>().unwrap();
+    /// # }
     /// ```
     #[derive(Debug, Clone, PartialEq, Eq)]
-    pub(crate) struct Config {
+    pub struct Config {
         pub(crate) source: Source,
     }
 
@@ -111,7 +113,7 @@ pub(crate) mod sqlite {
     /// on-disk or in-memory. The pool size is set at point of creation by
     /// providing the capacity to the database constructor.
     #[derive(Clone)]
-    pub(crate) struct Database {
+    pub struct Database {
         config: Config,
         pool: Pool,
     }
@@ -134,15 +136,17 @@ pub(crate) mod sqlite {
         ///
         /// # Example
         ///
+        /// ```no_run
         /// # use ncubed::db::sqlite;
         /// # #[tokio::main]
         /// # async fn main () {
         /// let config = "sqlite://:memory:".parse::<sqlite::Config>().unwrap();
-        /// let db = sqlite::Dataabse::new(config, 10);
+        /// let db = sqlite::Database::new(config, 10);
         /// let connection = db.connection().await.unwrap();
         /// // Run a query on the connection object.
-        /// #}
-        pub(crate) fn new(config: Config, capacity: usize) -> Self {
+        /// # }
+        /// ```
+        pub fn new(config: Config, capacity: usize) -> Self {
             let mgr = Manager::new(config.clone());
             let pool = Pool::new(mgr, capacity);
             Self { pool, config }
@@ -151,7 +155,7 @@ pub(crate) mod sqlite {
         /// Get a single database connection from the pool. The database
         /// connection is a [`rusqlite`](https://crates.io/crates/rusqlite)
         /// connection.
-        pub(crate) async fn connection(
+        pub async fn connection(
             &self,
         ) -> Result<
             deadpool::managed::Object<ClientWrapper, rusqlite::Error>,
@@ -163,7 +167,7 @@ pub(crate) mod sqlite {
     }
 
     #[derive(Debug)]
-    pub(crate) struct ClientWrapper {
+    pub struct ClientWrapper {
         client: rusqlite::Connection,
     }
 
