@@ -1,8 +1,9 @@
-use anyhow::Result;
+use async_trait::async_trait;
 use ncube_data::NcubeConfig;
+use std::result::Result;
 use xactor::*;
 
-use crate::errors::StoreError;
+use crate::errors::ActorError;
 use crate::messages::*;
 use crate::registry::Registry;
 use crate::stores::sqlite::NcubeStoreSqlite;
@@ -22,31 +23,34 @@ impl NcubeActor {
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 impl Handler<IsBootstrapped> for NcubeActor {
     async fn handle(
         &mut self,
         _ctx: &Context<Self>,
         _: IsBootstrapped,
-    ) -> Result<bool, StoreError> {
-        self.store.is_bootstrapped().await
+    ) -> Result<bool, ActorError> {
+        let is_bootstrapped = self.store.is_bootstrapped().await?;
+        Ok(is_bootstrapped)
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 impl Handler<ShowConfig> for NcubeActor {
     async fn handle(
         &mut self,
         _ctx: &Context<Self>,
         _: ShowConfig,
-    ) -> Result<NcubeConfig, StoreError> {
-        self.store.show().await
+    ) -> Result<NcubeConfig, ActorError> {
+        let config = self.store.show().await?;
+        Ok(config)
     }
 }
 
-#[async_trait::async_trait]
+#[async_trait]
 impl Handler<InsertSetting> for NcubeActor {
-    async fn handle(&mut self, _ctx: &Context<Self>, msg: InsertSetting) -> Result<(), StoreError> {
-        self.store.insert(&msg.name, &msg.value).await
+    async fn handle(&mut self, _ctx: &Context<Self>, msg: InsertSetting) -> Result<(), ActorError> {
+        self.store.insert(&msg.name, &msg.value).await?;
+        Ok(())
     }
 }

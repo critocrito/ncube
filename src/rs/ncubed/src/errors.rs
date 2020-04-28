@@ -15,6 +15,14 @@ pub enum StoreError {
 }
 
 #[derive(Error, Debug)]
+pub enum ActorError {
+    #[error("The underlying store failed.")]
+    Store(#[from] StoreError),
+    #[error("resource not found")]
+    NotFound,
+}
+
+#[derive(Error, Debug)]
 pub enum RouteRejection {
     #[error("channel was dropped")]
     ChannelError,

@@ -24,7 +24,7 @@ fn main() {
             .build()
             .unwrap();
         rt.block_on(async {
-            let mut ncube = Ncube::new(config).await.unwrap();
+            let mut ncube = Ncube::new(config);
             ncube.run().await.unwrap();
         });
     });
