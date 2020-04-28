@@ -1,4 +1,4 @@
-pub mod sqlite {
+pub(crate) mod sqlite {
     //! [Sqlite](https://www.sqlite.org/index.html) is one of the supported
     //! databases of Ncube.
     //!
@@ -23,15 +23,21 @@ pub mod sqlite {
     use async_trait::async_trait;
     use deadpool;
     use rusqlite;
-    use std::fmt::{Debug, Error, Formatter};
+    use std::fmt::{Debug, Display, Error, Formatter};
     use std::ops::{Deref, DerefMut};
     use std::path::{Path, PathBuf};
     use std::str::FromStr;
 
     struct UrlParser;
 
-    #[derive(Debug)]
+    #[derive(thiserror::Error, Debug)]
     pub struct ConfigError;
+
+    impl Display for ConfigError {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "ConfigError()")
+        }
+    }
 
     impl UrlParser {
         fn parse(s: &str) -> Result<Option<Config>, ConfigError> {
@@ -78,7 +84,7 @@ pub mod sqlite {
     /// let config = url.parse::<sqlite::Config>().unwrap();
     /// ```
     #[derive(Debug, Clone, PartialEq, Eq)]
-    pub struct Config {
+    pub(crate) struct Config {
         pub(crate) source: Source,
     }
 
@@ -105,7 +111,7 @@ pub mod sqlite {
     /// on-disk or in-memory. The pool size is set at point of creation by
     /// providing the capacity to the database constructor.
     #[derive(Clone)]
-    pub struct Database {
+    pub(crate) struct Database {
         config: Config,
         pool: Pool,
     }
@@ -136,7 +142,7 @@ pub mod sqlite {
         /// let connection = db.connection().await.unwrap();
         /// // Run a query on the connection object.
         /// #}
-        pub fn new(config: Config, capacity: usize) -> Self {
+        pub(crate) fn new(config: Config, capacity: usize) -> Self {
             let mgr = Manager::new(config.clone());
             let pool = Pool::new(mgr, capacity);
             Self { pool, config }
@@ -145,7 +151,7 @@ pub mod sqlite {
         /// Get a single database connection from the pool. The database
         /// connection is a [`rusqlite`](https://crates.io/crates/rusqlite)
         /// connection.
-        pub async fn connection(
+        pub(crate) async fn connection(
             &self,
         ) -> Result<
             deadpool::managed::Object<ClientWrapper, rusqlite::Error>,
@@ -157,12 +163,12 @@ pub mod sqlite {
     }
 
     #[derive(Debug)]
-    pub struct ClientWrapper {
+    pub(crate) struct ClientWrapper {
         client: rusqlite::Connection,
     }
 
     impl ClientWrapper {
-        pub fn new(client: rusqlite::Connection) -> Self {
+        pub(crate) fn new(client: rusqlite::Connection) -> Self {
             Self { client }
         }
     }

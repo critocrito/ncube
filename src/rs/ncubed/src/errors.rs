@@ -1,7 +1,10 @@
+pub use crate::db::sqlite::ConfigError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum StoreError {
+    #[error("parsing sqlite host db faild")]
+    SqliteConfig(#[from] crate::db::sqlite::ConfigError),
     #[error("Sqlite backend failed.")]
     SqliteDatabase(#[from] rusqlite::Error),
     #[error("Deadpool has a problem")]
