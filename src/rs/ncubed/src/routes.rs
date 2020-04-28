@@ -1,6 +1,10 @@
 use serde::Serialize;
 use std::convert::Infallible;
-use warp::http::StatusCode;
+use tracing::info;
+use warp::{
+    http::{Method, StatusCode},
+    Filter,
+};
 
 use crate::errors::{DataError, HandlerError};
 
@@ -44,6 +48,52 @@ pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, 
     });
 
     Ok(warp::reply::with_status(json, code))
+}
+
+pub fn router() -> impl Filter<Extract = impl warp::Reply, Error = std::convert::Infallible> + Clone
+{
+    let log = warp::log::custom(|info| {
+        let method = info.method();
+        let path = info.path();
+        let status = info.status();
+        let elapsed = info.elapsed();
+        info!(req.method = %method, req.path = path, req.status = %status, req.elapsed = ?elapsed);
+    });
+
+    assets().or(api()).recover(handle_rejection).with(log)
+}
+
+pub fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path("index.html")
+        .map(|| include_str!("../../../../target/dist/index.html"))
+        .map(|reply| warp::reply::with_header(reply, "content-type", "text/html"))
+        .or(warp::path("styles.css")
+            .map(|| include_str!("../../../../target/dist/styles.css"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "text/css")))
+        .or(warp::path("app.js")
+            .map(|| include_str!("../../../../target/dist/app.js"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "text/javascript")))
+        .or(warp::path!("fonts" / "NotoSans-Regular.ttf")
+            .map(|| {
+                let file = include_bytes!("../../../../target/dist/fonts/NotoSans-Regular.ttf");
+                file.to_vec()
+            })
+            .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
+        .or(warp::path!("fonts" / "NotoSans-Bold.ttf")
+            .map(|| {
+                let file = include_bytes!("../../../../target/dist/fonts/NotoSans-Bold.ttf");
+                file.to_vec()
+            })
+            .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
+}
+
+pub fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let cors = warp::cors()
+        .allow_any_origin()
+        .allow_methods(&[Method::GET, Method::POST, Method::DELETE])
+        .allow_headers(vec!["content-type"]);
+
+    warp::path("api").and(ncube_config::routes().with(cors))
 }
 
 pub mod ncube_config {
