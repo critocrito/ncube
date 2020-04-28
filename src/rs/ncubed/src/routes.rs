@@ -100,7 +100,7 @@ pub(crate) mod config {
     use serde::Deserialize;
     use warp::Filter;
 
-    use crate::handlers;
+    use crate::handlers::config as handlers;
 
     #[derive(Debug, Deserialize)]
     struct SettingRequest {
