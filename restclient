@@ -4,7 +4,21 @@
 :headers = <<
 Content-Type: application/json
 
-#
+###
+# Ncube Host Configuration
+###
 
 # Query the global Ncube configuration
-GET http://:api/
+GET http://:api/api
+
+# Bootstrap Ncube.
+POST http://:api/api
+:headers
+
+[{"name": "workspace_root", "value": "~/ncube"}]
+
+# Update Ncube host configuration
+PUT http://:api/api
+:headers
+
+[{"name": "name", "value": "~/ncube"}]

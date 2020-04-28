@@ -12,7 +12,7 @@ async fn main() {
 
     tracing_subscriber::fmt()
         // FIXME: make the log level configureable
-        .with_max_level(Level::DEBUG)
+        .with_max_level(Level::TRACE)
         .init();
 
     let mut ncube = Ncube::new(config);

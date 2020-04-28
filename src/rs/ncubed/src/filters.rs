@@ -1,9 +1,8 @@
 use serde::Serialize;
 use std::convert::Infallible;
-use warp::{http::StatusCode, Filter};
+use warp::http::StatusCode;
 
-use crate::errors::{RouteRejection, StoreError};
-use crate::handlers;
+use crate::errors::{DataError, HandlerError};
 
 /// An API error serializable to JSON.
 #[derive(Serialize)]
@@ -12,49 +11,31 @@ struct ErrorMessage {
     message: String,
 }
 
-impl warp::reject::Reject for RouteRejection {}
-
-impl From<RouteRejection> for warp::Rejection {
-    fn from(rejection: RouteRejection) -> warp::Rejection {
-        warp::reject::custom(rejection)
-    }
-}
-
-impl From<StoreError> for RouteRejection {
-    fn from(_: StoreError) -> RouteRejection {
-        RouteRejection::DataError
-    }
-}
-
 pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
     let code;
     let message;
 
-    eprintln!("{:?}", err);
-    // warp::reject::not_found() returns a 405 Method Not Allowed status
-    // code. To ensure a 404 Not Found I create a custom rejection
-    // error (RouteRejection::NotFound).
-    // See: https://github.com/seanmonstar/warp/issues/77
     if err.is_not_found() {
         code = StatusCode::NOT_FOUND;
-        message = "NOT_FOUND";
-    } else if let Some(RouteRejection::NotFound) = err.find() {
+        message = "NOT_FOUND".into();
+    } else if let Some(HandlerError::BootstrapMissing) = err.find() {
+        // FIXME: Add documentation pointer to the bootstrap error
         code = StatusCode::NOT_FOUND;
-        message = "NOT FOUND";
-    } else if let Some(RouteRejection::ChannelError) = err.find() {
-        code = StatusCode::INTERNAL_SERVER_ERROR;
-        message = "channel error";
-    } else if let Some(RouteRejection::DataError) = err.find() {
+        message = "Ncube requires initial bootstrapping.".into();
+    } else if let Some(HandlerError::Data(DataError::NotFound(entity))) = err.find() {
+        code = StatusCode::NOT_FOUND;
+        message = format!("Failure to fetch data entity: {}", entity);
+    } else if let Some(HandlerError::NotAllowed(reason)) = err.find() {
         code = StatusCode::BAD_REQUEST;
-        message = "data error";
+        message = reason.to_string();
     } else if err.find::<warp::reject::MethodNotAllowed>().is_some() {
         code = StatusCode::METHOD_NOT_ALLOWED;
-        message = "METHOD_NOT_ALLOWED";
+        message = "METHOD_NOT_ALLOWED".into();
     } else {
         // We should have expected this... Just log and say its a 500
         eprintln!("unhandled rejection: {:?}", err);
         code = StatusCode::INTERNAL_SERVER_ERROR;
-        message = "UNHANDLED_REJECTION";
+        message = "UNHANDLED_REJECTION".into();
     }
 
     let json = warp::reply::json(&ErrorMessage {
@@ -66,32 +47,40 @@ pub async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, 
 }
 
 pub mod ncube_config {
-    use super::*;
+    use warp::Filter;
 
-    fn show() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::get()
-            .and(warp::path::end())
-            .and_then(handlers::ncube_config::show)
+    use crate::handlers::ncube_config as handlers;
+    use crate::types::NcubeConfigRequest;
+
+    async fn show() -> Result<impl warp::Reply, warp::Rejection> {
+        let config = handlers::show().await?;
+        Ok(warp::reply::json(&config))
     }
 
-    fn create() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::post()
-            .and(warp::path::end())
-            .and(warp::body::json())
-            .and_then(handlers::ncube_config::create)
-            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
-            .map(|reply| warp::reply::with_header(reply, "location", "/"))
+    async fn create(settings: NcubeConfigRequest) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::create(settings).await?;
+        Ok(warp::reply())
     }
 
-    fn update() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::put()
-            .and(warp::path::end())
-            .and(warp::body::json())
-            .and_then(handlers::ncube_config::insert)
-            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT))
+    async fn update(settings: NcubeConfigRequest) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::insert(settings).await?;
+        Ok(warp::reply())
     }
 
     pub fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        show().or(create()).or(update())
+        warp::get()
+            .and(warp::path::end())
+            .and_then(show)
+            .or(warp::post()
+                .and(warp::path::end())
+                .and(warp::body::json())
+                .and_then(create)
+                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
+                .map(|reply| warp::reply::with_header(reply, "location", "/")))
+            .or(warp::put()
+                .and(warp::path::end())
+                .and(warp::body::json())
+                .and_then(update)
+                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
     }
 }
