@@ -51,3 +51,13 @@ impl From<HandlerError> for warp::Rejection {
         warp::reject::custom(rejection)
     }
 }
+
+#[derive(Error, Debug)]
+pub enum ApplicationError {
+    #[error(transparent)]
+    Actor(#[from] ActorError),
+    #[error(transparent)]
+    Store(#[from] StoreError),
+    #[error(transparent)]
+    Other(#[from] anyhow::Error),
+}

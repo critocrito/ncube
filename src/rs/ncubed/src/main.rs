@@ -1,4 +1,4 @@
-use ncubed::ncube::{Config, Ncube};
+use ncubed::{Application, ApplicationConfig};
 use tokio;
 use tracing::Level;
 use tracing_subscriber;
@@ -6,8 +6,9 @@ use tracing_subscriber;
 #[tokio::main]
 async fn main() {
     // FIXME: supply config from command args/environment/config file
-    let config = Config {
-        ncube_db_path: "sqlite://ncube.db".into(),
+    let config = ApplicationConfig {
+        host_db: "sqlite://ncube.db".into(),
+        listen: "127.0.0.1:40666".parse().unwrap(),
     };
 
     tracing_subscriber::fmt()
@@ -15,6 +16,6 @@ async fn main() {
         .with_max_level(Level::TRACE)
         .init();
 
-    let mut ncube = Ncube::new(config);
-    ncube.run().await.unwrap();
+    let mut app = Application::new(config);
+    app.run().await.unwrap();
 }
