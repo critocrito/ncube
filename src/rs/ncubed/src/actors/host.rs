@@ -18,10 +18,8 @@ pub(crate) struct HostActor {
 
 #[async_trait]
 impl Actor for HostActor {
-    async fn started(&mut self, _ctx: &Context<Self>) -> () {
+    async fn started(&mut self, _ctx: &Context<Self>) {
         self.store.upgrade(&self.db).await.unwrap();
-
-        ()
     }
 }
 
@@ -92,7 +90,7 @@ impl From<WorkspaceRequest> for CreateWorkspace {
         let slug = w.slug();
         let description = w.description.clone();
         let created_at = Utc::now();
-        let updated_at = created_at.clone();
+        let updated_at = created_at;
         let (kind, location) = match w.kind {
             WorkspaceKind::Local(location) => ("local".into(), location),
             WorkspaceKind::Remote(location) => ("remote".into(), location),

@@ -110,18 +110,18 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/show_by_slug.sql"))?;
         let columns = columns_from_statement(&stmt);
-        let mut rows = stmt.query_and_then(params![&slug], |row| {
+        let rows = stmt.query_and_then(params![&slug], |row| {
             from_row_with_columns::<Workspace>(row, &columns)
         })?;
 
         let mut workspaces: Vec<Workspace> = vec![];
-        while let Some(workspace) = rows.next() {
-            workspaces.push(workspace?);
+        for row in rows {
+            workspaces.push(row?)
         }
 
         match workspaces.first() {
             Some(workspace) => Ok(workspace.to_owned()),
-            _ => Err(StoreError::NotFound(format!("Workspace/{}", slug)))?,
+            _ => Err(StoreError::NotFound(format!("Workspace/{}", slug))),
         }
     }
 

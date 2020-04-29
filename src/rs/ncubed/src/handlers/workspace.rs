@@ -20,10 +20,10 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<(), Handler
     if let Ok(true) = actor.call(WorkspaceExists { slug }).await? {
         let msg = format!("Workspace `{}` already exists.", workspace.slug());
         error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg.into()));
+        return Err(HandlerError::Invalid(msg));
     };
 
-    let _ = actor.call(CreateWorkspace::from(workspace)).await??;
+    actor.call(CreateWorkspace::from(workspace)).await??;
 
     Ok(())
 }
@@ -50,7 +50,7 @@ pub async fn list_workspaces() -> Result<Vec<Workspace>, HandlerError> {
 pub async fn remove_workspace(slug: &str) -> Result<(), HandlerError> {
     let mut actor = HostActor::from_registry().await.unwrap();
 
-    let _ = actor.call(RemoveWorkspace { slug: slug.into() }).await??;
+    actor.call(RemoveWorkspace { slug: slug.into() }).await??;
 
     Ok(())
 }
@@ -84,7 +84,7 @@ pub async fn update_workspace(
         name, description, ..
     } = workspace_request;
 
-    let _ = actor
+    actor
         .call(UpdateWorkspace {
             current_slug: current_slug.to_string(),
             slug,
