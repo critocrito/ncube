@@ -27,6 +27,7 @@ pub mod sqlite {
     use std::ops::{Deref, DerefMut};
     use std::path::{Path, PathBuf};
     use std::str::FromStr;
+    use tracing::{debug, instrument};
 
     struct UrlParser;
 
@@ -155,12 +156,17 @@ pub mod sqlite {
         /// Get a single database connection from the pool. The database
         /// connection is a [`rusqlite`](https://crates.io/crates/rusqlite)
         /// connection.
+        #[instrument]
         pub async fn connection(
             &self,
         ) -> Result<
             deadpool::managed::Object<ClientWrapper, rusqlite::Error>,
             deadpool::managed::PoolError<rusqlite::Error>,
         > {
+            debug!(
+                "Fetching a new Sqlite connection from pool: {:?}",
+                self.pool.status()
+            );
             let conn = self.pool.get().await?;
             Ok(conn)
         }

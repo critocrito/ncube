@@ -13,7 +13,7 @@ async fn main() {
 
     tracing_subscriber::fmt()
         // FIXME: make the log level configureable
-        .with_max_level(Level::TRACE)
+        .with_max_level(Level::DEBUG)
         .init();
 
     let mut app = Application::new(config);

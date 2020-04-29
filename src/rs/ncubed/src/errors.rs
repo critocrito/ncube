@@ -3,48 +3,52 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum StoreError {
-    #[error("parsing sqlite host db faild")]
+    #[error(transparent)]
     SqliteConfig(#[from] crate::db::sqlite::ConfigError),
-    #[error("Sqlite backend failed.")]
+    #[error(transparent)]
     SqliteDatabase(#[from] rusqlite::Error),
-    #[error("Deadpool has a problem")]
+    #[error(transparent)]
     SqlitePool(#[from] deadpool::managed::PoolError<rusqlite::Error>),
-    #[error("Tokio runtime failed")]
+    #[error(transparent)]
     Runtime(#[from] tokio::task::JoinError),
-    #[error("Serialization failed")]
-    Serialization(#[from] serde_rusqlite::error::Error),
-    #[error("Database upgrade failed.")]
+    #[error(transparent)]
     Upgrade(#[from] refinery_migrations::Error),
+    #[error(transparent)]
+    Invalid(#[from] serde_rusqlite::error::Error),
+    #[error("Resource `{0}` does not exist in store.")]
+    NotFound(String),
 }
 
 #[derive(Error, Debug)]
 pub enum ActorError {
-    #[error("The underlying store failed.")]
+    #[error("The underlying store failed.: {0}")]
     Store(#[from] StoreError),
-    #[error("resource not found")]
-    NotFound,
-}
-
-#[derive(Error, Debug)]
-pub enum DataError {
-    #[error("`{0}` not found")]
-    NotFound(String),
 }
 
 #[derive(Error, Debug)]
 pub enum HandlerError {
     #[error(transparent)]
-    Actor(#[from] ActorError),
-    #[error(transparent)]
     Store(#[from] StoreError),
     #[error(transparent)]
-    Data(#[from] DataError),
-    #[error("Ncube requires bootstrapping")]
-    BootstrapMissing,
-    #[error("handler action not allowed: {0}")]
-    NotAllowed(String),
-    #[error(transparent)]
     Other(#[from] anyhow::Error),
+    #[error("{0}")]
+    NotAllowed(String),
+    #[error("{0}")]
+    Invalid(String),
+    #[error("{0}")]
+    NotFound(String),
+}
+
+impl From<ActorError> for HandlerError {
+    fn from(err: ActorError) -> Self {
+        match err {
+            ActorError::Store(err) => match err {
+                StoreError::NotFound(inner_err) => HandlerError::NotFound(inner_err.to_string()),
+                StoreError::Invalid(inner_err) => HandlerError::Invalid(inner_err.to_string()),
+                _ => HandlerError::Store(err),
+            },
+        }
+    }
 }
 
 impl warp::reject::Reject for HandlerError {}

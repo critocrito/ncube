@@ -19,7 +19,9 @@ pub async fn show_config() -> Result<NcubeConfig, HandlerError> {
     let mut actor = HostActor::from_registry().await.unwrap();
 
     if !is_bootstrapped().await? {
-        return Err(HandlerError::BootstrapMissing);
+        return Err(HandlerError::Invalid(
+            "Ncube requires initial bootstrapping.".into(),
+        ));
     }
 
     let result = actor.call(ShowConfig).await?;
@@ -50,7 +52,9 @@ pub async fn insert_config_setting(name: &str, value: &str) -> Result<(), Handle
     let mut actor = HostActor::from_registry().await.unwrap();
 
     if !is_bootstrapped().await? {
-        return Err(HandlerError::BootstrapMissing);
+        return Err(HandlerError::Invalid(
+            "Ncube requires initial bootstrapping.".into(),
+        ));
     }
 
     let _ = actor

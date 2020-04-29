@@ -11,6 +11,7 @@ pub mod handlers;
 pub mod registry;
 pub mod routes;
 pub mod stores;
+pub mod types;
 
 use std::net::SocketAddr;
 use xactor::Actor;
