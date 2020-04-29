@@ -8,7 +8,7 @@ Content-Type: application/json
 # Ncube Host Configuration
 ###
 
-# Query the global Ncube configuration
+# Query the global Ncube configuration.
 GET http://:api/api
 
 # Bootstrap Ncube.
@@ -17,8 +17,47 @@ POST http://:api/api
 
 [{"name": "workspace_root", "value": "~/ncube"}]
 
-# Update Ncube host configuration
+# Update Ncube host configuration.
 PUT http://:api/api
 :headers
 
 [{"name": "name", "value": "~/ncube"}]
+
+
+###
+# Manage Workspaces
+###
+
+# Create a new workspace.
+POST http://:api/api/workspaces
+:headers
+
+{
+  "name": "Syrian Archive",
+  "description": "This is a workspace.",
+  "kind": "local",
+  "location": "~/path/to/workspace"
+}
+
+# List all workspaces.
+GET http://:api/api/workspaces
+:headers
+
+# Show a single workspace.
+GET http://:api/api/workspaces/syrian-archive
+:headers
+
+# Remove a single workspace.
+DELETE http://:api/api/workspaces/syrian-archive
+:headers
+
+# Create a new workspace.
+PUT http://:api/api/workspaces/syrian-archive
+:headers
+
+{
+  "name": "Syrian Archivee",
+  "description": "This is a workspace.",
+  "kind": "local",
+  "location": "~/path/to/workspace"
+}

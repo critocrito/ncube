@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS workspace (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT NOT NULL,
+  description TEXT,
+  kind TEXT NOT NULL,
+  location TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  UNIQUE (slug)
+);
+CREATE INDEX IF NOT EXISTS workspace_slug_idx ON workspace(slug);
