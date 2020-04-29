@@ -46,7 +46,7 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
 
     let json = warp::reply::json(&ErrorMessage {
         code: code.as_u16(),
-        message: message.into(),
+        message,
     });
 
     Ok(warp::reply::with_status(json, code))

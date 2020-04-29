@@ -21,8 +21,6 @@ pub mod sqlite {
     //! connection string for file based databases if
     //! `sqlite://path/to/file.db`.
     use async_trait::async_trait;
-    use deadpool;
-    use rusqlite;
     use std::fmt::{Debug, Display, Error, Formatter};
     use std::ops::{Deref, DerefMut};
     use std::path::{Path, PathBuf};
@@ -80,11 +78,9 @@ pub mod sqlite {
     /// parsed from that.
     ///
     /// ```no_run
-    /// use ncubed::db::sqlite;
-    /// # fn main() {
+    /// # use ncubed::db::sqlite;
     /// let url = "sqlite://:memory:";
     /// let config = url.parse::<sqlite::Config>().unwrap();
-    /// # }
     /// ```
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Config {

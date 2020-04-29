@@ -43,7 +43,7 @@ impl From<ActorError> for HandlerError {
     fn from(err: ActorError) -> Self {
         match err {
             ActorError::Store(err) => match err {
-                StoreError::NotFound(inner_err) => HandlerError::NotFound(inner_err.to_string()),
+                StoreError::NotFound(inner_err) => HandlerError::NotFound(inner_err),
                 StoreError::Invalid(inner_err) => HandlerError::Invalid(inner_err.to_string()),
                 _ => HandlerError::Store(err),
             },
