@@ -2,7 +2,8 @@
   (:require [devcards.core]
             [ncube.cards.colors]
             [ncube.cards.fonts]
-            [ncube.cards.forms]))
+            [ncube.cards.forms]
+            [ncube.cards.tags]))
 
 (enable-console-print!)
 
