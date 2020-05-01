@@ -11,9 +11,12 @@
 
 (def routes
   ["/"
-   [""
+   ["w"
     {:name :home
      :view workspaces/list-workspaces}]
+   ["w/create"
+    {:name :workspaces-create
+     :view workspaces/create-workspaces}]
    ["onboarding"
     {:name :onboarding
      :view onboarding/panel}]])

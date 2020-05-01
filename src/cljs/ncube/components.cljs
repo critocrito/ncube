@@ -15,24 +15,26 @@
 
 (defn btn-large
   "A large button."
-  [{:keys [label disabled name on-submit style]}]
+  [{:keys [label disabled name on-click style]}]
   (let [styled-button (cond
                         (= style :secondary) "btn-secondary"
                         (= style :caution) "btn-caution"
                         :else "btn-primary")]
     [:button {:class ["btn large" styled-button (when disabled "btn-disabled")]
-              :disabled disabled}
+              :disabled disabled
+              :on-click on-click}
      label]))
 
 (defn btn-small
   "A button component."
-  [{:keys [label disabled name on-submit style]}]
+  [{:keys [label disabled name on-click style]}]
   (let [styled-button (cond
                         (= style :secondary) "btn-secondary"
                         (= style :caution) "btn-caution"
                         :else "btn-primary")]
     [:button {:class ["btn small" styled-button (when disabled "btn-disabled")]
-              :disabled disabled}
+              :disabled disabled
+              :on-click on-click}
      label]))
 
 (defn tag
