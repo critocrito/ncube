@@ -1,4 +1,5 @@
 (ns ncube.db)
 
 (def default-db
-  {:current-route nil})
+  {:current-route nil
+   :workspaces []})
