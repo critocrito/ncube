@@ -18,7 +18,7 @@
  (fn-traced
   [{db :db} [_ result]]
   {:db (assoc db :result result)
-   :navigate! :home}))
+   :dispatch [:boot]}))
 
 
 (rf/reg-event-fx

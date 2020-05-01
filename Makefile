@@ -6,6 +6,7 @@ pkg_build_dir = $(target_dir)/pkgs
 pkg_build_macos = $(pkg_build_dir)/Ncube.app
 dist_dir = $(target_dir)/dist
 dist_fonts_dir = $(dist_dir)/fonts
+dist_images_dir = $(dist_dir)/images
 css_dir = $(target_dir)/css
 cljs_dir = $(target_dir)/public/cljs-out
 pkgs_release_dir = pkgs
@@ -49,6 +50,10 @@ $(dist_fonts_dir)/NotoSans-Bold.ttf:
 	@mkdir -p $(dist_fonts_dir)
 	cp resources/public/fonts/NotoSans-Bold.ttf $(dist_fonts_dir)
 
+$(dist_images_dir)/logo_big.svg:
+	@mkdir -p $(dist_images_dir)
+	cp resources/public/images/logo_big.svg $(dist_images_dir)
+
 $(devcards_dir)/app.js: $(cljs_dir)/cards-main.js
 	@mkdir -p $(devcards_dir)
 	cp $(cljs_dir)/cards-main.js $(devcards_dir)/app.js
@@ -66,6 +71,10 @@ $(devcards_dir)/fonts:
 	cp resources/public/fonts/NotoSans-Regular.ttf $(devcards_dir)/fonts
 	cp resources/public/fonts/NotoSans-Bold.ttf $(devcards_dir)/fonts
 
+$(devcards_dir)/images:
+	@mkdir -p $(devcards_dir)/images
+	cp resources/public/images/logo_big.svg $(devcards_dir)/images
+
 devcards: clean-devcards \
 			$(devcards_dir)/app.js \
 			$(devcards_dir)/styles.css \
@@ -76,7 +85,8 @@ $(release_dir)/ncube: $(dist_dir)/app.js \
 						$(dist_dir)/styles.css \
 						$(dist_dir)/index.html \
 						$(dist_fonts_dir)/NotoSans-Regular.ttf \
-						$(dist_fonts_dir)/NotoSans-Bold.ttf
+						$(dist_fonts_dir)/NotoSans-Bold.ttf \
+						$(dist_images_dir)/logo_big.svg
 	@mkdir -p $(release_dir)
 	cargo build --bin ncube --release
 

@@ -35,14 +35,32 @@
                 :on-failure [:bootstrap]}}))
 
 (reg-event-fx
+ :fetch-workspaces
+ (fn-traced
+  [_ _]
+  {:http-xhrio {:method :get
+                :uri "http://127.0.0.1:40666/api/workspaces"
+                :response-format (ajax/json-response-format {:keywords? true})
+                :on-success [:workspaces-loaded]
+                :on-failure [:http-error]}}))
+
+(reg-event-db
+ :workspaces-loaded
+ (fn-traced
+  [db [_ workspaces]]
+  (assoc db :workspaces workspaces)))
+
+(reg-event-fx
  :bootstrap-found
  (fn-traced
   [_ _]
   (let [matched-route (r/match-by-path router (.. js/document -location -pathname))
-        ]
-    (if matched-route
-      {:navigate! (-> matched-route :data :name)}
-      {:navigate! :home}))))
+        navigation-target (cond
+                            (= (and matched-route (-> matched-route :data :name)) :onboarding) :home
+                            matched-route (-> matched-route :data :name)
+                            :else :home)]
+    {:navigate! navigation-target
+     :dispatch [:fetch-workspaces]})))
 
 (reg-event-fx
  :bootstrap

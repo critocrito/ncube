@@ -34,3 +34,23 @@
     [:button {:class ["btn small" styled-button (when disabled "btn-disabled")]
               :disabled disabled}
      label]))
+
+(defn tag
+  "A label tag."
+  [{:keys [label style]}]
+  (let [tag-style (cond
+                    (= style :local) "bg-local-workspace"
+                    (= style :remote) "bg-remote-workspace")]
+    [:div {:class ["tag flex flex-column justify-around ma1 br4 back-to-reality text-middle tc noto b ttu" tag-style]}
+     [:span
+      label]]))
+
+(defn desc-text
+  [text]
+  [:div {:class "h4 pa2"}
+   text])
+
+(defn overline
+  [label]
+  [:div {:class "b bb b--back-to-reality ttu back-to-reality pb"}
+   (str label ":")])

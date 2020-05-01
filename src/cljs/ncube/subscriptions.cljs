@@ -5,3 +5,9 @@
  :current-route
  (fn [db]
    (:current-route db)))
+
+(reg-sub
+ :workspaces
+ (fn
+   [db]
+   (:workspaces db)))

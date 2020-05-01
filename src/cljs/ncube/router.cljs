@@ -6,13 +6,14 @@
    [reitit.coercion.spec :as rss]
    [reitit.frontend.easy :as rfe]
    [ncube.onboarding.views :as onboarding]
+   [ncube.workspaces.views :as workspaces]
    [ncube.views :refer [home-panel]]))
 
 (def routes
   ["/"
    [""
     {:name :home
-     :view home-panel}]
+     :view workspaces/list-workspaces}]
    ["onboarding"
     {:name :onboarding
      :view onboarding/panel}]])

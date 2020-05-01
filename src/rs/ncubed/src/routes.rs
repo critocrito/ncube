@@ -91,6 +91,9 @@ pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::
                 file.to_vec()
             })
             .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
+        .or(warp::path!("images" / "logo_big.svg")
+            .map(|| include_str!("../../../../target/dist/images/logo_big.svg"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
 }
 
 pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
