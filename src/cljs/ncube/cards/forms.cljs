@@ -2,17 +2,25 @@
   (:require
    [reagent.core :as r]
    [devcards.core]
-   [ncube.components :refer [text-input]])
+   [ncube.components :refer [text-input btn-large btn-small]])
   (:require-macros
    [devcards.core :as dc :refer [defcard defcard-rg]]))
 
-(defcard buttons
+(defcard large-buttons
   (r/as-element
    [:div {:class ["flex flex-column bg-buzzy-boop pa3"]}
-    [:a {:class ["btn-primary"]} "Primary Button"]
-    [:a {:class ["btn-secondary"]} "Secondary Button"]
-    [:a {:class ["btn-caution"]} "Caution Button"]
-    [:a {:class ["btn-disabled"] :disabled true} "Disabled Button"]]))
+    (btn-large {:label "Primary Button"})
+    (btn-large {:label "Secondary Button" :style :secondary})
+    (btn-large {:label "Caution Button" :style :caution})
+    (btn-large {:label "Disabled Button" :disabled true})]))
+
+(defcard small-buttons
+  (r/as-element
+   [:div {:class ["flex flex-column bg-buzzy-boop pa3"]}
+    (btn-small {:label "Primary"})
+    (btn-small {:label "Secondary" :style :secondary})
+    (btn-small {:label "Caution" :style :caution})
+    (btn-small {:label "Disabled" :disabled true})]))
 
 (defcard input-forms
   (r/as-element

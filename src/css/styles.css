@@ -105,6 +105,10 @@
   background: var(--color-primary);
 }
 
+.b--fresh-frivolous {
+  border-color: var(--color-primary);
+}
+
 .back-to-reality {
   color: var(--color-secondary);
 }
@@ -157,14 +161,22 @@
   border-color: var(--color-barrier);
 }
 
+.large {
+  width: 16rem;
+}
+
+.small {
+  width: 7.5rem;
+}
+
 .btn {
-  @insert .link .ma2 .pa2 .ttu .br2 .tc .b;
+  @insert .link .ma2 .pa2 .ttu .br2 .tc .b .lh-copy;
   cursor: pointer;
 }
 
 .btn-primary {
-  @insert .btn .bg-fresh-frivolous;
-  color: white !important;
+  @insert .bg-fresh-frivolous .b--fresh-frivolous;
+  color: white;
 }
 
 .btn-primary:hover {
@@ -172,8 +184,8 @@
 }
 
 .btn-secondary {
-  @insert .btn .bg-back-to-reality;
-  color: white !important;
+  @insert .bg-back-to-reality .b--back-to-reality;
+  color: white;
 }
 
 .btn-secondary:hover {
@@ -181,8 +193,8 @@
 }
 
 .btn-caution {
-  @insert .btn .bg-black;
-  color: white !important;
+  @insert .bg-black .b--black;
+  color: white;
 }
 
 .btn-caution:hover {
@@ -190,7 +202,7 @@
 }
 
 .btn-disabled {
-  @insert .btn .bg-white .ba .b--nasty-color;
+  @insert .bg-white .ba .b--nasty-color;
   color: var(--color-disabled) !important;
   cursor: not-allowed;
 }
