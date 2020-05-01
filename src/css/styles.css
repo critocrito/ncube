@@ -1,7 +1,7 @@
 @import "tachyons";
 
 :root {
-  --color-background: #faf8f7;
+  --color-background: #f5f3f2;
 
   --color-disabled: #f8ece8;
   --color-primary: #fd7268;
@@ -17,20 +17,60 @@
   --color-barrier: #dfe2ec;
 }
 
-@font-face {
-  font-family: "Noto Sans Bold";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url(/fonts/NotoSans-Bold.ttf) format("truetype");
+* {
+  @insert .noto .lh-copy;
+  font-size: 12px;
+  letter-spacing: 0.01em;
 }
 
 @font-face {
-  font-family: "Noto Sans Regular";
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Noto Sans Bold"), local("NotoSans-Bold"),
+    url(/fonts/NotoSans-Bold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(/fonts/NotoSans-Regular.ttf) format("truetype");
+  src: local("Noto Sans"), local("NotoSans"),
+    url(/fonts/NotoSans-Regular.ttf) format("truetype");
+}
+
+.noto {
+  font-family: "Noto Sans", sans-serif;
+}
+
+.header1 {
+  font-size: 4.209em;
+}
+.header2 {
+  font-size: 3.157em;
+}
+.header3 {
+  font-size: 2.369em;
+}
+.header4 {
+  font-size: 1.777em;
+}
+.header5 {
+  font-size: 1.333em;
+}
+
+.text-medium {
+  font-size: 0.834em;
+}
+
+.text-small {
+  font-size: 0.563em;
+}
+
+.text-tiny {
+  font-size: 0.422em;
 }
 
 .buzzy-boop {
@@ -47,6 +87,10 @@
 
 .b--nasty-color {
   border-color: var(--color-disabled);
+}
+
+.b--back-to-reality {
+  border-color: var(--color-secondary);
 }
 
 .bg-nasty-color {
@@ -114,7 +158,7 @@
 }
 
 .btn {
-  @insert .link .ma2 .pa2 .ttu .br2 .w5 .tc;
+  @insert .link .ma2 .pa2 .ttu .br2 .tc .b;
   cursor: pointer;
 }
 
@@ -149,68 +193,4 @@
   @insert .btn .bg-white .ba .b--nasty-color;
   color: var(--color-disabled) !important;
   cursor: not-allowed;
-}
-
-.header-font {
-  font-family: "Noto Sans Bold", sans-serif;
-  font-style: normal;
-  font-weight: bold;
-  letter-spacing: 0.01em;
-  color: var(--color-secondary);
-}
-
-.fh1 {
-  @insert .header-font;
-  font-size: 50.5px;
-  line-height: 150%;
-}
-
-.fh2 {
-  @insert .header-font;
-  font-size: 37.98px;
-  line-height: 150%;
-}
-
-.fh3 {
-  @insert .header-font;
-  font-size: 28.42px;
-  line-height: 150%;
-}
-
-.fh4 {
-  @insert .header-font;
-  font-size: 21.32px;
-  line-height: 120%;
-}
-
-.fh5 {
-  @insert .header-font;
-  font-size: 16px;
-  line-height: 120%;
-}
-
-.body-font {
-  font-family: "Noto Sans Regular", sans-serif;
-  font-style: normal;
-  font-weight: normal;
-  letter-spacing: 0.01em;
-  color: var(--color-secondary);
-}
-
-.fb1 {
-  @insert .body-font;
-  font-size: 16px;
-  line-height: 150%;
-}
-
-.fb2 {
-  @insert .body-font;
-  font-size: 10px;
-  line-height: 120%;
-}
-
-.fb3 {
-  @insert .body-font;
-  font-size: 6.75px;
-  line-height: 120%;
 }
