@@ -53,7 +53,7 @@
            handle-change
            handle-blur
            handle-submit]}]
-  (js/console.log values)
+  
   [:form {:id form-id :on-submit handle-submit}
    (c/text-input {:name "workspace_root"
                   :label "Workspace Root Directory"
@@ -75,7 +75,7 @@
 
 (defn panel
   []
-  [:div {:class "mw9"}
+  [:div {:class "mw8 center ph3-ns"}
    [:div {:class "fl w-100 pa2"}
     [:h1 {:class "fh1"} "Welcome to Ncube!"]
     [:p {:class "fb1"} "Before you can start, please fill in some basic configuration."]
