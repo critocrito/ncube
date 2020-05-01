@@ -15,10 +15,12 @@
   --color-new: #7a197c;
 
   --color-barrier: #dfe2ec;
+
+  --color-neutral-grey: #c0bfbf;
+  --color-default-active: #dfe2ec;
 }
 
-* {
-  @insert .noto .lh-copy;
+body {
   font-size: 12px;
   letter-spacing: 0.01em;
 }
@@ -161,16 +163,23 @@
   border-color: var(--color-barrier);
 }
 
+.bg-local-workspace {
+  background: var(--color-default-active);
+}
+
+.bg-remote-workspace {
+  background: var(--color-neutral-grey);
+}
 .large {
   width: 16rem;
 }
 
 .small {
-  width: 7.5rem;
+  width: 5rem;
 }
 
 .btn {
-  @insert .link .ma2 .pa2 .ttu .br2 .tc .b .lh-copy;
+  @insert .link .ma2 .pa2 .ttu .br2 .tc .b;
   cursor: pointer;
 }
 
@@ -205,4 +214,11 @@
   @insert .bg-white .ba .b--nasty-color;
   color: var(--color-disabled) !important;
   cursor: not-allowed;
+}
+
+.tag {
+  @insert .pl3 .pr3 .text-medium;
+  height: 1.5rem;
+  max-width: 12rem;
+  min-width: 5rem;
 }

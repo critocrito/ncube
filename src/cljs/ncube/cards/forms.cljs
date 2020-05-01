@@ -8,7 +8,7 @@
 
 (defcard large-buttons
   (r/as-element
-   [:div {:class ["flex flex-column bg-buzzy-boop pa3"]}
+   [:div {:class ["flex flex-column bg-buzzy-boop pa3 noto"]}
     (btn-large {:label "Primary Button"})
     (btn-large {:label "Secondary Button" :style :secondary})
     (btn-large {:label "Caution Button" :style :caution})
@@ -16,7 +16,7 @@
 
 (defcard small-buttons
   (r/as-element
-   [:div {:class ["flex flex-column bg-buzzy-boop pa3"]}
+   [:div {:class ["flex flex-column bg-buzzy-boop pa3 noto"]}
     (btn-small {:label "Primary"})
     (btn-small {:label "Secondary" :style :secondary})
     (btn-small {:label "Caution" :style :caution})
@@ -24,7 +24,7 @@
 
 (defcard input-forms
   (r/as-element
-   [:div {:class ["flex flex-column bg-buzzy-boop pa3"]}
+   [:div {:class ["flex flex-column bg-buzzy-boop pa3 noto"]}
     [:div {:class ["ma3"]}
      (text-input {:name "basic-input"
                   :label "Basic Input"})]
