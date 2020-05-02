@@ -54,6 +54,26 @@ $(dist_images_dir)/logo_big.svg:
 	@mkdir -p $(dist_images_dir)
 	cp resources/public/images/logo_big.svg $(dist_images_dir)
 
+$(dist_images_dir)/icon_data.svg:
+	@mkdir -p $(dist_images_dir)
+	cp resources/public/images/icon_data.svg $(dist_images_dir)
+
+$(dist_images_dir)/icon_help.svg:
+	@mkdir -p $(dist_images_dir)
+	cp resources/public/images/icon_help.svg $(dist_images_dir)
+
+$(dist_images_dir)/icon_investigation.svg:
+	@mkdir -p $(dist_images_dir)
+	cp resources/public/images/icon_investigation.svg $(dist_images_dir)
+
+$(dist_images_dir)/icon_process.svg:
+	@mkdir -p $(dist_images_dir)
+	cp resources/public/images/icon_process.svg $(dist_images_dir)
+
+$(dist_images_dir)/icon_query.svg:
+	@mkdir -p $(dist_images_dir)
+	cp resources/public/images/icon_query.svg $(dist_images_dir)
+
 $(devcards_dir)/app.js: $(cljs_dir)/cards-main.js
 	@mkdir -p $(devcards_dir)
 	cp $(cljs_dir)/cards-main.js $(devcards_dir)/app.js
@@ -74,6 +94,11 @@ $(devcards_dir)/fonts:
 $(devcards_dir)/images:
 	@mkdir -p $(devcards_dir)/images
 	cp resources/public/images/logo_big.svg $(devcards_dir)/images
+	cp resources/public/images/icon_data.svg $(devcards_dir)/images
+	cp resources/public/images/icon_help.svg $(devcards_dir)/images
+	cp resources/public/images/icon_investigation.svg $(devcards_dir)/images
+	cp resources/public/images/icon_process.svg $(devcards_dir)/images
+	cp resources/public/images/icon_query.svg $(devcards_dir)/images
 
 devcards: clean-devcards \
 			$(devcards_dir)/app.js \
@@ -86,7 +111,12 @@ $(release_dir)/ncube: $(dist_dir)/app.js \
 						$(dist_dir)/index.html \
 						$(dist_fonts_dir)/NotoSans-Regular.ttf \
 						$(dist_fonts_dir)/NotoSans-Bold.ttf \
-						$(dist_images_dir)/logo_big.svg
+						$(dist_images_dir)/logo_big.svg \
+						$(dist_images_dir)/icon_data.svg \
+						$(dist_images_dir)/icon_help.svg \
+						$(dist_images_dir)/icon_investigation.svg \
+						$(dist_images_dir)/icon_process.svg \
+						$(dist_images_dir)/icon_query.svg
 	@mkdir -p $(release_dir)
 	cargo build --bin ncube --release
 
@@ -132,4 +162,10 @@ ui: $(dist_dir)/app.js \
 	$(dist_dir)/index.html \
 	$(dist_dir)/styles.css \
 	$(dist_fonts_dir)/NotoSans-Regular.ttf \
-	$(dist_fonts_dir)/NotoSans-Bold.ttf
+	$(dist_fonts_dir)/NotoSans-Bold.ttf \
+	$(dist_images_dir)/logo_big.svg \
+	$(dist_images_dir)/icon_data.svg \
+	$(dist_images_dir)/icon_help.svg \
+	$(dist_images_dir)/icon_investigation.svg \
+	$(dist_images_dir)/icon_process.svg \
+	$(dist_images_dir)/icon_query.svg
