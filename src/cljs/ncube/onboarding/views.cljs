@@ -4,46 +4,8 @@
             [day8.re-frame.http-fx]
             [ajax.core :as ajax]
             [fork.core :as fork]
-            [ncube.components :as c]))
-
-(defn cfg->body
-  [cfg]
-  (->> cfg
-       (into [])
-       (map (fn [[n v]] {:name (name n) :value (str v)}))))
-
-(rf/reg-event-fx
- ::success
- [(fork/clean :form)]
- (fn-traced
-  [{db :db} [_ result]]
-  {:db (assoc db :result result)
-   :dispatch [:boot]}))
-
-
-(rf/reg-event-fx
- ::failure
- (fn-traced
-  [{db :db} [_ result]]
-  (js/console.log result)
-  {:db (-> db
-           (fork/set-submitting :form false)
-           (fork/set-status-code :form 500))}))
-
-(rf/reg-event-fx
- ::submit-onboarding-form
- [(fork/on-submit :form)]
- (fn-traced
-  [{db :db} [_ {:keys [values]}]]
-  {:db (fork/set-submitting db :form false)
-   :http-xhrio
-   {:method :post
-    :uri "http://127.0.0.1:40666/api"
-    :params (cfg->body values)
-    :format (ajax/json-request-format)
-    :response-format (ajax/raw-response-format)
-    :on-success [::success]
-    :on-failure [::failure]}}))
+            [ncube.components :refer [text-input btn-large]]
+            [ncube.onboarding.events :as events]))
 
 (defn form
   [{:keys [values
@@ -55,22 +17,22 @@
            handle-submit]}]
   
   [:form {:id form-id :on-submit handle-submit}
-   (c/text-input {:name "workspace_root"
+   (text-input {:name "workspace_root"
                   :label "Workspace Root Directory"
                   :value (values "workspace_root")
                   :on-change handle-change
                   :on-blur handle-blur})
-   (c/text-input {:name "name"
+   (text-input {:name "name"
                   :label "What is your name?"
                   :value (values "name")
                   :on-change handle-change
                   :on-blur handle-blur})
-   (c/text-input {:name "email"
+   (text-input {:name "email"
                   :label "What is your email?"
                   :value (values "email")
                   :on-change handle-change
-                  :on-blur handle-blur})
-   [:button {:class "btn-primary" :type :submit :disabled submitting?} "Continue"]
+                :on-blur handle-blur})
+   (btn-large {:label "Continue" :type :submit :disabled submitting?})
    [:p on-submit-response]])
 
 (defn panel
@@ -85,5 +47,5 @@
                 :clean-on-unmount? true
                 :on-submit-response {400 "client error"
                                      500 "server error"}
-                :on-submit #(rf/dispatch [::submit-onboarding-form %])
+                :on-submit #(rf/dispatch [::events/submit-onboarding-form %])
                 :initial-values {"workspace_root" "~/Ncube"}} form]]])
