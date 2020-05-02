@@ -4,6 +4,20 @@
             [ncube.components :refer [desc-text overline tag btn-large btn-small text-input]]
             [ncube.workspaces.events :as events]))
 
+(defn workspace-stat
+  [type value]
+  (let [icon_url (str "/images/icon_" (name type) ".svg")
+        text (cond
+               (= type :data) "Units"
+               (= type :query) "Queries"
+               (= type :investigation) "Investigations"
+               (= type :process) "Processes"
+               :else "Don't know")]
+    [:div {:class "ml2 mr2 flex items-center"}
+     [:img {:src icon_url :class "mr1"}]
+     [:div {:class "b text-medium ttu back-to-reality"}
+      (str text ": " value)]]))
+
 (defn list-workspaces-item
   [workspace]
   (let [style (keyword (:kind workspace))
@@ -12,26 +26,17 @@
                 "Local Workspace")]
     [:li {:class "bb b--back-to-reality" :key (:id workspace)}
      [:div {:class "flex items-center justify-between w-100"}
+
       [:h3 {:class "header3 nowrap back-to-reality"}
        (:name workspace)]
       (tag {:label label :style style})
+
       [:div {:class "flex items-center justify-between"}
-       [:div {:class "flex items-center"}
-        [:div {:class "bg-back-to-reality white br-100 h1 w1 ba mr2"} "Q"]
-        [:div {:class "b text-medium ttu back-to-reality"}
-         "Queries: 200"]]
-       [:div {:class "flex items-center"}
-        [:div {:class "bg-back-to-reality white br-100 h1 w1 ba mr2"} "Q"]
-        [:div {:class "b text-medium ttu back-to-reality"}
-         "Queries: 200"]]
-       [:div {:class "flex items-center"}
-        [:div {:class "bg-back-to-reality white br-100 h1 w1 ba mr2"} "Q"]
-        [:div {:class "b text-medium ttu back-to-reality"}
-         "Queries: 200"]]
-       [:div {:class "flex items-center"}
-        [:div {:class "bg-back-to-reality white br-100 h1 w1 ba mr2"} "Q"]
-        [:div {:class "b text-medium ttu back-to-reality"}
-         "Queries: 200"]]]
+       (workspace-stat :query "666")
+       (workspace-stat :data "667")
+       (workspace-stat :process "42")
+       (workspace-stat :investigation "23")]
+
       [:div {:class "ml1"}
        (btn-small {:label "Open"})]]]))
 

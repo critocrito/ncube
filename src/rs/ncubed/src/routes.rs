@@ -94,6 +94,21 @@ pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::
         .or(warp::path!("images" / "logo_big.svg")
             .map(|| include_str!("../../../../target/dist/images/logo_big.svg"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
+        .or(warp::path!("images" / "icon_data.svg")
+            .map(|| include_str!("../../../../target/dist/images/icon_data.svg"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
+        .or(warp::path!("images" / "icon_help.svg")
+            .map(|| include_str!("../../../../target/dist/images/icon_help.svg"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
+        .or(warp::path!("images" / "icon_investigation.svg")
+            .map(|| include_str!("../../../../target/dist/images/icon_investigation.svg"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
+        .or(warp::path!("images" / "icon_process.svg")
+            .map(|| include_str!("../../../../target/dist/images/icon_process.svg"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
+        .or(warp::path!("images" / "icon_query.svg")
+            .map(|| include_str!("../../../../target/dist/images/icon_query.svg"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
 }
 
 pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
