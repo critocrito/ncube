@@ -1,52 +1,8 @@
 (ns ncube.workspaces.views
-  (:require [re-frame.core :as rf :refer [subscribe dispatch]]
-            [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
-            [ajax.core :as ajax]
+  (:require [re-frame.core :as rf]
             [fork.core :as fork]
-            [ncube.components :refer [desc-text overline tag btn-large btn-small text-input]]))
-
-(rf/reg-event-fx
- ::create-workspace
- (fn-traced
-  [_ _]
-  {:navigate! :workspaces-create}))
-
-(rf/reg-event-fx
- ::success
- [(fork/clean :form)]
- (fn-traced
-  [_ [_ result]]
-  {:dispatch [:fetch-workspaces]
-   :navigate! :home}))
-
-
-(rf/reg-event-fx
- ::failure
- (fn-traced
-  [{db :db} [_ result]]
-  (js/console.log result)
-  {:db (-> db
-           (fork/set-submitting :form false)
-           (fork/set-status-code :form 500))}))
-
-(rf/reg-event-fx
- ::submit-create-workspace-form
- [(fork/on-submit :form)]
- (fn-traced
-  [{db :db} [_ {:keys [values]}]]
-  (let [req-body {:name (values "name")
-                  :kind "local"
-                  :location "~/Ncubed/xxx"
-                  :description (values "description")}]
-    {:db (fork/set-submitting db :form false)
-   :http-xhrio
-   {:method :post
-    :uri "http://127.0.0.1:40666/api/workspaces"
-    :params req-body
-    :format (ajax/json-request-format)
-    :response-format (ajax/raw-response-format)
-    :on-success [::success]
-    :on-failure [::failure]}})))
+            [ncube.components :refer [desc-text overline tag btn-large btn-small text-input]]
+            [ncube.workspaces.events :as events]))
 
 (defn list-workspaces-item
   [workspace]
@@ -81,7 +37,7 @@
 
 (defn list-workspaces
   []
-  (let [workspaces @(subscribe [:workspaces])]
+  (let [workspaces @(rf/subscribe [:workspaces])]
     [:div {:class "mw8 center ph3-ns"}
      [:div {:class "cf ph2-ns mt5"}
       [:div {:class "fl w-100 pa2"}
@@ -95,10 +51,10 @@
       [:div {:class "fl w-100 pa2"}
        [:div {:class "flex items-end fr"}
         (btn-large {:label "Link to remote workspace"
-                    :on-click #(dispatch [::create-workspace])
+                    :on-click #(rf/dispatch [::events/create-workspace])
                     :style :secondary})
         (btn-large {:label "Create a new workspace"
-                    :on-click #(dispatch [::create-workspace])})]]]]))
+                    :on-click #(rf/dispatch [::events/create-workspace])})]]]]))
 
 (defn create-workspace-form
   [{:keys [values
@@ -134,5 +90,5 @@
                 :clean-on-unmount? true
                 :on-submit-response {400 "client error"
                                      500 "server error"}
-                :on-submit #(rf/dispatch [::submit-create-workspace-form %])}
+                :on-submit #(rf/dispatch [::events/submit-create-workspace-form %])}
      create-workspace-form]]])
