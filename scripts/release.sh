@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
 set -e
 
+msg_info() {
+    printf "\r\033[2K\033[0;32m[ .. ] %s\033[0m\n" "$*"
+}
+
+msg_error() {
+    printf "\r\033[2K\033[0;31m[ .. ] %s\033[0m\n" "$*"
+}
+
 usage() {
-  echo "Usage: $0 <version>"
+  msg_info "Usage: $0 <version>"
   exit 2
 }
 
 except() {
   # $1 -> reason
-  echo "Error: $1"
+  msg_error "Error: $1"
   usage
 }
 
@@ -57,5 +65,7 @@ git add src/rs/ncube/Cargo.toml
 git add src/rs/ncubectl/Cargo.toml
 git add src/rs/ncubed/Cargo.toml
 
-git commit -m "chore(release): released version $VERSION"
-git tag -a "$VERSION" -m "released version $VERSION"
+msg_info "Open the editor to compose the commit message."
+
+git commit -m "chore(release): release version $VERSION" -e
+git tag -a "$VERSION" -m "release version $VERSION"
