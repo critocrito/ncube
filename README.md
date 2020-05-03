@@ -2,29 +2,48 @@
 
 > Enter the hypercube.
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) ![Build Status](https://github.com/critocrito/ncube/workflows/Build%20Status/badge.svg)
+<div align="center">
+[Install](#install) • [Documentation](#documentation)
+
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/critocrito/ncube/Build%20Status?style=flat-square)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/critocrito/ncube?color=orange&style=flat-square)
+![GitHub](https://img.shields.io/github/license/critocrito/ncube?color=blue&style=flat-square)
 
 <p align="center">
   <img src="/resources/logo.png" width="400" alt="Ncube - Data exploration and verification for human rights">
 </p>
+</div>
+
+---
 
 _This project is in an early stage and probably not working right now._
 
 ## Installation
 
-No packages are published yet, but macOS DMG images can be built manually. To do
-so install all required toolchains as described in the development section and
-run the following command:
+### Linux
+
+Currently there is only [a `deb` package for Ubuntu 18.04](https://github.com/critocrito/ncube/releases/latest). For any other Linux distribution build Ncube [from source](#from-source).
+
+Install the provided `deb` package by either double-clicking it in the file browser or using a terminal:
 
 ```sh
-make clean pkg-dmg
+sudo dpkg -i ncube_<version>_amd64.deb
 ```
 
-To build a release version of Ncube run the following:
+### macOS
 
-```sh
-make clean target/release/ncube
-```
+Ncube can be installed using the [DMG installer image](https://github.com/critocrito/ncube/releases/latest). You can install Ncube by double-clicking the `Ncube_<version>.dmg` file and dragging the application into your `Applications` folder. Newer versions of macOS might refuse to install the package since Ncube is not verified by Apple. To install Ncube follow the following steps:
+
+1. Try to run Ncube.
+2. On your Mac, choose Apple menu > System Preferences, click Security & Privacy, then click General.
+3. Click the lock icon to unlock it, then enter an administrator name and password.
+4. Click on Open Anyway to allow Ncube on your computer.
+
+![macOS Security & Privacy preferences](https://raw.githubusercontent.com/critocrito/ncube/resources/screenshots/main.png)
+
+### From Source
+
+See the [development section](#development) for instructions.
 
 ## Development
 
