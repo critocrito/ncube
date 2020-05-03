@@ -152,7 +152,7 @@ jobs:
       shell: bash
       run: |
         make pkg-dmg
-        echo "::set-env name=ASSET::pkgs/ncube\ ${{ env.RELEASE_VERSION }}.dmg"
+        echo "::set-env name=ASSET::pkgs/Ncube_${{ env.RELEASE_VERSION }}.dmg"
 
     - name: Build installable DEB package
       if: matrix.build == 'linux-pkg'

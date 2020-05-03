@@ -157,6 +157,7 @@ clean:
 pkg-dmg: $(pkg_build_macos)
 	@mkdir -p  $(pkgs_release_dir)
 	npx create-dmg --overwrite $(pkg_build_macos) $(pkgs_release_dir) | true
+	for f in pkgs/*.dmg; do mv "$$f" "$${f// /_}"; done
 
 pkg-bin: $(release_dir)/ncube
 	@mkdir -p $(pkgs_release_dir)
