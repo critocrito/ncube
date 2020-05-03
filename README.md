@@ -2,8 +2,11 @@
 
 > Enter the hypercube.
 
+---
+
 <div align="center">
-[Install](#install) • [Documentation](#documentation)
+
+[Installation](#installation) • [Documentation](#documentation)
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/critocrito/ncube/Build%20Status?style=flat-square)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/critocrito/ncube?color=orange&style=flat-square)
@@ -12,6 +15,7 @@
 <p align="center">
   <img src="/resources/logo.png" width="400" alt="Ncube - Data exploration and verification for human rights">
 </p>
+
 </div>
 
 ---
@@ -39,7 +43,7 @@ Ncube can be installed using the [DMG installer image](https://github.com/critoc
 3. Click the lock icon to unlock it, then enter an administrator name and password.
 4. Click on Open Anyway to allow Ncube on your computer.
 
-![macOS Security & Privacy preferences](https://raw.githubusercontent.com/critocrito/ncube/resources/screenshots/main.png)
+![macOS Security & Privacy preferences](https://raw.githubusercontent.com/critocrito/ncube/resources/screenshots/mac-preferences.png)
 
 ### From Source
 
