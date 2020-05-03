@@ -68,4 +68,5 @@ git add src/rs/ncubed/Cargo.toml
 msg_info "Open the editor to compose the commit message."
 
 git commit -m "chore(release): release version $VERSION" -e
-git tag -a "$VERSION" -m "release version $VERSION"
+LAST_MSG=$(git log -1 --pretty=%B | tail -n+3)
+git tag -a "$VERSION" -m "$LAST_MSG"
