@@ -1,6 +1,6 @@
 <h1>
-  <img src="https://raw.githubusercontent.com/critocrito/ncube/master/resources/logo.png" width="128" height="128" style="float:left;">
-  # Ncube
+  <img src="https://raw.githubusercontent.com/critocrito/ncube/master/resources/logo.png" width="48" height="48" style="float:left;">
+  Ncube
 </h1>
 
 <div align="center">
@@ -11,11 +11,11 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/critocrito/ncube?color=orange&style=flat-square)
 ![GitHub](https://img.shields.io/github/license/critocrito/ncube?color=blue&style=flat-square)
 
-![Ncube Screenshot](https://raw.githubusercontent.com/hlissner/doom-emacs/master/resources/screenshots/ncube.png)
-
-> Enter the hypercube.
+![Ncube Screenshot](https://raw.githubusercontent.com/critocrito/ncube/master/resources/screenshots/ncube.png)
 
 </div>
+
+> Enter the hypercube.
 
 ---
 
