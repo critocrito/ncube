@@ -158,7 +158,8 @@ jobs:
       shell: bash
       run: |
         make pkg-dmg
-        echo "::set-env name=ASSET::pkgs/Ncube_${{ env.RELEASE_VERSION }}.dmg"
+        mv pkgs/Ncube_${{ env.RELEASE_VERSION }}.dmg .
+        echo "::set-env name=ASSET::Ncube_${{ env.RELEASE_VERSION }}.dmg"
 
     - name: Build installable DEB package
       if: matrix.build == 'linux-pkg'
@@ -166,7 +167,8 @@ jobs:
       run: |
         cargo install cargo-deb
         make pkg-deb
-        echo "::set-env name=ASSET::pkgs/ncube_${{ env.RELEASE_VERSION }}_amd64.deb"
+        mv pkgs/ncube_${{ env.RELEASE_VERSION }}_amd64.deb ncube_${{ env.RELEASE_VERSION }}_${{ matrix.os }}_amd64.deb
+        echo "::set-env name=ASSET::ncube_${{ env.RELEASE_VERSION }}_${{ matrix.os }}_amd64.deb"
 
     - name: Upload release archive
       uses: actions/upload-release-asset@v1.0.1
