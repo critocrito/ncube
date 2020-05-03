@@ -1,4 +1,4 @@
-.PHONY: all ui devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb
+.PHONY: all test ui devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -166,6 +166,9 @@ pkg-deb:
 	@mkdir -p $(pkgs_release_dir)
 	cargo deb -p ncube
 	cp target/debian/ncube*.deb $(pkgs_release_dir)
+
+test:
+	cargo test
 
 ui: $(dist_dir)/app.js \
 	$(dist_dir)/index.html \
