@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Ncube
+Comment=Data investigation for human rights.
+Exec=ncube
+Icon=ncube
+Terminal=false
+Categories=Misc;

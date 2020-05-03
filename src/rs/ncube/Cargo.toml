@@ -3,8 +3,8 @@ name = "ncube"
 version = "0.1.0"
 authors = ["Christo <christo@cryptodrunks.net>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "GPL-3.0"
+description = "Data investigations for human rights."
 
 [dependencies]
 futures = "0.3.4"
@@ -15,3 +15,19 @@ tracing-subscriber = "0.2"
 web-view = { version = "0.5.4" }
 
 ncubed = { path = "../ncubed" }
+
+[package.metadata.deb]
+section = "misc"
+assets = [
+  ["../../../target/release/ncube", "usr/bin/", "755"],
+  ["../../../license.txt", "usr/share/doc/ncube/", "644"],
+  ["../../../CHANGELOG.md", "usr/share/doc/ncube/CHANGELOG", "644"],
+  ["../../../README.md", "usr/share/doc/ncube/README", "644"],
+  ["../../../resources/ncube.desktop", "usr/share/applications/", "644"],
+  ["../../../resources/ncube.png", "usr/share/pixmaps/", "644"],
+]
+extended-description = """\
+ncube helps human rights researchers and investigative journalists to make use
+of publicy available data. ncube has first class support on Windows, macOS and
+Linux.
+"""
