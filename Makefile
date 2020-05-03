@@ -1,4 +1,4 @@
-.PHONY: all ui devcards clean-dist clean-build clean-devcards pkg-macos
+.PHONY: all ui devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -157,6 +157,15 @@ clean:
 pkg-dmg: $(pkg_build_macos)
 	@mkdir -p  $(pkgs_release_dir)
 	npx create-dmg --overwrite $(pkg_build_macos) $(pkgs_release_dir) | true
+
+pkg-bin: $(release_dir)/ncube
+	@mkdir -p $(pkgs_release_dir)
+	cp $(release_dir)/ncube $(pkgs_release_dir)/ncube-$(shell uname -s | sed "y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/")
+
+pkg-deb:
+	@mkdir -p $(pkgs_release_dir)
+	cargo deb -p ncube
+	cp target/debian/ncube*.deb $(pkgs_release_dir)
 
 ui: $(dist_dir)/app.js \
 	$(dist_dir)/index.html \
