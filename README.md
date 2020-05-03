@@ -5,7 +5,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) ![Build Status](https://github.com/critocrito/ncube/workflows/Build%20Status/badge.svg)
 
 <p align="center">
-  <img src="/resources/logo.png" alt="Ncube - Data exploration and verification for human rights">
+  <img src="/resources/logo.png" width="400" alt="Ncube - Data exploration and verification for human rights">
 </p>
 
 _This project is in an early stage and probably not working right now._
