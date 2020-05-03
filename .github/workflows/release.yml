@@ -1,0 +1,169 @@
+# The way this works is a little weird. But basically, the create-release job
+# runs purely to initialize the GitHub release itself. Once done, the upload
+# URL of the release is saved as an artifact.
+#
+# The build-release job runs only once create-release is finished. It gets
+# the release upload URL by downloading the corresponding artifact (which was
+# uploaded by create-release). It then builds the release executables for each
+# supported platform and attaches them as release assets to the previously
+# created release.
+#
+# The key here is that we create the release only once.
+
+name: release
+on:
+  push:
+    tags:
+    - '[0-9]+.[0-9]+.[0-9]+'
+jobs:
+  create-release:
+    name: create-release
+    runs-on: ubuntu-latest
+    # env:
+      # Set to force version number, e.g., when no tag exists.
+      # NCUBE_VERSION: TEST-0.0.0
+    steps:
+      - name: Create artifacts directory
+        run: mkdir artifacts
+
+      - name: Get the release version from the tag
+        if: env.NCUBE_VERSION == ''
+        run: |
+          # Apparently, this is the right way to get a tag name. Really?
+          #
+          # See: https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167/highlight/true#M1027
+          echo "::set-env name=NCUBE_VERSION::${GITHUB_REF#refs/tags/}"
+          echo "version is: ${{ env.NCUBE_VERSION }}"
+      - name: Create GitHub release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.NCUBE_VERSION }}
+          release_name: ${{ env.NCUBE_VERSION }}
+
+      - name: Save release upload URL to artifact
+        run: echo "${{ steps.release.outputs.upload_url }}" > artifacts/release-upload-url
+
+      - name: Save version number to artifact
+        run: echo "${{ env.NCUBE_VERSION }}" > artifacts/release-version
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: artifacts
+          path: artifacts
+
+  build-release:
+    name: build-release
+    needs: ['create-release']
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        build: [linux, macos]
+        include:
+        - build: linux
+          os: ubuntu-18.04
+          rust: nightly
+          target: x86_64-unknown-linux-gnu
+        - build: macos
+          os: macos-latest
+          rust: nightly
+          target: x86_64-apple-darwin
+        - build: linux-pkg
+          os: ubuntu-18.04
+          rust: nightly
+          target: x86_64-unknown-linux-gnu
+        - build: macos-pkg
+          os: macos-latest
+          rust: nightly
+          target: x86_64-apple-darwin
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+
+    - name: Get release download URL
+      uses: actions/download-artifact@v1
+      with:
+        name: artifacts
+        path: artifacts
+
+    - name: Set release upload URL and release version
+      shell: bash
+      run: |
+        release_upload_url="$(cat artifacts/release-upload-url)"
+        echo "::set-env name=RELEASE_UPLOAD_URL::$release_upload_url"
+        echo "release upload url: $RELEASE_UPLOAD_URL"
+        release_version="$(cat artifacts/release-version)"
+        echo "::set-env name=RELEASE_VERSION::$release_version"
+        echo "release version: $RELEASE_VERSION"
+
+    - uses: DeLaGuardo/setup-clojure@2.0
+      with:
+        tools-deps: '1.10.1.469'
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust }}
+        profile: minimal
+        override: true
+        target: ${{ matrix.target }}
+
+    - name: Install Node dependencies
+      run: yarn install
+
+    - name: Build Ncube
+      shell: bash
+      run: |
+        make ui
+        cargo build --bin ncube --release --target ${{ matrix.target }}
+
+    - name: Strip release binary (linux and macos)
+      run: strip "target/${{ matrix.target }}/release/ncube"
+
+    - name: Build binary release
+      if: matrix.build == 'linux' || matrix.build == 'macos'
+      shell: bash
+      run: |
+        outdir="$(ci/cargo-out-dir "${{ env.TARGET_DIR }}")"
+        staging="ncube-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
+        mkdir -p "$staging"/doc
+        cp {README.md,license.txt} "$staging/"
+        cp {CHANGELOG.md,doc/glossary.md} "$staging/doc/"
+        cp "target/${{ matrix.target }}/release/ncube" "$staging/"
+        tar czf "$staging.tar.gz" "$staging"
+        echo "::set-env name=ASSET::$staging.tar.gz"
+
+    - name: Build installable DMG package
+      if: matrix.build == 'macos-pkg'
+      shell: bash
+      run: |
+        make pkg-dmg
+        echo "::set-env name=ASSET::pkgs/ncube\ ${{ env.RELEASE_VERSION }}.dmg"
+
+    - name: Build installable DEB package
+      if: matrix.build == 'linux-pkg'
+      shell: bash
+      run: |
+        cargo install cargo-deb
+        make pkg-deb
+        echo "::set-env name=ASSET::pkgs/ncube_${{ env.RELEASE_VERSION }}_amd64.deb"
+
+    - name: Upload release archive
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ env.RELEASE_UPLOAD_URL }}
+        asset_path: ${{ env.ASSET }}
+        asset_name: ${{ env.ASSET }}
+        asset_content_type: application/octet-stream
