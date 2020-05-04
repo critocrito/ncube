@@ -14,5 +14,14 @@
   },
   "dependencies": {
     "tachyons": "^4.11.1"
+  },
+  "postcss": {
+    "plugins": {
+      "postcss-import": {},
+      "postcss-insert": {},
+      "postcss-custom-properties": { "preserve": false },
+      "postcss-preset-env": { "browsers": "> 0.2%" },
+      "autoprefixer": {}
+    }
   }
 }
