@@ -12,6 +12,9 @@ ncube.db*
 # annoying mac artifacts
 .DS_Store
 
+# Emacs
+.dir-locals.el
+
 # Rust
 Cargo.lock
 **/*.rs.bk
