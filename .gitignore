@@ -1,10 +1,28 @@
-/target
-/pkgs
-Cargo.lock
-ncube.db*
-.DS_Store
-.cpcache
-.nrepl-port
 !.keep
-node_modules
+
+# will have compiled files and executables
+/target
+
+# will have all package artifacts
+/pkgs
+
+# Ncube config databases
+ncube.db*
+
+# annoying mac artifacts
+.DS_Store
+
+# Rust
+Cargo.lock
+**/*.rs.bk
+
+# Clojurescript
+.cpcache
+.nrepl-history
+.nrepl-port
 .rebel_readline_history
+
+# NodeJS
+node_modules
+yarn*.log
+npm*.log
