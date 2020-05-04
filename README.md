@@ -6,7 +6,7 @@
 
 ![Ncube Screenshot](https://raw.githubusercontent.com/critocrito/ncube/master/resources/screenshots/ncube.png)
 
-[Installation](#installation) • [Documentation](#documentation)
+[Installation](#installation) • [Documentation](#documentation) • [Development](#development)
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/critocrito/ncube/Build%20Status?style=flat-square)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/critocrito/ncube?color=orange&style=flat-square)
@@ -43,22 +43,15 @@ Ncube can be installed using the [DMG installer image](https://github.com/critoc
 
 ### From Source
 
-See the [development section](#development) for instructions.
+The following prerequesites are required to build Ncube from source:
 
-## Development
-
-Ncube consists of several parts:
-
-- `ncubed` is the backend of Ncube that exposes all functionality of Ncube.
-- The frontend UI is a single page web app that communicates to `ncubed`.
-- `ncube` is the full desktop app including `ncubed` and wrapping the frontend UI in a local browser window.
-
-The following toolchains have to be available to build Ncube:
-
-- Make sure to have a recent version of [Rust](https://www.rust-lang.org/)
-  installed. [Rustup](https://rustup.rs/) is a great way to do so.
-- The UI is developed in Clojurescript and therefore requires Java and
-  [Clojure](https://clojure.org/guides/getting_started).
+- A recent version of [Rust](https://www.rust-lang.org/).
+  [Rustup](https://rustup.rs/) is a great way to do so. The minimum supported
+  version is 1.40.0+.
+- The UI is developed in ClojureScript and therefore requires Java and
+  [Clojure](https://clojure.org/guides/getting_started). Ncube is tested using
+  Clojure 1.10.1 and ClojureScript 1.10.597. Not that ClojureScript 1.10.753
+  does not work right now.
 - The CSS stylesheets are compiled using [PostCSS](https://postcss.org/) which requires NodeJS and  
   `npm`/`yarn`. Run `yarn install` (or `npm install`) to fetch all dependencies.
 
@@ -79,52 +72,17 @@ $ yarn --version
 1.22.0
 ```
 
-Begin by compiling the stylesheets. I usually leave this command running in a
-terminal. It will watch the stylesheets for any changes and recompile if needed.
+Once all the dependencies are in place build Ncube:
 
 ```sh
-node_modules/.bin/postcss -w -o target/public/cljs-out/styles.css src/css/*.css
+make
 ```
 
-The UI development environment is based on [Figwheel](https://figwheel.org/).
-The [`dev.cljs.edn`](./dev.cljs.edn) configuration starts a development REPL for
-the UI development. Emacs users can place a `.dir-locals.el` file to make the
-integration with [Cider](https://cider.mx/) easier.
-
-```emacs-lisp
-((nil
-  (cider-default-cljs-repl . figwheel-main)
-  (cider-figwheel-main-default-options . ":dev")
-  (cider-clojure-cli-global-options . "-A:fig-deps:dev-deps:cards-deps")))
-```
-
-Alternatively start a development REPL manually in another terminal window:
+The build produces a single binary and can be started like this:
 
 ```sh
-clj -A:fig-deps:dev-deps:dev
+./target/release/ncube
 ```
-
-This opens the browser at port 9500 on `localhost`.
-
-Since the backend delivers the frontend using it's own HTTP server, the frontend
-assets must be available when compiling the backend. This is the case even if
-you use Figwheel to load the UI on port 9500 and have it communicate with the
-backend on port 40666 since they produce different assets in a different
-locations. Open yet another terminal and run the following:
-
-```sh
-make ui
-cargo run --bin ncubed
-```
-
-### Tests
-
-This project provides [`devcards`](https://github.com/bhauman/devcards/) to
-display its design system. They can be inspected at
-`http://localhost:9500/figwheel-extra-main/devcards`.
-
-A standalone version of `devcards` is build when compiling the production
-distribution (`make/make build`). The output directory is `resources/dist`.
 
 ## Documentation
 
@@ -144,6 +102,72 @@ regenerate the images:
 ```sh
 fc4 -fsr doc/diagrams
 ```
+
+## Development
+
+Ncube consists of several parts:
+
+- `ncubed` is the backend of Ncube that exposes all functionality of Ncube.
+- The frontend UI is a single page web app that communicates to `ncubed`.
+- `ncube` is the full desktop app including `ncubed` and wrapping the frontend UI in a local browser window.
+
+See the [installation from source](#from-source) section to setup all the build
+dependencies.
+
+### Setup
+
+Begin by compiling the stylesheets. I usually leave this command running in a
+terminal. It will watch the stylesheets for any changes and recompile if needed.
+
+```sh
+yarn css
+```
+
+The UI development environment is based on [Figwheel](https://figwheel.org/).
+The [`dev.cljs.edn`](./dev.cljs.edn) configuration starts a development REPL for
+the UI development. Emacs users can place a `.dir-locals.el` file to make the
+integration with [Cider](https://cider.mx/) easier.
+
+```emacs-lisp
+((nil
+  (cider-default-cljs-repl . figwheel-main)
+  (cider-figwheel-main-default-options . ":dev")
+  (cider-clojure-cli-global-options . "-A:fig-deps:dev-deps:cards-deps")))
+```
+
+Alternatively start a development REPL manually in another terminal window:
+
+```sh
+clj -A:fig-deps:dev-deps:cards-deps:dev
+```
+
+This opens the browser at port 9500 on `localhost`.
+
+Since the backend delivers the frontend using it's own HTTP server, the frontend
+assets must be available when compiling the backend. This is the case even if
+you use Figwheel to load the UI on port 9500 and have it communicate with the
+backend on port 40666 since they produce different assets in a different
+locations. Open yet another terminal and run the following:
+
+```sh
+make ui
+cargo run --bin ncubed
+```
+
+### Tests
+
+The tests can be run by executing the following command:
+
+```sh
+make test
+```
+
+This project provides [`devcards`](https://github.com/bhauman/devcards/) to
+display its design system. They can be inspected at
+`http://localhost:9500/figwheel-extra-main/devcards`.
+
+A standalone version of `devcards` is build when compiling the production
+distribution (`make/make build`). The output directory is `resources/dist`.
 
 ## License
 

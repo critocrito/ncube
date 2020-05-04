@@ -4,6 +4,9 @@
   "repository": "https://github.com/critocrito/ncube.git",
   "author": "Christo <christo@cryptodrunks.net>",
   "license": "GPL-3.0",
+  "scripts": {
+    "css": "postcss -w -o target/public/cljs-out/styles.css src/css/*.css"
+  },
   "devDependencies": {
     "postcss": "^7.0.27",
     "postcss-cli": "^7.1.0",
