@@ -88,8 +88,15 @@ node_modules/.bin/postcss -w -o target/public/cljs-out/styles.css src/css/*.css
 
 The UI development environment is based on [Figwheel](https://figwheel.org/).
 The [`dev.cljs.edn`](./dev.cljs.edn) configuration starts a development REPL for
-the UI development. When using Emacs with Cider permit the
-[`.dir-locals.el`](./.dir-locals.el) to configure the REPL.
+the UI development. Emacs users can place a `.dir-locals.el` file to make the
+integration with [Cider](https://cider.mx/) easier.
+
+```emacs-lisp
+((nil
+  (cider-default-cljs-repl . figwheel-main)
+  (cider-figwheel-main-default-options . ":dev")
+  (cider-clojure-cli-global-options . "-A:fig-deps:dev-deps:cards-deps")))
+```
 
 Alternatively start a development REPL manually in another terminal window:
 
