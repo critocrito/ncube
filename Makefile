@@ -10,7 +10,7 @@ dist_images_dir = $(dist_dir)/images
 css_dir = $(target_dir)/css
 cljs_dir = $(target_dir)/public/cljs-out
 pkgs_release_dir = pkgs
-devcards_dir = devcards
+devcards_dir = $(target_dir)/devcards
 
 all: $(release_dir)/ncube
 
