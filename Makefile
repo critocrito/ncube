@@ -9,6 +9,7 @@ dist_fonts_dir = $(dist_dir)/fonts
 dist_images_dir = $(dist_dir)/images
 css_dir = $(target_dir)/css
 cljs_dir = $(target_dir)/public/cljs-out
+workspace_zip = $(target_dir)/workspace.zip
 pkgs_release_dir = pkgs
 devcards_dir = $(target_dir)/devcards
 
@@ -74,6 +75,10 @@ $(dist_images_dir)/icon_query.svg:
 	@mkdir -p $(dist_images_dir)
 	cp resources/public/images/icon_query.svg $(dist_images_dir)
 
+$(workspace_zip):
+	@mkdir -p $(target_dir)
+	cd resources/workspace && zip -r ../../$(workspace_zip) *
+
 $(devcards_dir)/app.js: $(cljs_dir)/cards-main.js
 	@mkdir -p $(devcards_dir)
 	cp $(cljs_dir)/cards-main.js $(devcards_dir)/app.js
@@ -116,7 +121,8 @@ $(release_dir)/ncube: $(dist_dir)/app.js \
 						$(dist_images_dir)/icon_help.svg \
 						$(dist_images_dir)/icon_investigation.svg \
 						$(dist_images_dir)/icon_process.svg \
-						$(dist_images_dir)/icon_query.svg
+						$(dist_images_dir)/icon_query.svg \
+						$(workspace_zip)
 	@mkdir -p $(release_dir)
 	cargo build --bin ncube --release
 
@@ -141,6 +147,7 @@ clean-dist:
 	rm -rf $(release_dir)/ncube
 	rm -rf $(cljs_dir)
 	rm -rf $(dist_dir)
+	rm $(workspace_zip)
 
 clean-build:
 	rm -rf $(pkg_build_dir)
