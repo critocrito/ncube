@@ -1,4 +1,6 @@
+use directories::ProjectDirs;
 use ncubed::{Application, ApplicationConfig};
+use std::fs::create_dir_all;
 use std::thread;
 use tokio::runtime;
 use tracing::Level;
@@ -6,9 +8,14 @@ use tracing_subscriber;
 use web_view::*;
 
 fn main() {
-    // FIXME: supply config from command args/environment/config file
+    let project = ProjectDirs::from("net", "sugarcubetools", "Ncube").unwrap();
+    let cfg_dir = project.config_dir();
+    create_dir_all(&cfg_dir).unwrap();
+    let db_path = cfg_dir.join("ncube.db");
+
     let config = ApplicationConfig {
-        host_db: "sqlite://ncube.db".into(),
+        // FIXME: Handle the Option.unwrap explicitely
+        host_db: format!("sqlite://{}", db_path.to_str().unwrap()).into(),
         listen: "127.0.0.1:40666".parse().unwrap(),
     };
 

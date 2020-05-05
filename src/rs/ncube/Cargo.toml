@@ -13,6 +13,7 @@ tracing = "0.1"
 tracing-futures = "0.2"
 tracing-subscriber = "0.2"
 web-view = { version = "0.5.4" }
+directories = "2.0.2"
 
 ncubed = { path = "../ncubed" }
 
