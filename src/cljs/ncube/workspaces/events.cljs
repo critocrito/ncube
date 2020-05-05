@@ -36,7 +36,6 @@
   [{db :db} [_ {:keys [values]}]]
   (let [req-body {:name (values "name")
                   :kind "local"
-                  :location "~/Ncubed/xxx"
                   :description (values "description")}]
     {:db (fork/set-submitting db :form false)
    :http-xhrio

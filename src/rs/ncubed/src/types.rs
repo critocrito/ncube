@@ -6,8 +6,7 @@ use slugify::slugify;
 pub struct WorkspaceRequest {
     pub name: String,
     pub description: Option<String>,
-    #[serde(flatten)]
-    pub kind: WorkspaceKind,
+    pub kind: String,
 }
 
 impl WorkspaceRequest {

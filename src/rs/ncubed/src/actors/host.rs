@@ -10,7 +10,7 @@ use crate::errors::{ActorError, StoreError};
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
 use crate::stores::{ConfigSqliteStore, ConfigStore, WorkspaceStore, WorkspaceStoreSqlite};
-use crate::types::{WorkspaceKind, WorkspaceRequest};
+use crate::types::WorkspaceRequest;
 
 pub(crate) struct HostActor {
     db: sqlite::Database,
@@ -86,7 +86,6 @@ pub(crate) struct CreateWorkspace {
     pub(crate) slug: String,
     pub(crate) description: Option<String>,
     pub(crate) kind: String,
-    pub(crate) location: String,
     pub(crate) created_at: DateTime<Utc>,
     pub(crate) updated_at: DateTime<Utc>,
 }
@@ -102,17 +101,13 @@ impl From<WorkspaceRequest> for CreateWorkspace {
         let description = w.description.clone();
         let created_at = Utc::now();
         let updated_at = created_at;
-        let (kind, location) = match w.kind {
-            WorkspaceKind::Local(location) => ("local".into(), location),
-            WorkspaceKind::Remote(location) => ("remote".into(), location),
-        };
+        let kind = w.kind;
 
         CreateWorkspace {
             name,
             slug,
             description,
             kind,
-            location,
             created_at,
             updated_at,
         }
@@ -142,8 +137,6 @@ pub(crate) struct UpdateWorkspace {
     pub name: String,
     pub slug: String,
     pub description: Option<String>,
-    pub kind: String,
-    pub location: String,
 }
 
 #[async_trait]
@@ -203,6 +196,7 @@ impl Handler<CreateWorkspace> for HostActor {
         let workspace_root = self.workspace_root().await?.ok_or(ActorError::Invalid(
             "missing the workspace root to continue".into(),
         ))?;
+        let location = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
         self.workspace_store
             .create(
                 self.db.clone(),
@@ -210,15 +204,14 @@ impl Handler<CreateWorkspace> for HostActor {
                 &msg.slug,
                 &msg.description,
                 &msg.kind,
-                &msg.location,
+                &location.to_string_lossy(),
                 &msg.created_at.to_rfc3339(),
                 &msg.updated_at.to_rfc3339(),
             )
             .await?;
 
-        let workspace_path = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
-        mkdirp(&workspace_path)?;
-        unzip_workspace(&workspace_path)
+        mkdirp(&location)?;
+        unzip_workspace(&location)
             .map_err(|_| ActorError::Invalid("Failed to create project directory".into()))?;
         Ok(())
     }
@@ -281,8 +274,6 @@ impl Handler<UpdateWorkspace> for HostActor {
                 &msg.name,
                 &msg.slug,
                 &msg.description,
-                &msg.kind,
-                &msg.location,
                 &now.to_rfc3339(),
             )
             .await?;
