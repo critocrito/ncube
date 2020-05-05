@@ -32,7 +32,7 @@ pub enum ActorError {
     #[error("The underlying store failed.: {0}")]
     Store(#[from] StoreError),
     #[error("The host gave an error: {0}")]
-    Host(#[from] HostError),
+    Host(String),
     #[error("The request to the actor was invalid: {0}")]
     Invalid(String),
 }
@@ -41,8 +41,8 @@ pub enum ActorError {
 pub enum HandlerError {
     #[error(transparent)]
     Store(#[from] StoreError),
-    #[error(transparent)]
-    Host(#[from] HostError),
+    #[error("The host failed for reasons: {0}")]
+    Host(String),
     #[error(transparent)]
     Other(#[from] anyhow::Error),
     #[error("{0}")]
@@ -51,6 +51,24 @@ pub enum HandlerError {
     Invalid(String),
     #[error("{0}")]
     NotFound(String),
+}
+
+impl From<HostError> for ActorError {
+    fn from(err: HostError) -> Self {
+        ActorError::Host(err.to_string())
+    }
+}
+
+impl From<anyhow::Error> for ActorError {
+    fn from(err: anyhow::Error) -> Self {
+        ActorError::Host(err.to_string())
+    }
+}
+
+impl<T> From<tokio::sync::mpsc::error::SendError<T>> for ActorError {
+    fn from(err: tokio::sync::mpsc::error::SendError<T>) -> Self {
+        ActorError::Host(err.to_string())
+    }
 }
 
 impl From<ActorError> for HandlerError {
@@ -62,7 +80,7 @@ impl From<ActorError> for HandlerError {
                 _ => HandlerError::Store(err),
             },
             ActorError::Invalid(msg) => HandlerError::Invalid(msg),
-            ActorError::Host(err) => HandlerError::Host(err),
+            ActorError::Host(err) => HandlerError::Host(err.to_string()),
         }
     }
 }
@@ -81,6 +99,8 @@ pub enum ApplicationError {
     Actor(#[from] ActorError),
     #[error(transparent)]
     Store(#[from] StoreError),
+    #[error(transparent)]
+    Host(#[from] HostError),
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }

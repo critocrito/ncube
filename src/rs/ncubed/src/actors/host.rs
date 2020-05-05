@@ -5,6 +5,7 @@ use std::path::Path;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler, Message};
 
+use crate::actors::task::{SetupWorkspace, TaskActor};
 use crate::db::sqlite;
 use crate::errors::{ActorError, StoreError};
 use crate::fs::{mkdirp, unzip_workspace};
@@ -213,6 +214,12 @@ impl Handler<CreateWorkspace> for HostActor {
         mkdirp(&location)?;
         unzip_workspace(&location)
             .map_err(|_| ActorError::Invalid("Failed to create project directory".into()))?;
+        let mut actor = TaskActor::from_registry().await.unwrap();
+        actor
+            .call(SetupWorkspace {
+                location: location.to_string_lossy().to_string(),
+            })
+            .await??;
         Ok(())
     }
 }

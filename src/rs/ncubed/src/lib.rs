@@ -17,7 +17,7 @@ pub mod types;
 use std::net::SocketAddr;
 use xactor::Actor;
 
-use self::actors::HostActor;
+use self::actors::{HostActor, TaskActor};
 use self::registry::Registry;
 
 #[derive(Debug, Clone)]
@@ -39,6 +39,8 @@ impl Application {
     pub async fn run(&mut self) -> Result<(), errors::ApplicationError> {
         let host_actor = HostActor::new(&self.config.host_db)?.start().await;
         HostActor::register_once(host_actor).await;
+        let task_actor = TaskActor::new()?.start().await;
+        TaskActor::register_once(task_actor).await;
 
         warp::serve(routes::router()).run(self.config.listen).await;
 
