@@ -32,7 +32,7 @@ pub struct DataSegment {
 
 impl NcubeEntity for Collection {}
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ConfigSetting {
     pub name: String,
     pub value: String,

@@ -28,6 +28,8 @@ refinery = { version = "0.2", features = ["rusqlite"]}
 refinery-migrations = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 slugify = "0.1.0"
+dirs = "2.0.2"
+zip = "0.5.5"
 
 ncube-data = { path = "../ncube-data" }
 

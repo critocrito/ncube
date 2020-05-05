@@ -19,16 +19,30 @@ pub enum StoreError {
     NotFound(String),
 }
 
+#[derive(Debug, Error)]
+pub enum HostError {
+    #[error(transparent)]
+    Io(#[from] std::io::Error),
+    #[error("General host error: {0}")]
+    General(String),
+}
+
 #[derive(Error, Debug)]
 pub enum ActorError {
     #[error("The underlying store failed.: {0}")]
     Store(#[from] StoreError),
+    #[error("The host gave an error: {0}")]
+    Host(#[from] HostError),
+    #[error("The request to the actor was invalid: {0}")]
+    Invalid(String),
 }
 
 #[derive(Error, Debug)]
 pub enum HandlerError {
     #[error(transparent)]
     Store(#[from] StoreError),
+    #[error(transparent)]
+    Host(#[from] HostError),
     #[error(transparent)]
     Other(#[from] anyhow::Error),
     #[error("{0}")]
@@ -47,6 +61,8 @@ impl From<ActorError> for HandlerError {
                 StoreError::Invalid(inner_err) => HandlerError::Invalid(inner_err.to_string()),
                 _ => HandlerError::Store(err),
             },
+            ActorError::Invalid(msg) => HandlerError::Invalid(msg),
+            ActorError::Host(err) => HandlerError::Host(err),
         }
     }
 }
