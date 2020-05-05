@@ -1,4 +1,4 @@
-use ncube_data::{Workspace, WorkspaceKind};
+use ncube_data::Workspace;
 use tracing::{error, instrument};
 
 use crate::actors::{
@@ -74,12 +74,8 @@ pub async fn update_workspace(
         )));
     };
 
-    let (kind, location) = match &workspace_request.kind {
-        WorkspaceKind::Local(location) => ("local".into(), location.to_string()),
-        WorkspaceKind::Remote(location) => ("remote".into(), location.to_string()),
-    };
-
     let slug = workspace_request.slug();
+
     let WorkspaceRequest {
         name, description, ..
     } = workspace_request;
@@ -90,8 +86,6 @@ pub async fn update_workspace(
             slug,
             name,
             description,
-            kind,
-            location,
         })
         .await??;
 

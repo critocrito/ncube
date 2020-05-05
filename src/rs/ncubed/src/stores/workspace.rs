@@ -36,8 +36,6 @@ pub(crate) trait WorkspaceStore {
         name: &str,
         slug: &str,
         description: &Option<String>,
-        kind: &str,
-        location: &str,
         updated_at: &str,
     ) -> Result<(), StoreError>;
 }
@@ -140,8 +138,6 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         name: &str,
         slug: &str,
         description: &Option<String>,
-        kind: &str,
-        location: &str,
         updated_at: &str,
     ) -> Result<(), StoreError> {
         let conn = db.connection().await?;
@@ -151,8 +147,6 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
             &name,
             &slug,
             &description,
-            &kind,
-            &location,
             &updated_at,
             &current_slug,
         ])?;
