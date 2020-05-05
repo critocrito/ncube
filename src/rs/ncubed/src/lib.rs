@@ -7,6 +7,7 @@
 pub mod actors;
 pub mod db;
 pub mod errors;
+pub mod fs;
 pub mod handlers;
 pub mod registry;
 pub mod routes;

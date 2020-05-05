@@ -1,11 +1,13 @@
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use ncube_data::{NcubeConfig, Workspace};
+use ncube_data::{ConfigSetting, NcubeConfig, Workspace};
+use std::path::Path;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler, Message};
 
 use crate::db::sqlite;
 use crate::errors::{ActorError, StoreError};
+use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
 use crate::stores::{ConfigSqliteStore, ConfigStore, WorkspaceStore, WorkspaceStoreSqlite};
 use crate::types::{WorkspaceKind, WorkspaceRequest};
@@ -39,6 +41,15 @@ impl HostActor {
             workspace_store,
             db,
         })
+    }
+
+    pub async fn workspace_root(&mut self) -> Result<Option<ConfigSetting>, StoreError> {
+        let config = self.store.show(&self.db).await?;
+        let setting = config.into_iter().find(|setting| {
+            let comparator: String = "workspace_root".into();
+            &comparator == &setting.name
+        });
+        Ok(setting)
     }
 }
 
@@ -189,6 +200,9 @@ impl Handler<CreateWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: CreateWorkspace,
     ) -> Result<(), ActorError> {
+        let workspace_root = self.workspace_root().await?.ok_or(ActorError::Invalid(
+            "missing the workspace root to continue".into(),
+        ))?;
         self.workspace_store
             .create(
                 self.db.clone(),
@@ -202,6 +216,10 @@ impl Handler<CreateWorkspace> for HostActor {
             )
             .await?;
 
+        let workspace_path = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
+        mkdirp(&workspace_path)?;
+        unzip_workspace(&workspace_path)
+            .map_err(|_| ActorError::Invalid("Failed to create project directory".into()))?;
         Ok(())
     }
 }
