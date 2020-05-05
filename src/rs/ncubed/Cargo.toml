@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 futures = "0.3.4"
-tokio = { version = "0.2", features = ["macros", "sync", "time", "rt-threaded"] }
+tokio = { version = "0.2", features = ["macros", "sync", "time", "rt-threaded", "process"] }
 async-trait = "0.1"
 thiserror = "1.0"
 anyhow = "1.0"

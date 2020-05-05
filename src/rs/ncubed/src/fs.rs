@@ -9,7 +9,8 @@ use tracing::{debug, instrument};
 
 use crate::errors::HostError;
 
-fn expand_tilde<P: AsRef<Path>>(path_user_input: P) -> Option<PathBuf> {
+#[instrument]
+pub fn expand_tilde<P: AsRef<Path> + Debug>(path_user_input: P) -> Option<PathBuf> {
     let p = path_user_input.as_ref();
     if !p.starts_with("~") {
         return Some(p.to_path_buf());
