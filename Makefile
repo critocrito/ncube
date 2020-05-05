@@ -1,4 +1,4 @@
-.PHONY: all test ui devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb
+.PHONY: all test ui workspace dist devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -9,7 +9,8 @@ dist_fonts_dir = $(dist_dir)/fonts
 dist_images_dir = $(dist_dir)/images
 css_dir = $(target_dir)/css
 cljs_dir = $(target_dir)/public/cljs-out
-workspace_zip = $(target_dir)/workspace.zip
+workspace_dir = $(target_dir)/workspace
+workspace_archive = $(workspace_dir)/workspace.tar.gz
 pkgs_release_dir = pkgs
 devcards_dir = $(target_dir)/devcards
 
@@ -75,9 +76,9 @@ $(dist_images_dir)/icon_query.svg:
 	@mkdir -p $(dist_images_dir)
 	cp resources/public/images/icon_query.svg $(dist_images_dir)
 
-$(workspace_zip):
-	@mkdir -p $(target_dir)
-	cd resources/workspace && zip -r ../../$(workspace_zip) *
+$(workspace_archive):
+	@mkdir -p $(workspace_dir)
+	./scripts/build_workspace.sh $(workspace_dir) $(workspace_archive)
 
 $(devcards_dir)/app.js: $(cljs_dir)/cards-main.js
 	@mkdir -p $(devcards_dir)
@@ -111,18 +112,7 @@ devcards: clean-devcards \
 			$(devcards_dir)/index.html \
 			$(devcards_dir)/fonts
 
-$(release_dir)/ncube: $(dist_dir)/app.js \
-						$(dist_dir)/styles.css \
-						$(dist_dir)/index.html \
-						$(dist_fonts_dir)/NotoSans-Regular.ttf \
-						$(dist_fonts_dir)/NotoSans-Bold.ttf \
-						$(dist_images_dir)/logo_big.svg \
-						$(dist_images_dir)/icon_data.svg \
-						$(dist_images_dir)/icon_help.svg \
-						$(dist_images_dir)/icon_investigation.svg \
-						$(dist_images_dir)/icon_process.svg \
-						$(dist_images_dir)/icon_query.svg \
-						$(workspace_zip)
+$(release_dir)/ncube: dist
 	@mkdir -p $(release_dir)
 	cargo build --bin ncube --release
 
@@ -147,7 +137,8 @@ clean-dist:
 	rm -rf $(release_dir)/ncube
 	rm -rf $(cljs_dir)
 	rm -rf $(dist_dir)
-	rm $(workspace_zip)
+	rm -rf $(workspace_dir)
+	rm $(workspace_archive)
 
 clean-build:
 	rm -rf $(pkg_build_dir)
@@ -189,3 +180,7 @@ ui: $(dist_dir)/app.js \
 	$(dist_images_dir)/icon_investigation.svg \
 	$(dist_images_dir)/icon_process.svg \
 	$(dist_images_dir)/icon_query.svg
+
+workspace: $(workspace_archive)
+
+dist: ui workspace
