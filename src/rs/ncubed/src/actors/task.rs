@@ -18,7 +18,7 @@ mod tasks {
     use std::fmt::Debug;
     use std::path::Path;
     use tokio::process::Command;
-    use tracing::{info, instrument};
+    use tracing::{debug, info, instrument};
 
     use crate::errors::HostError;
     use crate::fs::expand_tilde;
@@ -32,10 +32,14 @@ mod tasks {
             .expect("Fail");
 
         let env_path = format!(
-            "{}/dist/nodejs/bin:{}/node_modules/.bin:/bin:/usr/bin",
+            "{}/dist/nodejs/bin:{}/dist/ffmpeg:{}/dist/youtube-dl:{}/node_modules/.bin:/usr/local/bin:/usr/bin:/bin",
+            expanded_path.as_path().to_string_lossy(),
+            expanded_path.as_path().to_string_lossy(),
             expanded_path.as_path().to_string_lossy(),
             expanded_path.as_path().to_string_lossy(),
         );
+
+        debug!("PATH={}", env_path);
 
         Command::new("npm")
             .current_dir(expanded_path.clone())
