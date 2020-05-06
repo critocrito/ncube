@@ -1,13 +1,19 @@
 (ns ncube.subscriptions
-  (:require [re-frame.core :refer [reg-sub]]))
+  (:require [re-frame.core :as rf]))
 
-(reg-sub
+(rf/reg-sub
  :current-route
  (fn [db]
    (:current-route db)))
 
-(reg-sub
+(rf/reg-sub
  :workspaces
  (fn
    [db]
    (:workspaces db)))
+
+(rf/reg-sub
+ :sidebar?
+ (fn
+   [db]
+   (:sidebar? db)))

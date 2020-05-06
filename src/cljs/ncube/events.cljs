@@ -1,6 +1,6 @@
 (ns ncube.events
   (:require
-   [re-frame.core :refer [reg-event-db reg-event-fx]]
+   [re-frame.core :as rf]
    [re-frame.std-interceptors :refer [debug]]
    [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
    [reitit.core :as r]
@@ -17,7 +17,7 @@
    [{:when :seen? :events :bootstrap-found}
     {:when :seen? :events :bootstrap}]})
 
-(reg-event-fx
+(rf/reg-event-fx
  :boot
  (fn-traced
   [_ _]
@@ -25,7 +25,7 @@
   {:db default-db
    :async-flow (boot-flow)}))
 
-(reg-event-fx
+(rf/reg-event-fx
  :bootstrapped?
  (fn-traced
   [_ _]
@@ -35,7 +35,7 @@
                 :on-success [:bootstrap-found]
                 :on-failure [:bootstrap]}}))
 
-(reg-event-fx
+(rf/reg-event-fx
  :bootstrap-found
  (fn-traced
   [_ _]
@@ -47,13 +47,38 @@
     {:navigate! navigation-target
      :dispatch [::workspaces/fetch-workspaces]})))
 
-(reg-event-fx
+(rf/reg-event-fx
  :bootstrap
  (fn-traced
   [_ _]
   {:navigate! :onboarding}))
 
-(reg-event-db
+(rf/reg-event-db
  :navigated
  (fn-traced [db [_ new-match]]
    (assoc db :current-route new-match)))
+
+(rf/reg-event-fx
+ :unimplemented
+ [debug]
+ (fn-traced
+  [_ _]))
+
+(rf/reg-event-fx
+ :http-error
+ [debug]
+ (fn-traced
+  [_ _]))
+
+(rf/reg-event-db
+ :toggle-sidebar
+ (fn-traced
+  [db _]
+  (let [sidebar? (:sidebar? db)]
+    (assoc db :sidebar? (not sidebar?)))))
+
+(rf/reg-event-fx
+ :history-back
+ (fn-traced
+  [_ _]
+  {:history :back}))

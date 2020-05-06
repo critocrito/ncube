@@ -2,4 +2,5 @@
 
 (def default-db
   {:current-route nil
-   :workspaces []})
+   :workspaces []
+   :sidebar? false})

@@ -1,6 +1,6 @@
 (ns ncube.router
   (:require
-   [re-frame.core :refer [dispatch subscribe]]
+   [re-frame.core :refer [dispatch]]
    [reitit.core :as r]
    [reitit.frontend :as rf]
    [reitit.coercion.spec :as rss]
@@ -11,12 +11,15 @@
 
 (def routes
   ["/"
+   ["create"
+    {:name :workspaces-create
+     :view workspaces/create-workspaces}]
    ["w"
     {:name :home
      :view workspaces/list-workspaces}]
-   ["w/create"
-    {:name :workspaces-create
-     :view workspaces/create-workspaces}]
+   ["w/:slug"
+    {:name :workspace-details
+     :view workspaces/show-workspace}]
    ["onboarding"
     {:name :onboarding
      :view onboarding/panel}]])

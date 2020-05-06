@@ -1,4 +1,5 @@
-(ns ncube.components)
+(ns ncube.components
+  (:require [re-frame.core :as rf]))
 
 (defn text-input
   "A typical input for element."
@@ -56,3 +57,47 @@
   [label]
   [:div {:class "b bb b--back-to-reality ttu back-to-reality pb"}
    (str label ":")])
+
+(defn navbar
+  []
+  [:div {:class "flex justify-between bg-white"}
+   [:button {:class "link back-to-reality text-medium pl2 pr2"
+             :on-click #(rf/dispatch [:history-back])} "< Back"]
+   [:div {:class "back-to-reality text-medium pl2 pr2 bg-nasty-color"} "Process console"]])
+
+(defn workspace-header
+  [workspace]
+  [:div {:class "bb b--back-to-reality w-100 flex justify-between items-center"}
+   [:div {:class "b text-medium back-to-reality ttu"} "Workspace: " (:name workspace)]
+   [tag {:label "Remote" :style :remote}]])
+
+(defn page-header
+  [title description]
+  [:div
+   [:h1 {:class "header1 back-to-reality"} title]
+   [:p {:class "text-medium"} description]])
+
+(defn sidebar
+  []
+  [:div {:class ["sidebar w5 vh-100 flex flex-column justify-between"] }
+   [:div {:class "bg-back-to-reality h4"} "Workspace Selector"]
+   [:div {:class "bg-white flex flex-column justify-between h-100"}
+    [:div]
+    [:div]]])
+
+(defn panel
+  [{:keys [sidebar? title description workspace]} children]
+  [:div {:class "flex"}
+   [:div {:class ["absolute"]
+          :style {:top "50%"
+                  :left (if sidebar? "238px" "0px")}}
+    [:button {:class "link back-to-reality b bg-white shadow-1"
+              :on-click #(rf/dispatch [:toggle-sidebar])} (if sidebar? "<<" ">>")]]
+   [:div {:class [(when-not sidebar? "dn")]}
+    [sidebar]]
+   [:div {:class ["h5 w-100"]}
+    [navbar]
+    [:div {:class ["pa3 ma2 mw8 center" (when-not sidebar? "mw7")]}
+     [workspace-header workspace]
+     [page-header title description]
+     children]]])

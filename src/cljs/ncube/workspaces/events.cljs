@@ -24,6 +24,12 @@
   {:dispatch [:fetch-workspaces]
    :navigate! :home}))
 
+(rf/reg-event-fx
+ ::workspace-fetched
+ (fn-traced
+  [{db :db} [_ workspace]]
+  {:navigate! [:workspace-details {:slug (:slug workspace)}]
+   :db (assoc db :current-workspace workspace)}))
 
 (rf/reg-event-fx
  ::failure
@@ -60,4 +66,14 @@
                 :uri "http://127.0.0.1:40666/api/workspaces"
                 :response-format (ajax/json-response-format {:keywords? true})
                 :on-success [::workspaces-loaded]
+                :on-failure [:http-error]}}))
+
+(rf/reg-event-fx
+ ::show-workspace
+ (fn-traced
+  [_ [_ slug]]
+  {:http-xhrio {:method :get
+                :uri (str "http://127.0.0.1:40666/api/workspaces/" slug)
+                :response-format (ajax/json-response-format {:keywords? true})
+                :on-success [::workspace-fetched]
                 :on-failure [:http-error]}}))
