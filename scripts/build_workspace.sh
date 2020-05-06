@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -exuo pipefail
+set -euo pipefail
 
 msg_info() {
     printf "\r\033[2K\033[0;32m[ .. ] %s\033[0m\n" "$*"
