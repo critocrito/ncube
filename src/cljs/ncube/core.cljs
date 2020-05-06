@@ -23,11 +23,24 @@
 
 (rf/reg-fx
  :navigate!
- (fn [route-name]
-   ;; FIXME: Handle routes not found
-   (let [route (reitit/match-by-name router route-name)]
-     (rfe/push-state (-> route :data :name))
-     (clerk/navigate-page! (:path route)))))
+ (fn
+   [args]
+   (let [[route-name params] (cond
+                               (vector? args) [(first args) (second args)]
+                               :else [args {}])]
+     ;; FIXME: Handle routes not found
+     (let [route (reitit/match-by-name router route-name params)]
+       (rfe/push-state (-> route :data :name) params)
+       (clerk/navigate-page! (:path route))))))
+
+(rf/reg-fx
+ :history
+ (fn
+   [direction]
+   (cond
+     (= direction :back) (.back js/window.history)
+     (= direction :forward) (.forward js/window.history)
+     :else nil)))
 
 (defn mount
   []

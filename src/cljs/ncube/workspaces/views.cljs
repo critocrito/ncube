@@ -1,8 +1,9 @@
 (ns ncube.workspaces.views
   (:require [re-frame.core :as rf]
             [fork.core :as fork]
-            [ncube.components :refer [desc-text overline tag btn-large btn-small text-input]]
-            [ncube.workspaces.events :as events]))
+            [ncube.components :refer [panel desc-text overline tag btn-large btn-small text-input]]
+            [ncube.workspaces.events :as events]
+            [ncube.workspaces.subscriptions :as subscriptions]))
 
 (defn workspace-stat
   [type value]
@@ -20,11 +21,13 @@
 
 (defn list-workspaces-item
   [workspace]
-  (let [style (keyword (:kind workspace))
+  (let [id (:id workspace)
+        slug (:slug workspace)
+        style (keyword (:kind workspace))
         label (if (= style :remote)
                 "Remote Workspace"
                 "Local Workspace")]
-    [:li {:class "bb b--back-to-reality" :key (:id workspace)}
+    [:li {:class "bb b--back-to-reality" :key id}
      [:div {:class "flex items-center justify-between w-100"}
 
       [:h3 {:class "header3 nowrap back-to-reality"}
@@ -38,7 +41,8 @@
        (workspace-stat :investigation "23")]
 
       [:div {:class "ml1"}
-       (btn-small {:label "Open"})]]]))
+       (btn-small {:label "Open"
+                   :on-click #(rf/dispatch [::events/show-workspace slug])})]]]))
 
 (defn list-workspaces
   []
@@ -97,3 +101,41 @@
                                      500 "server error"}
                 :on-submit #(rf/dispatch [::events/submit-create-workspace-form %])}
      create-workspace-form]]])
+
+(defn card
+  [kind]
+  (let [description "I'm some sort of description. What I will be, I don't know yet. But I'm convinced, it will be mganificient."
+        [title icon label event]
+        (cond
+          (= kind :queries) ["Queries" "icon_query.svg" "Manage" :unimplemented]
+          (= kind :data) ["Data" "icon_data.svg" "Explore" :unimplemented]
+          (= kind :processes) ["Processes" "icon_process.svg" "Set Up" :unimplemented]
+          (= kind :investigations) ["Investigations" "icon_investigation.svg" "Verify" :unimplemented])]
+    [:div {:class "h4 bg-white shadow-1 flex items-center justify-between mb4"}
+     [:div {:class "w-40 pa2"}
+      [:div {:class "flex flex-column pl2"}
+       [:div {:class "flex h3 items-center justify-between w-100"}
+        [:div {:class "flex items-center"}
+         [:img {:class "h2 w2"
+                :src (str "http://localhost:9500/images/" icon)
+                :alt (str "Icon for " title)}]
+         [:h4 {:class "header4 pl2"} title]]
+        ]
+       [:p {:class "text-small"}
+        description]]]
+     [:div {:class "h3 pr2"} [btn-small {:label label :on-click #(rf/dispatch [event])}]]]))
+
+(defn show-workspace
+  []
+  (let [workspace @(rf/subscribe [::subscriptions/workspace])
+        sidebar? @(rf/subscribe [:sidebar?])]
+    [panel
+     {:workspace workspace
+      :title (:name workspace)
+      :description (:description workspace)
+      :sidebar? sidebar?}
+     [:div
+      [card :queries]
+      [card :data]
+      [card :processes]
+      [card :investigations]]]))
