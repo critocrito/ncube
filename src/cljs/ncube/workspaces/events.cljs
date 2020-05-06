@@ -10,6 +10,11 @@
   [_ _]
   {:navigate! :workspaces-create}))
 
+(rf/reg-event-db
+ ::workspaces-loaded
+ (fn-traced
+  [db [_ workspaces]]
+  (assoc db :workspaces workspaces)))
 
 (rf/reg-event-fx
  ::success
@@ -46,3 +51,13 @@
     :response-format (ajax/raw-response-format)
     :on-success [::success]
     :on-failure [::failure]}})))
+
+(rf/reg-event-fx
+ ::fetch-workspaces
+ (fn-traced
+  [_ _]
+  {:http-xhrio {:method :get
+                :uri "http://127.0.0.1:40666/api/workspaces"
+                :response-format (ajax/json-response-format {:keywords? true})
+                :on-success [::workspaces-loaded]
+                :on-failure [:http-error]}}))

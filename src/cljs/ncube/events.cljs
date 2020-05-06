@@ -7,6 +7,7 @@
    [reitit.frontend.easy :as rfe]
    [ncube.db :refer [default-db]]
    [ncube.router :refer [router]]
+   [ncube.workspaces.events :as workspaces]
    [ajax.core :as ajax]))
 
 (defn boot-flow
@@ -35,22 +36,6 @@
                 :on-failure [:bootstrap]}}))
 
 (reg-event-fx
- :fetch-workspaces
- (fn-traced
-  [_ _]
-  {:http-xhrio {:method :get
-                :uri "http://127.0.0.1:40666/api/workspaces"
-                :response-format (ajax/json-response-format {:keywords? true})
-                :on-success [:workspaces-loaded]
-                :on-failure [:http-error]}}))
-
-(reg-event-db
- :workspaces-loaded
- (fn-traced
-  [db [_ workspaces]]
-  (assoc db :workspaces workspaces)))
-
-(reg-event-fx
  :bootstrap-found
  (fn-traced
   [_ _]
@@ -60,7 +45,7 @@
                             matched-route (-> matched-route :data :name)
                             :else :home)]
     {:navigate! navigation-target
-     :dispatch [:fetch-workspaces]})))
+     :dispatch [::workspaces/fetch-workspaces]})))
 
 (reg-event-fx
  :bootstrap
