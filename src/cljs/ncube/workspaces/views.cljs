@@ -59,11 +59,11 @@
              (map #(list-workspaces-item %) workspaces))]
       [:div {:class "fl w-100 pa2"}
        [:div {:class "flex items-end fr"}
-        (btn-large {:label "Link to remote workspace"
+        [btn-large {:label "Link to remote workspace"
                     :on-click #(rf/dispatch [::events/create-workspace])
-                    :style :secondary})
-        (btn-large {:label "Create a new workspace"
-                    :on-click #(rf/dispatch [::events/create-workspace])})]]]]))
+                    :style :secondary}]
+        [btn-large {:label "Create a new workspace"
+                    :on-click #(rf/dispatch [::events/create-workspace])}]]]]]))
 
 (defn create-workspace-form
   [{:keys [values
@@ -74,16 +74,17 @@
            handle-blur
            handle-submit]}]
   [:form {:id form-id :on-submit handle-submit}
-   (text-input {:name "name"
+   [text-input {:name "name"
                 :label "Workspace Name"
                 :value (values "name")
                 :on-change handle-change
-                :on-blur handle-blur})
-   (text-input {:name "description"
+                :on-blur handle-blur}]
+   [text-input {:name "description"
                 :label "Description "
                 :value (values "description")
                 :on-change handle-change
-                :on-blur handle-blur})
+                :on-blur handle-blur}]
+   [:input {:name :database :type :hidden :value "sqlite"}]
    [btn-large {:label "Cancel"
                :on-click (fn [ev]
                            (.preventDefault ev)

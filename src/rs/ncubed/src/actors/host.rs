@@ -88,7 +88,6 @@ pub(crate) struct CreateWorkspace {
     pub(crate) description: Option<String>,
     pub(crate) kind: String,
     pub(crate) created_at: DateTime<Utc>,
-    pub(crate) updated_at: DateTime<Utc>,
 }
 
 impl Message for CreateWorkspace {
@@ -101,7 +100,6 @@ impl From<WorkspaceRequest> for CreateWorkspace {
         let slug = w.slug();
         let description = w.description.clone();
         let created_at = Utc::now();
-        let updated_at = created_at;
         let kind = w.kind;
 
         CreateWorkspace {
@@ -110,7 +108,6 @@ impl From<WorkspaceRequest> for CreateWorkspace {
             description,
             kind,
             created_at,
-            updated_at,
         }
     }
 }
@@ -207,7 +204,7 @@ impl Handler<CreateWorkspace> for HostActor {
                 &msg.kind,
                 &location.to_string_lossy(),
                 &msg.created_at.to_rfc3339(),
-                &msg.updated_at.to_rfc3339(),
+                &msg.created_at.to_rfc3339(),
             )
             .await?;
 

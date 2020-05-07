@@ -1,5 +1,6 @@
 (ns ncube.workspaces.events
   (:require [re-frame.core :as rf]
+            [re-frame.std-interceptors :refer [debug]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [ajax.core :as ajax]
             [fork.core :as fork]))
@@ -48,6 +49,7 @@
   [{db :db} [_ {:keys [values]}]]
   (let [req-body {:name (values "name")
                   :kind "local"
+                  :database "sqlite"
                   :description (values "description")}]
     {:db (fork/set-submitting db :form false)
    :http-xhrio
