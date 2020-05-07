@@ -84,7 +84,14 @@
                 :value (values "description")
                 :on-change handle-change
                 :on-blur handle-blur})
-   (btn-large {:label "Create" :type :submit :disabled submitting?})
+   [btn-large {:label "Cancel"
+               :on-click (fn [ev]
+                           (.preventDefault ev)
+                           (rf/dispatch [:navigate :home]))
+               :disabled submitting?
+               :style :secondary}]
+   [btn-large {:label "Create"
+               :disabled submitting?}]
    [:p on-submit-response]])
 
 (defn create-workspaces

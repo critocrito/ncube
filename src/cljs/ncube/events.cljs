@@ -59,6 +59,13 @@
    (assoc db :current-route new-match)))
 
 (rf/reg-event-fx
+ :navigate
+ (fn-traced
+  [_ [_ route]]
+  {:navigate! route}))
+
+
+(rf/reg-event-fx
  :unimplemented
  [debug]
  (fn-traced
