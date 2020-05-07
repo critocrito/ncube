@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 use std::convert::Infallible;
 use tracing::{error, info, instrument};
 use warp::{
@@ -8,11 +8,91 @@ use warp::{
 
 use crate::errors::HandlerError;
 
-/// An API error serializable to JSON.
-#[derive(Serialize)]
-struct ErrorMessage {
+#[derive(Debug)]
+struct SuccessStatus;
+
+impl Serialize for SuccessStatus {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str("success")
+    }
+}
+
+#[derive(Debug)]
+struct ErrorStatus;
+
+impl Serialize for ErrorStatus {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str("error")
+    }
+}
+
+#[derive(Debug, Serialize)]
+struct SuccessResponse<T>
+where
+    T: Serialize,
+{
+    status: SuccessStatus,
+    data: T,
+}
+
+impl<T> SuccessResponse<T>
+where
+    T: Serialize,
+{
+    fn new(data: T) -> Self {
+        Self {
+            status: SuccessStatus,
+            data,
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+struct ErrorResponse {
+    status: ErrorStatus,
     code: u16,
-    message: String,
+    errors: String,
+}
+
+impl ErrorResponse {
+    fn new(code: &StatusCode, errors: &str) -> Self {
+        Self {
+            status: ErrorStatus,
+            code: code.as_u16(),
+            errors: errors.into(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn http_error_response_envelope() {
+        let response = ErrorResponse::new(&StatusCode::BAD_REQUEST, "I am an error!");
+
+        let expected = "{\"status\":\"error\",\"code\":400,\"errors\":\"I am an error!\"}";
+        let result = serde_json::to_string(&response).unwrap();
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn http_success_response_envelope() {
+        let response = SuccessResponse::new("I am data!");
+
+        let expected = "{\"status\":\"success\",\"data\":\"I am data!\"}";
+        let result = serde_json::to_string(&response).unwrap();
+
+        assert_eq!(result, expected);
+    }
 }
 
 #[instrument]
@@ -44,10 +124,7 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
         message = "UNHANDLED_REJECTION".into();
     }
 
-    let json = warp::reply::json(&ErrorMessage {
-        code: code.as_u16(),
-        message,
-    });
+    let json = warp::reply::json(&ErrorResponse::new(&code, &message));
 
     Ok(warp::reply::with_status(json, code))
 }
@@ -123,6 +200,7 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
 }
 
 pub(crate) mod config {
+    use super::SuccessResponse;
     use serde::Deserialize;
     use warp::Filter;
 
@@ -136,8 +214,9 @@ pub(crate) mod config {
 
     async fn show() -> Result<impl warp::Reply, warp::Rejection> {
         let config = handlers::show_config().await?;
+        let response = SuccessResponse::new(config);
 
-        Ok(warp::reply::json(&config))
+        Ok(warp::reply::json(&response))
     }
 
     async fn create(settings: Vec<SettingRequest>) -> Result<impl warp::Reply, warp::Rejection> {
@@ -179,6 +258,7 @@ pub(crate) mod config {
 }
 
 pub(crate) mod workspace {
+    use super::SuccessResponse;
     use warp::Filter;
 
     use crate::handlers::workspace as handlers;
@@ -194,14 +274,16 @@ pub(crate) mod workspace {
 
     async fn show(slug: String) -> Result<impl warp::Reply, warp::Rejection> {
         let workspace = handlers::show_workspace(&slug).await?;
+        let response = SuccessResponse::new(workspace);
 
-        Ok(warp::reply::json(&workspace))
+        Ok(warp::reply::json(&response))
     }
 
     async fn list() -> Result<impl warp::Reply, warp::Rejection> {
         let workspaces = handlers::list_workspaces().await?;
+        let response = SuccessResponse::new(workspaces);
 
-        Ok(warp::reply::json(&workspaces))
+        Ok(warp::reply::json(&response))
     }
 
     async fn delete(slug: String) -> Result<impl warp::Reply, warp::Rejection> {
