@@ -16,8 +16,8 @@
  ::success
  [(fork/clean :form)]
  (fn-traced
-  [{db :db} [_ result]]
-  {:db (assoc db :result result)
+  [{db :db} [_ {:keys [data]}]]
+  {:db (assoc db :result data)
    :dispatch [:boot]}))
 
 

@@ -13,14 +13,14 @@
 (rf/reg-event-db
  ::workspaces-loaded
  (fn-traced
-  [db [_ workspaces]]
-  (assoc db :workspaces workspaces)))
+  [db [_ {:keys [data]}]]
+  (assoc db :workspaces data)))
 
 (rf/reg-event-fx
  ::success
  [(fork/clean :form)]
  (fn-traced
-  [_ [_ result]]
+  [_ _]
   {:dispatch-n (list
                 [::fetch-workspaces]
                 [:navigate :home])}))
@@ -28,9 +28,9 @@
 (rf/reg-event-fx
  ::workspace-fetched
  (fn-traced
-  [{db :db} [_ workspace]]
-  {:navigate! [:workspace-details {:slug (:slug workspace)}]
-   :db (assoc db :current-workspace workspace)}))
+  [{db :db} [_ {:keys [data]}]]
+  {:navigate! [:workspace-details {:slug (:slug data)}]
+   :db (assoc db :current-workspace data)}))
 
 (rf/reg-event-fx
  ::failure
