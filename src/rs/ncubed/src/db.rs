@@ -21,10 +21,12 @@ pub mod sqlite {
     //! connection string for file based databases if
     //! `sqlite://path/to/file.db`.
     use async_trait::async_trait;
+    use std::collections::HashMap;
     use std::fmt::{Debug, Display, Error, Formatter};
     use std::ops::{Deref, DerefMut};
     use std::path::{Path, PathBuf};
     use std::str::FromStr;
+    use std::sync::{Mutex, RwLock};
     use tracing::{debug, instrument};
 
     struct UrlParser;
@@ -231,6 +233,56 @@ pub mod sqlite {
         }
     }
 
+    /// Cache Sqlite database pools.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use ncubed::db::sqlite;
+    /// let cache = sqlite::SqliteDatabaseCache::new();
+    ///
+    /// let url = "sqlite://:memory:";
+    /// let cfg = url.parse::<sqlite::Config>().unwrap();
+    /// let db = sqlite::Database::new(cfg, 1);
+    ///
+    /// assert!(cache.get(url).is_none());
+    ///
+    /// cache.put(url, db);
+    ///
+    /// let db1 = cache.get(url).unwrap();
+    /// let db2 = cache.get(url).unwrap();
+    ///
+    /// assert_eq!(db1, db2);
+    /// ```
+    #[derive(Debug)]
+    pub struct SqliteDatabaseCache(RwLock<HashMap<String, Mutex<Database>>>);
+
+    impl SqliteDatabaseCache {
+        pub fn new() -> Self
+        where
+            Self: Sized,
+        {
+            SqliteDatabaseCache(RwLock::new(HashMap::new()))
+        }
+
+        pub fn get(&self, key: &str) -> Option<Database> {
+            let trimmed = key.trim().to_string();
+            let cache = self.0.read().expect("RwLock poisoned");
+            if let Some(elem) = cache.get(&trimmed) {
+                let elem = elem.lock().expect("Mutex poisoned");
+                let db = elem.clone();
+                return Some(db);
+            }
+            None
+        }
+
+        pub fn put(&self, key: &str, db: Database) -> () {
+            let trimmed = key.trim().to_string();
+            let mut cache = self.0.write().expect("RwLock poisoned");
+            cache.entry(trimmed).or_insert_with(|| Mutex::new(db));
+        }
+    }
+
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -253,6 +305,28 @@ pub mod sqlite {
             let cfg2 = url2.parse::<Config>().unwrap();
             assert_eq!(cfg1.source, Source::File("/path/to/db".into()));
             assert_eq!(cfg2.source, Source::Memory);
+        }
+
+        #[tokio::test]
+        async fn database_cache_for_sqlite_database_types() {
+            let url1 = "sqlite://:memory:";
+            let url2 = "sqlite://testdb";
+            let cfg1 = url1.parse::<Config>().unwrap();
+            let cfg2 = url2.parse::<Config>().unwrap();
+            let db1 = Database::new(cfg1, 2);
+            let db2 = Database::new(cfg2, 2);
+            let cache = SqliteDatabaseCache::new();
+
+            assert!(cache.get(url1).is_none());
+            assert!(cache.get(url2).is_none());
+
+            cache.put(url1, db1);
+            cache.put(url2, db2);
+
+            let db3 = cache.get(url1).unwrap();
+            let db4 = cache.get(url1).unwrap();
+
+            assert_eq!(db3, db4);
         }
     }
 }
