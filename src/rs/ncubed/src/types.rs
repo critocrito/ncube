@@ -3,10 +3,18 @@ use serde::Deserialize;
 use slugify::slugify;
 
 #[derive(Debug, Deserialize)]
+#[serde(tag = "database")]
+pub enum DatabaseRequest {
+    Sqlite,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct WorkspaceRequest {
     pub name: String,
     pub description: Option<String>,
     pub kind: String,
+    #[serde(flatten)]
+    pub database: DatabaseRequest,
 }
 
 impl WorkspaceRequest {
