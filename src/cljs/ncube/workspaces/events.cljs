@@ -21,8 +21,9 @@
  [(fork/clean :form)]
  (fn-traced
   [_ [_ result]]
-  {:dispatch [:fetch-workspaces]
-   :navigate! :home}))
+  {:dispatch-n (list
+                [::fetch-workspaces]
+                [:navigate :home])}))
 
 (rf/reg-event-fx
  ::workspace-fetched
