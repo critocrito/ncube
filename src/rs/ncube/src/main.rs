@@ -3,7 +3,7 @@ use ncubed::{Application, ApplicationConfig};
 use std::fs::create_dir_all;
 use std::thread;
 use tokio::runtime;
-use tracing::Level;
+use tracing::{info, Level};
 use tracing_subscriber;
 use web_view::*;
 
@@ -12,6 +12,8 @@ fn main() {
     let cfg_dir = project.config_dir();
     create_dir_all(&cfg_dir).unwrap();
     let db_path = cfg_dir.join("ncube.db");
+
+    info!("Using {:?} as Ncube configuration.", db_path);
 
     let config = ApplicationConfig {
         // FIXME: Handle the Option.unwrap explicitely
