@@ -125,7 +125,7 @@
        [:div {:class "flex h3 items-center justify-between w-100"}
         [:div {:class "flex items-center"}
          [:img {:class "h2 w2"
-                :src (str "http://localhost:9500/images/" icon)
+                :src (str "/images/" icon)
                 :alt (str "Icon for " title)}]
          [:h4 {:class "header4 pl2"} title]]
         ]
