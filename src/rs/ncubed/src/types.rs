@@ -3,7 +3,7 @@ use serde::Deserialize;
 use slugify::slugify;
 
 #[derive(Debug, Deserialize)]
-#[serde(tag = "database")]
+#[serde(rename_all = "lowercase", tag = "database")]
 pub enum DatabaseRequest {
     Sqlite,
 }
