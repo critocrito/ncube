@@ -136,6 +136,7 @@ jobs:
       shell: bash
       run: |
         make ui
+        make workspace
         cargo build --bin ncube --release ${{ env.TARGET_FLAGS }}
 
     - name: Strip release binary (linux and macos)
