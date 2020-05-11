@@ -1,3 +1,34 @@
+<a name="0.2"></a>
+## 0.2 (2020-05-11)
+
+
+#### Features
+
+* **ncube:**
+  *  log configuration path when starting ([f1d53c9e](f1d53c9e))
+  *  store application config in platform directories ([774c9048](774c9048))
+  *  new logo, less pointy ([914b71cf](914b71cf))
+* **ncubed:**
+  *  wrap HTTP responses in an envelope ([8aba3f27](8aba3f27))
+  *  add a database cache to reuse connection pools ([e88cec97](e88cec97))
+  *  package ffmpeg and youtubedl into the workspace ([da8c0552](da8c0552))
+  *  migrate the workspace sqlite database ([5bd5e988](5bd5e988))
+  *  install sugarcube for new workspaces ([1f39e7e8](1f39e7e8))
+  *  build a workspace archive file including NodeJS ([d2628b87](d2628b87))
+  *  create workspace from zipped template ([06e1bc46](06e1bc46))
+  *  build the template workspace as a zip file ([56fe8a43](56fe8a43))
+* **ui:**
+  *  add cancel button to the create workspace form ([4c5cb571](4c5cb571))
+  *  render the workspace details screen ([9a141815](9a141815))
+
+#### Bug Fixes
+
+*   remove debug mode of workspace build script ([fdeb97b3](fdeb97b3))
+* **ncubed:**  serialization error when creating workspaces ([542b546f](542b546f))
+* **ui:**  fix icon urls in workspace details ([4220bacb](4220bacb))
+
+
+
 <a name="0.1.4"></a>
 ## 0.1.4 (2020-05-03)
 
