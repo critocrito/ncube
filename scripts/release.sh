@@ -36,7 +36,7 @@ VERSION="$1"
 
 if [ -z "$VERSION" ];
 then
-    except "Missing version, e.g. 0.1."
+    except "Missing version, e.g. 0.1.0."
 fi
 
 uncallable "clog" && except "clog-cli not found. Run cargo install clog-cli."
