@@ -151,6 +151,7 @@ locations. Open yet another terminal and run the following:
 
 ```sh
 make ui
+make workspace
 cargo run --bin ncubed
 ```
 
