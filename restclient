@@ -36,7 +36,8 @@ POST http://:api/api/workspaces
   "name": "Syrian Archive",
   "description": "This is a workspace.",
   "kind": "local",
-  "location": "~/path/to/workspace"
+  "location": "~/path/to/workspace",
+  "database": "sqlite"
 }
 
 # List all workspaces.
@@ -59,5 +60,6 @@ PUT http://:api/api/workspaces/syrian-archive
   "name": "Syrian Archivee",
   "description": "This is a workspace.",
   "kind": "local",
-  "location": "~/path/to/workspace"
+  "location": "~/path/to/workspace",
+  "database": "sqlite"
 }

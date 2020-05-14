@@ -11,7 +11,7 @@ use crate::errors::{ActorError, StoreError};
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
 use crate::stores::{ConfigSqliteStore, ConfigStore, WorkspaceStore, WorkspaceStoreSqlite};
-use crate::types::WorkspaceRequest;
+use crate::types::{DatabaseRequest, WorkspaceRequest};
 
 pub(crate) struct HostActor {
     db: sqlite::Database,
@@ -23,6 +23,7 @@ pub(crate) struct HostActor {
 impl Actor for HostActor {
     async fn started(&mut self, _ctx: &Context<Self>) {
         self.store.upgrade(&self.db).await.unwrap();
+        self.store.init(&self.db).await.unwrap();
     }
 }
 
@@ -33,7 +34,7 @@ impl HostActor {
     // FIXME: Probably I should something else than StoreError
     pub fn new(host_db: &str) -> Result<Self, StoreError> {
         let config = host_db.parse::<sqlite::Config>()?;
-        let db = sqlite::Database::new(config, 10);
+        let db = sqlite::Database::new(config, 1);
         let store = ConfigSqliteStore {};
         let workspace_store = WorkspaceStoreSqlite {};
 
@@ -87,6 +88,7 @@ pub(crate) struct CreateWorkspace {
     pub(crate) slug: String,
     pub(crate) description: Option<String>,
     pub(crate) kind: String,
+    pub(crate) database: DatabaseRequest,
     pub(crate) created_at: DateTime<Utc>,
 }
 
@@ -96,18 +98,15 @@ impl Message for CreateWorkspace {
 
 impl From<WorkspaceRequest> for CreateWorkspace {
     fn from(w: WorkspaceRequest) -> CreateWorkspace {
-        let name = w.name.clone();
-        let slug = w.slug();
-        let description = w.description.clone();
         let created_at = Utc::now();
-        let kind = w.kind;
 
         CreateWorkspace {
-            name,
-            slug,
-            description,
-            kind,
             created_at,
+            name: w.name.clone(),
+            slug: w.slug().clone(),
+            description: w.description,
+            kind: w.kind,
+            database: w.database,
         }
     }
 }
@@ -194,7 +193,12 @@ impl Handler<CreateWorkspace> for HostActor {
         let workspace_root = self.workspace_root().await?.ok_or(ActorError::Invalid(
             "missing the workspace root to continue".into(),
         ))?;
+        let database = match msg.database {
+            DatabaseRequest::Sqlite => "sqlite",
+        };
         let location = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
+        let database_path = location.join("sugarcube.db");
+
         self.workspace_store
             .create(
                 self.db.clone(),
@@ -203,6 +207,8 @@ impl Handler<CreateWorkspace> for HostActor {
                 &msg.description,
                 &msg.kind,
                 &location.to_string_lossy(),
+                &database,
+                &database_path.to_string_lossy(),
                 &msg.created_at.to_rfc3339(),
                 &msg.created_at.to_rfc3339(),
             )

@@ -16,6 +16,7 @@ mod embedded {
 pub(crate) trait ConfigStore {
     type Database;
 
+    async fn init(&mut self, db: &Self::Database) -> Result<(), StoreError>;
     async fn upgrade(&mut self, db: &Self::Database) -> Result<(), StoreError>;
     async fn list_collections(
         &mut self,
@@ -37,6 +38,15 @@ pub struct ConfigSqliteStore;
 #[async_trait]
 impl ConfigStore for ConfigSqliteStore {
     type Database = sqlite::Database;
+
+    #[tracing::instrument]
+    async fn init(&mut self, db: &Self::Database) -> Result<(), StoreError> {
+        let mut conn = db.connection().await?;
+        conn.pragma_update(None, "foreign_keys", &"ON")?;
+        // FIXME: Should I enable this?
+        // conn.pragma_update(None, "journal_mode", &"WAL")?;
+        Ok(())
+    }
 
     #[tracing::instrument]
     async fn upgrade(&mut self, db: &Self::Database) -> Result<(), StoreError> {

@@ -19,6 +19,8 @@ pub(crate) trait WorkspaceStore {
         description: &Option<String>,
         kind: &str,
         location: &str,
+        database: &str,
+        database_path: &str,
         created_at: &str,
         updated_at: &str,
     ) -> Result<(), StoreError>;
@@ -67,13 +69,19 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         description: &Option<String>,
         kind: &str,
         location: &str,
+        database: &str,
+        database_path: &str,
         created_at: &str,
         updated_at: &str,
     ) -> Result<(), StoreError> {
         let conn = db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/create.sql"))?;
 
-        stmt.execute(params![
+        let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/create.sql"))?;
+        let mut stmt2 =
+            conn.prepare_cached(include_str!("../sql/workspace/create_database.sql"))?;
+
+        conn.execute_batch("BEGIN;")?;
+        let workspace_id = stmt.insert(params![
             &name,
             &slug,
             &description,
@@ -82,6 +90,10 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
             &created_at,
             &updated_at
         ])?;
+
+        stmt2.execute(params![&workspace_id, &database, &database_path])?;
+
+        conn.execute_batch("COMMIT;")?;
 
         Ok(())
     }
