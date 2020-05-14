@@ -6,9 +6,12 @@
 - [Endpoints](#endpoints)
   - [Ncube](#ncube)
   - [Workspaces](#workspaces)
+  - [Sources](#sources)
 - [Entities](#entities)
   - [Config Setting](#config-setting)
   - [Workspace](#workspace)
+  - [Query](#query)
+  - [Annotation](#annotation)
 
 ## Response Envelope
 
@@ -73,6 +76,13 @@ all errors.
 - [Show a workspace](http-api/workspace/show.md) `GET /workspaces/<workspace_id>`
 - [Create a workspace](http-api/workspace/create.md) `POST /workspaces`
 
+### Sources
+
+- [List all sources](http-api/source/list.md) `GET /workspaces/<workspace_id>/sources`
+- [Create a query](http-api/source/create.md) `POST /workspaces/<workspace_id>/sources`
+- [Update a sources](http-api/source/update.md) `PUT /workspaces/<workspace_id>/sources/<query_id>`
+- [Remove a sources](http-api/source/remove.md) `DELETE /workspaces/<workspace_id>/sources/<query_id>`
+
 ## Entities
 
 ### Config Setting
@@ -98,5 +108,29 @@ all errors.
   "updated_at": "2020-05-05T11:50:02.868008Z",
   "kind": "local",
   "location": "~/Ncube/syrian-archive"
+}
+```
+
+### Source
+
+```json
+{
+  "id": 1,
+  "type": "youtube_video",
+  "term": "https://youtube.com/watch?v=54aef32",
+  "annotations": [
+    { "id": 1, "type": "tag", "term": "#incident_code" },
+    { "id": 2, "type": "tag", "term": "#other_code" }
+  ]
+}
+```
+
+### Annotation
+
+```json
+{
+  "id": 1,
+  "type": "tag",
+  "term": "#incident_code"
 }
 ```
