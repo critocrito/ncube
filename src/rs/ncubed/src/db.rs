@@ -239,7 +239,7 @@ pub mod sqlite {
     ///
     /// ```no_run
     /// # use ncubed::db::sqlite;
-    /// let cache = sqlite::SqliteDatabaseCache::new();
+    /// let cache = sqlite::DatabaseCache::new();
     ///
     /// let url = "sqlite://:memory:";
     /// let cfg = url.parse::<sqlite::Config>().unwrap();
@@ -255,14 +255,14 @@ pub mod sqlite {
     /// assert_eq!(db1, db2);
     /// ```
     #[derive(Debug)]
-    pub struct SqliteDatabaseCache(RwLock<HashMap<String, Mutex<Database>>>);
+    pub struct DatabaseCache(RwLock<HashMap<String, Mutex<Database>>>);
 
-    impl SqliteDatabaseCache {
+    impl DatabaseCache {
         pub fn new() -> Self
         where
             Self: Sized,
         {
-            SqliteDatabaseCache(RwLock::new(HashMap::new()))
+            DatabaseCache(RwLock::new(HashMap::new()))
         }
 
         pub fn get(&self, key: &str) -> Option<Database> {
@@ -315,7 +315,7 @@ pub mod sqlite {
             let cfg2 = url2.parse::<Config>().unwrap();
             let db1 = Database::new(cfg1, 2);
             let db2 = Database::new(cfg2, 2);
-            let cache = SqliteDatabaseCache::new();
+            let cache = DatabaseCache::new();
 
             assert!(cache.get(url1).is_none());
             assert!(cache.get(url2).is_none());
