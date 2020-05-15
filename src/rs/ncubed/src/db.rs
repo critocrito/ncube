@@ -281,6 +281,15 @@ pub mod sqlite {
             let mut cache = self.0.write().expect("RwLock poisoned");
             cache.entry(trimmed).or_insert_with(|| Mutex::new(db));
         }
+
+        pub fn has(&self, key: &str) -> bool {
+            let trimmed = key.trim().to_string();
+            let cache = self.0.read().expect("RwLock poisoned");
+            match cache.get(&trimmed) {
+                Some(_) => true,
+                _ => false,
+            }
+        }
     }
 
     #[cfg(test)]
@@ -307,8 +316,7 @@ pub mod sqlite {
             assert_eq!(cfg2.source, Source::Memory);
         }
 
-        #[tokio::test]
-        async fn database_cache_for_sqlite_database_types() {
+        fn database_cache_for_sqlite_database_types() {
             let url1 = "sqlite://:memory:";
             let url2 = "sqlite://testdb";
             let cfg1 = url1.parse::<Config>().unwrap();
@@ -327,6 +335,20 @@ pub mod sqlite {
             let db4 = cache.get(url1).unwrap();
 
             assert_eq!(db3, db4);
+        }
+
+        #[test]
+        fn database_cache_for_sqlite_database_tests_existence() {
+            let url = "sqlite://:memory:";
+            let cfg = url.parse::<Config>().unwrap();
+            let db = Database::new(cfg, 2);
+            let cache = DatabaseCache::new();
+
+            assert_eq!(cache.has(url), false);
+
+            cache.put(url, db);
+
+            assert_eq!(cache.has(url), true);
         }
     }
 }

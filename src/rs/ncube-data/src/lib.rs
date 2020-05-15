@@ -138,6 +138,34 @@ pub struct Workspace {
     pub database: WorkspaceDatabase,
 }
 
+impl Workspace {
+    /// Construct a valid database string for this workspace.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use ncube_data::{Workspace, WorkspaceDatabase, WorkspaceKind};
+    /// # use chrono::prelude::{DateTime, Utc, TimeZone};
+    /// let workspace = Workspace {
+    ///   id: 1,
+    ///   name: "Syrian Archive".into(),
+    ///   slug: "syrian-archive".into(),
+    ///   description: None,
+    ///   created_at: Utc.ymd(2014, 11, 28).and_hms(12, 0, 9),
+    ///   updated_at: Utc.ymd(2014, 11, 28).and_hms(12, 0, 9),
+    ///   kind: WorkspaceKind::Local("~/path".into()),
+    ///   database: WorkspaceDatabase::Sqlite { path: "path/to/file.db".into() },
+    /// };
+    /// let expected = "sqlite:///path/to/file.db".to_string();
+    /// assert_eq!(workspace.connection_string(), expected);
+    /// ```
+    pub fn connection_string(&self) -> String {
+        match &self.database {
+            WorkspaceDatabase::Sqlite { path } => format!("sqlite:///{}", path),
+        }
+    }
+}
+
 /// There are different types of annotations.
 ///
 /// - tags : simple labels that can categorize data.
