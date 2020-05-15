@@ -25,7 +25,7 @@ deadpool = "0.5.1"
 deadpool-postgres = "0.5.5"
 rusqlite = { version = "0.23.1", features = ["bundled"] }
 refinery = { version = "0.2.1", features = ["rusqlite"]}
-refinery-migrations = "0.2.3"
+refinery-migrations = "0.2.2"
 chrono = { version = "0.4", features = ["serde"] }
 slugify = "0.1.0"
 dirs = "2.0.2"
