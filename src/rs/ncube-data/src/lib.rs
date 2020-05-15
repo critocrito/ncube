@@ -156,12 +156,12 @@ impl Workspace {
     ///   kind: WorkspaceKind::Local("~/path".into()),
     ///   database: WorkspaceDatabase::Sqlite { path: "path/to/file.db".into() },
     /// };
-    /// let expected = "sqlite:///path/to/file.db".to_string();
+    /// let expected = "sqlite://path/to/file.db".to_string();
     /// assert_eq!(workspace.connection_string(), expected);
     /// ```
     pub fn connection_string(&self) -> String {
         match &self.database {
-            WorkspaceDatabase::Sqlite { path } => format!("sqlite:///{}", path),
+            WorkspaceDatabase::Sqlite { path } => format!("sqlite://{}", path),
         }
     }
 }
