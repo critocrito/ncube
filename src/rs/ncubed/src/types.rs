@@ -1,4 +1,4 @@
-pub use ncube_data::WorkspaceKind;
+pub use ncube_data::{AnnotationKind, WorkspaceKind};
 use serde::Deserialize;
 use slugify::slugify;
 
@@ -12,6 +12,7 @@ pub enum DatabaseRequest {
 pub struct WorkspaceRequest {
     pub name: String,
     pub description: Option<String>,
+    // FIXME: replace String with enum WorkspaceKind
     pub kind: String,
     #[serde(flatten)]
     pub database: DatabaseRequest,
@@ -21,4 +22,12 @@ impl WorkspaceRequest {
     pub fn slug(&self) -> String {
         slugify!(&self.name)
     }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct SourceRequest {
+    #[serde(rename = "type")]
+    pub kind: String,
+    pub term: String,
+    pub annotations: Vec<AnnotationKind>,
 }
