@@ -276,7 +276,7 @@ pub mod sqlite {
             None
         }
 
-        pub fn put(&self, key: &str, db: Database) -> () {
+        pub fn put(&self, key: &str, db: Database) {
             let trimmed = key.trim().to_string();
             let mut cache = self.0.write().expect("RwLock poisoned");
             cache.entry(trimmed).or_insert_with(|| Mutex::new(db));

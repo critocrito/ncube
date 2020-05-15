@@ -1,4 +1,3 @@
-use dirs;
 use flate2::read::GzDecoder;
 use std::convert::AsRef;
 use std::fmt::Debug;
