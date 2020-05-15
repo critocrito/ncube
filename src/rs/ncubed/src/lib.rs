@@ -17,7 +17,7 @@ pub mod types;
 use std::net::SocketAddr;
 use xactor::Actor;
 
-use self::actors::{HostActor, TaskActor};
+use self::actors::{DatabaseActor, HostActor, TaskActor};
 use self::registry::Registry;
 
 #[derive(Debug, Clone)]
@@ -41,6 +41,8 @@ impl Application {
         HostActor::register_once(host_actor).await;
         let task_actor = TaskActor::new()?.start().await;
         TaskActor::register_once(task_actor).await;
+        let database_actor = DatabaseActor::new().start().await;
+        DatabaseActor::register_once(database_actor).await;
 
         warp::serve(routes::router()).run(self.config.listen).await;
 
