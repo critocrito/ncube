@@ -29,7 +29,6 @@ impl Actor for HostActor {
 
 impl Registry for HostActor {}
 
-// #[async_trait]
 impl HostActor {
     // FIXME: Probably I should something else than StoreError
     pub fn new(host_db: &str) -> Result<Self, StoreError> {
