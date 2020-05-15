@@ -195,7 +195,11 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
         .allow_headers(vec!["content-type"]);
 
     warp::path("api")
-        .and(config::routes().or(workspace::routes()))
+        .and(
+            config::routes()
+                .or(workspace::routes())
+                .or(source::routes()),
+        )
         .with(cors)
 }
 
@@ -326,5 +330,34 @@ pub(crate) mod workspace {
                 .and(warp::body::json())
                 .and_then(update)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
+    }
+}
+
+pub(crate) mod source {
+    // use super::SuccessResponse;
+    use tracing::instrument;
+    use warp::Filter;
+
+    use crate::handlers::source as handlers;
+    use crate::types::SourceRequest;
+
+    #[instrument]
+    async fn create(
+        workspace_slug: String,
+        source: SourceRequest,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::create_source(&workspace_slug, source).await?;
+
+        // FIXME: Set location header
+        Ok(warp::reply())
+    }
+
+    pub(crate) fn routes(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("workspaces" / String / "sources")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and_then(create)
+            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
     }
 }

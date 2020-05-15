@@ -63,3 +63,35 @@ PUT http://:api/api/workspaces/syrian-archive
   "location": "~/path/to/workspace",
   "database": "sqlite"
 }
+
+
+###
+# Manage sources
+###
+
+# Create a new source
+POST http://:api/api/workspaces/syrian-archive/sources
+:headers
+
+{
+  "type": "youtube_video",
+  "term": "https://youtube.com/watch?v=123456",
+  "annotations": [
+    {"type": "tag", "term": "xyz"},
+    {"type": "tag", "term": "zyx"}
+  ]
+}
+
+
+# Create a source for a non existing workspace
+POST http://:api/api/workspaces/dont-exist/sources
+:headers
+
+{
+  "type": "youtube_video",
+  "term": "https://youtube.com/watch?v=123456",
+  "annotations": [
+    {"type": "tag", "term": "xyz"},
+    {"type": "tag", "term": "zyx"}
+  ]
+}
