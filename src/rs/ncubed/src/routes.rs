@@ -334,7 +334,7 @@ pub(crate) mod workspace {
 }
 
 pub(crate) mod source {
-    // use super::SuccessResponse;
+    use super::SuccessResponse;
     use tracing::instrument;
     use warp::Filter;
 
@@ -352,6 +352,14 @@ pub(crate) mod source {
         Ok(warp::reply())
     }
 
+    #[instrument]
+    async fn list(workspace_slug: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let sources = handlers::list_sources(&workspace_slug).await?;
+        let response = SuccessResponse::new(sources);
+
+        Ok(warp::reply::json(&response))
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("workspaces" / String / "sources")
@@ -359,5 +367,8 @@ pub(crate) mod source {
             .and(warp::body::json())
             .and_then(create)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
+            .or(warp::path!("workspaces" / String / "sources")
+                .and(warp::get())
+                .and_then(list))
     }
 }
