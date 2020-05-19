@@ -82,3 +82,43 @@ pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> 
 
     Ok(sources)
 }
+
+#[instrument]
+pub async fn remove_source(workspace: &str, id: i32) -> Result<(), HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    if let Ok(false) = host_actor
+        .call(WorkspaceExists {
+            slug: workspace.into(),
+        })
+        .await?
+    {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+
+    let database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.into(),
+        })
+        .await??;
+
+    #[allow(clippy::match_single_binding)]
+    match database {
+        sqlite::Database { .. } => {
+            let mut store = SourceStoreSqlite {};
+            if let false = store.exists(database.clone(), id).await? {
+                let msg = format!("Source `{}` doesn't exist.", id);
+                error!("{:?}", msg);
+                return Err(HandlerError::NotFound(msg));
+            }
+
+            store.delete(database, id).await?
+        }
+    };
+
+    Ok(())
+}

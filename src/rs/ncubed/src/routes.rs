@@ -360,6 +360,13 @@ pub(crate) mod source {
         Ok(warp::reply::json(&response))
     }
 
+    #[instrument]
+    async fn remove(workspace_slug: String, id: i32) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::remove_source(&workspace_slug, id).await?;
+
+        Ok(warp::reply())
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("workspaces" / String / "sources")
@@ -370,5 +377,9 @@ pub(crate) mod source {
             .or(warp::path!("workspaces" / String / "sources")
                 .and(warp::get())
                 .and_then(list))
+            .or(warp::path!("workspaces" / String / "sources" / i32)
+                .and(warp::delete())
+                .and_then(remove)
+                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
     }
 }
