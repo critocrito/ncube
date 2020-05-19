@@ -367,6 +367,18 @@ pub(crate) mod source {
         Ok(warp::reply())
     }
 
+    #[instrument]
+    async fn update(
+        workspace_slug: String,
+        id: i32,
+        source: SourceRequest,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::update_source(&workspace_slug, id, &source).await?;
+
+        // FIXME: Set location header
+        Ok(warp::reply())
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("workspaces" / String / "sources")
@@ -380,6 +392,11 @@ pub(crate) mod source {
             .or(warp::path!("workspaces" / String / "sources" / i32)
                 .and(warp::delete())
                 .and_then(remove)
+                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
+            .or(warp::path!("workspaces" / String / "sources" / i32)
+                .and(warp::put())
+                .and(warp::body::json())
+                .and_then(update)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
     }
 }
