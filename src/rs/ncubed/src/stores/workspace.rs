@@ -10,10 +10,10 @@ use crate::errors::StoreError;
 pub(crate) trait WorkspaceStore {
     type Database;
 
-    async fn exists(&mut self, db: Self::Database, slug: &str) -> Result<bool, StoreError>;
+    async fn exists(&self, db: Self::Database, slug: &str) -> Result<bool, StoreError>;
     #[allow(clippy::too_many_arguments)]
     async fn create(
-        &mut self,
+        &self,
         db: Self::Database,
         name: &str,
         slug: &str,
@@ -25,15 +25,11 @@ pub(crate) trait WorkspaceStore {
         created_at: &str,
         updated_at: &str,
     ) -> Result<(), StoreError>;
-    async fn list(&mut self, db: Self::Database) -> Result<Vec<Workspace>, StoreError>;
-    async fn show_by_slug(
-        &mut self,
-        db: Self::Database,
-        slug: &str,
-    ) -> Result<Workspace, StoreError>;
-    async fn delete_by_slug(&mut self, db: Self::Database, slug: &str) -> Result<(), StoreError>;
+    async fn list(&self, db: Self::Database) -> Result<Vec<Workspace>, StoreError>;
+    async fn show_by_slug(&self, db: Self::Database, slug: &str) -> Result<Workspace, StoreError>;
+    async fn delete_by_slug(&self, db: Self::Database, slug: &str) -> Result<(), StoreError>;
     async fn update(
-        &mut self,
+        &self,
         db: Self::Database,
         current_slug: &str,
         name: &str,
@@ -50,7 +46,7 @@ pub struct WorkspaceStoreSqlite;
 impl WorkspaceStore for WorkspaceStoreSqlite {
     type Database = sqlite::Database;
 
-    async fn exists(&mut self, db: Self::Database, slug: &str) -> Result<bool, StoreError> {
+    async fn exists(&self, db: Self::Database, slug: &str) -> Result<bool, StoreError> {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/exists.sql"))?;
 
@@ -64,7 +60,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
 
     #[allow(clippy::too_many_arguments)]
     async fn create(
-        &mut self,
+        &self,
         db: Self::Database,
         name: &str,
         slug: &str,
@@ -100,7 +96,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         Ok(())
     }
 
-    async fn list(&mut self, db: Self::Database) -> Result<Vec<Workspace>, StoreError> {
+    async fn list(&self, db: Self::Database) -> Result<Vec<Workspace>, StoreError> {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/list.sql"))?;
 
@@ -114,11 +110,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         Ok(workspaces)
     }
 
-    async fn show_by_slug(
-        &mut self,
-        db: Self::Database,
-        slug: &str,
-    ) -> Result<Workspace, StoreError> {
+    async fn show_by_slug(&self, db: Self::Database, slug: &str) -> Result<Workspace, StoreError> {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/show_by_slug.sql"))?;
         let columns = columns_from_statement(&stmt);
@@ -137,7 +129,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         }
     }
 
-    async fn delete_by_slug(&mut self, db: Self::Database, slug: &str) -> Result<(), StoreError> {
+    async fn delete_by_slug(&self, db: Self::Database, slug: &str) -> Result<(), StoreError> {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/remove_by_slug.sql"))?;
         stmt.execute(params![&slug])?;
@@ -146,7 +138,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
     }
 
     async fn update(
-        &mut self,
+        &self,
         db: Self::Database,
         current_slug: &str,
         name: &str,

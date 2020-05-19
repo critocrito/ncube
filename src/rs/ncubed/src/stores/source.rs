@@ -10,16 +10,16 @@ use crate::errors::StoreError;
 pub(crate) trait SourceStore {
     type Database;
 
-    async fn exists(&mut self, db: Self::Database, id: i32) -> Result<bool, StoreError>;
+    async fn exists(&self, db: Self::Database, id: i32) -> Result<bool, StoreError>;
     async fn create(
-        &mut self,
+        &self,
         db: Self::Database,
         kind: &str,
         term: &str,
         now: &str,
     ) -> Result<(), StoreError>;
-    async fn list(&mut self, db: Self::Database) -> Result<Vec<Source>, StoreError>;
-    async fn delete(&mut self, db: Self::Database, id: i32) -> Result<(), StoreError>;
+    async fn list(&self, db: Self::Database) -> Result<Vec<Source>, StoreError>;
+    async fn delete(&self, db: Self::Database, id: i32) -> Result<(), StoreError>;
 }
 
 #[derive(Debug)]
@@ -29,7 +29,7 @@ pub struct SourceStoreSqlite;
 impl SourceStore for SourceStoreSqlite {
     type Database = sqlite::Database;
 
-    async fn exists(&mut self, db: Self::Database, id: i32) -> Result<bool, StoreError> {
+    async fn exists(&self, db: Self::Database, id: i32) -> Result<bool, StoreError> {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/exists.sql"))?;
 
@@ -42,7 +42,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     async fn create(
-        &mut self,
+        &self,
         db: Self::Database,
         kind: &str,
         term: &str,
@@ -56,7 +56,7 @@ impl SourceStore for SourceStoreSqlite {
         Ok(())
     }
 
-    async fn list(&mut self, db: Self::Database) -> Result<Vec<Source>, StoreError> {
+    async fn list(&self, db: Self::Database) -> Result<Vec<Source>, StoreError> {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/list.sql"))?;
 
@@ -68,7 +68,7 @@ impl SourceStore for SourceStoreSqlite {
         Ok(sources)
     }
 
-    async fn delete(&mut self, db: Self::Database, id: i32) -> Result<(), StoreError> {
+    async fn delete(&self, db: Self::Database, id: i32) -> Result<(), StoreError> {
         let conn = db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/delete.sql"))?;
 

@@ -33,7 +33,7 @@ fn main() {
             .build()
             .unwrap();
         rt.block_on(async {
-            let mut ncube = Application::new(config);
+            let ncube = Application::new(config);
             ncube.run().await.unwrap();
         });
     });

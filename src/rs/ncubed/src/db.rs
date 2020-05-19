@@ -322,6 +322,7 @@ pub mod sqlite {
             assert_eq!(cfg2.source, Source::Memory);
         }
 
+        #[test]
         fn database_cache_for_sqlite_database_types() {
             let url1 = "sqlite://:memory:";
             let url2 = "sqlite://testdb";
