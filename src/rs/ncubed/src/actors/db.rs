@@ -40,7 +40,7 @@ impl Handler<LookupDatabase> for DatabaseActor {
         let mut actor = HostActor::from_registry().await.unwrap();
         let workspace = actor
             .call(ShowWorkspace {
-                slug: msg.workspace.into(),
+                slug: msg.workspace,
             })
             .await??;
         let connection_string = workspace.connection_string();

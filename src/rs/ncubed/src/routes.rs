@@ -61,7 +61,7 @@ struct ErrorResponse {
 }
 
 impl ErrorResponse {
-    fn new(code: &StatusCode, errors: &str) -> Self {
+    fn new(code: StatusCode, errors: &str) -> Self {
         Self {
             status: ErrorStatus,
             code: code.as_u16(),
@@ -124,7 +124,7 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
         message = "UNHANDLED_REJECTION".into();
     }
 
-    let json = warp::reply::json(&ErrorResponse::new(&code, &message));
+    let json = warp::reply::json(&ErrorResponse::new(code, &message));
 
     Ok(warp::reply::with_status(json, code))
 }

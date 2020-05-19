@@ -11,6 +11,7 @@ pub(crate) trait WorkspaceStore {
     type Database;
 
     async fn exists(&mut self, db: Self::Database, slug: &str) -> Result<bool, StoreError>;
+    #[allow(clippy::too_many_arguments)]
     async fn create(
         &mut self,
         db: Self::Database,
@@ -61,6 +62,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     async fn create(
         &mut self,
         db: Self::Database,

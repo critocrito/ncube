@@ -257,12 +257,18 @@ pub mod sqlite {
     #[derive(Debug)]
     pub struct DatabaseCache(RwLock<HashMap<String, Mutex<Database>>>);
 
+    impl Default for DatabaseCache {
+        fn default() -> Self {
+            Self(RwLock::new(HashMap::new()))
+        }
+    }
+
     impl DatabaseCache {
         pub fn new() -> Self
         where
             Self: Sized,
         {
-            DatabaseCache(RwLock::new(HashMap::new()))
+            Self::default()
         }
 
         pub fn get(&self, key: &str) -> Option<Database> {

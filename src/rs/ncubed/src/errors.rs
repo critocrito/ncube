@@ -80,7 +80,7 @@ impl From<ActorError> for HandlerError {
                 _ => HandlerError::Store(err),
             },
             ActorError::Invalid(msg) => HandlerError::Invalid(msg),
-            ActorError::Host(err) => HandlerError::Host(err.to_string()),
+            ActorError::Host(err) => HandlerError::Host(err),
         }
     }
 }

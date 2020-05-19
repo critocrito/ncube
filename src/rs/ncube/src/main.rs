@@ -4,7 +4,6 @@ use std::fs::create_dir_all;
 use std::thread;
 use tokio::runtime;
 use tracing::{info, Level};
-use tracing_subscriber;
 use web_view::*;
 
 fn main() {
@@ -17,11 +16,11 @@ fn main() {
 
     let config = ApplicationConfig {
         // FIXME: Handle the Option.unwrap explicitely
-        host_db: format!("sqlite://{}", db_path.to_str().unwrap()).into(),
+        host_db: format!("sqlite://{}", db_path.to_str().unwrap()),
         listen: "127.0.0.1:40666".parse().unwrap(),
     };
 
-    let local_listen = config.listen.clone();
+    let local_listen = config.listen;
 
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)
