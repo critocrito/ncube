@@ -98,3 +98,6 @@ POST http://:api/api/workspaces/dont-exist/sources
 
 # List all sources
 GET http://:api/api/workspaces/syrian-archive/sources
+
+# Delete a source
+DELETE http://:api/api/workspaces/syrian-archive/sources/1
