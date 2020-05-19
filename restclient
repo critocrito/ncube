@@ -82,7 +82,6 @@ POST http://:api/api/workspaces/syrian-archive/sources
   ]
 }
 
-
 # Create a source for a non existing workspace
 POST http://:api/api/workspaces/dont-exist/sources
 :headers
@@ -101,3 +100,16 @@ GET http://:api/api/workspaces/syrian-archive/sources
 
 # Delete a source
 DELETE http://:api/api/workspaces/syrian-archive/sources/1
+
+# Update an existing source
+PUT http://:api/api/workspaces/syrian-archive/sources/1
+:headers
+
+{
+  "type": "youtube_video",
+  "term": "https://youtube.com/watch?v=654321",
+  "annotations": [
+    {"type": "tag", "term": "xyz"},
+    {"type": "tag", "term": "zyx"}
+  ]
+}

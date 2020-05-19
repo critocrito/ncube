@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::Utc;
 use ncube_data::Source;
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
@@ -20,6 +21,13 @@ pub(crate) trait SourceStore {
     ) -> Result<(), StoreError>;
     async fn list(&self, db: Self::Database) -> Result<Vec<Source>, StoreError>;
     async fn delete(&self, db: Self::Database, id: i32) -> Result<(), StoreError>;
+    async fn update(
+        &self,
+        db: &Self::Database,
+        id: &i32,
+        kind: &str,
+        term: &str,
+    ) -> Result<(), StoreError>;
 }
 
 #[derive(Debug)]
@@ -73,6 +81,22 @@ impl SourceStore for SourceStoreSqlite {
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/delete.sql"))?;
 
         stmt.execute(params![&id])?;
+
+        Ok(())
+    }
+
+    async fn update(
+        &self,
+        db: &Self::Database,
+        id: &i32,
+        kind: &str,
+        term: &str,
+    ) -> Result<(), StoreError> {
+        let now = Utc::now();
+        let conn = db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/source/update.sql"))?;
+
+        stmt.execute(params![&id, &kind, &term, &now.to_rfc3339()])?;
 
         Ok(())
     }
