@@ -1,3 +1,21 @@
+<a name="0.3.0"></a>
+## 0.3.0 (2020-05-19)
+
+
+#### Features
+
+* **ncubed:**
+  *  add HTTP endpoint to create sources ([2998e2dc](2998e2dc))
+  *  add a database cache actor ([dc2f38fa](dc2f38fa))
+  *  register workspace databases on the host ([26873ec1](26873ec1))
+
+#### Bug Fixes
+
+* **ncube-data:**  format sqlite connection string ([4e37ef3b](4e37ef3b))
+* **ncubed:**  wrong parameter count in update workspace sql ([023a6b96](023a6b96))
+
+
+
 <a name="0.2.1"></a>
 ## 0.2.1 (2020-05-12)
 
