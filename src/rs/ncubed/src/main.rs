@@ -14,6 +14,6 @@ async fn main() {
         .with_max_level(Level::DEBUG)
         .init();
 
-    let mut app = Application::new(config);
+    let app = Application::new(config);
     app.run().await.unwrap();
 }

@@ -38,7 +38,7 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
     #[allow(clippy::match_single_binding)]
     match database {
         sqlite::Database { .. } => {
-            let mut store = SourceStoreSqlite {};
+            let store = SourceStoreSqlite {};
             let now = Utc::now();
             store
                 .create(database, &source.kind, &source.term, &now.to_rfc3339())
@@ -75,7 +75,7 @@ pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> 
     #[allow(clippy::match_single_binding)]
     let sources = match database {
         sqlite::Database { .. } => {
-            let mut store = SourceStoreSqlite {};
+            let store = SourceStoreSqlite {};
             store.list(database).await?
         }
     };
@@ -109,7 +109,7 @@ pub async fn remove_source(workspace: &str, id: i32) -> Result<(), HandlerError>
     #[allow(clippy::match_single_binding)]
     match database {
         sqlite::Database { .. } => {
-            let mut store = SourceStoreSqlite {};
+            let store = SourceStoreSqlite {};
             if let false = store.exists(database.clone(), id).await? {
                 let msg = format!("Source `{}` doesn't exist.", id);
                 error!("{:?}", msg);

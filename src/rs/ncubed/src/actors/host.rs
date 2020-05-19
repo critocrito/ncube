@@ -44,7 +44,7 @@ impl HostActor {
         })
     }
 
-    pub async fn workspace_root(&mut self) -> Result<Option<ConfigSetting>, StoreError> {
+    pub async fn workspace_root(&self) -> Result<Option<ConfigSetting>, StoreError> {
         let config = self.store.show(&self.db).await?;
         let setting = config.into_iter().find(|setting| {
             let comparator: String = "workspace_root".into();

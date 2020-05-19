@@ -36,7 +36,7 @@ impl Application {
         Application { config }
     }
 
-    pub async fn run(&mut self) -> Result<(), errors::ApplicationError> {
+    pub async fn run(&self) -> Result<(), errors::ApplicationError> {
         let host_actor = HostActor::new(&self.config.host_db)?.start().await;
         HostActor::register_once(host_actor).await;
         let task_actor = TaskActor::new()?.start().await;
