@@ -240,5 +240,6 @@ pub struct Source {
     #[serde(rename = "type")]
     pub kind: String,
     pub term: String,
+    #[serde(default)]
     pub annotations: Vec<Annotation>,
 }

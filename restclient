@@ -95,3 +95,6 @@ POST http://:api/api/workspaces/dont-exist/sources
     {"type": "tag", "term": "zyx"}
   ]
 }
+
+# List all sources
+GET http://:api/api/workspaces/syrian-archive/sources
