@@ -34,6 +34,7 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
         })
         .await??;
 
+    #[allow(clippy::match_single_binding)]
     match database {
         sqlite::Database { .. } => {
             let mut store = SourceStoreSqlite {};

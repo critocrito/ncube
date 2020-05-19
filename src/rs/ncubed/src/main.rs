@@ -1,7 +1,5 @@
 use ncubed::{Application, ApplicationConfig};
-use tokio;
 use tracing::Level;
-use tracing_subscriber;
 
 #[tokio::main]
 async fn main() {

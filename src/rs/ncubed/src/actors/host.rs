@@ -48,7 +48,7 @@ impl HostActor {
         let config = self.store.show(&self.db).await?;
         let setting = config.into_iter().find(|setting| {
             let comparator: String = "workspace_root".into();
-            &comparator == &setting.name
+            comparator == setting.name
         });
         Ok(setting)
     }
@@ -102,7 +102,7 @@ impl From<WorkspaceRequest> for CreateWorkspace {
         CreateWorkspace {
             created_at,
             name: w.name.clone(),
-            slug: w.slug().clone(),
+            slug: w.slug(),
             description: w.description,
             kind: w.kind,
             database: w.database,
@@ -189,9 +189,10 @@ impl Handler<CreateWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: CreateWorkspace,
     ) -> Result<(), ActorError> {
-        let workspace_root = self.workspace_root().await?.ok_or(ActorError::Invalid(
-            "missing the workspace root to continue".into(),
-        ))?;
+        let workspace_root = self
+            .workspace_root()
+            .await?
+            .ok_or_else(|| ActorError::Invalid("missing the workspace root to continue".into()))?;
         let database = match msg.database {
             DatabaseRequest::Sqlite => "sqlite",
         };

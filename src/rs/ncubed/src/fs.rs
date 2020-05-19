@@ -33,8 +33,8 @@ pub fn expand_tilde<P: AsRef<Path> + Debug>(path_user_input: P) -> Option<PathBu
 pub(crate) fn mkdirp<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError> {
     #[cfg(unix)]
     {
-        let expanded_path =
-            expand_tilde(target).ok_or(HostError::General("Failed to expand path".into()))?;
+        let expanded_path = expand_tilde(target)
+            .ok_or_else(|| HostError::General("Failed to expand path".into()))?;
         debug!("Creating directory: {:?}", expanded_path);
         fs::create_dir_all(&expanded_path)?;
     }
@@ -51,7 +51,7 @@ pub(crate) fn mkdirp<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError>
 #[instrument]
 pub(crate) fn unzip_workspace<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError> {
     let expanded_target =
-        expand_tilde(target).ok_or(HostError::General("Failed to expand path".into()))?;
+        expand_tilde(target).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
 
     debug!("Extract workspace archive to {:?}", expanded_target);
 

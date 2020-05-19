@@ -28,7 +28,7 @@ mod tasks {
         location: P,
     ) -> Result<(), HostError> {
         let expanded_path = expand_tilde(location)
-            .ok_or(HostError::General("Failed to expand path".into()))
+            .ok_or_else(|| HostError::General("Failed to expand path".into()))
             .expect("Fail");
 
         let env_path = format!(
