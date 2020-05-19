@@ -76,7 +76,7 @@ mod tests {
 
     #[test]
     fn http_error_response_envelope() {
-        let response = ErrorResponse::new(&StatusCode::BAD_REQUEST, "I am an error!");
+        let response = ErrorResponse::new(StatusCode::BAD_REQUEST, "I am an error!");
 
         let expected = "{\"status\":\"error\",\"code\":400,\"errors\":\"I am an error!\"}";
         let result = serde_json::to_string(&response).unwrap();
