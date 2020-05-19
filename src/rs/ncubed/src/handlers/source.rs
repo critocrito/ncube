@@ -1,4 +1,3 @@
-use chrono::Utc;
 use ncube_data::Source;
 use tracing::{error, instrument};
 
@@ -39,10 +38,8 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
     match database {
         sqlite::Database { .. } => {
             let store = SourceStoreSqlite {};
-            let now = Utc::now();
-            store
-                .create(database, &source.kind, &source.term, &now.to_rfc3339())
-                .await?;
+
+            store.create(&database, &source.kind, &source.term).await?;
         }
     }
 
@@ -76,7 +73,7 @@ pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> 
     let sources = match database {
         sqlite::Database { .. } => {
             let store = SourceStoreSqlite {};
-            store.list(database).await?
+            store.list(&database).await?
         }
     };
 
@@ -110,13 +107,13 @@ pub async fn remove_source(workspace: &str, id: i32) -> Result<(), HandlerError>
     match database {
         sqlite::Database { .. } => {
             let store = SourceStoreSqlite {};
-            if let false = store.exists(database.clone(), id).await? {
+            if let false = store.exists(&database, id).await? {
                 let msg = format!("Source `{}` doesn't exist.", id);
                 error!("{:?}", msg);
                 return Err(HandlerError::NotFound(msg));
             }
 
-            store.delete(database, id).await?
+            store.delete(&database, id).await?
         }
     };
 
@@ -154,7 +151,7 @@ pub async fn update_source(
     match database {
         sqlite::Database { .. } => {
             let store = SourceStoreSqlite {};
-            if let false = store.exists(database.clone(), id).await? {
+            if let false = store.exists(&database, id).await? {
                 let msg = format!("Source `{}` doesn't exist.", id);
                 error!("{:?}", msg);
                 return Err(HandlerError::NotFound(msg));
