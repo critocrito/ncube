@@ -1,6 +1,6 @@
 // #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
-#![cfg_attr(test, deny(warnings))]
+// #![cfg_attr(test, deny(warnings))]
 
 // I set all modules to pub in order to use them inside doc tests. This is not
 // intended to be a proper crate but rather a standalone application.
