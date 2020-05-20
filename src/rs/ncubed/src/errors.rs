@@ -29,6 +29,8 @@ pub enum HostError {
 
 #[derive(Error, Debug)]
 pub enum ActorError {
+    #[error(transparent)]
+    Config(#[from] crate::db::sqlite::ConfigError),
     #[error("The underlying store failed.: {0}")]
     Store(#[from] StoreError),
     #[error("The host gave an error: {0}")]
@@ -81,6 +83,7 @@ impl From<ActorError> for HandlerError {
             },
             ActorError::Invalid(msg) => HandlerError::Invalid(msg),
             ActorError::Host(err) => HandlerError::Host(err),
+            ActorError::Config(err) => HandlerError::Host(err.to_string()),
         }
     }
 }
