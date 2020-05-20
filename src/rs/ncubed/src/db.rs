@@ -1,3 +1,8 @@
+#[derive(Debug)]
+pub enum Database {
+    Sqlite(sqlite::Database),
+}
+
 pub mod sqlite {
     //! [Sqlite](https://www.sqlite.org/index.html) is one of the supported
     //! databases of Ncube.

@@ -5,10 +5,9 @@ use crate::actors::{
     db::{DatabaseActor, LookupDatabase},
     host::{HostActor, WorkspaceExists},
 };
-use crate::db::sqlite;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
-use crate::stores::{SourceStore, SourceStoreSqlite};
+use crate::stores::{source_store, SourceStore};
 use crate::types::SourceRequest;
 
 #[instrument]
@@ -34,14 +33,8 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
         })
         .await??;
 
-    #[allow(clippy::match_single_binding)]
-    match database {
-        sqlite::Database { .. } => {
-            let store = SourceStoreSqlite {};
-
-            store.create(&database, &source.kind, &source.term).await?;
-        }
-    }
+    let store = source_store(database);
+    store.create(&source.kind, &source.term).await?;
 
     Ok(())
 }
@@ -69,13 +62,8 @@ pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> 
         })
         .await??;
 
-    #[allow(clippy::match_single_binding)]
-    let sources = match database {
-        sqlite::Database { .. } => {
-            let store = SourceStoreSqlite {};
-            store.list(&database).await?
-        }
-    };
+    let store = source_store(database);
+    let sources = store.list().await?;
 
     Ok(sources)
 }
@@ -103,19 +91,15 @@ pub async fn remove_source(workspace: &str, id: i32) -> Result<(), HandlerError>
         })
         .await??;
 
-    #[allow(clippy::match_single_binding)]
-    match database {
-        sqlite::Database { .. } => {
-            let store = SourceStoreSqlite {};
-            if let false = store.exists(&database, id).await? {
-                let msg = format!("Source `{}` doesn't exist.", id);
-                error!("{:?}", msg);
-                return Err(HandlerError::NotFound(msg));
-            }
+    let store = source_store(database);
 
-            store.delete(&database, id).await?
-        }
-    };
+    if let false = store.exists(id).await? {
+        let msg = format!("Source `{}` doesn't exist.", id);
+        error!("{:?}", msg);
+        return Err(HandlerError::NotFound(msg));
+    }
+
+    store.delete(id).await?;
 
     Ok(())
 }
@@ -147,21 +131,15 @@ pub async fn update_source(
         })
         .await??;
 
-    #[allow(clippy::match_single_binding)]
-    match database {
-        sqlite::Database { .. } => {
-            let store = SourceStoreSqlite {};
-            if let false = store.exists(&database, id).await? {
-                let msg = format!("Source `{}` doesn't exist.", id);
-                error!("{:?}", msg);
-                return Err(HandlerError::NotFound(msg));
-            }
+    let store = source_store(database);
 
-            store
-                .update(&database, &id, &source.kind, &source.term)
-                .await?
-        }
-    };
+    if let false = store.exists(id).await? {
+        let msg = format!("Source `{}` doesn't exist.", id);
+        error!("{:?}", msg);
+        return Err(HandlerError::NotFound(msg));
+    }
+
+    store.update(id, &source.kind, &source.term).await?;
 
     Ok(())
 }
