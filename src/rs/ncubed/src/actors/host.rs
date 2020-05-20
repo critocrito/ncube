@@ -6,7 +6,7 @@ use xactor::{message, Actor, Context, Handler, Message};
 
 use crate::actors::task::{SetupWorkspace, TaskActor};
 use crate::db::{sqlite, Database};
-use crate::errors::{ActorError, StoreError};
+use crate::errors::ActorError;
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
 use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
@@ -28,15 +28,14 @@ impl Actor for HostActor {
 impl Registry for HostActor {}
 
 impl HostActor {
-    // FIXME: Probably I should something else than StoreError
-    pub fn new(host_db: &str) -> Result<Self, StoreError> {
+    pub fn new(host_db: &str) -> Result<Self, ActorError> {
         let config = host_db.parse::<sqlite::Config>()?;
         let db = sqlite::Database::new(config, 1);
 
         Ok(Self { db })
     }
 
-    pub async fn workspace_root(&self) -> Result<Option<ConfigSetting>, StoreError> {
+    pub async fn workspace_root(&self) -> Result<Option<ConfigSetting>, ActorError> {
         let store = config_store(Database::Sqlite(self.db.clone()));
         let config = store.show().await?;
         let setting = config.into_iter().find(|setting| {
