@@ -6,24 +6,23 @@ use std::result::Result;
 use xactor::{message, Actor, Context, Handler, Message};
 
 use crate::actors::task::{SetupWorkspace, TaskActor};
-use crate::db::sqlite;
+use crate::db::{sqlite, Database};
 use crate::errors::{ActorError, StoreError};
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
-use crate::stores::{ConfigSqliteStore, ConfigStore, WorkspaceStore, WorkspaceStoreSqlite};
+use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
 use crate::types::{DatabaseRequest, WorkspaceRequest};
 
 pub(crate) struct HostActor {
     db: sqlite::Database,
-    store: ConfigSqliteStore,
-    workspace_store: WorkspaceStoreSqlite,
 }
 
 #[async_trait]
 impl Actor for HostActor {
     async fn started(&mut self, _ctx: &Context<Self>) {
-        self.store.upgrade(&self.db).await.unwrap();
-        self.store.init(&self.db).await.unwrap();
+        let store = config_store(Database::Sqlite(self.db.clone()));
+        store.upgrade().await.unwrap();
+        store.init().await.unwrap();
     }
 }
 
@@ -34,18 +33,13 @@ impl HostActor {
     pub fn new(host_db: &str) -> Result<Self, StoreError> {
         let config = host_db.parse::<sqlite::Config>()?;
         let db = sqlite::Database::new(config, 1);
-        let store = ConfigSqliteStore {};
-        let workspace_store = WorkspaceStoreSqlite {};
 
-        Ok(Self {
-            store,
-            workspace_store,
-            db,
-        })
+        Ok(Self { db })
     }
 
     pub async fn workspace_root(&self) -> Result<Option<ConfigSetting>, StoreError> {
-        let config = self.store.show(&self.db).await?;
+        let store = config_store(Database::Sqlite(self.db.clone()));
+        let config = store.show().await?;
         let setting = config.into_iter().find(|setting| {
             let comparator: String = "workspace_root".into();
             comparator == setting.name
@@ -142,7 +136,8 @@ impl Handler<IsBootstrapped> for HostActor {
         _ctx: &Context<Self>,
         _: IsBootstrapped,
     ) -> Result<bool, ActorError> {
-        let is_bootstrapped = self.store.is_bootstrapped(&self.db).await?;
+        let store = config_store(Database::Sqlite(self.db.clone()));
+        let is_bootstrapped = store.is_bootstrapped().await?;
         Ok(is_bootstrapped)
     }
 }
@@ -154,7 +149,8 @@ impl Handler<ShowConfig> for HostActor {
         _ctx: &Context<Self>,
         _: ShowConfig,
     ) -> Result<NcubeConfig, ActorError> {
-        let config = self.store.show(&self.db).await?;
+        let store = config_store(Database::Sqlite(self.db.clone()));
+        let config = store.show().await?;
         Ok(config)
     }
 }
@@ -162,7 +158,8 @@ impl Handler<ShowConfig> for HostActor {
 #[async_trait]
 impl Handler<InsertSetting> for HostActor {
     async fn handle(&mut self, _ctx: &Context<Self>, msg: InsertSetting) -> Result<(), ActorError> {
-        self.store.insert(&self.db, &msg.name, &msg.value).await?;
+        let store = config_store(Database::Sqlite(self.db.clone()));
+        store.insert(&msg.name, &msg.value).await?;
         Ok(())
     }
 }
@@ -174,10 +171,8 @@ impl Handler<WorkspaceExists> for HostActor {
         _ctx: &Context<Self>,
         msg: WorkspaceExists,
     ) -> Result<bool, ActorError> {
-        let exists = self
-            .workspace_store
-            .exists(self.db.clone(), &msg.slug)
-            .await?;
+        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let exists = workspace_store.exists(&msg.slug).await?;
         Ok(exists)
     }
 }
@@ -199,9 +194,9 @@ impl Handler<CreateWorkspace> for HostActor {
         let location = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
         let database_path = location.join("sugarcube.db");
 
-        self.workspace_store
+        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        workspace_store
             .create(
-                self.db.clone(),
                 &msg.name,
                 &msg.slug,
                 &msg.description,
@@ -234,7 +229,8 @@ impl Handler<ListWorkspaces> for HostActor {
         _ctx: &Context<Self>,
         _msg: ListWorkspaces,
     ) -> Result<Vec<Workspace>, ActorError> {
-        let workspaces = self.workspace_store.list(self.db.clone()).await?;
+        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspaces = workspace_store.list().await?;
         Ok(workspaces)
     }
 }
@@ -246,10 +242,8 @@ impl Handler<ShowWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: ShowWorkspace,
     ) -> Result<Workspace, ActorError> {
-        let workspace = self
-            .workspace_store
-            .show_by_slug(self.db.clone(), &msg.slug)
-            .await?;
+        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspace = workspace_store.show_by_slug(&msg.slug).await?;
         Ok(workspace)
     }
 }
@@ -261,9 +255,8 @@ impl Handler<RemoveWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: RemoveWorkspace,
     ) -> Result<(), ActorError> {
-        self.workspace_store
-            .delete_by_slug(self.db.clone(), &msg.slug)
-            .await?;
+        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        workspace_store.delete_by_slug(&msg.slug).await?;
 
         Ok(())
     }
@@ -277,9 +270,9 @@ impl Handler<UpdateWorkspace> for HostActor {
         msg: UpdateWorkspace,
     ) -> Result<(), ActorError> {
         let now = Utc::now();
-        self.workspace_store
+        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        workspace_store
             .update(
-                self.db.clone(),
                 &msg.current_slug,
                 &msg.name,
                 &msg.slug,
