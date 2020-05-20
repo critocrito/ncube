@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use chrono::Utc;
 use ncube_data::Workspace;
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
@@ -25,8 +26,6 @@ pub(crate) trait WorkspaceStore {
         location: &str,
         database: &str,
         database_path: &str,
-        created_at: &str,
-        updated_at: &str,
     ) -> Result<(), StoreError>;
     async fn list(&self) -> Result<Vec<Workspace>, StoreError>;
     async fn show_by_slug(&self, slug: &str) -> Result<Workspace, StoreError>;
@@ -37,7 +36,6 @@ pub(crate) trait WorkspaceStore {
         name: &str,
         slug: &str,
         description: &Option<String>,
-        updated_at: &str,
     ) -> Result<(), StoreError>;
 }
 
@@ -70,9 +68,8 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         location: &str,
         database: &str,
         database_path: &str,
-        created_at: &str,
-        updated_at: &str,
     ) -> Result<(), StoreError> {
+        let now = Utc::now();
         let conn = self.db.connection().await?;
 
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/create.sql"))?;
@@ -86,8 +83,8 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
             &description,
             &kind,
             &location,
-            &created_at,
-            &updated_at
+            &now.to_rfc3339(),
+            &now.to_rfc3339()
         ])?;
 
         stmt2.execute(params![&workspace_id, &database, &database_path])?;
@@ -144,8 +141,8 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         name: &str,
         slug: &str,
         description: &Option<String>,
-        updated_at: &str,
     ) -> Result<(), StoreError> {
+        let now = Utc::now();
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/update.sql"))?;
 
@@ -153,7 +150,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
             &name,
             &slug,
             &description,
-            &updated_at,
+            &now.to_rfc3339(),
             &current_slug,
         ])?;
 

@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use ncube_data::{ConfigSetting, NcubeConfig, Workspace};
 use std::path::Path;
 use std::result::Result;
@@ -82,7 +81,6 @@ pub(crate) struct CreateWorkspace {
     pub(crate) description: Option<String>,
     pub(crate) kind: String,
     pub(crate) database: DatabaseRequest,
-    pub(crate) created_at: DateTime<Utc>,
 }
 
 impl Message for CreateWorkspace {
@@ -91,10 +89,7 @@ impl Message for CreateWorkspace {
 
 impl From<WorkspaceRequest> for CreateWorkspace {
     fn from(w: WorkspaceRequest) -> CreateWorkspace {
-        let created_at = Utc::now();
-
         CreateWorkspace {
-            created_at,
             name: w.name.clone(),
             slug: w.slug(),
             description: w.description,
@@ -204,8 +199,6 @@ impl Handler<CreateWorkspace> for HostActor {
                 &location.to_string_lossy(),
                 &database,
                 &database_path.to_string_lossy(),
-                &msg.created_at.to_rfc3339(),
-                &msg.created_at.to_rfc3339(),
             )
             .await?;
 
@@ -269,16 +262,9 @@ impl Handler<UpdateWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: UpdateWorkspace,
     ) -> Result<(), ActorError> {
-        let now = Utc::now();
         let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
         workspace_store
-            .update(
-                &msg.current_slug,
-                &msg.name,
-                &msg.slug,
-                &msg.description,
-                &now.to_rfc3339(),
-            )
+            .update(&msg.current_slug, &msg.name, &msg.slug, &msg.description)
             .await?;
 
         Ok(())
