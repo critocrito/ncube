@@ -4,35 +4,33 @@ use ncube_data::Source;
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 
-use crate::db::sqlite;
+use crate::db::{sqlite, Database};
 use crate::errors::StoreError;
+
+pub(crate) fn source_store(wrapped_db: Database) -> impl SourceStore {
+    match wrapped_db {
+        Database::Sqlite(db) => SourceStoreSqlite { db },
+    }
+}
 
 #[async_trait]
 pub(crate) trait SourceStore {
-    type Database;
-
-    async fn exists(&self, db: &Self::Database, id: i32) -> Result<bool, StoreError>;
-    async fn create(&self, db: &Self::Database, kind: &str, term: &str) -> Result<(), StoreError>;
-    async fn list(&self, db: &Self::Database) -> Result<Vec<Source>, StoreError>;
-    async fn delete(&self, db: &Self::Database, id: i32) -> Result<(), StoreError>;
-    async fn update(
-        &self,
-        db: &Self::Database,
-        id: &i32,
-        kind: &str,
-        term: &str,
-    ) -> Result<(), StoreError>;
+    async fn exists(&self, id: i32) -> Result<bool, StoreError>;
+    async fn create(&self, kind: &str, term: &str) -> Result<(), StoreError>;
+    async fn list(&self) -> Result<Vec<Source>, StoreError>;
+    async fn delete(&self, id: i32) -> Result<(), StoreError>;
+    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
 }
 
 #[derive(Debug)]
-pub struct SourceStoreSqlite;
+pub struct SourceStoreSqlite {
+    db: sqlite::Database,
+}
 
 #[async_trait]
 impl SourceStore for SourceStoreSqlite {
-    type Database = sqlite::Database;
-
-    async fn exists(&self, db: &Self::Database, id: i32) -> Result<bool, StoreError> {
-        let conn = db.connection().await?;
+    async fn exists(&self, id: i32) -> Result<bool, StoreError> {
+        let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/exists.sql"))?;
 
         let result: i32 = stmt.query_row(params![&id], |row| row.get(0))?;
@@ -43,9 +41,9 @@ impl SourceStore for SourceStoreSqlite {
         }
     }
 
-    async fn create(&self, db: &Self::Database, kind: &str, term: &str) -> Result<(), StoreError> {
+    async fn create(&self, kind: &str, term: &str) -> Result<(), StoreError> {
         let now = Utc::now();
-        let conn = db.connection().await?;
+        let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/create.sql"))?;
 
         stmt.execute(params![&kind, &term, &now.to_rfc3339(), &now.to_rfc3339()])?;
@@ -53,8 +51,8 @@ impl SourceStore for SourceStoreSqlite {
         Ok(())
     }
 
-    async fn list(&self, db: &Self::Database) -> Result<Vec<Source>, StoreError> {
-        let conn = db.connection().await?;
+    async fn list(&self) -> Result<Vec<Source>, StoreError> {
+        let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/list.sql"))?;
 
         let mut sources: Vec<Source> = vec![];
@@ -65,8 +63,8 @@ impl SourceStore for SourceStoreSqlite {
         Ok(sources)
     }
 
-    async fn delete(&self, db: &Self::Database, id: i32) -> Result<(), StoreError> {
-        let conn = db.connection().await?;
+    async fn delete(&self, id: i32) -> Result<(), StoreError> {
+        let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/delete.sql"))?;
 
         stmt.execute(params![&id])?;
@@ -74,15 +72,9 @@ impl SourceStore for SourceStoreSqlite {
         Ok(())
     }
 
-    async fn update(
-        &self,
-        db: &Self::Database,
-        id: &i32,
-        kind: &str,
-        term: &str,
-    ) -> Result<(), StoreError> {
+    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError> {
         let now = Utc::now();
-        let conn = db.connection().await?;
+        let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/update.sql"))?;
 
         stmt.execute(params![&id, &kind, &term, &now.to_rfc3339()])?;
