@@ -1,17 +1,12 @@
 (ns ncube.sources.views
-  (:require [re-frame.core :as rf]
+  (:require [reagent.core :as r]
+            [re-frame.core :as rf]
             [fork.core :as fork]
             [ncube.components :refer [panel desc-text overline tag btn-large btn-small text-input]]
             [ncube.data-table :refer [data-table]]
             [ncube.sources.events :as events]
             [ncube.sources.subscriptions :as subscriptions]
             [ncube.workspaces.subscriptions :as workspaces]))
-
-(defn delete-source
-  [slug id]
-  [:span.trash
-   {:on-click #(rf/dispatch [::events/delete-source slug id])}
-   "D"])
 
 (defn create-source-form
   [slug {:keys [values
@@ -47,36 +42,46 @@
 
 (defn list-sources
   []
-  (let [workspace @(rf/subscribe [::workspaces/workspace])
+  (let [selected (r/atom [])
+        workspace @(rf/subscribe [::workspaces/workspace])
         sources @(rf/subscribe [::subscriptions/sources])
-        sidebar? @(rf/subscribe [:sidebar?])]
-    [panel
-     {:workspace workspace
-      :title "Sources"
-      :description (:description workspace)
-      :sidebar? sidebar?}
-     [:div
-      [:div.flex.justify-between.mb3
-       [:div.w-50.flex
-        [:div.mr2
-         [btn-large {:label "Add new"
-                     :on-click #(rf/dispatch [::events/sources-create (:slug workspace)])
-                     :style :secondary}]]
-        [btn-large {:label "Upload csv"
-                    :on-click #(rf/dispatch [:unimplemented])
-                    :style :secondary}]]
-       [:div.w-50.tr
-        [btn-large {:label "Send to process"
-                    :on-click #(rf/dispatch [:unimplemented])}]]]
-      [data-table {:columns ["url" "type"]
-                  :data sources
-                  :row-fn (fn [{:keys [id type term]}]
-                            [:tr {:key id}
-                             [:td.text-medium.tc
-                              [delete-source (:slug workspace) id]
-                              [:input {:type "checkbox"}]]
-                             [:td.text-medium term]
-                             [:td.text-medium type]])}]]]))
+        sidebar? @(rf/subscribe [:sidebar?])
+        slug (:slug workspace)]
+    (fn []
+      [panel
+         {:workspace workspace
+          :title "Sources"
+          :description (:description workspace)
+          :sidebar? sidebar?}
+         [:div
+          [:div.flex.justify-between.mb3
+           [:div.w-50.flex
+            [:div.mr2
+             [btn-large {:label "Add new"
+                         :on-click #(rf/dispatch [::events/sources-create slug])
+                         :style :secondary}]]
+            [btn-large {:label "Upload csv"
+                        :on-click #(rf/dispatch [:unimplemented])
+                        :style :secondary}]]
+           [:div.w-50.flex.items-center
+            [:div.ml-auto.mr2.b
+              (if (= (count @selected) 0)
+                ""
+                (str (count @selected) " selected"))]
+            [btn-large {:label "Send to process"
+                         :on-click #(rf/dispatch [:unimplemented @selected])}]]]
+          [data-table
+           {:columns ["url" "type"]
+            :on-select (fn [id]
+                         (let [new-selected (if (some #(= id %) @selected)
+                                              (do (remove #(= id %) @selected))
+                                              (conj @selected id))]
+                           (reset! selected new-selected)))
+            :on-delete (fn [id] (rf/dispatch [::events/delete-source slug id]))
+            :data sources}
+           (fn [{:keys [id type term]}]
+             [[:td.text-medium {:key (str "term-" id)} term]
+              [:td.text-medium {:key (str "type-" id)} type]])]]])))
 
 (defn create-source
   []
