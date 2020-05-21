@@ -19,7 +19,7 @@
      ["/" {:name :workspace-details :view workspaces/show-workspace}]
      ["/sources"
       ["/" {:name :sources-list :view sources/list-sources}]
-      ["/create" {:name :sources-create :view workspaces/show-workspace}]]]]
+      ["/create" {:name :sources-create :view sources/create-source}]]]]
    ["onboarding" {:name :onboarding :view onboarding/panel}]])
 
 (defn on-navigate
