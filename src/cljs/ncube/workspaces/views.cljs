@@ -3,7 +3,8 @@
             [fork.core :as fork]
             [ncube.components :refer [panel desc-text overline tag btn-large btn-small text-input]]
             [ncube.workspaces.events :as events]
-            [ncube.workspaces.subscriptions :as subscriptions]))
+            [ncube.workspaces.subscriptions :as subscriptions]
+            [ncube.sources.events :as sources]))
 
 (defn workspace-stat
   [type value]
@@ -111,11 +112,11 @@
      create-workspace-form]]])
 
 (defn card
-  [kind]
+  [kind slug]
   (let [description "I'm some sort of description. What I will be, I don't know yet. But I'm convinced, it will be mganificient."
         [title icon label event]
         (cond
-          (= kind :queries) ["Queries" "icon_query.svg" "Manage" :unimplemented]
+          (= kind :queries) ["Queries" "icon_query.svg" "Manage" ::sources/list-sources]
           (= kind :data) ["Data" "icon_data.svg" "Explore" :unimplemented]
           (= kind :processes) ["Processes" "icon_process.svg" "Set Up" :unimplemented]
           (= kind :investigations) ["Investigations" "icon_investigation.svg" "Verify" :unimplemented])]
@@ -131,7 +132,7 @@
         ]
        [:p {:class "text-small"}
         description]]]
-     [:div {:class "h3 pr2"} [btn-small {:label label :on-click #(rf/dispatch [event])}]]]))
+     [:div {:class "h3 pr2"} [btn-small {:label label :on-click #(rf/dispatch [event slug])}]]]))
 
 (defn show-workspace
   []
@@ -143,7 +144,7 @@
       :description (:description workspace)
       :sidebar? sidebar?}
      [:div
-      [card :queries]
-      [card :data]
-      [card :processes]
-      [card :investigations]]]))
+      [card :queries (:slug workspace)]
+      [card :data (:slug workspace)]
+      [card :processes (:slug workspace)]
+      [card :investigations (:slug workspace)]]]))
