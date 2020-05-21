@@ -43,8 +43,7 @@ tr:hover {
 }
 
 span.trash {
-  @insert .cursor;
-
+  cursor: pointer;
   display: none;
   width: 20px;
   height: 20px;
