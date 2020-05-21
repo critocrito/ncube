@@ -5,24 +5,22 @@
    [reitit.frontend :as rf]
    [reitit.coercion.spec :as rss]
    [reitit.frontend.easy :as rfe]
+   [ncube.views :refer [home-panel]]
    [ncube.onboarding.views :as onboarding]
    [ncube.workspaces.views :as workspaces]
-   [ncube.views :refer [home-panel]]))
+   [ncube.sources.views :as sources]))
 
 (def routes
   ["/"
-   ["create"
-    {:name :workspaces-create
-     :view workspaces/create-workspaces}]
+   ["create" {:name :workspaces-create :view workspaces/create-workspaces}]
    ["w"
-    {:name :home
-     :view workspaces/list-workspaces}]
-   ["w/:slug"
-    {:name :workspace-details
-     :view workspaces/show-workspace}]
-   ["onboarding"
-    {:name :onboarding
-     :view onboarding/panel}]])
+    ["/" {:name :home :view workspaces/list-workspaces}]
+    ["/:slug"
+     ["/" {:name :workspace-details :view workspaces/show-workspace}]
+     ["/sources"
+      ["/" {:name :sources-list :view sources/list-sources}]
+      ["/create" {:name :sources-create :view workspaces/show-workspace}]]]]
+   ["onboarding" {:name :onboarding :view onboarding/panel}]])
 
 (defn on-navigate
   [new-match]

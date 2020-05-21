@@ -1,7 +1,7 @@
 @import "tachyons";
 
 :root {
-  --color-background: #f5f3f2;
+  --color-background: #faf8f7;
 
   --color-disabled: #f8ece8;
   --color-primary: #fd7268;
@@ -23,6 +23,37 @@
 body {
   font-size: 16px;
   letter-spacing: 0.01em;
+}
+
+th {
+  @insert .pa2;
+}
+
+td {
+  @insert .ba .b--nasty-color .pa2;
+  position: relative;
+}
+
+tr {
+  @insert .bg-white;
+}
+
+tr:hover {
+  @insert .bg-background;
+}
+
+span.trash {
+  @insert .cursor;
+
+  display: none;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  left: -20px;
+}
+
+tr:hover span.trash {
+  display: block;
 }
 
 @font-face {
@@ -69,6 +100,18 @@ body {
 
 .text-small {
   font-size: 0.64em;
+}
+
+.background {
+  color: var(--color-background);
+}
+
+.bg-background {
+  background: var(--color-background);
+}
+
+.b--background {
+  border-color: var(--color-background);
 }
 
 .buzzy-boop {
@@ -163,11 +206,16 @@ body {
   background: var(--color-default-active);
 }
 
+.b--local-workspace {
+  border-color: var(--color-default-active);
+}
+
 .bg-remote-workspace {
   background: var(--color-neutral-grey);
 }
+
 .large {
-  width: 16rem;
+  width: 11rem;
 }
 
 .small {
@@ -175,7 +223,7 @@ body {
 }
 
 .btn {
-  @insert .link .ma2 .pa2 .ttu .br2 .tc .b;
+  @insert .link .pa2 .ttu .br2 .tc .b;
   cursor: pointer;
 }
 
