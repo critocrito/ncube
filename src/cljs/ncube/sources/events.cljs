@@ -6,10 +6,10 @@
             [fork.core :as fork]))
 
 (rf/reg-event-fx
- ::create-source
+ ::sources-create
  (fn-traced
-  [_ _]
-  {:navigate! :sources-create}))
+  [_ [_ slug]]
+  {:navigate! [:sources-create {:slug slug}]}))
 
 (rf/reg-event-fx
  ::sources-fetched
@@ -39,3 +39,20 @@
                 :response-format (ajax/raw-response-format) 
                 :on-success [::list-sources slug]
                 :on-failure [:http-error]}}))
+
+(rf/reg-event-fx
+ ::create-source
+ [(fork/on-submit :form)]
+ (fn-traced
+  [{db :db} [_ slug {:keys [values]}]]
+  (let [req-body {:type (values "type")
+                  :term (values "term")
+                  :annotations []}]
+    {:db (fork/set-submitting db :form false)
+     :http-xhrio {:method :post
+                  :uri (str "http://127.0.0.1:40666/api/workspaces/" slug "/sources")
+                  :params req-body
+                  :format (ajax/json-request-format)
+                  :response-format (ajax/raw-response-format)
+                  :on-success [::list-sources slug]
+                  :on-failure [:http-error]}})))

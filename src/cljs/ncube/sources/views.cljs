@@ -13,6 +13,38 @@
    {:on-click #(rf/dispatch [::events/delete-source slug id])}
    "D"])
 
+(defn create-source-form
+  [slug {:keys [values
+                form-id
+                submitting?
+                on-submit-response
+                handle-change
+                handle-blur
+                handle-submit]}]
+  [:form {:id form-id :on-submit handle-submit}
+   [text-input {:name "type"
+                :label "Source Type"
+                :value (values "type")
+                :on-change handle-change
+                :on-blur handle-blur}]
+   [:div.mt3
+    [text-input {:name "term"
+                 :label "Term "
+                 :value (values "term")
+                 :on-change handle-change
+                 :on-blur handle-blur}]]
+   [:div.flex.mt3
+    [:div.mr3
+     [btn-large {:label "Cancel"
+               :on-click (fn [ev]
+                           (.preventDefault ev)
+                           (rf/dispatch [::events/list-sources slug]))
+               :disabled submitting?
+               :style :secondary}]]
+    [btn-large {:label "Create"
+                :disabled submitting?}]]
+   [:p on-submit-response]])
+
 (defn list-sources
   []
   (let [workspace @(rf/subscribe [::workspaces/workspace])
@@ -28,7 +60,7 @@
        [:div.w-50.flex
         [:div.mr2
          [btn-large {:label "Add new"
-                     :on-click #(rf/dispatch [:unimplemented])
+                     :on-click #(rf/dispatch [::events/sources-create (:slug workspace)])
                      :style :secondary}]]
         [btn-large {:label "Upload csv"
                     :on-click #(rf/dispatch [:unimplemented])
@@ -40,9 +72,26 @@
                   :data sources
                   :row-fn (fn [{:keys [id type term]}]
                             [:tr {:key id}
-                             [:td.text-medium
+                             [:td.text-medium.tc
                               [delete-source (:slug workspace) id]
-                              term]
+                              [:input {:type "checkbox"}]]
+                             [:td.text-medium term]
                              [:td.text-medium type]])}]]]))
 
-
+(defn create-source
+  []
+  (let [workspace @(rf/subscribe [::workspaces/workspace])
+        sidebar? @(rf/subscribe [:sidebar?])]
+    [panel
+     {:workspace workspace
+      :title "Create source"
+      :description ""
+      :sidebar? sidebar?}
+     [fork/form {:path :form
+                 :form-id "source-create-form"
+                 :prevent-default? true
+                 :clean-on-unmount? true
+                 :on-submit-response {400 "client error"
+                                      500 "server error"}
+                 :on-submit #(rf/dispatch [::events/create-source (:slug workspace) %])}
+      #(create-source-form (:slug workspace) %)]]))

@@ -13,6 +13,7 @@
       [:table.w-100.collapse
        [:thead
         [:tr.bg-background
+         [:th.ba.b--local-workspace.b.tl ""]
          (for [column columns]
            [:th.ba.b--local-workspace.b.tl column])]]
        [:tbody

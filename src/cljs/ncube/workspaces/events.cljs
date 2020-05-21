@@ -52,14 +52,14 @@
                   :database "sqlite"
                   :description (values "description")}]
     {:db (fork/set-submitting db :form false)
-   :http-xhrio
-   {:method :post
-    :uri "http://127.0.0.1:40666/api/workspaces"
-    :params req-body
-    :format (ajax/json-request-format)
-    :response-format (ajax/raw-response-format)
-    :on-success [::success]
-    :on-failure [::failure]}})))
+     :http-xhrio
+     {:method :post
+      :uri "http://127.0.0.1:40666/api/workspaces"
+      :params req-body
+      :format (ajax/json-request-format)
+      :response-format (ajax/raw-response-format)
+      :on-success [::success]
+      :on-failure [::failure]}})))
 
 (rf/reg-event-fx
  ::fetch-workspaces
