@@ -1,3 +1,24 @@
+<a name="0.4.0"></a>
+## 0.4.0 (2020-05-25)
+
+
+#### Bug Fixes
+
+* **ui:**  bad pointer cursor style ([ef62550a](ef62550a))
+
+#### Features
+
+* **ncubed:**
+  *  add HTTP endpoint to update sources for a workspace ([a2800007](a2800007))
+  *  add HTTP endpoint to delete a source for a workspace ([72225c3a](72225c3a))
+  *  add HTTP endpoint to list sources for a workspace ([2b567855](2b567855))
+* **ui:**
+  *  select sources ([3f5fe9ec](3f5fe9ec))
+  *  create sources ([de53de9f](de53de9f))
+  *  list and delete sources for a workspace ([8baed1bd](8baed1bd))
+
+
+
 <a name="0.3.0"></a>
 ## 0.3.0 (2020-05-19)
 
