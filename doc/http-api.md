@@ -3,15 +3,18 @@
 - [Response Envelope](#response-envelope)
   - [Success](#success)
   - [Errors](#errors)
+- [Authorization](#authorization)
 - [Endpoints](#endpoints)
   - [Ncube](#ncube)
+  - [Account](#account)
   - [Workspaces](#workspaces)
   - [Sources](#sources)
 - [Entities](#entities)
-  - [Config Setting](#config-setting)
-  - [Workspace](#workspace)
-  - [Query](#query)
-  - [Annotation](#annotation)
+  - [Config Setting](#config-setting-entity)
+  - [Account](#account-entity)
+  - [Workspace](#workspace-entity)
+  - [Query](#query-entity)
+  - [Annotation](#annotation-entity)
 
 ## Response Envelope
 
@@ -62,6 +65,37 @@ all errors.
 }
 ```
 
+## Authorization
+
+To access remote workspaces a valid account has to be provided by the operator
+of the remote Ncube installation. Accounts are authenticated using an email
+address and a password. The local Ncube installation will automatically login
+when accessing the remote workspace. The remote Ncube installation will return
+an [JSON Web Tokens](https://jwt.io/) token when the login succeeds.
+
+[JWT](https://jwt.io/) as described in
+[RFC7519](https://tools.ietf.org/html/rfc7519) is used to authorize all
+requests. A new token can be retrieved by [logging in](#account). When
+successful, a valid token is returned that be used to authorize requests to any
+protected route. A token stays valid for one hour. A new token has to be
+requested by logging in once the previous token expires.
+
+The token has to be set using the `Authorization` HTTP header. The authorization
+type is `Bearer` and the credential is the JWT token.
+
+```
+GET /protected/route
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVtYWlsQGV4YW1wbGUuY29tIiwiaWF0IjoxNTM4MDgwNDE4LCJleHAiOjE1MzgwODQwMTh9.xMxUBEUsj3_VKfmwEH5Rgdzn7XN3wY5AtwU_1ckcr6w
+```
+
+If no token was supplied or the token didn't verify, the API returns a **401
+Unauthorized** response. If the token is valid but the user lacks access rights
+the API returns a **403 Forbidden**.
+
+Only access to remote workspaces require authorization; requests to the local
+Ncube installation (originating from `127.0.0.1`) don't.
+
 ## Endpoints
 
 ### Ncube
@@ -69,6 +103,11 @@ all errors.
 - [Show Ncube Configuration](http-api/ncube/show.md) `GET /`
 - [Bootstrap Ncube](http-api/ncube/bootstrap.md) `POST /`
 - [Update Ncube Configuration](http-api/ncube/update.md) `PUT /`
+
+### Account
+
+- [Login](http-api/account/login.md) `POST /workspaces/<workspace_slug>/account`
+- [Update the account details](http-api/account/update.md) `PUT /workspaces/<workspace_slug>/account`
 
 ### Workspaces
 
@@ -85,7 +124,7 @@ all errors.
 
 ## Entities
 
-### Config Setting
+### Config Setting Entity
 
 ```json
 {
@@ -96,7 +135,16 @@ all errors.
 }
 ```
 
-### Workspace
+### Account Entity
+
+```json
+{
+  "email": "alice@example.org",
+  "name": "Alice"
+}
+```
+
+### Workspace Entity
 
 ```json
 {
@@ -111,7 +159,7 @@ all errors.
 }
 ```
 
-### Source
+### Source Entity
 
 ```json
 {
@@ -125,7 +173,7 @@ all errors.
 }
 ```
 
-### Annotation
+### Annotation Entity
 
 ```json
 {
