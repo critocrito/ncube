@@ -1,0 +1,120 @@
+.Dd May 27, 2020
+.Dt NCUBECTL 8
+.Os
+.Sh NAME
+.Nm ncubectl
+.Nd control the Ncube daemon
+.Sh SYNOPSIS
+.Nm
+.Op Fl hV
+.Ar command
+.Op Ar argument ...
+.Sh DESCRIPTION
+The
+.Nm
+program controls
+.Xr ncubed 1 .
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl d
+Enable debug logging.
+.It Fl h
+Print the usage message of
+.Nm
+and exit.
+.It Fl V
+Print the version of
+.Nm
+and exit.
+.El
+.Pp
+The following commands are available:
+.Bl -tag -width Ds
+.It Cm workspace Ar name Op Ar postgres_url
+Bootstrap a new local workspace identified by
+.Ar name
+in the workspace root. The workspace slug is generated from the human readable
+.Ar name .
+.Pp
+As a default the workspace is bootstrapped with a SQLite
+database. Supply a
+.Ar postgres_url
+to associate the workspace with a PostgreSQL database instead.
+.It Cm account Ar workspace Ar email
+Create a new account to grant remote access to
+.Ar workspace .
+The account uses
+.Ar email
+as an unique identifier for the account. A one-time password is generated for
+the account during creation.
+.It Cm connection Ar workspace Ar email
+Output the account details to connect to a workspace. The connection details
+are output as JSON in order to import them in the
+.Xr ncube 1
+app.
+.Pp
+The
+.Cm connection
+command will only output the account password if the password is the
+automatically generated one-time password that is created during account
+creation.
+.It Cm state Ar modifier
+Show the internal state of
+.Xr ncubed 1
+specified by
+.Ar modifier :
+.Pp
+.Bl -tag -width XXXXXXXXXXXX -compact
+.It Ar workspaces
+List all workspaces configured for
+.Xr ncubed 1 .
+.It Ar accounts
+List all accounts that are associated to a workspace.
+.It Ar all
+Show all states for
+.Xr ncubed 1 .
+.El
+.It Cm delete Cm workspace Ar workspace Op Fl y
+Delete a workspace and all it's associated accounts. This only deletes the
+workspace in
+.Xr ncubed 1 .
+The
+.Xr sugarcube 1
+project and any downloaded data must be deleted manually.
+.Bl -tag -width Ds
+.It Fl y
+Automatic yes to prompts; assume \(dqyes\(dq as answer to all prompts and run
+non-interactively.
+.El
+.It Cm delete Cm account Ar workspace Ar email Op Fl y
+Delete an account for
+.Ar email
+that is associated to the workspace
+.Ar workspace .
+.Bl -tag -width Ds
+.It Fl y
+Automatic yes to prompts; assume \(dqyes\(dq as answer to all prompts and run
+non-interactively.
+.El
+.El
+.Sh EXIT STATUS
+.Ex -std
+.Sh EXAMPLES
+Create a new workspace for the local
+.Xr ncubed 1 :
+.Bd -literal -offset indent
+# ncubectl workspace "Syrian Archive"
+.Ed
+.Pp
+Once the workspace is created accounts can be added for remote access. This will
+generate a one-time password that can be used by the account holder to finish
+account setup.
+.Bd -literal -offset indent
+# ncubectl account christo@syrianarchive.org syrian-archive
+# ncubectl connection christo@syrianarchive.org syrian-archive
+.Ed
+.Sh SEE ALSO
+.Xr ncubed 1 ,
+.Xr ncube 1 ,
+.Xr sugarcube 1
