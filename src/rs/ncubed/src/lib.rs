@@ -36,7 +36,7 @@ impl Application {
         Application { config }
     }
 
-    pub async fn run(&self) -> Result<(), errors::ApplicationError> {
+    async fn setup(&self) -> Result<(), errors::ApplicationError> {
         let host_actor = HostActor::new(&self.config.host_db)?.start().await;
         HostActor::register_once(host_actor).await;
         let task_actor = TaskActor::new()?.start().await;
@@ -44,8 +44,20 @@ impl Application {
         let database_actor = DatabaseActor::new().start().await;
         DatabaseActor::register_once(database_actor).await;
 
+        Ok(())
+    }
+
+    /// Run `ncubed` as a daemon. This will start an HTTP server as well.
+    pub async fn run(&self) -> Result<(), errors::ApplicationError> {
+        self.setup().await?;
         warp::serve(routes::router()).run(self.config.listen).await;
 
+        Ok(())
+    }
+
+    /// Run `ncubed` without a HTTP server.
+    pub async fn run_without_http(&self) -> Result<(), errors::ApplicationError> {
+        self.setup().await?;
         Ok(())
     }
 }
