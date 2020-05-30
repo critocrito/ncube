@@ -31,6 +31,8 @@ slugify = "0.1.0"
 dirs = "2.0.2"
 flate2 = "1.0.14"
 tar = "0.4.26"
+rand = "0.7.3"
+rust-argon2 = "0.8.2"
 
 ncube-data = { path = "../ncube-data" }
 
