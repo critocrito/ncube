@@ -9,7 +9,9 @@ use crate::db::{sqlite, Database};
 use crate::errors::ActorError;
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
-use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
+use crate::stores::{
+    account_store, config_store, workspace_store, AccountStore, ConfigStore, WorkspaceStore,
+};
 use crate::types::{DatabaseRequest, WorkspaceRequest};
 
 pub(crate) struct HostActor {
@@ -121,6 +123,15 @@ pub(crate) struct UpdateWorkspace {
     pub name: String,
     pub slug: String,
     pub description: Option<String>,
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub(crate) struct CreateAccount {
+    pub(crate) workspace: String,
+    pub(crate) email: String,
+    pub(crate) password: String,
+    pub(crate) name: Option<String>,
 }
 
 #[async_trait]
@@ -264,6 +275,27 @@ impl Handler<UpdateWorkspace> for HostActor {
         let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
         workspace_store
             .update(&msg.current_slug, &msg.name, &msg.slug, &msg.description)
+            .await?;
+
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl Handler<CreateAccount> for HostActor {
+    async fn handle(&mut self, _ctx: &Context<Self>, msg: CreateAccount) -> Result<(), ActorError> {
+        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let account_store = account_store(Database::Sqlite(self.db.clone()));
+        let workspace = workspace_store.show_by_slug(&msg.workspace).await?;
+
+        if account_store.exists(&msg.email, workspace.id).await? {
+            return Err(ActorError::Invalid(
+                "This email already exists for this workspace.".into(),
+            ));
+        }
+
+        account_store
+            .create(&msg.email, &msg.password, msg.name, workspace.id)
             .await?;
 
         Ok(())

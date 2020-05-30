@@ -31,3 +31,10 @@ pub struct SourceRequest {
     pub term: String,
     pub annotations: Vec<AnnotationKind>,
 }
+
+#[derive(Debug)]
+pub struct AccountRequest {
+    pub email: String,
+    pub password: String,
+    pub name: Option<String>,
+}

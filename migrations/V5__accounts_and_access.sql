@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS account (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT NOT NULL,
+  password TEXT NOT NULL,
+  name TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+CREATE INDEX IF NOT EXISTS account_email_idx ON account (email);
+
+CREATE TABLE IF NOT EXISTS access (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  workspace INTEGER NOT NULL REFERENCES workspace (id),
+  account INTEGER NOT NULL REFERENCES account (id),
+  token TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  UNIQUE (workspace, account)
+);
+CREATE INDEX IF NOT EXISTS access_workspace_idx ON access(workspace);
+CREATE INDEX IF NOT EXISTS access_account_idx ON access(account);
