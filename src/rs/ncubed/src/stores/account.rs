@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use rusqlite::{self, params};
+use ncube_data::Account;
+use rusqlite::{self, params, NO_PARAMS};
+use serde_rusqlite::{self, from_rows};
 
 use crate::db::{sqlite, Database};
 use crate::errors::StoreError;
@@ -18,9 +20,11 @@ pub(crate) trait AccountStore {
         &self,
         email: &str,
         password: &str,
+        otp: &str,
         name: Option<String>,
         workspace_id: i32,
     ) -> Result<(), StoreError>;
+    async fn list(&self) -> Result<Vec<Account>, StoreError>;
 }
 
 #[derive(Debug)]
@@ -46,6 +50,7 @@ impl AccountStore for AccountStoreSqlite {
         &self,
         email: &str,
         password: &str,
+        otp: &str,
         name: Option<String>,
         workspace_id: i32,
     ) -> Result<(), StoreError> {
@@ -58,6 +63,7 @@ impl AccountStore for AccountStoreSqlite {
         let account_id = stmt.insert(params![
             &email,
             &password,
+            &otp,
             &name,
             &now.to_rfc3339(),
             &now.to_rfc3339()
@@ -72,5 +78,19 @@ impl AccountStore for AccountStoreSqlite {
         conn.execute_batch("COMMIT;")?;
 
         Ok(())
+    }
+
+    async fn list(&self) -> Result<Vec<Account>, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/account/list.sql"))?;
+
+        let accounts_iter = from_rows::<Account>(stmt.query(NO_PARAMS)?);
+
+        let mut accounts: Vec<Account> = vec![];
+        for account in accounts_iter {
+            accounts.push(account?);
+        }
+
+        Ok(accounts)
     }
 }
