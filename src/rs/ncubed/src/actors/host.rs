@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_data::{ConfigSetting, NcubeConfig, Workspace};
+use ncube_data::{Account, ConfigSetting, NcubeConfig, Workspace};
 use std::path::Path;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler, Message};
@@ -131,8 +131,13 @@ pub(crate) struct CreateAccount {
     pub(crate) workspace: String,
     pub(crate) email: String,
     pub(crate) password: String,
+    pub(crate) otp: String,
     pub(crate) name: Option<String>,
 }
+
+#[message(result = "Result<Vec<Account>, ActorError>")]
+#[derive(Debug)]
+pub(crate) struct ListAccounts;
 
 #[async_trait]
 impl Handler<IsBootstrapped> for HostActor {
@@ -295,9 +300,22 @@ impl Handler<CreateAccount> for HostActor {
         }
 
         account_store
-            .create(&msg.email, &msg.password, msg.name, workspace.id)
+            .create(&msg.email, &msg.password, &msg.otp, msg.name, workspace.id)
             .await?;
 
         Ok(())
+    }
+}
+
+#[async_trait]
+impl Handler<ListAccounts> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &Context<Self>,
+        _msg: ListAccounts,
+    ) -> Result<Vec<Account>, ActorError> {
+        let store = account_store(Database::Sqlite(self.db.clone()));
+        let accounts = store.list().await?;
+        Ok(accounts)
     }
 }

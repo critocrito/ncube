@@ -243,3 +243,15 @@ pub struct Source {
     #[serde(default)]
     pub annotations: Vec<Annotation>,
 }
+
+/// An account is required to gain access to a remote workspace.
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct Account {
+    pub id: i32,
+    pub email: String,
+    pub workspace: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: Option<String>,
+    pub otp: Option<String>,
+}

@@ -1,6 +1,7 @@
+use ncube_data::Account;
 use tracing::{error, instrument};
 
-use crate::actors::host::{CreateAccount, HostActor, WorkspaceExists};
+use crate::actors::host::{CreateAccount, HostActor, ListAccounts, WorkspaceExists};
 use crate::crypto;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
@@ -33,10 +34,20 @@ pub async fn create_account(
         .call(CreateAccount {
             workspace: workspace.into(),
             name: Some(name),
+            otp: account_request.password,
             email,
             password,
         })
         .await??;
 
     Ok(())
+}
+
+#[instrument]
+pub async fn list_accounts() -> Result<Vec<Account>, HandlerError> {
+    let mut actor = HostActor::from_registry().await.unwrap();
+
+    let accounts = actor.call(ListAccounts).await??;
+
+    Ok(accounts)
 }
