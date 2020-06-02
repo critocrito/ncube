@@ -28,6 +28,12 @@ pub(crate) trait AccountStore {
         email: &str,
         workspace_id: i32,
     ) -> Result<Option<String>, StoreError>;
+    async fn update_password(
+        &self,
+        email: &str,
+        hash: &str,
+        workspace_id: i32,
+    ) -> Result<(), StoreError>;
 }
 
 #[derive(Debug)]
@@ -110,5 +116,19 @@ impl AccountStore for AccountStoreSqlite {
             .ok();
 
         Ok(hash)
+    }
+
+    async fn update_password(
+        &self,
+        email: &str,
+        hash: &str,
+        workspace_id: i32,
+    ) -> Result<(), StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/account/update_password.sql"))?;
+
+        stmt.execute(params![&hash, &email, &workspace_id])?;
+
+        Ok(())
     }
 }

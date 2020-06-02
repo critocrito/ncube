@@ -25,6 +25,17 @@ PUT http://:api/api
 
 
 ###
+# Account Management
+###
+PUT http://:api/api/workspaces/syrian-archive/account
+:headers
+
+{
+  "email": "me@example.org",
+  "password": "new-pass"
+}
+
+###
 # Manage Workspaces
 ###
 

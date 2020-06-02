@@ -74,3 +74,27 @@ pub async fn login_account(
 
     Ok(crypto::verify(&hash, password.as_bytes()))
 }
+
+#[instrument]
+pub async fn update_password(
+    workspace: &str,
+    email: &str,
+    password: &str,
+) -> Result<(), HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+
+    let workspace_store = workspace_store2(db.clone());
+    let account_store = account_store(db);
+
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
+
+    let hash = crypto::hash(password.as_bytes());
+
+    account_store
+        .update_password(&email, &hash, workspace.id)
+        .await?;
+
+    Ok(())
+}
