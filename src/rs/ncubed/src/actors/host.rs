@@ -48,10 +48,6 @@ impl HostActor {
     pub async fn workspace_root(&self) -> Result<Option<ConfigSetting>, ActorError> {
         self.get_setting("workspace_root").await
     }
-
-    pub async fn secret_key(&self) -> Result<Option<ConfigSetting>, ActorError> {
-        self.get_setting("secret_key").await
-    }
 }
 
 #[message(result = "Result<sqlite::Database, ActorError>")]

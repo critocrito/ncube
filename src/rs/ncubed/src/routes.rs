@@ -1,12 +1,17 @@
 use serde::{Serialize, Serializer};
 use std::convert::Infallible;
+use std::net::{IpAddr, SocketAddr};
+use std::str::FromStr;
 use tracing::{error, info, instrument};
 use warp::{
     http::{Method, StatusCode},
     Filter,
 };
 
-use crate::errors::HandlerError;
+use crate::crypto::jwt_verify;
+use crate::errors::{CryptoError, HandlerError};
+use crate::handlers::config::show_secret_key;
+use crate::types::ReqCtx;
 
 #[derive(Debug)]
 struct SuccessStatus;
@@ -114,6 +119,9 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
     } else if let Some(HandlerError::NotAllowed(reason)) = err.find() {
         code = StatusCode::FORBIDDEN;
         message = reason.to_string();
+    } else if let Some(CryptoError) = err.find() {
+        code = StatusCode::UNAUTHORIZED;
+        message = "request did not authorize".to_string();
     } else if let Some(rejection) = err.find::<warp::reject::MethodNotAllowed>() {
         code = StatusCode::METHOD_NOT_ALLOWED;
         message = rejection.to_string();
@@ -127,6 +135,65 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
     let json = warp::reply::json(&ErrorResponse::new(code, &message));
 
     Ok(warp::reply::with_status(json, code))
+}
+
+pub(crate) fn is_loopback() -> warp::filters::BoxedFilter<(bool,)> {
+    warp::header("x-forwarded-for")
+        .map(|forwarded_for: String| IpAddr::from_str(&forwarded_for).ok())
+        .or(warp::addr::remote().map(|remote: Option<SocketAddr>| remote.map(|socket| socket.ip())))
+        .unify()
+        .map(|remote: Option<IpAddr>| {
+            if let Some(ip) = remote {
+                if ip.is_loopback() {
+                    return true;
+                }
+            }
+            return false;
+        })
+        .boxed()
+}
+
+pub(crate) fn user_ctx() -> warp::filters::BoxedFilter<(Option<String>,)> {
+    warp::header("authorization")
+        .map(|header_value: String| {
+            let parts: Vec<&str> = header_value.split(" ").collect();
+            match &parts[..] {
+                ["Bearer", token] => Some(token.to_string()),
+                _ => None,
+            }
+        })
+        .or(warp::any().map(|| None))
+        .unify()
+        .boxed()
+}
+
+pub(crate) fn authorize() -> impl Filter<Extract = (ReqCtx,), Error = warp::Rejection> + Clone {
+    warp::any().and(is_loopback()).and(user_ctx()).and_then(
+        move |is_local: bool, token: Option<String>| async move {
+            // We don't need to verify the user if we have a request from localhost.
+            if is_local {
+                return Ok(ReqCtx::Lacking);
+            }
+
+            match token {
+                None => {
+                    return Ok(ReqCtx::Lacking);
+                }
+                Some(token) => {
+                    let key = show_secret_key().await;
+
+                    match key {
+                        Ok(key) => {
+                            let claims = jwt_verify(&key, &token)?;
+                            let user_email = claims.subject.ok_or_else(|| CryptoError)?;
+                            Ok(ReqCtx::Provided { user_email })
+                        }
+                        _ => Err(warp::reject::custom(CryptoError)),
+                    }
+                }
+            }
+        },
+    )
 }
 
 pub(crate) fn router(
@@ -205,7 +272,7 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
 }
 
 pub(crate) mod config {
-    use super::SuccessResponse;
+    use super::{authorize, ReqCtx, SuccessResponse};
     use serde::Deserialize;
     use warp::Filter;
 

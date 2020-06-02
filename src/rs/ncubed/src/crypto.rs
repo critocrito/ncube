@@ -1,9 +1,11 @@
 use argon2::{self, Config};
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use hmac::{Hmac, Mac};
-use jwt::{error::Error, RegisteredClaims, SignWithKey, VerifyWithKey};
+use jwt::{RegisteredClaims, SignWithKey, VerifyWithKey};
 use rand::Rng;
 use sha2::{Digest, Sha256, Sha512};
+
+use crate::errors::CryptoError;
 
 const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                          abcdefghijklmnopqrstuvwxyz\
@@ -31,8 +33,9 @@ pub fn mkpass() -> String {
         .collect::<String>()
 }
 
-pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String, Error> {
-    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).unwrap();
+pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String, CryptoError> {
+    let key: Hmac<Sha512> =
+        Hmac::new_varkey(key.as_bytes()).expect("HMAC can take key of any size");
     let now = Utc::now();
     let expire = now + Duration::hours(1);
 
@@ -44,13 +47,29 @@ pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String
         ..Default::default()
     };
 
-    claims.sign_with_key(&key)
+    claims.sign_with_key(&key).map_err(|_| CryptoError)
 }
 
-pub(crate) fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, Error> {
-    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).unwrap();
-    let claims: RegisteredClaims = VerifyWithKey::verify_with_key(token, &key).unwrap();
-    Ok(claims)
+pub(crate) fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, CryptoError> {
+    // FIXME: Don't unwrap error
+    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).map_err(|_| CryptoError)?;
+    let claims: RegisteredClaims =
+        VerifyWithKey::verify_with_key(token, &key).map_err(|_| CryptoError)?;
+    let now = Utc::now();
+    let expiration = DateTime::<Utc>::from_utc(
+        NaiveDateTime::from_timestamp(claims.expiration.ok_or_else(|| CryptoError)? as i64, 0),
+        Utc,
+    );
+    let not_before = DateTime::<Utc>::from_utc(
+        NaiveDateTime::from_timestamp(claims.not_before.ok_or_else(|| CryptoError)? as i64, 0),
+        Utc,
+    );
+
+    if not_before <= now && expiration >= now {
+        Ok(claims)
+    } else {
+        Err(CryptoError)
+    }
 }
 
 pub fn gen_secret_key() -> String {
