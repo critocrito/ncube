@@ -38,3 +38,11 @@ pub struct AccountRequest {
     pub password: String,
     pub name: Option<String>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct LoginRequest {
+    pub email: String,
+    pub password: String,
+}
+
+pub type UpdatePasswordRequest = LoginRequest;

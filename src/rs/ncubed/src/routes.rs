@@ -198,7 +198,8 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
         .and(
             config::routes()
                 .or(workspace::routes())
-                .or(source::routes()),
+                .or(source::routes())
+                .or(user::routes()),
         )
         .with(cors)
 }
@@ -394,6 +395,44 @@ pub(crate) mod source {
                 .and_then(remove)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
             .or(warp::path!("workspaces" / String / "sources" / i32)
+                .and(warp::put())
+                .and(warp::body::json())
+                .and_then(update)
+                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
+    }
+}
+
+pub(crate) mod user {
+    use tracing::instrument;
+    use warp::Filter;
+
+    use crate::handlers::account as handlers;
+    use crate::types::{LoginRequest, UpdatePasswordRequest};
+
+    #[instrument]
+    async fn login(
+        workspace_slug: String,
+        login: LoginRequest,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        Ok(warp::reply())
+    }
+
+    #[instrument]
+    async fn update(
+        workspace: String,
+        request: UpdatePasswordRequest,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        Ok(warp::reply())
+    }
+
+    pub(crate) fn routes(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("workspaces" / String / "account")
+            .and(warp::post())
+            .and(warp::body::json())
+            .and_then(login)
+            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
+            .or(warp::path!("workspaces" / String / "account")
                 .and(warp::put())
                 .and(warp::body::json())
                 .and_then(update)

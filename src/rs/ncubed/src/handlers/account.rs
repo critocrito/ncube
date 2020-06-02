@@ -1,10 +1,11 @@
 use ncube_data::Account;
-use tracing::{error, instrument};
+use tracing::instrument;
 
-use crate::actors::host::{CreateAccount, HostActor, ListAccounts, WorkspaceExists};
+use crate::actors::host::{HostActor, RequirePool};
 use crate::crypto;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
+use crate::stores::{account_store, workspace_store2, AccountStore, WorkspaceStore};
 use crate::types::AccountRequest;
 
 #[instrument]
@@ -14,40 +15,62 @@ pub async fn create_account(
 ) -> Result<(), HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
-    if let Ok(false) = host_actor
-        .call(WorkspaceExists {
-            slug: workspace.into(),
-        })
-        .await?
-    {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store2(db.clone());
+    let account_store = account_store(db);
 
-    let password = crypto::hash(account_request.password.as_bytes());
+    let AccountRequest {
+        email, password, ..
+    } = account_request;
+    let hash = crypto::hash(password.as_bytes());
 
-    let AccountRequest { email, .. } = account_request;
-    let name = "name must change".to_string();
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
 
-    host_actor
-        .call(CreateAccount {
-            workspace: workspace.into(),
-            name: Some(name),
-            otp: account_request.password,
-            email,
-            password,
-        })
-        .await??;
+    if account_store.exists(&email, workspace.id).await? {
+        return Err(HandlerError::Invalid(
+            "This email already exists for this workspace.".into(),
+        ));
+    }
+
+    // FIXME: I'm not setting a name for the account yet.
+    account_store
+        .create(&email, &hash, &password, None, workspace.id)
+        .await?;
 
     Ok(())
 }
 
 #[instrument]
 pub async fn list_accounts() -> Result<Vec<Account>, HandlerError> {
-    let mut actor = HostActor::from_registry().await.unwrap();
+    let mut host_actor = HostActor::from_registry().await.unwrap();
 
-    let accounts = actor.call(ListAccounts).await??;
+    let db = host_actor.call(RequirePool).await??;
+    let store = account_store(db);
+
+    let accounts = store.list().await?;
 
     Ok(accounts)
+}
+
+#[instrument]
+pub async fn login_account(
+    workspace: &str,
+    email: &str,
+    password: &str,
+) -> Result<bool, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+
+    let workspace_store = workspace_store2(db.clone());
+    let account_store = account_store(db);
+
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
+
+    let hash = account_store
+        .show_password(&email, workspace.id)
+        .await?
+        .ok_or_else(|| HandlerError::NotFound("No password found.".into()))?;
+
+    Ok(crypto::verify(&hash, password.as_bytes()))
 }

@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_data::{Account, ConfigSetting, NcubeConfig, Workspace};
+use ncube_data::{ConfigSetting, NcubeConfig, Workspace};
 use std::path::Path;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler, Message};
@@ -9,9 +9,7 @@ use crate::db::{sqlite, Database};
 use crate::errors::ActorError;
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
-use crate::stores::{
-    account_store, config_store, workspace_store, AccountStore, ConfigStore, WorkspaceStore,
-};
+use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
 use crate::types::{DatabaseRequest, WorkspaceRequest};
 
 pub(crate) struct HostActor {
@@ -47,6 +45,10 @@ impl HostActor {
         Ok(setting)
     }
 }
+
+#[message(result = "Result<sqlite::Database, ActorError>")]
+#[derive(Debug)]
+pub(crate) struct RequirePool;
 
 #[message(result = "Result<bool, ActorError>")]
 #[derive(Debug)]
@@ -125,19 +127,18 @@ pub(crate) struct UpdateWorkspace {
     pub description: Option<String>,
 }
 
-#[message(result = "Result<(), ActorError>")]
-#[derive(Debug)]
-pub(crate) struct CreateAccount {
-    pub(crate) workspace: String,
-    pub(crate) email: String,
-    pub(crate) password: String,
-    pub(crate) otp: String,
-    pub(crate) name: Option<String>,
-}
+#[async_trait]
+impl Handler<RequirePool> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &Context<Self>,
+        _msg: RequirePool,
+    ) -> Result<sqlite::Database, ActorError> {
+        let db = self.db.clone();
 
-#[message(result = "Result<Vec<Account>, ActorError>")]
-#[derive(Debug)]
-pub(crate) struct ListAccounts;
+        Ok(db)
+    }
+}
 
 #[async_trait]
 impl Handler<IsBootstrapped> for HostActor {
@@ -283,39 +284,5 @@ impl Handler<UpdateWorkspace> for HostActor {
             .await?;
 
         Ok(())
-    }
-}
-
-#[async_trait]
-impl Handler<CreateAccount> for HostActor {
-    async fn handle(&mut self, _ctx: &Context<Self>, msg: CreateAccount) -> Result<(), ActorError> {
-        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
-        let account_store = account_store(Database::Sqlite(self.db.clone()));
-        let workspace = workspace_store.show_by_slug(&msg.workspace).await?;
-
-        if account_store.exists(&msg.email, workspace.id).await? {
-            return Err(ActorError::Invalid(
-                "This email already exists for this workspace.".into(),
-            ));
-        }
-
-        account_store
-            .create(&msg.email, &msg.password, &msg.otp, msg.name, workspace.id)
-            .await?;
-
-        Ok(())
-    }
-}
-
-#[async_trait]
-impl Handler<ListAccounts> for HostActor {
-    async fn handle(
-        &mut self,
-        _ctx: &Context<Self>,
-        _msg: ListAccounts,
-    ) -> Result<Vec<Account>, ActorError> {
-        let store = account_store(Database::Sqlite(self.db.clone()));
-        let accounts = store.list().await?;
-        Ok(accounts)
     }
 }
