@@ -4,13 +4,11 @@ use ncube_data::Account;
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 
-use crate::db::{sqlite, Database};
+use crate::db::sqlite;
 use crate::errors::StoreError;
 
-pub(crate) fn account_store(wrapped_db: Database) -> impl AccountStore {
-    match wrapped_db {
-        Database::Sqlite(db) => AccountStoreSqlite { db },
-    }
+pub(crate) fn account_store(db: sqlite::Database) -> impl AccountStore {
+    AccountStoreSqlite { db }
 }
 
 #[async_trait]
@@ -25,6 +23,11 @@ pub(crate) trait AccountStore {
         workspace_id: i32,
     ) -> Result<(), StoreError>;
     async fn list(&self) -> Result<Vec<Account>, StoreError>;
+    async fn show_password(
+        &self,
+        email: &str,
+        workspace_id: i32,
+    ) -> Result<Option<String>, StoreError>;
 }
 
 #[derive(Debug)]
@@ -92,5 +95,20 @@ impl AccountStore for AccountStoreSqlite {
         }
 
         Ok(accounts)
+    }
+
+    async fn show_password(
+        &self,
+        email: &str,
+        workspace_id: i32,
+    ) -> Result<Option<String>, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/account/show_password.sql"))?;
+
+        let hash = stmt
+            .query_row(params![&email, workspace_id], |row| row.get(0))
+            .ok();
+
+        Ok(hash)
     }
 }
