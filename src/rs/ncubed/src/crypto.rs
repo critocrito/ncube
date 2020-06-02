@@ -1,5 +1,10 @@
 use argon2::{self, Config};
+use chrono::{Duration, Utc};
+use hmac::{Hmac, Mac};
+use jwt::{error::Error, RegisteredClaims, SignWithKey, VerifyWithKey};
 use rand::Rng;
+use sha2::Sha512;
+use std::collections::BTreeMap;
 
 const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                          abcdefghijklmnopqrstuvwxyz\
@@ -27,6 +32,28 @@ pub fn mkpass() -> String {
         .collect::<String>()
 }
 
+pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String, Error> {
+    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).unwrap();
+    let now = Utc::now();
+    let expire = now + Duration::hours(1);
+
+    let claims = RegisteredClaims {
+        subject: Some(email.into()),
+        audience: Some(workspace.into()),
+        expiration: Some(expire.timestamp() as u64),
+        not_before: Some(now.timestamp() as u64),
+        ..Default::default()
+    };
+
+    claims.sign_with_key(&key)
+}
+
+pub(crate) fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, Error> {
+    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).unwrap();
+    let claims: RegisteredClaims = VerifyWithKey::verify_with_key(token, &key).unwrap();
+    Ok(claims)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -37,7 +64,7 @@ mod tests {
     const PASSWORD_LEN: usize = 30;
 
     #[test]
-    fn signing_and_hashing_passwords() {
+    fn hashing_passwords() {
         let mut rng = rand::thread_rng();
 
         let password: String = (0..PASSWORD_LEN)
@@ -50,5 +77,17 @@ mod tests {
         let hashed = hash(password.as_bytes());
 
         assert_eq!(verify(&hashed, password.as_bytes()), true);
+    }
+
+    #[test]
+    fn jwt_tokens() {
+        let key = "some secret key";
+        let token = jwt_sign(&key, "me@example.org", "syrian-archive").unwrap();
+        let claims = jwt_verify(&key, &token).unwrap();
+
+        assert_eq!(claims.subject.unwrap(), "me@example.org");
+        assert_eq!(claims.audience.unwrap(), "syrian-archive");
+        assert!(claims.expiration.is_some());
+        assert!(claims.not_before.is_some());
     }
 }

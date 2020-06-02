@@ -27,6 +27,17 @@ PUT http://:api/api
 ###
 # Account Management
 ###
+
+# Login an account
+POST http://:api/api/workspaces/syrian-archive/account
+:headers
+
+{
+  "email": "me@example.org",
+  "password": "new-pass"
+}
+
+# Update a password
 PUT http://:api/api/workspaces/syrian-archive/account
 :headers
 

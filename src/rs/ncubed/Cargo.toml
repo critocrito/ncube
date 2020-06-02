@@ -26,6 +26,7 @@ deadpool-postgres = "0.5.5"
 rusqlite = { version = "0.21.0", features = ["bundled"] }
 refinery = { version = "0.2", features = ["rusqlite"]}
 refinery-migrations = "0.2"
+time = { version = "0.2", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 slugify = "0.1.0"
 dirs = "2.0.2"
@@ -33,6 +34,9 @@ flate2 = "1.0.14"
 tar = "0.4.26"
 rand = "0.7.3"
 rust-argon2 = "0.8.2"
+hmac = "0.7.1"
+sha2 = "0.8.2"
+jwt = "0.7.0"
 
 ncube-data = { path = "../ncube-data" }
 
