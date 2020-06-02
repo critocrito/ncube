@@ -1,7 +1,7 @@
 use ncube_data::NcubeConfig;
 
 use crate::actors::{
-    host::{InsertSetting, IsBootstrapped, ShowConfig},
+    host::{InsertSetting, IsBootstrapped, ShowConfig, ShowSecretKey},
     HostActor,
 };
 use crate::crypto::gen_secret_key;
@@ -71,4 +71,10 @@ pub async fn insert_config_setting(name: &str, value: &str) -> Result<(), Handle
         .await?;
 
     Ok(())
+}
+
+pub async fn show_secret_key() -> Result<String, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let key = host_actor.call(ShowSecretKey).await??;
+    Ok(key.value)
 }

@@ -51,3 +51,9 @@ pub type UpdatePasswordRequest = LoginRequest;
 pub struct JwtToken {
     pub token: String,
 }
+
+#[derive(Debug)]
+pub enum ReqCtx {
+    Lacking,
+    Provided { user_email: String },
+}
