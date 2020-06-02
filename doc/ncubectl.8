@@ -6,7 +6,7 @@
 .Nd control the Ncube daemon
 .Sh SYNOPSIS
 .Nm
-.Op Fl hV
+.Op Fl hV Fl D Ar database
 .Ar command
 .Op Ar argument ...
 .Sh DESCRIPTION
@@ -17,13 +17,15 @@ program controls
 .Pp
 The options are as follows:
 .Bl -tag -width Ds
-.It Fl d
+.It Op Fl D Ar database
+Specify the path to the Ncube host database.
+.It Op Fl d
 Enable debug logging.
-.It Fl h
+.It Op Fl h
 Print the usage message of
 .Nm
 and exit.
-.It Fl V
+.It Op Fl V
 Print the version of
 .Nm
 and exit.

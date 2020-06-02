@@ -5,7 +5,7 @@ use std::fs::create_dir_all;
 
 mod cmd;
 
-const USAGE: &'static str = "ncubectl [-hV]
+const USAGE: &'static str = "ncubectl [-hV -D database]
     ncubectl workspace <name> [<postgres_url>]
     ncubectl account <workspace> <email>
     ncubectl connection <workspace> <email>
@@ -36,6 +36,10 @@ pub(crate) use _fatal as fatal;
 
 #[tokio::main]
 async fn main() {
+    let project = ProjectDirs::from("net", "sugarcubetools", "Ncube").unwrap();
+    let cfg_dir = project.config_dir();
+    let project_dir_db_path = cfg_dir.join("ncube.db");
+
     let matches = App::new("ncubectl")
         .setting(AppSettings::ArgRequiredElseHelp)
         .override_usage(USAGE)
@@ -51,6 +55,15 @@ async fn main() {
                 .required(false)
                 .takes_value(false),
         )
+        .arg(
+            Arg::with_name("database")
+                .short('D')
+                .long("database")
+                .about("Path to Ncube host database.")
+                .required(false)
+                .default_value(&project_dir_db_path.to_string_lossy())
+                .takes_value(true),
+        )
         .subcommand(cmd::workspace_cli())
         .subcommand(cmd::account_cli())
         .subcommand(cmd::state_cli())
@@ -58,10 +71,13 @@ async fn main() {
         .subcommand(cmd::delete_cli())
         .get_matches();
 
-    let project = ProjectDirs::from("net", "sugarcubetools", "Ncube").unwrap();
-    let cfg_dir = project.config_dir();
-    create_dir_all(&cfg_dir).unwrap();
-    let db_path = cfg_dir.join("ncube.db");
+    // matches.is_present() returns true since we use a default value.
+    let db_path = if matches.occurrences_of("database") == 0 {
+        create_dir_all(&cfg_dir).unwrap();
+        project_dir_db_path
+    } else {
+        matches.value_of("database").unwrap().into()
+    };
 
     let config = ApplicationConfig {
         // FIXME: Handle the Option.unwrap explicitely
