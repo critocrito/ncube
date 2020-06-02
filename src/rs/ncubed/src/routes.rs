@@ -422,6 +422,10 @@ pub(crate) mod user {
         workspace: String,
         request: UpdatePasswordRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
+        // FIXME: Missing authorization whether request is allowed to update the password.
+        handlers::update_password(&workspace, &request.email, &request.password).await?;
+
+        // FIXME: Set location header
         Ok(warp::reply())
     }
 
