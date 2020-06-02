@@ -411,10 +411,12 @@ pub(crate) mod user {
 
     #[instrument]
     async fn login(
-        workspace_slug: String,
+        workspace: String,
         login: LoginRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        Ok(warp::reply())
+        let jwt_token = handlers::issue_token(&workspace, &login.email, &login.password).await?;
+
+        Ok(warp::reply::json(&jwt_token))
     }
 
     #[instrument]

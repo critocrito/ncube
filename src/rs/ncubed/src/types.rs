@@ -1,5 +1,5 @@
 pub use ncube_data::{AnnotationKind, WorkspaceKind};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use slugify::slugify;
 
 #[derive(Debug, Deserialize)]
@@ -46,3 +46,8 @@ pub struct LoginRequest {
 }
 
 pub type UpdatePasswordRequest = LoginRequest;
+
+#[derive(Debug, Serialize)]
+pub struct JwtToken {
+    pub token: String,
+}

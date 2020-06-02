@@ -6,7 +6,7 @@ use crate::crypto;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
 use crate::stores::{account_store, workspace_store2, AccountStore, WorkspaceStore};
-use crate::types::AccountRequest;
+use crate::types::{AccountRequest, JwtToken};
 
 #[instrument]
 pub async fn create_account(
@@ -97,4 +97,27 @@ pub async fn update_password(
         .await?;
 
     Ok(())
+}
+
+#[instrument]
+pub async fn issue_token(
+    workspace: &str,
+    email: &str,
+    password: &str,
+) -> Result<JwtToken, HandlerError> {
+    let logged_in = login_account(&workspace, &email, &password).await?;
+
+    if !logged_in {
+        // FIXME: This results in 403 Forbidden HTTP response, do I want a 410
+        // Unauthorized instead?
+        return Err(HandlerError::NotAllowed("login failed".into()));
+    }
+
+    // FIXME: this is a dummy secret key
+    let key = "Some secret key";
+
+    let token = crypto::jwt_sign(&key, &email, &workspace)
+        .map_err(|_| HandlerError::Invalid("signing issue".into()))?;
+
+    Ok(JwtToken { token })
 }
