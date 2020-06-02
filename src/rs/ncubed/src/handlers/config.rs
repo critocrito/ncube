@@ -4,6 +4,7 @@ use crate::actors::{
     host::{InsertSetting, IsBootstrapped, ShowConfig},
     HostActor,
 };
+use crate::crypto::gen_secret_key;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
 
@@ -39,7 +40,15 @@ pub async fn bootstrap(settings: Vec<(String, String)>) -> Result<(), HandlerErr
         ));
     }
 
+    let restricted_settings = vec![("secret_key".to_string(), gen_secret_key())];
+
     for (name, value) in settings {
+        let _ = actor
+            .call(InsertSetting::new(name.to_string(), value.to_string()))
+            .await?;
+    }
+
+    for (name, value) in restricted_settings {
         let _ = actor
             .call(InsertSetting::new(name.to_string(), value.to_string()))
             .await?;

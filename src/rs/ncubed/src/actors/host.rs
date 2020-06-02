@@ -35,14 +35,22 @@ impl HostActor {
         Ok(Self { db })
     }
 
-    pub async fn workspace_root(&self) -> Result<Option<ConfigSetting>, ActorError> {
+    async fn get_setting(&self, name: &str) -> Result<Option<ConfigSetting>, ActorError> {
         let store = config_store(Database::Sqlite(self.db.clone()));
         let config = store.show().await?;
         let setting = config.into_iter().find(|setting| {
-            let comparator: String = "workspace_root".into();
+            let comparator: String = name.into();
             comparator == setting.name
         });
         Ok(setting)
+    }
+
+    pub async fn workspace_root(&self) -> Result<Option<ConfigSetting>, ActorError> {
+        self.get_setting("workspace_root").await
+    }
+
+    pub async fn secret_key(&self) -> Result<Option<ConfigSetting>, ActorError> {
+        self.get_setting("secret_key").await
     }
 }
 
@@ -57,6 +65,10 @@ pub(crate) struct IsBootstrapped;
 #[message(result = "Result<NcubeConfig, ActorError>")]
 #[derive(Debug)]
 pub(crate) struct ShowConfig;
+
+#[message(result = "Result<ConfigSetting, ActorError>")]
+#[derive(Debug)]
+pub(crate) struct ShowSecretKey;
 
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
@@ -163,6 +175,21 @@ impl Handler<ShowConfig> for HostActor {
         let store = config_store(Database::Sqlite(self.db.clone()));
         let config = store.show().await?;
         Ok(config)
+    }
+}
+
+#[async_trait]
+impl Handler<ShowSecretKey> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &Context<Self>,
+        _msg: ShowSecretKey,
+    ) -> Result<ConfigSetting, ActorError> {
+        let secret_key = self
+            .workspace_root()
+            .await?
+            .ok_or_else(|| ActorError::Invalid("missing the secret key".into()))?;
+        Ok(secret_key)
     }
 }
 

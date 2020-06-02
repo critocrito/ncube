@@ -1,7 +1,7 @@
 use ncube_data::Account;
 use tracing::instrument;
 
-use crate::actors::host::{HostActor, RequirePool};
+use crate::actors::host::{HostActor, RequirePool, ShowSecretKey};
 use crate::crypto;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
@@ -70,7 +70,7 @@ pub async fn login_account(
     let hash = account_store
         .show_password(&email, workspace.id)
         .await?
-        .ok_or_else(|| HandlerError::NotFound("No password found.".into()))?;
+        .ok_or_else(|| HandlerError::NotAllowed("login failed".into()))?;
 
     Ok(crypto::verify(&hash, password.as_bytes()))
 }
@@ -113,11 +113,11 @@ pub async fn issue_token(
         return Err(HandlerError::NotAllowed("login failed".into()));
     }
 
-    // FIXME: this is a dummy secret key
-    let key = "Some secret key";
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let key = host_actor.call(ShowSecretKey).await??;
 
-    let token = crypto::jwt_sign(&key, &email, &workspace)
-        .map_err(|_| HandlerError::Invalid("signing issue".into()))?;
+    let token = crypto::jwt_sign(&key.value, &email, &workspace)
+        .map_err(|_| HandlerError::Invalid("signing failed".into()))?;
 
     Ok(JwtToken { token })
 }

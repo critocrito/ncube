@@ -2,6 +2,7 @@ use clap::{App, AppSettings, Arg};
 
 pub(crate) mod create;
 pub(crate) mod list;
+pub(crate) mod reset;
 
 const HELP: &'static str = "{about}
 
@@ -76,6 +77,22 @@ pub(crate) fn state_cli() -> App<'static> {
                 .required(true)
                 .possible_values(&["workspaces", "accounts", "all"])
                 .about("Specify the state to print.")
+                .takes_value(true),
+        )
+}
+
+pub(crate) fn reset_cli() -> App<'static> {
+    App::new("reset")
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .setting(AppSettings::DisableVersion)
+        .help_template(HELP)
+        .about("Reset settings of the local Ncube installation.")
+        .arg(
+            Arg::with_name("modifier")
+                .value_name("modifier")
+                .required(true)
+                .possible_values(&["secret"])
+                .about("reset the secret key.")
                 .takes_value(true),
         )
 }

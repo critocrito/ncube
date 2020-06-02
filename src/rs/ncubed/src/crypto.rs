@@ -3,8 +3,7 @@ use chrono::{Duration, Utc};
 use hmac::{Hmac, Mac};
 use jwt::{error::Error, RegisteredClaims, SignWithKey, VerifyWithKey};
 use rand::Rng;
-use sha2::Sha512;
-use std::collections::BTreeMap;
+use sha2::{Digest, Sha256, Sha512};
 
 const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                          abcdefghijklmnopqrstuvwxyz\
@@ -52,6 +51,15 @@ pub(crate) fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, Err
     let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).unwrap();
     let claims: RegisteredClaims = VerifyWithKey::verify_with_key(token, &key).unwrap();
     Ok(claims)
+}
+
+pub fn gen_secret_key() -> String {
+    let key = mkpass();
+    let mut hasher = Sha256::new();
+    hasher.input(&key);
+    let hash = hasher.result();
+    let hex_digest = format!("{:x}", hash);
+    hex_digest
 }
 
 #[cfg(test)]

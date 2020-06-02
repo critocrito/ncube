@@ -77,6 +77,19 @@ List all accounts that are associated to a workspace.
 Show all states for
 .Xr ncubed 1 .
 .El
+.It Cm reset Ar modifier
+Reset a configuration setting.
+.Ar modifier :
+.Pp
+.Bl -tag -width XXXXXXXXXXXX -compact
+.It Ar secret
+Regenerate the secret key of
+.Xr ncubed 1 .
+The key is used to sign JWT tokens when accounts log in. The initial generation
+happens during bootstrap. Server only installations of
+.Xr ncubed 1
+have to run this command once right after initial installation.
+.El
 .It Cm delete Cm workspace Ar workspace Op Fl y
 Delete a workspace and all it's associated accounts. This only deletes the
 workspace in
