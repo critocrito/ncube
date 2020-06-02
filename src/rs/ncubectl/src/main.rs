@@ -9,7 +9,8 @@ const USAGE: &'static str = "ncubectl [-hV -D database]
     ncubectl workspace <name> [<postgres_url>]
     ncubectl account <workspace> <email>
     ncubectl connection <workspace> <email>
-    ncubectl state [workspaces|accounts|all]
+    ncubectl state [workspaces|accounts|settings|all]
+    ncubectl reset [secret]
     ncubectl delete workspace <workspace> [-y]
     ncubectl delete account <workspace> <email> [-y]
 ";
@@ -67,6 +68,7 @@ async fn main() {
         .subcommand(cmd::workspace_cli())
         .subcommand(cmd::account_cli())
         .subcommand(cmd::state_cli())
+        .subcommand(cmd::reset_cli())
         .subcommand(cmd::connection_cli())
         .subcommand(cmd::delete_cli())
         .get_matches();
@@ -126,6 +128,14 @@ async fn main() {
                     cmd::list::accounts().await;
                 }
                 _ => fatal!("Unknown state modifier."),
+            }
+        }
+        ("reset", Some(state_matches)) => {
+            let modifier = state_matches.value_of("modifier").unwrap();
+
+            match modifier {
+                "secret" => cmd::reset::secret().await,
+                _ => fatal!("Unknown reset modifier."),
             }
         }
         ("delete", Some(delete_matches)) => match delete_matches.subcommand() {
