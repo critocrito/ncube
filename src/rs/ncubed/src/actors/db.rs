@@ -68,6 +68,28 @@ impl Handler<LookupDatabase> for DatabaseActor {
                     Ok(Database::Sqlite(cached_db))
                 }
             }
+            // FIXME: This should obvioulsy be changed to some sort of http client
+            WorkspaceDatabase::Http { .. } => {
+                if self.sqlite_cache.has(&connection_string) {
+                    debug!("Database `{}` retrieved from cache.", connection_string);
+                    let db = self.sqlite_cache.get(&connection_string).unwrap();
+                    Ok(Database::Sqlite(db))
+                } else {
+                    debug!("Database `{}` not in cache.", connection_string);
+
+                    let cfg = connection_string
+                        .parse::<sqlite::Config>()
+                        .map_err(|e| ActorError::Store(StoreError::SqliteConfig(e)))?;
+                    let db = sqlite::Database::new(cfg, 5);
+                    self.sqlite_cache.put(&connection_string, db);
+
+                    let cached_db = self.sqlite_cache.get(&connection_string).ok_or_else(|| {
+                        ActorError::Store(StoreError::NotFound(connection_string))
+                    })?;
+
+                    Ok(Database::Sqlite(cached_db))
+                }
+            }
         }
     }
 }

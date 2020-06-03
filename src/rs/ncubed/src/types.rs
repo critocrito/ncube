@@ -6,6 +6,7 @@ use slugify::slugify;
 #[serde(rename_all = "lowercase", tag = "database")]
 pub enum DatabaseRequest {
     Sqlite,
+    Http,
 }
 
 #[derive(Debug, Deserialize)]
