@@ -9,11 +9,18 @@ pub enum DatabaseRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "kind")]
+pub enum WorkspaceKindRequest {
+    Local,
+    Remote { endpoint: String },
+}
+
+#[derive(Debug, Deserialize)]
 pub struct WorkspaceRequest {
     pub name: String,
     pub description: Option<String>,
-    // FIXME: replace String with enum WorkspaceKind
-    pub kind: String,
+    #[serde(flatten)]
+    pub kind: WorkspaceKindRequest,
     #[serde(flatten)]
     pub database: DatabaseRequest,
 }

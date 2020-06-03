@@ -1,6 +1,6 @@
 use ncubed::{
     crypto, handlers,
-    types::{AccountRequest, DatabaseRequest, WorkspaceRequest},
+    types::{AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest},
 };
 use rand;
 
@@ -27,7 +27,7 @@ pub(crate) async fn account(workspace: &str, email: &str) {
 pub(crate) async fn workspace(name: &str, database: DatabaseRequest) {
     let request = WorkspaceRequest {
         name: name.to_string(),
-        kind: "local".to_string(),
+        kind: WorkspaceKindRequest::Local,
         description: None,
         database,
     };

@@ -10,7 +10,7 @@ use crate::errors::ActorError;
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
 use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
-use crate::types::{DatabaseRequest, WorkspaceRequest};
+use crate::types::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 
 pub(crate) struct HostActor {
     db: sqlite::Database,
@@ -90,7 +90,7 @@ pub(crate) struct CreateWorkspace {
     pub(crate) name: String,
     pub(crate) slug: String,
     pub(crate) description: Option<String>,
-    pub(crate) kind: String,
+    pub(crate) kind: WorkspaceKindRequest,
     pub(crate) database: DatabaseRequest,
 }
 
@@ -222,32 +222,48 @@ impl Handler<CreateWorkspace> for HostActor {
             .workspace_root()
             .await?
             .ok_or_else(|| ActorError::Invalid("missing the workspace root to continue".into()))?;
+        let workspace_path = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
+
         let database = match msg.database {
             DatabaseRequest::Sqlite => "sqlite",
         };
-        let location = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
-        let database_path = location.join("sugarcube.db");
+        let database_path = match msg.database {
+            DatabaseRequest::Sqlite => {
+                let path = workspace_path.join("sugarcube.db");
+                path
+            }
+        };
+
+        let kind = match msg.kind {
+            WorkspaceKindRequest::Local => "local".to_string(),
+            WorkspaceKindRequest::Remote { .. } => "remote".to_string(),
+        };
+        let location = match msg.kind {
+            WorkspaceKindRequest::Local => workspace_path.to_string_lossy(),
+            WorkspaceKindRequest::Remote { endpoint } => endpoint.into(),
+        };
 
         let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+
         workspace_store
             .create(
                 &msg.name,
                 &msg.slug,
                 &msg.description,
-                &msg.kind,
-                &location.to_string_lossy(),
+                &kind,
+                &location,
                 &database,
                 &database_path.to_string_lossy(),
             )
             .await?;
 
-        mkdirp(&location)?;
-        unzip_workspace(&location)
+        mkdirp(&workspace_path)?;
+        unzip_workspace(&workspace_path)
             .map_err(|_| ActorError::Invalid("Failed to create project directory".into()))?;
         let mut actor = TaskActor::from_registry().await.unwrap();
         actor
             .call(SetupWorkspace {
-                location: location.to_string_lossy().to_string(),
+                location: workspace_path.to_string_lossy().to_string(),
             })
             .await??;
         Ok(())
