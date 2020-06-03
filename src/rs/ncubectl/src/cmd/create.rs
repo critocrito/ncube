@@ -2,11 +2,13 @@ use ncubed::{
     crypto, handlers,
     types::{AccountRequest, DatabaseRequest, WorkspaceRequest},
 };
+use rand;
 
 use crate::fatal;
 
 pub(crate) async fn account(workspace: &str, email: &str) {
-    let password = crypto::mkpass();
+    let rng = rand::thread_rng();
+    let password = crypto::mkpass(rng);
 
     handlers::account::create_account(
         workspace,

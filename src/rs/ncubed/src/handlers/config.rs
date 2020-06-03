@@ -1,10 +1,12 @@
 use ncube_data::NcubeConfig;
+use rand::{self, rngs::StdRng, SeedableRng};
+use std::time::SystemTime;
 
 use crate::actors::{
     host::{InsertSetting, IsBootstrapped, ShowConfig, ShowSecretKey},
     HostActor,
 };
-use crate::crypto::gen_secret_key;
+use crate::crypto::{gen_secret_key, mkpass};
 use crate::errors::HandlerError;
 use crate::registry::Registry;
 
@@ -40,7 +42,19 @@ pub async fn bootstrap(settings: Vec<(String, String)>) -> Result<(), HandlerErr
         ));
     }
 
-    let restricted_settings = vec![("secret_key".to_string(), gen_secret_key())];
+    // The documentation has a warning about using StdRng::seed_from_u64, that
+    // it should not be used for cryptographic applications. I think it's okay
+    // here though, since bootstrapping happens only once, and the secret key is
+    // only relevant for remote Ncube installations. This code path almost
+    // certainly is only triggered for local installations where the actual
+    // secret key doesn't matter.
+    let d = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .expect("Duration since UNIX_EPOCH failed");
+    let rng = StdRng::seed_from_u64(d.as_secs());
+    let seed = mkpass(rng);
+
+    let restricted_settings = vec![("secret_key".to_string(), gen_secret_key(&seed))];
 
     for (name, value) in settings {
         let _ = actor
