@@ -224,23 +224,40 @@ impl Handler<CreateWorkspace> for HostActor {
             .ok_or_else(|| ActorError::Invalid("missing the workspace root to continue".into()))?;
         let workspace_path = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
 
-        let database = match msg.database {
-            DatabaseRequest::Sqlite => "sqlite",
-        };
-        let database_path = match msg.database {
-            DatabaseRequest::Sqlite => {
-                let path = workspace_path.join("sugarcube.db");
-                path
-            }
-        };
-
-        let kind = match msg.kind {
+        let kind = match &msg.kind {
             WorkspaceKindRequest::Local => "local".to_string(),
             WorkspaceKindRequest::Remote { .. } => "remote".to_string(),
         };
-        let location = match msg.kind {
-            WorkspaceKindRequest::Local => workspace_path.to_string_lossy(),
-            WorkspaceKindRequest::Remote { endpoint } => endpoint.into(),
+        let location = match &msg.kind {
+            WorkspaceKindRequest::Local => workspace_path.to_string_lossy().into_owned(),
+            WorkspaceKindRequest::Remote { endpoint } => endpoint.clone(),
+        };
+
+        // Esnure that remote workspaces have a http database configured,
+        let database = match msg.database {
+            DatabaseRequest::Sqlite => match &msg.kind {
+                WorkspaceKindRequest::Local => "sqlite",
+                _ => Err(ActorError::Invalid(
+                    "local workspaces don't work with a `http` database".into(),
+                ))?,
+            },
+            DatabaseRequest::Http { .. } => match &msg.kind {
+                WorkspaceKindRequest::Remote { .. } => "http",
+                _ => Err(ActorError::Invalid(
+                    "remote workspaces require a `http` database".into(),
+                ))?,
+            },
+        };
+
+        let database_path = match msg.database {
+            DatabaseRequest::Sqlite => {
+                let path = workspace_path
+                    .join("sugarcube.db")
+                    .to_string_lossy()
+                    .into_owned();
+                path
+            }
+            DatabaseRequest::Http => location.clone(),
         };
 
         let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
@@ -253,7 +270,7 @@ impl Handler<CreateWorkspace> for HostActor {
                 &kind,
                 &location,
                 &database,
-                &database_path.to_string_lossy(),
+                &database_path,
             )
             .await?;
 
@@ -263,7 +280,7 @@ impl Handler<CreateWorkspace> for HostActor {
         let mut actor = TaskActor::from_registry().await.unwrap();
         actor
             .call(SetupWorkspace {
-                location: workspace_path.to_string_lossy().to_string(),
+                location: workspace_path.to_string_lossy().into_owned(),
             })
             .await??;
         Ok(())

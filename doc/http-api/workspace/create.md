@@ -12,15 +12,28 @@ Create a new workspace for the local Ncube configuration.
 
 **Data**
 
+Valid values for `kind` are `local` and `remote`. Workspaces of kind `remote` have an additional `endpoint` field containing the HTTP URL of the remote workspace.
+
+Valid values for `database` are `sqlite` and `http`. The database path for Sqlite databases are automatically generated. `http` databases require the `kind` field to be set to `remote`. It is an error to use a different database than `http` for remote workspaces. The database path is derived from the `endpoint` field.
+
 ```json
 {
   "name": "Syrian Archive",
   "description": "A longer description of your workspace.",
-  "kind": "local"
+  "kind": "local",
+  "database": "sqlite"
 }
 ```
 
-Valid values for `kind` are `local` and `remote`.
+```json
+{
+  "name": "Syrian Archive",
+  "description": "A longer description of your workspace.",
+  "kind": "remote",
+  "endpoint": "https://example.org/workspaces/syrian-archive",
+  "database": "http"
+}
+```
 
 **Example Request**
 
@@ -29,9 +42,10 @@ POST /
 Content-Type: application/json
 
 {
-    "name": "Syrian Archive",
-    "description": "A longer description of your workspace.",
-    "kind": "local"
+  "name": "Syrian Archive",
+  "description": "A longer description of your workspace.",
+  "kind": "local",
+  "database": "sqlite"
 }
 ```
 

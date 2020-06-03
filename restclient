@@ -64,8 +64,20 @@ POST http://:api/api/workspaces
   "name": "Syrian Archive",
   "description": "This is a workspace.",
   "kind": "local",
-  "location": "~/path/to/workspace",
-  "database": "sqlite"
+  "database": "http"
+}
+
+
+# Link a new remote workspace
+POST http://:api/api/workspaces
+:headers
+
+{
+  "name": "Syrian Archive Remote",
+  "description": "This is a workspace.",
+  "kind": "remote",
+  "endpoint": "https://example.org/workspaces/syrian-archive",
+  "database": "http"
 }
 
 # List all workspaces.

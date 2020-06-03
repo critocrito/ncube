@@ -62,6 +62,10 @@ pub enum WorkspaceDatabase {
         #[serde(rename = "database_path")]
         path: String,
     },
+    Http {
+        #[serde(rename = "database_path")]
+        path: String,
+    },
 }
 
 /// There can be either `local` or `remote` workspaces.
@@ -162,6 +166,7 @@ impl Workspace {
     pub fn connection_string(&self) -> String {
         match &self.database {
             WorkspaceDatabase::Sqlite { path } => format!("sqlite://{}", path),
+            WorkspaceDatabase::Http { path } => format!("{}", path),
         }
     }
 }
