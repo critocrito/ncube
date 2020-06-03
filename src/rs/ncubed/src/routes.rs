@@ -284,7 +284,7 @@ pub(crate) mod config {
         value: String,
     }
 
-    async fn show() -> Result<impl warp::Reply, warp::Rejection> {
+    async fn show(_ctx: ReqCtx) -> Result<impl warp::Reply, warp::Rejection> {
         let config = handlers::show_config().await?;
         let response = SuccessResponse::new(config);
 
@@ -314,6 +314,7 @@ pub(crate) mod config {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::get()
             .and(warp::path::end())
+            .and(authorize())
             .and_then(show)
             .or(warp::post()
                 .and(warp::path::end())

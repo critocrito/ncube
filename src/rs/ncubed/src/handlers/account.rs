@@ -1,4 +1,5 @@
 use ncube_data::Account;
+use rand;
 use tracing::instrument;
 
 use crate::actors::host::{HostActor, RequirePool, ShowSecretKey};
@@ -22,7 +23,7 @@ pub async fn create_account(
     let AccountRequest {
         email, password, ..
     } = account_request;
-    let hash = crypto::hash(password.as_bytes());
+    let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
@@ -90,7 +91,7 @@ pub async fn update_password(
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
-    let hash = crypto::hash(password.as_bytes());
+    let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
 
     account_store
         .update_password(&email, &hash, workspace.id)
