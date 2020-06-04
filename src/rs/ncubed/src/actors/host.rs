@@ -8,7 +8,6 @@ use crate::actors::task::{SetupWorkspace, TaskActor};
 use crate::db::{sqlite, Database};
 use crate::errors::ActorError;
 use crate::fs::expand_tilde;
-use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
 use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
 use crate::types::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
@@ -223,15 +222,19 @@ impl Handler<CreateWorkspace> for HostActor {
             .workspace_root()
             .await?
             .ok_or_else(|| ActorError::Invalid("missing the workspace root to continue".into()))?;
-        let workspace_path =
-            expand_tilde(Path::new(&workspace_root.value).join(Path::new(&msg.slug))).unwrap();
+
+        let expanded_path = expand_tilde(workspace_root.value)
+            .ok_or_else(|| ActorError::Invalid("failed to expand path".into()))
+            .expect("Fail");
 
         let kind = match &msg.kind {
             WorkspaceKindRequest::Local => "local".to_string(),
             WorkspaceKindRequest::Remote { .. } => "remote".to_string(),
         };
         let location = match &msg.kind {
-            WorkspaceKindRequest::Local => workspace_path.to_string_lossy().into_owned(),
+            WorkspaceKindRequest::Local => {
+                expanded_path.join(&msg.slug).to_string_lossy().into_owned()
+            }
             WorkspaceKindRequest::Remote { endpoint } => endpoint.clone(),
         };
 
@@ -253,7 +256,8 @@ impl Handler<CreateWorkspace> for HostActor {
 
         let database_path = match msg.database {
             DatabaseRequest::Sqlite => {
-                let path = workspace_path
+                let path = expanded_path
+                    .join(&msg.slug)
                     .join("sugarcube.db")
                     .to_string_lossy()
                     .into_owned();
@@ -276,15 +280,11 @@ impl Handler<CreateWorkspace> for HostActor {
             )
             .await?;
 
-        mkdirp(&workspace_path)?;
-        unzip_workspace(&workspace_path)
-            .map_err(|_| ActorError::Invalid("Failed to create project directory".into()))?;
-        let mut actor = TaskActor::from_registry().await.unwrap();
-        actor
-            .call(SetupWorkspace {
-                location: workspace_path.to_string_lossy().into_owned(),
-            })
-            .await??;
+        if let WorkspaceKindRequest::Local = msg.kind {
+            let mut actor = TaskActor::from_registry().await.unwrap();
+            actor.call(SetupWorkspace { location }).await??;
+        }
+
         Ok(())
     }
 }
