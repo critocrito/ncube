@@ -7,6 +7,7 @@ use xactor::{message, Actor, Context, Handler, Message};
 use crate::actors::task::{SetupWorkspace, TaskActor};
 use crate::db::{sqlite, Database};
 use crate::errors::ActorError;
+use crate::fs::expand_tilde;
 use crate::fs::{mkdirp, unzip_workspace};
 use crate::registry::Registry;
 use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
@@ -222,7 +223,8 @@ impl Handler<CreateWorkspace> for HostActor {
             .workspace_root()
             .await?
             .ok_or_else(|| ActorError::Invalid("missing the workspace root to continue".into()))?;
-        let workspace_path = Path::new(&workspace_root.value).join(Path::new(&msg.slug));
+        let workspace_path =
+            expand_tilde(Path::new(&workspace_root.value).join(Path::new(&msg.slug))).unwrap();
 
         let kind = match &msg.kind {
             WorkspaceKindRequest::Local => "local".to_string(),
