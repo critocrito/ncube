@@ -2,10 +2,11 @@ use clap::{crate_authors, crate_version, App, AppSettings, Arg};
 use directories::ProjectDirs;
 use ncubed::{types::DatabaseRequest, Application, ApplicationConfig};
 use std::fs::create_dir_all;
+use tracing::Level;
 
 mod cmd;
 
-const USAGE: &'static str = "ncubectl [-hV -D database]
+const USAGE: &'static str = "ncubectl [-hV -d database -v]
     ncubectl workspace <name> [<postgres_url>]
     ncubectl account <workspace> <email>
     ncubectl connection <workspace> <email>
@@ -49,21 +50,22 @@ async fn main() {
         .about("configure and control the Ncube daemon")
         .help_template(HELP)
         .arg(
-            Arg::with_name("debug")
-                .short('d')
-                .long("debug")
-                .about("Enable debug logging.")
-                .required(false)
-                .takes_value(false),
-        )
-        .arg(
             Arg::with_name("database")
-                .short('D')
+                .short('d')
                 .long("database")
                 .about("Path to Ncube host database.")
                 .required(false)
                 .default_value(&project_dir_db_path.to_string_lossy())
                 .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("verbose")
+                .short('v')
+                .long("verbose")
+                .about("Enable verbose logging. Use multiple times to increase verbosity.")
+                .required(false)
+                .takes_value(false)
+                .multiple(true),
         )
         .subcommand(cmd::workspace_cli())
         .subcommand(cmd::account_cli())
@@ -80,15 +82,25 @@ async fn main() {
     } else {
         matches.value_of("database").unwrap().into()
     };
+    if matches.occurrences_of("v") > 0 {
+        let tracing_level = match matches.occurrences_of("v") {
+            1 => Level::INFO,
+            2 => Level::DEBUG,
+            3 | _ => Level::TRACE,
+        };
+
+        tracing_subscriber::fmt()
+            .with_max_level(tracing_level)
+            .init();
+    }
 
     let config = ApplicationConfig {
-        // FIXME: Handle the Option.unwrap explicitely
         host_db: format!("sqlite://{}", db_path.to_str().unwrap()),
         listen: "127.0.0.1:40666".parse().unwrap(),
     };
 
-    let ncube = Application::new(config);
-    ncube.run_without_http().await.unwrap();
+    let app = Application::new(config);
+    app.run_without_http().await.unwrap();
 
     match matches.subcommand() {
         ("account", Some(matches)) => {
