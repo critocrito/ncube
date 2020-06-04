@@ -166,7 +166,7 @@ impl Workspace {
     pub fn connection_string(&self) -> String {
         match &self.database {
             WorkspaceDatabase::Sqlite { path } => format!("sqlite://{}", path),
-            WorkspaceDatabase::Http { path } => format!("{}", path),
+            WorkspaceDatabase::Http { path } => path.to_string(),
         }
     }
 }
