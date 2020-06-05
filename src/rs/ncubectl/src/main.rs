@@ -59,13 +59,11 @@ async fn main() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("verbose")
+            Arg::new("verbose")
                 .short('v')
-                .long("verbose")
                 .about("Enable verbose logging. Use multiple times to increase verbosity.")
-                .required(false)
-                .takes_value(false)
-                .multiple(true),
+                .multiple(true)
+                .takes_value(false),
         )
         .subcommand(cmd::workspace_cli())
         .subcommand(cmd::account_cli())
@@ -82,8 +80,8 @@ async fn main() {
     } else {
         matches.value_of("database").unwrap().into()
     };
-    if matches.occurrences_of("v") > 0 {
-        let tracing_level = match matches.occurrences_of("v") {
+    if matches.occurrences_of("verbose") > 0 {
+        let tracing_level = match matches.occurrences_of("verbose") {
             1 => Level::INFO,
             2 => Level::DEBUG,
             3 | _ => Level::TRACE,
