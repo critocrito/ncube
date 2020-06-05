@@ -5,7 +5,7 @@ use jwt::{RegisteredClaims, SignWithKey, VerifyWithKey};
 use rand::Rng;
 use sha2::{Digest, Sha256, Sha512};
 
-use crate::errors::CryptoError;
+use crate::errors::HostError;
 
 const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                          abcdefghijklmnopqrstuvwxyz\
@@ -31,7 +31,7 @@ pub fn mkpass<R: Rng>(mut rng: R) -> String {
         .collect::<String>()
 }
 
-pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String, CryptoError> {
+pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String, HostError> {
     let key: Hmac<Sha512> =
         Hmac::new_varkey(key.as_bytes()).expect("HMAC can take key of any size");
     let now = Utc::now();
@@ -45,27 +45,33 @@ pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String
         ..Default::default()
     };
 
-    claims.sign_with_key(&key).map_err(|_| CryptoError)
+    claims.sign_with_key(&key).map_err(|_| HostError::AuthError)
 }
 
-pub(crate) fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, CryptoError> {
-    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).map_err(|_| CryptoError)?;
+pub(crate) fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, HostError> {
+    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).map_err(|_| HostError::AuthError)?;
     let claims: RegisteredClaims =
-        VerifyWithKey::verify_with_key(token, &key).map_err(|_| CryptoError)?;
+        VerifyWithKey::verify_with_key(token, &key).map_err(|_| HostError::AuthError)?;
     let now = Utc::now();
     let expiration = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp(claims.expiration.ok_or_else(|| CryptoError)? as i64, 0),
+        NaiveDateTime::from_timestamp(
+            claims.expiration.ok_or_else(|| HostError::AuthError)? as i64,
+            0,
+        ),
         Utc,
     );
     let not_before = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp(claims.not_before.ok_or_else(|| CryptoError)? as i64, 0),
+        NaiveDateTime::from_timestamp(
+            claims.not_before.ok_or_else(|| HostError::AuthError)? as i64,
+            0,
+        ),
         Utc,
     );
 
     if not_before <= now && expiration >= now {
         Ok(claims)
     } else {
-        Err(CryptoError)
+        Err(HostError::AuthError)
     }
 }
 
