@@ -9,7 +9,7 @@ use warp::{
 };
 
 use crate::crypto::jwt_verify;
-use crate::errors::{CryptoError, HandlerError};
+use crate::errors::{HandlerError, HostError};
 use crate::handlers::config::show_secret_key;
 use crate::types::ReqCtx;
 
@@ -119,7 +119,7 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
     } else if let Some(HandlerError::NotAllowed(reason)) = err.find() {
         code = StatusCode::FORBIDDEN;
         message = reason.to_string();
-    } else if let Some(CryptoError) = err.find() {
+    } else if let Some(HostError::AuthError) = err.find() {
         code = StatusCode::UNAUTHORIZED;
         message = "request did not authorize".to_string();
     } else if let Some(rejection) = err.find::<warp::reject::MethodNotAllowed>() {
@@ -185,10 +185,10 @@ pub(crate) fn authorize() -> impl Filter<Extract = (ReqCtx,), Error = warp::Reje
                     match key {
                         Ok(key) => {
                             let claims = jwt_verify(&key, &token)?;
-                            let user_email = claims.subject.ok_or_else(|| CryptoError)?;
+                            let user_email = claims.subject.ok_or_else(|| HostError::AuthError)?;
                             Ok(ReqCtx::Provided { user_email })
                         }
-                        _ => Err(warp::reject::custom(CryptoError)),
+                        _ => Err(warp::reject::custom(HostError::AuthError)),
                     }
                 }
             }

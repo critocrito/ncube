@@ -1,5 +1,4 @@
 use anyhow;
-use std::fmt;
 use thiserror::Error;
 
 pub use crate::db::sqlite::ConfigError;
@@ -28,6 +27,16 @@ pub enum HostError {
     Io(#[from] std::io::Error),
     #[error("General host error: {0}")]
     General(String),
+    #[error("Authentication failed.")]
+    AuthError,
+}
+
+impl warp::reject::Reject for HostError {}
+
+impl From<HostError> for warp::Rejection {
+    fn from(rejection: HostError) -> warp::Rejection {
+        warp::reject::custom(rejection)
+    }
 }
 
 #[derive(Error, Debug)]
@@ -40,15 +49,6 @@ pub enum ActorError {
     Host(String),
     #[error("The request to the actor was invalid: {0}")]
     Invalid(String),
-}
-
-#[derive(Error, Debug)]
-pub struct CryptoError;
-
-impl fmt::Display for CryptoError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "CryptoError")
-    }
 }
 
 #[derive(Error, Debug)]
@@ -102,16 +102,8 @@ impl From<ActorError> for HandlerError {
 
 impl warp::reject::Reject for HandlerError {}
 
-impl warp::reject::Reject for CryptoError {}
-
 impl From<HandlerError> for warp::Rejection {
     fn from(rejection: HandlerError) -> warp::Rejection {
-        warp::reject::custom(rejection)
-    }
-}
-
-impl From<CryptoError> for warp::Rejection {
-    fn from(rejection: CryptoError) -> warp::Rejection {
         warp::reject::custom(rejection)
     }
 }
