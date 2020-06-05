@@ -1,6 +1,5 @@
 use async_trait::async_trait;
 use ncube_data::{ConfigSetting, NcubeConfig, Workspace};
-use std::path::Path;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler, Message};
 
