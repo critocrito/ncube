@@ -1,17 +1,12 @@
 use serde::{Serialize, Serializer};
 use std::convert::Infallible;
-use std::net::{IpAddr, SocketAddr};
-use std::str::FromStr;
 use tracing::{error, info, instrument};
 use warp::{
     http::{Method, StatusCode},
     Filter,
 };
 
-use crate::crypto::jwt_verify;
 use crate::errors::{HandlerError, HostError};
-use crate::handlers::config::show_secret_key;
-use crate::types::ReqCtx;
 
 #[derive(Debug)]
 struct SuccessStatus;
@@ -137,65 +132,6 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
     Ok(warp::reply::with_status(json, code))
 }
 
-pub(crate) fn is_loopback() -> warp::filters::BoxedFilter<(bool,)> {
-    warp::header("x-forwarded-for")
-        .map(|forwarded_for: String| IpAddr::from_str(&forwarded_for).ok())
-        .or(warp::addr::remote().map(|remote: Option<SocketAddr>| remote.map(|socket| socket.ip())))
-        .unify()
-        .map(|remote: Option<IpAddr>| {
-            if let Some(ip) = remote {
-                if ip.is_loopback() {
-                    return true;
-                }
-            }
-            return false;
-        })
-        .boxed()
-}
-
-pub(crate) fn user_ctx() -> warp::filters::BoxedFilter<(Option<String>,)> {
-    warp::header("authorization")
-        .map(|header_value: String| {
-            let parts: Vec<&str> = header_value.split(" ").collect();
-            match &parts[..] {
-                ["Bearer", token] => Some(token.to_string()),
-                _ => None,
-            }
-        })
-        .or(warp::any().map(|| None))
-        .unify()
-        .boxed()
-}
-
-pub(crate) fn authorize() -> impl Filter<Extract = (ReqCtx,), Error = warp::Rejection> + Clone {
-    warp::any().and(is_loopback()).and(user_ctx()).and_then(
-        move |is_local: bool, token: Option<String>| async move {
-            // We don't need to verify the user if we have a request from localhost.
-            if is_local {
-                return Ok(ReqCtx::Lacking);
-            }
-
-            match token {
-                None => {
-                    return Ok(ReqCtx::Lacking);
-                }
-                Some(token) => {
-                    let key = show_secret_key().await;
-
-                    match key {
-                        Ok(key) => {
-                            let claims = jwt_verify(&key, &token)?;
-                            let user_email = claims.subject.ok_or_else(|| HostError::AuthError)?;
-                            Ok(ReqCtx::Provided { user_email })
-                        }
-                        _ => Err(warp::reject::custom(HostError::AuthError)),
-                    }
-                }
-            }
-        },
-    )
-}
-
 pub(crate) fn router(
 ) -> impl Filter<Extract = impl warp::Reply, Error = std::convert::Infallible> + Clone {
     let log = warp::log::custom(|info| {
@@ -272,11 +208,13 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
 }
 
 pub(crate) mod config {
-    use super::{authorize, ReqCtx, SuccessResponse};
+    use super::SuccessResponse;
     use serde::Deserialize;
     use warp::Filter;
 
     use crate::handlers::config as handlers;
+    use crate::http::restrict_to_local_req;
+    use crate::types::ReqCtx;
 
     #[derive(Debug, Deserialize)]
     struct SettingRequest {
@@ -291,7 +229,10 @@ pub(crate) mod config {
         Ok(warp::reply::json(&response))
     }
 
-    async fn create(settings: Vec<SettingRequest>) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn create(
+        _ctx: ReqCtx,
+        settings: Vec<SettingRequest>,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         let mut config = vec![];
         for SettingRequest { name, value } in settings {
             config.push((name, value));
@@ -302,7 +243,10 @@ pub(crate) mod config {
         Ok(warp::reply())
     }
 
-    async fn update(settings: Vec<SettingRequest>) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn update(
+        _ctx: ReqCtx,
+        settings: Vec<SettingRequest>,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         for SettingRequest { name, value } in settings {
             handlers::insert_config_setting(&name, &value).await?;
         }
@@ -314,16 +258,18 @@ pub(crate) mod config {
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::get()
             .and(warp::path::end())
-            .and(authorize())
+            .and(restrict_to_local_req())
             .and_then(show)
             .or(warp::post()
                 .and(warp::path::end())
+                .and(restrict_to_local_req())
                 .and(warp::body::json())
                 .and_then(create)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
                 .map(|reply| warp::reply::with_header(reply, "location", "/")))
             .or(warp::put()
                 .and(warp::path::end())
+                .and(restrict_to_local_req())
                 .and(warp::body::json())
                 .and_then(update)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
@@ -335,9 +281,13 @@ pub(crate) mod workspace {
     use warp::Filter;
 
     use crate::handlers::workspace as handlers;
-    use crate::types::WorkspaceRequest;
+    use crate::http::restrict_to_local_req;
+    use crate::types::{ReqCtx, WorkspaceRequest};
 
-    async fn create(workspace: WorkspaceRequest) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn create(
+        _ctx: ReqCtx,
+        workspace: WorkspaceRequest,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         handlers::create_workspace(workspace).await?;
 
         // FIXME: Set location header
@@ -345,27 +295,28 @@ pub(crate) mod workspace {
         // .map(|reply| {warp::reply::with_header(reply, "location", format!("/workspaces/{}", workspace.slug()),)})
     }
 
-    async fn show(slug: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn show(_ctx: ReqCtx, slug: String) -> Result<impl warp::Reply, warp::Rejection> {
         let workspace = handlers::show_workspace(&slug).await?;
         let response = SuccessResponse::new(workspace);
 
         Ok(warp::reply::json(&response))
     }
 
-    async fn list() -> Result<impl warp::Reply, warp::Rejection> {
+    async fn list(_ctx: ReqCtx) -> Result<impl warp::Reply, warp::Rejection> {
         let workspaces = handlers::list_workspaces().await?;
         let response = SuccessResponse::new(workspaces);
 
         Ok(warp::reply::json(&response))
     }
 
-    async fn delete(slug: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn delete(_ctx: ReqCtx, slug: String) -> Result<impl warp::Reply, warp::Rejection> {
         handlers::remove_workspace(&slug).await?;
 
         Ok(warp::reply())
     }
 
     async fn update(
+        _ctx: ReqCtx,
         slug: String,
         workspace: WorkspaceRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -380,21 +331,29 @@ pub(crate) mod workspace {
         warp::path("workspaces")
             .and(warp::get())
             .and(warp::path::end())
+            .and(restrict_to_local_req())
             .and_then(list)
             .or(warp::path("workspaces")
                 .and(warp::post())
                 .and(warp::path::end())
+                .and(restrict_to_local_req())
                 .and(warp::body::json())
                 .and_then(create)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED)))
-            .or(warp::path!("workspaces" / String)
+            .or(warp::any()
+                .and(restrict_to_local_req())
+                .and(warp::path!("workspaces" / String))
                 .and(warp::get())
                 .and_then(show))
-            .or(warp::path!("workspaces" / String)
+            .or(warp::any()
+                .and(restrict_to_local_req())
+                .and(warp::path!("workspaces" / String))
                 .and(warp::delete())
                 .and_then(delete)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
-            .or(warp::path!("workspaces" / String)
+            .or(warp::any()
+                .and(restrict_to_local_req())
+                .and(warp::path!("workspaces" / String))
                 .and(warp::put())
                 .and(warp::body::json())
                 .and_then(update)
@@ -408,10 +367,12 @@ pub(crate) mod source {
     use warp::Filter;
 
     use crate::handlers::source as handlers;
-    use crate::types::SourceRequest;
+    use crate::http::authenticate_remote_req;
+    use crate::types::{ReqCtx, SourceRequest};
 
     #[instrument]
     async fn create(
+        _ctx: ReqCtx,
         workspace_slug: String,
         source: SourceRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -422,7 +383,10 @@ pub(crate) mod source {
     }
 
     #[instrument]
-    async fn list(workspace_slug: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn list(
+        _ctx: ReqCtx,
+        workspace_slug: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         let sources = handlers::list_sources(&workspace_slug).await?;
         let response = SuccessResponse::new(sources);
 
@@ -430,7 +394,11 @@ pub(crate) mod source {
     }
 
     #[instrument]
-    async fn remove(workspace_slug: String, id: i32) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn remove(
+        _ctx: ReqCtx,
+        workspace_slug: String,
+        id: i32,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         handlers::remove_source(&workspace_slug, id).await?;
 
         Ok(warp::reply())
@@ -438,6 +406,7 @@ pub(crate) mod source {
 
     #[instrument]
     async fn update(
+        _ctx: ReqCtx,
         workspace_slug: String,
         id: i32,
         source: SourceRequest,
@@ -450,19 +419,23 @@ pub(crate) mod source {
 
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("workspaces" / String / "sources")
+        authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "sources"))
             .and(warp::post())
             .and(warp::body::json())
             .and_then(create)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
-            .or(warp::path!("workspaces" / String / "sources")
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "sources"))
                 .and(warp::get())
                 .and_then(list))
-            .or(warp::path!("workspaces" / String / "sources" / i32)
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "sources" / i32))
                 .and(warp::delete())
                 .and_then(remove)
                 .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
-            .or(warp::path!("workspaces" / String / "sources" / i32)
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "sources" / i32))
                 .and(warp::put())
                 .and(warp::body::json())
                 .and_then(update)
@@ -475,7 +448,8 @@ pub(crate) mod user {
     use warp::Filter;
 
     use crate::handlers::account as handlers;
-    use crate::types::{LoginRequest, UpdatePasswordRequest};
+    use crate::http::authenticate_remote_req;
+    use crate::types::{LoginRequest, ReqCtx, UpdatePasswordRequest};
 
     #[instrument]
     async fn login(
@@ -489,6 +463,7 @@ pub(crate) mod user {
 
     #[instrument]
     async fn update(
+        _req: ReqCtx,
         workspace: String,
         request: UpdatePasswordRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -506,7 +481,8 @@ pub(crate) mod user {
             .and(warp::body::json())
             .and_then(login)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
-            .or(warp::path!("workspaces" / String / "account")
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "account"))
                 .and(warp::put())
                 .and(warp::body::json())
                 .and_then(update)

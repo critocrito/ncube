@@ -1,6 +1,7 @@
 # Show Ncube Configuration
 
-Display the configuration of the Ncube host application.
+Display the configuration of the Ncube host application. This endpoint responds
+only to local requests.
 
 **URL** : `/`
 
@@ -18,21 +19,21 @@ settings that have been set are displayed.
 
 ```json
 {
-    "status": "success",
-    "data": [
-        {
-            "name": "workspace_root", 
-            "description": "The directory where all local workspaces are stored.", 
-            "required": true, 
-            "value": "~/ncubed"
-        },
-        {
-            "name": "email",
-            "description": "The email address of the local Ncube user.",
-            "required": false,
-            "value": "alice@example.org"
-        }
-    ]
+  "status": "success",
+  "data": [
+    {
+      "name": "workspace_root",
+      "description": "The directory where all local workspaces are stored.",
+      "required": true,
+      "value": "~/ncubed"
+    },
+    {
+      "name": "email",
+      "description": "The email address of the local Ncube user.",
+      "required": false,
+      "value": "alice@example.org"
+    }
+  ]
 }
 ```
 

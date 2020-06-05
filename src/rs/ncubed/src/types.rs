@@ -60,8 +60,10 @@ pub struct JwtToken {
     pub token: String,
 }
 
-#[derive(Debug)]
-pub enum ReqCtx {
-    Lacking,
-    Provided { user_email: String },
+#[derive(Debug, Default)]
+pub struct ReqCtx {
+    pub is_local: bool,
+    pub is_authorized: bool,
+    pub email: Option<String>,
+    pub workspace: Option<String>,
 }
