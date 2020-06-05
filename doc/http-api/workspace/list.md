@@ -1,6 +1,6 @@
 # List all workspaces
 
-List all available workspaces.
+List all available workspaces. This endpoint responds only to local requests.
 
 **URL** : `/workspaces`
 

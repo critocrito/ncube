@@ -10,6 +10,7 @@ pub mod db;
 pub mod errors;
 pub mod fs;
 pub mod handlers;
+pub(crate) mod http;
 pub mod registry;
 pub mod routes;
 pub mod stores;

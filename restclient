@@ -3,10 +3,12 @@
 :api = localhost:40666
 :headers = <<
 Content-Type: application/json
+#
 
-:auth-headers = <<
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZUBleGFtcGxlLm9yZyIsImF1ZCI6InN5cmlhbi1hcmNoaXZlIiwiZXhwIjoxNTkxMTI3ODM4LCJuYmYiOjE1OTExMjQyMzh9.YZA0D36hDHsgT9NA9VVWawoIzcumwSWaXGo-apzBmCGfnY2pimR8R0fUtZjWXcQx9X2pzfrED_jbrKE5i3S2Dg
+:auth-remote-headers = <<
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtZUBleGFtcGxlLm9yZyIsImF1ZCI6InN5cmlhbi1hcmNoaXZlIiwiZXhwIjoxNTkxMzY0Njc1LCJuYmYiOjE1OTEzNjEwNzV9.8Y62irkdSb3gUlc8Uby8uFeR3gilRCTBUxwzMByDnVkwqkagOAHjrzz28w3bZEP3-7Rl67_q84RpVxDuI3rreQ
 X-Forwarded-For: 192.168.2.5
+#
 
 ###
 # Ncube Host Configuration
@@ -15,7 +17,6 @@ X-Forwarded-For: 192.168.2.5
 # Query the global Ncube configuration.
 GET http://:api/api
 :headers
-:auth-headers
 
 # Bootstrap Ncube.
 POST http://:api/api
@@ -123,7 +124,7 @@ POST http://:api/api/workspaces/syrian-archive/sources
 }
 
 # Create a source for a non existing workspace
-POST http://:api/api/workspaces/dont-exist/sources
+POST http://:api/api/workspaces/does-not-exist/sources
 :headers
 
 {

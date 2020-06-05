@@ -1,6 +1,7 @@
 # Bootstrap Ncube
 
-Create the initial configuration (bootstrap) of the Ncube host application.
+Create the initial configuration (bootstrap) of the Ncube host application. This
+endpoint responds only to local requests.
 
 **URL** : `/`
 
@@ -14,8 +15,8 @@ Create the initial configuration (bootstrap) of the Ncube host application.
 
 ```json
 [
-    {"name": "workspace_root", "value": "~/ncubed"},
-    {"name": "email", "value": "alice@example.org"}
+  { "name": "workspace_root", "value": "~/ncubed" },
+  { "name": "email", "value": "alice@example.org" }
 ]
 ```
 
@@ -49,10 +50,10 @@ Data provided fails the validation.
 
 ```json
 {
-    "status": "error",
-    "errors": {
-        "workspace_root": ["This field is required."]
-    }
+  "status": "error",
+  "errors": {
+    "workspace_root": ["This field is required."]
+  }
 }
 ```
 

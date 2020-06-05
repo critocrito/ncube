@@ -1,6 +1,6 @@
 # Updates Ncube Settings
 
-Update one or more settings.
+Update one or more settings. This endpoint responds only to local requests.
 
 **URL** : `/`
 
@@ -17,8 +17,8 @@ array, even if there is only a single setting to update.
 
 ```json
 [
-    {"name": "workspace_root", "value": "~/Desktop/Ncube"},
-    {"name": "email", "value": "bob@example.org"}
+  { "name": "workspace_root", "value": "~/Desktop/Ncube" },
+  { "name": "email", "value": "bob@example.org" }
 ]
 ```
 
@@ -47,10 +47,10 @@ Data provided fails the validation.
 
 ```json
 {
-    "status": "error",
-    "errors": {
-        "email": ["Format not a valid email address."]
-    }
+  "status": "error",
+  "errors": {
+    "email": ["Format not a valid email address."]
+  }
 }
 ```
 

@@ -1,6 +1,7 @@
 # Create a new workspace
 
-Create a new workspace for the local Ncube configuration.
+Create a new workspace for the local Ncube configuration. This endpoint responds
+only to local requests.
 
 **URL** : `/workspaces`
 
