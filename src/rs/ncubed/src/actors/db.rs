@@ -6,7 +6,7 @@ use xactor::{message, Actor, Context, Handler};
 
 use crate::actors::host::{HostActor, ShowWorkspace};
 use crate::cache::DatabaseCache;
-use crate::db::{sqlite, Database};
+use crate::db::{http, sqlite, Database};
 use crate::errors::{ActorError, StoreError};
 use crate::registry::Registry;
 
@@ -87,7 +87,13 @@ impl Handler<LookupDatabase> for DatabaseActor {
                 let db = sqlite::Database::new(cfg, 5);
                 Database::Sqlite(db)
             }
-            WorkspaceDatabase::Http { .. } => unimplemented!(),
+            WorkspaceDatabase::Http { .. } => {
+                let cfg = connection_string
+                    .parse::<http::Config>()
+                    .map_err(|e| ActorError::Store(StoreError::HttpConfig(e)))?;
+                let db = http::Database::new(cfg);
+                Database::Http(db)
+            }
         };
 
         self.cache.put(&connection_string, db);

@@ -277,58 +277,53 @@ pub mod http {
     //! let endpoint = "https://example.org";
     //! let cfg = endpoint.parse::<http::Config>().unwrap();
     //! let client = http::Database::new(cfg);
-    //! let req = Request::builder()
-    //!     .method(Method::POST)
-    //!     .uri("http://httpbin.org/post")
-    //!     .header("content-type", "application/json")
-    //!     .body(Body::from(r#"{"library":"hyper"}"#))
-    //!     .unwrap();
-    //! client.execute(req).await.unwrap();
+    //! // client.get("workspaces")
+    //! // client.put("workspaces/1", ..)
+    //! // ..
     //! # }
     //! ```
-    use hyper::{client::HttpConnector, Body, Client, Request};
-    use std::fmt::{self, Debug, Display, Formatter};
+    use bytes::{buf::BufExt as _, Buf};
+    use hyper::{client::HttpConnector, Body, Client, Method, Request, Uri};
+    use std::fmt::{self, Debug, Formatter};
     use std::ops::{Deref, DerefMut};
     use std::str::FromStr;
     use url::Url;
+
+    use crate::http::SuccessResponse;
 
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct AuthToken(String);
 
     #[derive(thiserror::Error, Debug)]
-    pub struct ConfigError;
-
-    impl Display for ConfigError {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "ConfigError()")
-        }
+    pub enum Error {
+        #[error("Config Error")]
+        Config,
+        #[error("{0}")]
+        Http(#[from] hyper::error::Error),
+        #[error(transparent)]
+        Resp(#[from] serde_json::error::Error),
     }
 
     #[derive(Debug, Clone, PartialEq, Eq)]
     pub struct Config {
         pub(crate) endpoint: Url,
-        pub(crate) token: Option<AuthToken>,
     }
 
     impl Default for Config {
         fn default() -> Self {
             Self {
                 endpoint: Url::parse("http://127.0.0.1:40666").unwrap(),
-                token: None,
             }
         }
     }
 
     impl FromStr for Config {
-        type Err = ConfigError;
+        type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self, ConfigError> {
-            let endpoint = Url::parse(s).map_err(|_| ConfigError)?;
+        fn from_str(s: &str) -> Result<Self, Error> {
+            let endpoint = Url::parse(s).map_err(|_| Error::Config)?;
 
-            Ok(Config {
-                endpoint,
-                token: None,
-            })
+            Ok(Config { endpoint })
         }
     }
 
@@ -351,8 +346,7 @@ pub mod http {
     }
 
     impl Database {
-        /// Construct a pooled Sqlite database. The `capacity` sets the number
-        /// of pooled connections.
+        /// Construct a HTTP client.
         ///
         /// # Example
         ///
@@ -374,8 +368,96 @@ pub mod http {
             }
         }
 
-        pub async fn execute<T>(&self, _req: Request<T>) -> Result<T, ConfigError> {
-            todo!()
+        async fn execute(&self, req: Request<Body>) -> Result<impl Buf, Error> {
+            let res = self.client.request(req).await?;
+            let body = hyper::body::aggregate(res).await?;
+
+            Ok(body)
+        }
+
+        fn url(&self, path: &str) -> Uri {
+            let mut uri = self.config.endpoint.clone();
+            uri.set_path(path);
+            Uri::from_str(uri.as_str()).unwrap()
+        }
+
+        #[allow(dead_code)]
+        pub(crate) async fn get<T>(&self, path: &str) -> Result<SuccessResponse<T>, Error>
+        where
+            T: serde::de::DeserializeOwned,
+        {
+            let url = self.url(&path);
+            let req = Request::builder()
+                .method(Method::GET)
+                .uri(url)
+                .header("content-type", "application/json")
+                .body(Default::default())
+                .unwrap();
+            let body = self.execute(req).await?;
+            let data = serde_json::from_reader(body.reader())?;
+
+            Ok(data)
+        }
+
+        #[allow(dead_code)]
+        pub(crate) async fn post<T, S>(
+            &self,
+            path: &str,
+            payload: S,
+        ) -> Result<SuccessResponse<T>, Error>
+        where
+            T: serde::de::DeserializeOwned,
+            S: serde::Serialize,
+        {
+            let url = self.url(&path);
+            let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
+            let req = Request::post(url)
+                .header("content-type", "application/json")
+                .body(Body::from(payload_json))
+                .unwrap();
+            let body = self.execute(req).await?;
+            let data = serde_json::from_reader(body.reader())?;
+
+            Ok(data)
+        }
+
+        #[allow(dead_code)]
+        pub(crate) async fn put<T, S>(
+            &self,
+            path: &str,
+            payload: S,
+        ) -> Result<SuccessResponse<T>, Error>
+        where
+            T: serde::de::DeserializeOwned,
+            S: serde::Serialize,
+        {
+            let url = self.url(&path);
+            let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
+            let req = Request::put(url)
+                .header("content-type", "application/json")
+                .body(Body::from(payload_json))
+                .unwrap();
+            let body = self.execute(req).await?;
+            let data = serde_json::from_reader(body.reader())?;
+
+            Ok(data)
+        }
+
+        #[allow(dead_code)]
+        pub(crate) async fn delete<T, S>(&self, path: &str) -> Result<SuccessResponse<T>, Error>
+        where
+            T: serde::de::DeserializeOwned,
+        {
+            let url = self.url(&path);
+            let req = Request::delete(url)
+                .header("content-type", "application/json")
+                .body(Default::default())
+                .unwrap();
+
+            let body = self.execute(req).await?;
+            let data = serde_json::from_reader(body.reader())?;
+
+            Ok(data)
         }
     }
 
