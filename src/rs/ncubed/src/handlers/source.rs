@@ -3,23 +3,21 @@ use tracing::{error, instrument};
 
 use crate::actors::{
     db::{DatabaseActor, LookupDatabase},
-    host::{HostActor, WorkspaceExists},
+    host::{HostActor, RequirePool},
 };
 use crate::errors::HandlerError;
 use crate::registry::Registry;
-use crate::stores::{source_store, SourceStore};
+use crate::stores::{source_store, workspace_store, SourceStore, WorkspaceStore};
 use crate::types::SourceRequest;
 
 #[instrument]
 pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(), HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
-    if let Ok(false) = host_actor
-        .call(WorkspaceExists {
-            slug: workspace.into(),
-        })
-        .await?
-    {
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
         let msg = format!("Workspace `{}` doesn't exist.", workspace);
         error!("{:?}", msg);
         return Err(HandlerError::Invalid(msg));
@@ -29,7 +27,7 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
 
     let database = database_actor
         .call(LookupDatabase {
-            workspace: workspace.into(),
+            workspace: workspace.to_string(),
         })
         .await??;
 
@@ -43,12 +41,10 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
 pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
-    if let Ok(false) = host_actor
-        .call(WorkspaceExists {
-            slug: workspace.into(),
-        })
-        .await?
-    {
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
         let msg = format!("Workspace `{}` doesn't exist.", workspace);
         error!("{:?}", msg);
         return Err(HandlerError::Invalid(msg));
@@ -72,12 +68,10 @@ pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> 
 pub async fn remove_source(workspace: &str, id: i32) -> Result<(), HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
-    if let Ok(false) = host_actor
-        .call(WorkspaceExists {
-            slug: workspace.into(),
-        })
-        .await?
-    {
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
         let msg = format!("Workspace `{}` doesn't exist.", workspace);
         error!("{:?}", msg);
         return Err(HandlerError::Invalid(msg));
@@ -112,12 +106,10 @@ pub async fn update_source(
 ) -> Result<(), HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
-    if let Ok(false) = host_actor
-        .call(WorkspaceExists {
-            slug: workspace.into(),
-        })
-        .await?
-    {
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
         let msg = format!("Workspace `{}` doesn't exist.", workspace);
         error!("{:?}", msg);
         return Err(HandlerError::Invalid(msg));
