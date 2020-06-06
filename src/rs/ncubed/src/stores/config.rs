@@ -3,6 +3,7 @@ use ncube_data::{Collection, ConfigSetting, NcubeConfig};
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 use std::fmt::Debug;
+use tracing::instrument;
 
 use crate::db::{sqlite, Database};
 use crate::errors::StoreError;
@@ -36,7 +37,7 @@ pub struct ConfigStoreSqlite {
 
 #[async_trait]
 impl ConfigStore for ConfigStoreSqlite {
-    #[tracing::instrument]
+    #[instrument]
     async fn init(&self) -> Result<(), StoreError> {
         let mut conn = self.db.connection().await?;
         conn.pragma_update(None, "foreign_keys", &"ON")?;
@@ -45,7 +46,7 @@ impl ConfigStore for ConfigStoreSqlite {
         Ok(())
     }
 
-    #[tracing::instrument]
+    #[instrument]
     async fn upgrade(&self) -> Result<(), StoreError> {
         let mut conn = self.db.connection().await?;
         // The actual sqlite connection is hidden inside a deadpool Object
@@ -55,7 +56,7 @@ impl ConfigStore for ConfigStoreSqlite {
         Ok(())
     }
 
-    #[tracing::instrument]
+    #[instrument]
     async fn list_collections(&self) -> Result<Vec<Collection>, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare(include_str!("../sql/config/list_collections.sql"))?;
@@ -70,7 +71,7 @@ impl ConfigStore for ConfigStoreSqlite {
         Ok(collections)
     }
 
-    #[tracing::instrument]
+    #[instrument]
     async fn is_bootstrapped(&self) -> Result<bool, StoreError> {
         let conn = self.db.connection().await?;
         let result: i32 = conn.query_row(
@@ -86,7 +87,7 @@ impl ConfigStore for ConfigStoreSqlite {
         }
     }
 
-    #[tracing::instrument]
+    #[instrument]
     async fn show(&self) -> Result<NcubeConfig, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare(include_str!("../sql/config/show.sql"))?;
@@ -101,7 +102,7 @@ impl ConfigStore for ConfigStoreSqlite {
         Ok(ncube_config)
     }
 
-    #[tracing::instrument]
+    #[instrument]
     async fn insert(&self, name: &str, value: &str) -> Result<(), StoreError> {
         let conn = self.db.connection().await?;
         let setting_id: i32 = conn.query_row(
