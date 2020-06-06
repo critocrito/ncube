@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Database {
     Sqlite(sqlite::Database),
 }
@@ -26,12 +26,10 @@ pub mod sqlite {
     //! connection string for file based databases if
     //! `sqlite://path/to/file.db`.
     use async_trait::async_trait;
-    use std::collections::HashMap;
     use std::fmt::{Debug, Display, Error, Formatter};
     use std::ops::{Deref, DerefMut};
     use std::path::{Path, PathBuf};
     use std::str::FromStr;
-    use std::sync::{Mutex, RwLock};
     use tracing::{debug, instrument};
 
     struct UrlParser;
@@ -238,71 +236,6 @@ pub mod sqlite {
         }
     }
 
-    /// Cache Sqlite database pools.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # use ncubed::db::sqlite;
-    /// let cache = sqlite::DatabaseCache::new();
-    ///
-    /// let url = "sqlite://:memory:";
-    /// let cfg = url.parse::<sqlite::Config>().unwrap();
-    /// let db = sqlite::Database::new(cfg, 1);
-    ///
-    /// assert!(cache.get(url).is_none());
-    ///
-    /// cache.put(url, db);
-    ///
-    /// let db1 = cache.get(url).unwrap();
-    /// let db2 = cache.get(url).unwrap();
-    ///
-    /// assert_eq!(db1, db2);
-    /// ```
-    #[derive(Debug)]
-    pub struct DatabaseCache(RwLock<HashMap<String, Mutex<Database>>>);
-
-    impl Default for DatabaseCache {
-        fn default() -> Self {
-            Self(RwLock::new(HashMap::new()))
-        }
-    }
-
-    impl DatabaseCache {
-        pub fn new() -> Self
-        where
-            Self: Sized,
-        {
-            Self::default()
-        }
-
-        pub fn get(&self, key: &str) -> Option<Database> {
-            let trimmed = key.trim().to_string();
-            let cache = self.0.read().expect("RwLock poisoned");
-            if let Some(elem) = cache.get(&trimmed) {
-                let elem = elem.lock().expect("Mutex poisoned");
-                let db = elem.clone();
-                return Some(db);
-            }
-            None
-        }
-
-        pub fn put(&self, key: &str, db: Database) {
-            let trimmed = key.trim().to_string();
-            let mut cache = self.0.write().expect("RwLock poisoned");
-            cache.entry(trimmed).or_insert_with(|| Mutex::new(db));
-        }
-
-        pub fn has(&self, key: &str) -> bool {
-            let trimmed = key.trim().to_string();
-            let cache = self.0.read().expect("RwLock poisoned");
-            match cache.get(&trimmed) {
-                Some(_) => true,
-                _ => false,
-            }
-        }
-    }
-
     #[cfg(test)]
     mod tests {
         use super::*;
@@ -325,42 +258,6 @@ pub mod sqlite {
             let cfg2 = url2.parse::<Config>().unwrap();
             assert_eq!(cfg1.source, Source::File("/path/to/db".into()));
             assert_eq!(cfg2.source, Source::Memory);
-        }
-
-        #[test]
-        fn database_cache_for_sqlite_database_types() {
-            let url1 = "sqlite://:memory:";
-            let url2 = "sqlite://testdb";
-            let cfg1 = url1.parse::<Config>().unwrap();
-            let cfg2 = url2.parse::<Config>().unwrap();
-            let db1 = Database::new(cfg1, 2);
-            let db2 = Database::new(cfg2, 2);
-            let cache = DatabaseCache::new();
-
-            assert!(cache.get(url1).is_none());
-            assert!(cache.get(url2).is_none());
-
-            cache.put(url1, db1);
-            cache.put(url2, db2);
-
-            let db3 = cache.get(url1).unwrap();
-            let db4 = cache.get(url1).unwrap();
-
-            assert_eq!(db3, db4);
-        }
-
-        #[test]
-        fn database_cache_for_sqlite_database_tests_existence() {
-            let url = "sqlite://:memory:";
-            let cfg = url.parse::<Config>().unwrap();
-            let db = Database::new(cfg, 2);
-            let cache = DatabaseCache::new();
-
-            assert_eq!(cache.has(url), false);
-
-            cache.put(url, db);
-
-            assert_eq!(cache.has(url), true);
         }
     }
 }
