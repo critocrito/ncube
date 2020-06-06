@@ -4,11 +4,12 @@ use std::result::Result;
 use tracing::debug;
 use xactor::{message, Actor, Context, Handler};
 
-use crate::actors::host::{HostActor, ShowWorkspace};
+use crate::actors::host::{HostActor, RequirePool};
 use crate::cache::DatabaseCache;
 use crate::db::{http, sqlite, Database};
 use crate::errors::{ActorError, StoreError};
 use crate::registry::Registry;
+use crate::stores::{workspace_store, WorkspaceStore};
 
 /// The database actor can be queried for database connections for workspaces.
 /// Connection pools are cached when requested first time and subsequently
@@ -63,12 +64,12 @@ impl Handler<LookupDatabase> for DatabaseActor {
         _ctx: &Context<Self>,
         msg: LookupDatabase,
     ) -> Result<Database, ActorError> {
-        let mut actor = HostActor::from_registry().await.unwrap();
-        let workspace = actor
-            .call(ShowWorkspace {
-                slug: msg.workspace,
-            })
-            .await??;
+        let mut host_actor = HostActor::from_registry().await.unwrap();
+
+        let db = host_actor.call(RequirePool).await??;
+        let workspace_store = workspace_store(db.clone());
+        let workspace = workspace_store.show_by_slug(&msg.workspace).await?;
+
         let connection_string = workspace.connection_string();
 
         if self.cache.has(&connection_string) {
