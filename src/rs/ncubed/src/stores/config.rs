@@ -57,7 +57,7 @@ impl ConfigStore for ConfigStoreSqlite {
     #[tracing::instrument]
     async fn list_collections(&self) -> Result<Vec<Collection>, StoreError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare(include_str!("sql/config/list_collections.sql"))?;
+        let mut stmt = conn.prepare(include_str!("../sql/config/list_collections.sql"))?;
 
         let collections_iter = from_rows::<Collection>(stmt.query(NO_PARAMS)?);
 
@@ -73,7 +73,7 @@ impl ConfigStore for ConfigStoreSqlite {
     async fn is_bootstrapped(&self) -> Result<bool, StoreError> {
         let conn = self.db.connection().await?;
         let result: i32 = conn.query_row(
-            include_str!("sql/config/is_bootstrapped.sql"),
+            include_str!("../sql/config/is_bootstrapped.sql"),
             NO_PARAMS,
             |row| row.get(0),
         )?;
@@ -88,7 +88,7 @@ impl ConfigStore for ConfigStoreSqlite {
     #[tracing::instrument]
     async fn show(&self) -> Result<NcubeConfig, StoreError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare(include_str!("sql/config/show.sql"))?;
+        let mut stmt = conn.prepare(include_str!("../sql/config/show.sql"))?;
 
         let config_iter = from_rows::<ConfigSetting>(stmt.query(NO_PARAMS)?);
 
@@ -104,13 +104,13 @@ impl ConfigStore for ConfigStoreSqlite {
     async fn insert(&self, name: &str, value: &str) -> Result<(), StoreError> {
         let conn = self.db.connection().await?;
         let setting_id: i32 = conn.query_row(
-            include_str!("sql/config/setting_exists.sql"),
+            include_str!("../sql/config/setting_exists.sql"),
             params![&name],
             |row| row.get(0),
         )?;
 
         conn.execute(
-            include_str!("sql/config/upsert.sql"),
+            include_str!("../sql/config/upsert.sql"),
             params![&setting_id, &value],
         )?;
 
