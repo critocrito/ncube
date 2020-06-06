@@ -10,6 +10,7 @@ use crate::errors::StoreError;
 pub(crate) fn source_store(wrapped_db: Database) -> impl SourceStore {
     match wrapped_db {
         Database::Sqlite(db) => SourceStoreSqlite { db },
+        Database::Http(_client) => todo!(),
     }
 }
 
