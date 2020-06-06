@@ -1,6 +1,7 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum Database {
     Sqlite(sqlite::Database),
+    Http(http::Database),
 }
 
 pub mod sqlite {
@@ -258,6 +259,147 @@ pub mod sqlite {
             let cfg2 = url2.parse::<Config>().unwrap();
             assert_eq!(cfg1.source, Source::File("/path/to/db".into()));
             assert_eq!(cfg2.source, Source::Memory);
+        }
+    }
+}
+
+pub mod http {
+    //! When connecting to remote ncube installation all requests are done using
+    //! HTTP. Internally the HTTP endpoint is treated like a database.
+    //!
+    //! # Example
+    //!
+    //! ```no_run
+    //! use ncubed::db::http;
+    //! use hyper::{Body, Method, Request};
+    //! # #[tokio::main]
+    //! # async fn main() {
+    //! let endpoint = "https://example.org";
+    //! let cfg = endpoint.parse::<http::Config>().unwrap();
+    //! let client = http::Database::new(cfg);
+    //! let req = Request::builder()
+    //!     .method(Method::POST)
+    //!     .uri("http://httpbin.org/post")
+    //!     .header("content-type", "application/json")
+    //!     .body(Body::from(r#"{"library":"hyper"}"#))
+    //!     .unwrap();
+    //! client.execute(req).await.unwrap();
+    //! # }
+    //! ```
+    use hyper::{client::HttpConnector, Body, Client, Request};
+    use std::fmt::{self, Debug, Display, Formatter};
+    use std::ops::{Deref, DerefMut};
+    use std::str::FromStr;
+    use url::Url;
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct AuthToken(String);
+
+    #[derive(thiserror::Error, Debug)]
+    pub struct ConfigError;
+
+    impl Display for ConfigError {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "ConfigError()")
+        }
+    }
+
+    #[derive(Debug, Clone, PartialEq, Eq)]
+    pub struct Config {
+        pub(crate) endpoint: Url,
+        pub(crate) token: Option<AuthToken>,
+    }
+
+    impl Default for Config {
+        fn default() -> Self {
+            Self {
+                endpoint: Url::parse("http://127.0.0.1:40666").unwrap(),
+                token: None,
+            }
+        }
+    }
+
+    impl FromStr for Config {
+        type Err = ConfigError;
+
+        fn from_str(s: &str) -> Result<Self, ConfigError> {
+            let endpoint = Url::parse(s).map_err(|_| ConfigError)?;
+
+            Ok(Config {
+                endpoint,
+                token: None,
+            })
+        }
+    }
+
+    #[derive(Clone)]
+    pub struct Database {
+        config: Config,
+        client: ClientWrapper,
+    }
+
+    impl PartialEq for Database {
+        fn eq(&self, other: &Self) -> bool {
+            self.config == other.config
+        }
+    }
+
+    impl Debug for Database {
+        fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+            write!(f, "Http::Database({:?})", self.config)
+        }
+    }
+
+    impl Database {
+        /// Construct a pooled Sqlite database. The `capacity` sets the number
+        /// of pooled connections.
+        ///
+        /// # Example
+        ///
+        /// ```no_run
+        /// # use ncubed::db::http;
+        /// # #[tokio::main]
+        /// # async fn main () {
+        /// let config = "http://example.org".parse::<http::Config>().unwrap();
+        /// let db = http::Database::new(config);
+        /// // Run a query on the connection object.
+        /// # }
+        /// ```
+        pub fn new(config: Config) -> Self {
+            let client = Client::new();
+
+            Self {
+                client: ClientWrapper::new(client),
+                config,
+            }
+        }
+
+        pub async fn execute<T>(&self, _req: Request<T>) -> Result<T, ConfigError> {
+            todo!()
+        }
+    }
+
+    #[derive(Debug, Clone)]
+    pub struct ClientWrapper {
+        client: Client<HttpConnector, Body>,
+    }
+
+    impl ClientWrapper {
+        pub(crate) fn new(client: Client<HttpConnector, Body>) -> Self {
+            Self { client }
+        }
+    }
+
+    impl Deref for ClientWrapper {
+        type Target = Client<HttpConnector, Body>;
+        fn deref(&self) -> &Client<HttpConnector, Body> {
+            &self.client
+        }
+    }
+
+    impl DerefMut for ClientWrapper {
+        fn deref_mut(&mut self) -> &mut Client<HttpConnector, Body> {
+            &mut self.client
         }
     }
 }

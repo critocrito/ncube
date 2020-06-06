@@ -15,6 +15,7 @@ mod embedded {
 pub(crate) fn config_store(wrapped_db: Database) -> impl ConfigStore {
     match wrapped_db {
         Database::Sqlite(db) => ConfigStoreSqlite { db },
+        Database::Http(_client) => todo!(),
     }
 }
 

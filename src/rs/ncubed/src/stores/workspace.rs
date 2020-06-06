@@ -10,6 +10,7 @@ use crate::errors::StoreError;
 pub(crate) fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
     match wrapped_db {
         Database::Sqlite(db) => WorkspaceStoreSqlite { db },
+        Database::Http(_client) => todo!(),
     }
 }
 

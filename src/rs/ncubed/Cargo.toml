@@ -20,6 +20,8 @@ xactor = { git = "https://github.com/critocrito/xactor.git", branch = "tokio-run
 once_cell = "1.3.1"
 fnv = "1.0.6"
 warp = "0.2.2"
+hyper = "0.13.6"
+url = "2.1.1"
 clap = "3.0.0-beta.1"
 directories = "2.0.2"
 semval = "0.1.3"
