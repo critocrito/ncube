@@ -1,12 +1,14 @@
 use anyhow;
 use thiserror::Error;
 
-pub use crate::db::sqlite::ConfigError;
+pub use crate::db::{http, sqlite};
 
 #[derive(Error, Debug)]
 pub enum StoreError {
     #[error(transparent)]
     SqliteConfig(#[from] crate::db::sqlite::ConfigError),
+    #[error(transparent)]
+    HttpConfig(#[from] crate::db::http::Error),
     #[error(transparent)]
     SqliteDatabase(#[from] rusqlite::Error),
     #[error(transparent)]
@@ -42,9 +44,9 @@ impl From<HostError> for warp::Rejection {
 #[derive(Error, Debug)]
 pub enum ActorError {
     #[error(transparent)]
-    Config(#[from] crate::db::sqlite::ConfigError),
+    SqliteDatabase(#[from] crate::db::sqlite::ConfigError),
     #[error(transparent)]
-    ConfigHttp(#[from] crate::db::http::ConfigError),
+    HttpDatabase(#[from] crate::db::http::Error),
     #[error("The underlying store failed.: {0}")]
     Store(#[from] StoreError),
     #[error("The host gave an error: {0}")]
@@ -97,8 +99,8 @@ impl From<ActorError> for HandlerError {
             },
             ActorError::Invalid(msg) => HandlerError::Invalid(msg),
             ActorError::Host(err) => HandlerError::Host(err),
-            ActorError::Config(err) => HandlerError::Host(err.to_string()),
-            ActorError::ConfigHttp(err) => HandlerError::Host(err.to_string()),
+            ActorError::SqliteDatabase(err) => HandlerError::Host(err.to_string()),
+            ActorError::HttpDatabase(err) => HandlerError::Host(err.to_string()),
         }
     }
 }

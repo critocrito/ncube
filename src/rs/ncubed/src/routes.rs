@@ -1,4 +1,3 @@
-use serde::{Serialize, Serializer};
 use std::convert::Infallible;
 use tracing::{error, info, instrument};
 use warp::{
@@ -7,93 +6,7 @@ use warp::{
 };
 
 use crate::errors::{HandlerError, HostError};
-
-#[derive(Debug)]
-struct SuccessStatus;
-
-impl Serialize for SuccessStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str("success")
-    }
-}
-
-#[derive(Debug)]
-struct ErrorStatus;
-
-impl Serialize for ErrorStatus {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_str("error")
-    }
-}
-
-#[derive(Debug, Serialize)]
-struct SuccessResponse<T>
-where
-    T: Serialize,
-{
-    status: SuccessStatus,
-    data: T,
-}
-
-impl<T> SuccessResponse<T>
-where
-    T: Serialize,
-{
-    fn new(data: T) -> Self {
-        Self {
-            status: SuccessStatus,
-            data,
-        }
-    }
-}
-
-#[derive(Debug, Serialize)]
-struct ErrorResponse {
-    status: ErrorStatus,
-    code: u16,
-    errors: String,
-}
-
-impl ErrorResponse {
-    fn new(code: StatusCode, errors: &str) -> Self {
-        Self {
-            status: ErrorStatus,
-            code: code.as_u16(),
-            errors: errors.into(),
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn http_error_response_envelope() {
-        let response = ErrorResponse::new(StatusCode::BAD_REQUEST, "I am an error!");
-
-        let expected = "{\"status\":\"error\",\"code\":400,\"errors\":\"I am an error!\"}";
-        let result = serde_json::to_string(&response).unwrap();
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn http_success_response_envelope() {
-        let response = SuccessResponse::new("I am data!");
-
-        let expected = "{\"status\":\"success\",\"data\":\"I am data!\"}";
-        let result = serde_json::to_string(&response).unwrap();
-
-        assert_eq!(result, expected);
-    }
-}
+use crate::http::{ErrorResponse, SuccessResponse};
 
 #[instrument]
 pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
