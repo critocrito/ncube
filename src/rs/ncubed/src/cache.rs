@@ -16,8 +16,7 @@ use crate::db::Database;
 /// let cache = cache::DatabaseCache::new();
 ///
 /// let url = "sqlite://:memory:";
-/// let cfg = url.parse::<sqlite::Config>().unwrap();
-/// let db = sqlite::Database::new(cfg, 1);
+/// let db = sqlite::Database::from_str(url, 1).unwrap();
 ///
 /// assert!(cache.get(url).is_none());
 ///
@@ -95,10 +94,8 @@ mod tests {
     fn database_cache_for_sqlite_database_types() {
         let url1 = "sqlite://:memory:";
         let url2 = "sqlite://testdb";
-        let cfg1 = url1.parse::<sqlite::Config>().unwrap();
-        let cfg2 = url2.parse::<sqlite::Config>().unwrap();
-        let db1 = sqlite::Database::new(cfg1, 2);
-        let db2 = sqlite::Database::new(cfg2, 2);
+        let db1 = sqlite::Database::from_str(&url1, 2).unwrap();
+        let db2 = sqlite::Database::from_str(&url2, 2).unwrap();
         let cache = DatabaseCache::new();
 
         assert!(cache.get(url1).is_none());
@@ -116,8 +113,7 @@ mod tests {
     #[test]
     fn database_cache_for_sqlite_database_tests_existence() {
         let url = "sqlite://:memory:";
-        let cfg = url.parse::<sqlite::Config>().unwrap();
-        let db = sqlite::Database::new(cfg, 2);
+        let db = sqlite::Database::from_str(&url, 2).unwrap();
         let cache = DatabaseCache::new();
 
         assert_eq!(cache.has(url), false);

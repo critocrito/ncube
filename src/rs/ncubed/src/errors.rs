@@ -6,13 +6,17 @@ pub use crate::db::{http, sqlite};
 #[derive(Error, Debug)]
 pub enum StoreError {
     #[error(transparent)]
-    SqliteConfig(#[from] crate::db::sqlite::ConfigError),
-    #[error(transparent)]
-    HttpConfig(#[from] crate::db::http::Error),
-    #[error(transparent)]
-    SqliteDatabase(#[from] rusqlite::Error),
+    Sqlite(#[from] rusqlite::Error),
     #[error(transparent)]
     SqlitePool(#[from] deadpool::managed::PoolError<rusqlite::Error>),
+    #[error(transparent)]
+    SqliteConfig(#[from] crate::db::sqlite::SqliteConfigError),
+    #[error(transparent)]
+    Http(#[from] hyper::error::Error),
+    #[error(transparent)]
+    Resp(#[from] serde_json::error::Error),
+    #[error(transparent)]
+    HttpConfig(#[from] crate::db::http::HttpConfigError),
     #[error(transparent)]
     Runtime(#[from] tokio::task::JoinError),
     #[error(transparent)]
@@ -43,10 +47,6 @@ impl From<HostError> for warp::Rejection {
 
 #[derive(Error, Debug)]
 pub enum ActorError {
-    #[error(transparent)]
-    SqliteDatabase(#[from] crate::db::sqlite::ConfigError),
-    #[error(transparent)]
-    HttpDatabase(#[from] crate::db::http::Error),
     #[error("The underlying store failed.: {0}")]
     Store(#[from] StoreError),
     #[error("The host gave an error: {0}")]
@@ -99,8 +99,6 @@ impl From<ActorError> for HandlerError {
             },
             ActorError::Invalid(msg) => HandlerError::Invalid(msg),
             ActorError::Host(err) => HandlerError::Host(err),
-            ActorError::SqliteDatabase(err) => HandlerError::Host(err.to_string()),
-            ActorError::HttpDatabase(err) => HandlerError::Host(err.to_string()),
         }
     }
 }

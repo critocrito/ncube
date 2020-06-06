@@ -14,10 +14,6 @@ pub(crate) fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
     }
 }
 
-pub(crate) fn workspace_store2(db: sqlite::Database) -> impl WorkspaceStore {
-    WorkspaceStoreSqlite { db }
-}
-
 #[async_trait]
 pub(crate) trait WorkspaceStore {
     async fn exists(&self, slug: &str) -> Result<bool, StoreError>;

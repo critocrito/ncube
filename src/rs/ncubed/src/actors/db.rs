@@ -81,17 +81,13 @@ impl Handler<LookupDatabase> for DatabaseActor {
 
         let db = match workspace.database {
             WorkspaceDatabase::Sqlite { .. } => {
-                let cfg = connection_string
-                    .parse::<sqlite::Config>()
+                let db = sqlite::Database::from_str(&connection_string, 5)
                     .map_err(|e| ActorError::Store(StoreError::SqliteConfig(e)))?;
-                let db = sqlite::Database::new(cfg, 5);
                 Database::Sqlite(db)
             }
             WorkspaceDatabase::Http { .. } => {
-                let cfg = connection_string
-                    .parse::<http::Config>()
+                let db = http::Database::from_str(&connection_string)
                     .map_err(|e| ActorError::Store(StoreError::HttpConfig(e)))?;
-                let db = http::Database::new(cfg);
                 Database::Http(db)
             }
         };
