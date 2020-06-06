@@ -4,11 +4,14 @@ use ncube_data::Account;
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 
-use crate::db::sqlite;
+use crate::db::{sqlite, Database};
 use crate::errors::StoreError;
 
-pub(crate) fn account_store(db: sqlite::Database) -> impl AccountStore {
-    AccountStoreSqlite { db }
+pub(crate) fn account_store(wrapped_db: Database) -> impl AccountStore {
+    match wrapped_db {
+        Database::Sqlite(db) => AccountStoreSqlite { db },
+        Database::Http(_client) => todo!(),
+    }
 }
 
 #[async_trait]

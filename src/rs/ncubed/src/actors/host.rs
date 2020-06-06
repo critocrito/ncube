@@ -5,20 +5,20 @@ use xactor::{message, Actor, Context, Handler, Message};
 
 use crate::actors::task::{SetupWorkspace, TaskActor};
 use crate::db::{sqlite, Database};
-use crate::errors::ActorError;
+use crate::errors::{ActorError, StoreError};
 use crate::fs::expand_tilde;
 use crate::registry::Registry;
 use crate::stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
 use crate::types::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 
 pub(crate) struct HostActor {
-    db: sqlite::Database,
+    db: Database,
 }
 
 #[async_trait]
 impl Actor for HostActor {
     async fn started(&mut self, _ctx: &Context<Self>) {
-        let store = config_store(Database::Sqlite(self.db.clone()));
+        let store = config_store(self.db.clone());
         store.upgrade().await.unwrap();
         store.init().await.unwrap();
     }
@@ -27,15 +27,17 @@ impl Actor for HostActor {
 impl Registry for HostActor {}
 
 impl HostActor {
-    pub fn new(host_db: &str) -> Result<Self, ActorError> {
-        let config = host_db.parse::<sqlite::Config>()?;
-        let db = sqlite::Database::new(config, 1);
+    pub fn new(connection_str: &str) -> Result<Self, ActorError> {
+        let db = sqlite::Database::from_str(&connection_str, 1)
+            .map_err(|e| ActorError::Store(StoreError::SqliteConfig(e)))?;
 
-        Ok(Self { db })
+        Ok(Self {
+            db: Database::Sqlite(db),
+        })
     }
 
     async fn get_setting(&self, name: &str) -> Result<Option<ConfigSetting>, ActorError> {
-        let store = config_store(Database::Sqlite(self.db.clone()));
+        let store = config_store(self.db.clone());
         let config = store.show().await?;
         let setting = config.into_iter().find(|setting| {
             let comparator: String = name.into();
@@ -49,7 +51,7 @@ impl HostActor {
     }
 }
 
-#[message(result = "Result<sqlite::Database, ActorError>")]
+#[message(result = "Result<Database, ActorError>")]
 #[derive(Debug)]
 pub(crate) struct RequirePool;
 
@@ -140,7 +142,7 @@ impl Handler<RequirePool> for HostActor {
         &mut self,
         _ctx: &Context<Self>,
         _msg: RequirePool,
-    ) -> Result<sqlite::Database, ActorError> {
+    ) -> Result<Database, ActorError> {
         let db = self.db.clone();
 
         Ok(db)
@@ -154,7 +156,7 @@ impl Handler<IsBootstrapped> for HostActor {
         _ctx: &Context<Self>,
         _: IsBootstrapped,
     ) -> Result<bool, ActorError> {
-        let store = config_store(Database::Sqlite(self.db.clone()));
+        let store = config_store(self.db.clone());
         let is_bootstrapped = store.is_bootstrapped().await?;
         Ok(is_bootstrapped)
     }
@@ -167,7 +169,7 @@ impl Handler<ShowConfig> for HostActor {
         _ctx: &Context<Self>,
         _: ShowConfig,
     ) -> Result<NcubeConfig, ActorError> {
-        let store = config_store(Database::Sqlite(self.db.clone()));
+        let store = config_store(self.db.clone());
         let config = store.show().await?;
         Ok(config)
     }
@@ -191,7 +193,7 @@ impl Handler<ShowSecretKey> for HostActor {
 #[async_trait]
 impl Handler<InsertSetting> for HostActor {
     async fn handle(&mut self, _ctx: &Context<Self>, msg: InsertSetting) -> Result<(), ActorError> {
-        let store = config_store(Database::Sqlite(self.db.clone()));
+        let store = config_store(self.db.clone());
         store.insert(&msg.name, &msg.value).await?;
         Ok(())
     }
@@ -204,7 +206,7 @@ impl Handler<WorkspaceExists> for HostActor {
         _ctx: &Context<Self>,
         msg: WorkspaceExists,
     ) -> Result<bool, ActorError> {
-        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspace_store = workspace_store(self.db.clone());
         let exists = workspace_store.exists(&msg.slug).await?;
         Ok(exists)
     }
@@ -265,7 +267,7 @@ impl Handler<CreateWorkspace> for HostActor {
             DatabaseRequest::Http => location.clone(),
         };
 
-        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspace_store = workspace_store(self.db.clone());
 
         workspace_store
             .create(
@@ -295,7 +297,7 @@ impl Handler<ListWorkspaces> for HostActor {
         _ctx: &Context<Self>,
         _msg: ListWorkspaces,
     ) -> Result<Vec<Workspace>, ActorError> {
-        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspace_store = workspace_store(self.db.clone());
         let workspaces = workspace_store.list().await?;
         Ok(workspaces)
     }
@@ -308,7 +310,7 @@ impl Handler<ShowWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: ShowWorkspace,
     ) -> Result<Workspace, ActorError> {
-        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspace_store = workspace_store(self.db.clone());
         let workspace = workspace_store.show_by_slug(&msg.slug).await?;
         Ok(workspace)
     }
@@ -321,7 +323,7 @@ impl Handler<RemoveWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: RemoveWorkspace,
     ) -> Result<(), ActorError> {
-        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspace_store = workspace_store(self.db.clone());
         workspace_store.delete_by_slug(&msg.slug).await?;
 
         Ok(())
@@ -335,7 +337,7 @@ impl Handler<UpdateWorkspace> for HostActor {
         _ctx: &Context<Self>,
         msg: UpdateWorkspace,
     ) -> Result<(), ActorError> {
-        let workspace_store = workspace_store(Database::Sqlite(self.db.clone()));
+        let workspace_store = workspace_store(self.db.clone());
         workspace_store
             .update(&msg.current_slug, &msg.name, &msg.slug, &msg.description)
             .await?;

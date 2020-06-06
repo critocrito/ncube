@@ -6,7 +6,7 @@ use crate::actors::host::{HostActor, RequirePool, ShowSecretKey};
 use crate::crypto;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
-use crate::stores::{account_store, workspace_store2, AccountStore, WorkspaceStore};
+use crate::stores::{account_store, workspace_store, AccountStore, WorkspaceStore};
 use crate::types::{AccountRequest, JwtToken};
 
 #[instrument]
@@ -17,7 +17,7 @@ pub async fn create_account(
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store2(db.clone());
+    let workspace_store = workspace_store(db.clone());
     let account_store = account_store(db);
 
     let AccountRequest {
@@ -63,7 +63,7 @@ pub async fn login_account(
 
     let db = host_actor.call(RequirePool).await??;
 
-    let workspace_store = workspace_store2(db.clone());
+    let workspace_store = workspace_store(db.clone());
     let account_store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
@@ -86,7 +86,7 @@ pub async fn update_password(
 
     let db = host_actor.call(RequirePool).await??;
 
-    let workspace_store = workspace_store2(db.clone());
+    let workspace_store = workspace_store(db.clone());
     let account_store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
