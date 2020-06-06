@@ -5,6 +5,7 @@
 // I set all modules to pub in order to use them inside doc tests. This is not
 // intended to be a proper crate but rather a standalone application.
 pub mod actors;
+pub mod cache;
 pub mod crypto;
 pub mod db;
 pub mod errors;
