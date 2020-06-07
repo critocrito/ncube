@@ -92,12 +92,14 @@ impl Handler<WorkspaceRootSetting> for HostActor {
         _ctx: &Context<Self>,
         _msg: WorkspaceRootSetting,
     ) -> Result<PathBuf, ActorError> {
-        let workspace_root = self
-            .workspace_root()
-            .await
-            .map(|setting| expand_tilde(setting.value).unwrap())?;
+        let workspace_root = self.workspace_root().await?;
+        let value = workspace_root
+            .value
+            .ok_or_else(|| ActorError::Invalid("signing failed".into()))?;
+        let expanded_root =
+            expand_tilde(value).ok_or_else(|| ActorError::Invalid("signing failed".into()))?;
 
-        Ok(workspace_root)
+        Ok(expanded_root)
     }
 }
 
@@ -185,6 +187,23 @@ impl Handler<Settings> for HostActor {
     ) -> Result<NcubeConfig, ActorError> {
         let store = config_store(self.db.clone());
         let config = store.show().await?;
+        Ok(config)
+    }
+}
+
+#[message(result = "Result<NcubeConfig, ActorError>")]
+#[derive(Debug)]
+pub(crate) struct AllSettings;
+
+#[async_trait]
+impl Handler<AllSettings> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &Context<Self>,
+        _: AllSettings,
+    ) -> Result<NcubeConfig, ActorError> {
+        let store = config_store(self.db.clone());
+        let config = store.show_all().await?;
         Ok(config)
     }
 }

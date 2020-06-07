@@ -35,8 +35,9 @@ impl NcubeEntity for Collection {}
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct ConfigSetting {
     pub name: String,
-    pub value: String,
+    pub value: Option<String>,
     pub required: bool,
+    pub restricted: bool,
     pub description: String,
 }
 

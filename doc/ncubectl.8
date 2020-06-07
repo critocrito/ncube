@@ -77,6 +77,20 @@ List all accounts that are associated to a workspace.
 Show all states for
 .Xr ncubed 1 .
 .El
+.It Cm get
+Show all configuration settings for
+.Xr ncubed 1 .
+.It Cm set Ar setting Ar value
+Set a configuration setting for
+.Xr ncubed 1 .
+.Pp
+.Bl -tag -width XXXXXXXXXXXX -compact
+.It Ar setting
+Specify the name of the setting to set.
+.It Ar value
+Provide a new value for this setting. If this filed is omitted the setting is
+unset instead.
+.El
 .It Cm reset Ar modifier
 Reset a configuration setting.
 .Ar modifier :

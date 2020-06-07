@@ -3,6 +3,7 @@ use clap::{App, AppSettings, Arg};
 pub(crate) mod create;
 pub(crate) mod list;
 pub(crate) mod reset;
+pub(crate) mod setting;
 
 const HELP: &'static str = "{about}
 
@@ -170,5 +171,32 @@ pub(crate) fn delete_cli() -> App<'static> {
                         .required(false)
                         .takes_value(false),
                 ),
+        )
+}
+
+pub(crate) fn get_cli() -> App<'static> {
+    App::new("get")
+        .setting(AppSettings::DisableVersion)
+        .about("Show configuration settings.")
+}
+
+pub(crate) fn set_cli() -> App<'static> {
+    App::new("set")
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .setting(AppSettings::DisableVersion)
+        .about("Set a configuration setting.")
+        .arg(
+            Arg::with_name("setting")
+                .value_name("setting")
+                .required(true)
+                .about("The name of configuration setting.")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("value")
+                .value_name("value")
+                .about("The new value of this configuration setting.")
+                .required(true)
+                .takes_value(true),
         )
 }

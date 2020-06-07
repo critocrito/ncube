@@ -11,6 +11,8 @@ const USAGE: &'static str = "ncubectl [-hV -d database -v]
     ncubectl account <workspace> <email>
     ncubectl connection <workspace> <email>
     ncubectl state [workspaces|accounts|settings|all]
+    ncubectl get
+    ncubectl set <setting> <value>
     ncubectl reset [secret]
     ncubectl delete workspace <workspace> [-y]
     ncubectl delete account <workspace> <email> [-y]
@@ -68,6 +70,8 @@ async fn main() {
         .subcommand(cmd::workspace_cli())
         .subcommand(cmd::account_cli())
         .subcommand(cmd::state_cli())
+        .subcommand(cmd::get_cli())
+        .subcommand(cmd::set_cli())
         .subcommand(cmd::reset_cli())
         .subcommand(cmd::connection_cli())
         .subcommand(cmd::delete_cli())
@@ -165,6 +169,15 @@ async fn main() {
             }
             _ => unreachable!(),
         },
+        ("get", Some(_)) => {
+            cmd::setting::get().await;
+        }
+        ("set", Some(set_matches)) => {
+            let setting = set_matches.value_of("setting").unwrap();
+            let value = set_matches.value_of("value").unwrap();
+
+            cmd::setting::set(&setting, &value).await;
+        }
         _ => unreachable!(),
     };
 }
