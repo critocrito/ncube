@@ -124,10 +124,10 @@ async fn main() {
             cmd::create::workspace(&workspace_name, database).await;
         }
         ("connection", Some(connection_matches)) => {
-            let email = connection_matches.value_of("email").unwrap();
             let workspace = connection_matches.value_of("workspace").unwrap();
+            let email = connection_matches.value_of("email").unwrap();
 
-            println!("Show connection details: {}/{}", email, workspace);
+            cmd::list::connection(&workspace, &email).await;
         }
         ("state", Some(state_matches)) => {
             let modifier = state_matches.value_of("modifier").unwrap_or("all");

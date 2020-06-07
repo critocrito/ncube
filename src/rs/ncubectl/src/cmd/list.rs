@@ -1,7 +1,21 @@
+use chrono::{DateTime, Utc};
 use ncubed::handlers;
 use prettytable::{cell, format::FormatBuilder, row, Table};
+use serde::Serialize;
+use serde_json;
+use std::io::{self, Write};
 
 use crate::fatal;
+
+#[derive(Debug, Serialize)]
+struct ConnectionOut {
+    workspace: String,
+    description: Option<String>,
+    email: String,
+    otp: Option<String>,
+    created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
+}
 
 pub(crate) async fn workspaces() {
     let workspaces = handlers::workspace::list_workspaces()
@@ -51,4 +65,27 @@ pub(crate) async fn accounts() {
         ]);
     }
     table.printstd();
+}
+
+pub(crate) async fn connection(workspace: &str, email: &str) {
+    let workspace = handlers::workspace::show_workspace(&workspace)
+        .await
+        .unwrap_or_else(|e| fatal!("failed to show workspace: {}", e.to_string()));
+
+    let account = handlers::account::show_account(&workspace.slug, &email)
+        .await
+        .unwrap_or_else(|e| fatal!("failed to show account: {}", e.to_string()));
+
+    let connection = ConnectionOut {
+        workspace: workspace.slug,
+        description: workspace.description,
+        email: account.email,
+        otp: account.otp,
+        created_at: account.created_at,
+        updated_at: account.updated_at,
+    };
+
+    let json = serde_json::to_string(&connection).unwrap();
+    let mut stdout = std::io::stdout();
+    stdout.write(json.as_bytes()).unwrap();
 }

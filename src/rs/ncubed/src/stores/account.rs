@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::Account;
 use rusqlite::{self, params, NO_PARAMS};
-use serde_rusqlite::{self, from_rows};
+use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 
 use crate::db::{sqlite, Database};
 use crate::errors::StoreError;
@@ -37,6 +37,7 @@ pub(crate) trait AccountStore {
         hash: &str,
         workspace_id: i32,
     ) -> Result<(), StoreError>;
+    async fn show(&self, email: &str, workspace_id: i32) -> Result<Account, StoreError>;
 }
 
 #[derive(Debug)]
@@ -133,5 +134,27 @@ impl AccountStore for AccountStoreSqlite {
         stmt.execute(params![&hash, &email, &workspace_id])?;
 
         Ok(())
+    }
+
+    async fn show(&self, email: &str, workspace_id: i32) -> Result<Account, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/account/show.sql"))?;
+        let columns = columns_from_statement(&stmt);
+        let rows = stmt.query_and_then(params![&email, workspace_id], |row| {
+            from_row_with_columns::<Account>(row, &columns)
+        })?;
+
+        let mut accounts: Vec<Account> = vec![];
+        for row in rows {
+            accounts.push(row?)
+        }
+
+        match accounts.first() {
+            Some(account) => Ok(account.to_owned()),
+            _ => Err(StoreError::NotFound(format!(
+                "Account {}/{}",
+                email, workspace_id
+            ))),
+        }
     }
 }

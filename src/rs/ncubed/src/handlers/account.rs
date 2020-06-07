@@ -124,3 +124,17 @@ pub async fn issue_token(
 
     Ok(JwtToken { token })
 }
+
+#[instrument]
+pub async fn show_account(workspace: &str, email: &str) -> Result<Account, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+    let account_store = account_store(db);
+
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
+    let accounts = account_store.show(&email, workspace.id).await?;
+
+    Ok(accounts)
+}
