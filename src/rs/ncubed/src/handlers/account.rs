@@ -2,7 +2,7 @@ use ncube_data::Account;
 use rand;
 use tracing::instrument;
 
-use crate::actors::host::{HostActor, RequirePool, ShowSecretKey};
+use crate::actors::host::{HostActor, RequirePool, SecretKeySetting};
 use crate::crypto;
 use crate::errors::HandlerError;
 use crate::registry::Registry;
@@ -115,7 +115,7 @@ pub async fn issue_token(
     }
 
     let mut host_actor = HostActor::from_registry().await.unwrap();
-    let key = host_actor.call(ShowSecretKey).await??;
+    let key = host_actor.call(SecretKeySetting).await??;
 
     let token = crypto::jwt_sign(&key.value, &email, &workspace)
         .map_err(|_| HandlerError::Invalid("signing failed".into()))?;
