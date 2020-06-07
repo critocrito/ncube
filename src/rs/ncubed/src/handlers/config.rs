@@ -1,9 +1,9 @@
-use ncube_data::NcubeConfig;
+use ncube_data::ConfigSetting;
 use rand::{self, rngs::StdRng, SeedableRng};
 use std::time::SystemTime;
 
 use crate::actors::{
-    host::{InsertSetting, IsBootstrapped, SecretKeySetting, Settings},
+    host::{AllSettings, InsertSetting, IsBootstrapped, SecretKeySetting, Settings},
     HostActor,
 };
 use crate::crypto::{gen_secret_key, mkpass};
@@ -18,7 +18,7 @@ pub async fn is_bootstrapped() -> Result<bool, HandlerError> {
     Ok(is_bootstrapped?)
 }
 
-pub async fn show_config() -> Result<NcubeConfig, HandlerError> {
+pub async fn show_config() -> Result<Vec<ConfigSetting>, HandlerError> {
     let mut actor = HostActor::from_registry().await.unwrap();
 
     if !is_bootstrapped().await? {
@@ -28,6 +28,21 @@ pub async fn show_config() -> Result<NcubeConfig, HandlerError> {
     }
 
     let result = actor.call(Settings).await?;
+    let config = result?;
+
+    Ok(config)
+}
+
+pub async fn show_config_all() -> Result<Vec<ConfigSetting>, HandlerError> {
+    let mut actor = HostActor::from_registry().await.unwrap();
+
+    if !is_bootstrapped().await? {
+        return Err(HandlerError::Invalid(
+            "Ncube requires initial bootstrapping.".into(),
+        ));
+    }
+
+    let result = actor.call(AllSettings).await?;
     let config = result?;
 
     Ok(config)
@@ -90,5 +105,7 @@ pub async fn insert_config_setting(name: &str, value: &str) -> Result<(), Handle
 pub async fn show_secret_key() -> Result<String, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
     let key = host_actor.call(SecretKeySetting).await??;
-    Ok(key.value)
+    Ok(key
+        .value
+        .ok_or_else(|| HandlerError::NotFound("no secret key".into()))?)
 }

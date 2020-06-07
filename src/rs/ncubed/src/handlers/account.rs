@@ -116,8 +116,10 @@ pub async fn issue_token(
 
     let mut host_actor = HostActor::from_registry().await.unwrap();
     let key = host_actor.call(SecretKeySetting).await??;
-
-    let token = crypto::jwt_sign(&key.value, &email, &workspace)
+    let value = key
+        .value
+        .ok_or_else(|| HandlerError::Invalid("signing failed".into()))?;
+    let token = crypto::jwt_sign(&value, &email, &workspace)
         .map_err(|_| HandlerError::Invalid("signing failed".into()))?;
 
     Ok(JwtToken { token })

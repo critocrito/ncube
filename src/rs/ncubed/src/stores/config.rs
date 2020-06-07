@@ -24,9 +24,11 @@ pub(crate) fn config_store(wrapped_db: Database) -> impl ConfigStore {
 pub(crate) trait ConfigStore {
     async fn init(&self) -> Result<(), StoreError>;
     async fn upgrade(&self) -> Result<(), StoreError>;
+    // FIXME: this method is deprecated and can be removed (with associated sql)
     async fn list_collections(&self) -> Result<Vec<Collection>, StoreError>;
     async fn is_bootstrapped(&self) -> Result<bool, StoreError>;
     async fn show(&self) -> Result<NcubeConfig, StoreError>;
+    async fn show_all(&self) -> Result<NcubeConfig, StoreError>;
     async fn insert(&self, name: &str, value: &str) -> Result<(), StoreError>;
 }
 
@@ -91,6 +93,21 @@ impl ConfigStore for ConfigStoreSqlite {
     async fn show(&self) -> Result<NcubeConfig, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare(include_str!("../sql/config/show.sql"))?;
+
+        let config_iter = from_rows::<ConfigSetting>(stmt.query(NO_PARAMS)?);
+
+        let mut ncube_config: NcubeConfig = vec![];
+        for setting in config_iter {
+            ncube_config.push(setting?);
+        }
+
+        Ok(ncube_config)
+    }
+
+    #[instrument]
+    async fn show_all(&self) -> Result<NcubeConfig, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare(include_str!("../sql/config/show_all.sql"))?;
 
         let config_iter = from_rows::<ConfigSetting>(stmt.query(NO_PARAMS)?);
 
