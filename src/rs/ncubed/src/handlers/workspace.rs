@@ -2,7 +2,7 @@ use ncube_data::Workspace;
 use tracing::{error, instrument};
 
 use crate::actors::{
-    host::{RequirePool, WorkspaceRoot},
+    host::{RequirePool, WorkspaceRootSetting},
     task::SetupWorkspace,
     HostActor, TaskActor,
 };
@@ -17,7 +17,7 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<(), Handler
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
-    let workspace_root = host_actor.call(WorkspaceRoot).await??;
+    let workspace_root = host_actor.call(WorkspaceRootSetting).await??;
     let workspace_store = workspace_store(db.clone());
 
     if let Ok(true) = workspace_store.exists(&slug).await {

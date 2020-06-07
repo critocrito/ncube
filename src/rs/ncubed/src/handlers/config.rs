@@ -3,7 +3,7 @@ use rand::{self, rngs::StdRng, SeedableRng};
 use std::time::SystemTime;
 
 use crate::actors::{
-    host::{InsertSetting, IsBootstrapped, ShowConfig, ShowSecretKey},
+    host::{InsertSetting, IsBootstrapped, SecretKeySetting, Settings},
     HostActor,
 };
 use crate::crypto::{gen_secret_key, mkpass};
@@ -27,7 +27,7 @@ pub async fn show_config() -> Result<NcubeConfig, HandlerError> {
         ));
     }
 
-    let result = actor.call(ShowConfig).await?;
+    let result = actor.call(Settings).await?;
     let config = result?;
 
     Ok(config)
@@ -89,6 +89,6 @@ pub async fn insert_config_setting(name: &str, value: &str) -> Result<(), Handle
 
 pub async fn show_secret_key() -> Result<String, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
-    let key = host_actor.call(ShowSecretKey).await??;
+    let key = host_actor.call(SecretKeySetting).await??;
     Ok(key.value)
 }

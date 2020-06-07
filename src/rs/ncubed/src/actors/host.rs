@@ -56,6 +56,12 @@ impl HostActor {
             .await?
             .ok_or_else(|| ActorError::Invalid("missing secret key".into()))
     }
+
+    pub async fn endpoint(&self) -> Result<ConfigSetting, ActorError> {
+        self.get_setting("endpoint")
+            .await?
+            .ok_or_else(|| ActorError::Invalid("missing http endpoint".into()))
+    }
 }
 
 #[message(result = "Result<Database, ActorError>")]
@@ -77,33 +83,52 @@ impl Handler<RequirePool> for HostActor {
 
 #[message(result = "Result<PathBuf, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct WorkspaceRoot;
+pub(crate) struct WorkspaceRootSetting;
 
 #[async_trait]
-impl Handler<WorkspaceRoot> for HostActor {
+impl Handler<WorkspaceRootSetting> for HostActor {
     async fn handle(
         &mut self,
         _ctx: &Context<Self>,
-        _msg: WorkspaceRoot,
+        _msg: WorkspaceRootSetting,
     ) -> Result<PathBuf, ActorError> {
-        let workspace_root = self.workspace_root().await?;
+        let workspace_root = self
+            .workspace_root()
+            .await
+            .map(|setting| expand_tilde(setting.value).unwrap())?;
 
-        Ok(expand_tilde(workspace_root.value).unwrap())
+        Ok(workspace_root)
     }
 }
 
 #[message(result = "Result<ConfigSetting, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct ShowSecretKey;
+pub(crate) struct SecretKeySetting;
 
 #[async_trait]
-impl Handler<ShowSecretKey> for HostActor {
+impl Handler<SecretKeySetting> for HostActor {
     async fn handle(
         &mut self,
         _ctx: &Context<Self>,
-        _msg: ShowSecretKey,
+        _msg: SecretKeySetting,
     ) -> Result<ConfigSetting, ActorError> {
         let secret_key = self.secret_key().await?;
+        Ok(secret_key)
+    }
+}
+
+#[message(result = "Result<ConfigSetting, ActorError>")]
+#[derive(Debug)]
+pub(crate) struct EndpointSetting;
+
+#[async_trait]
+impl Handler<EndpointSetting> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &Context<Self>,
+        _msg: EndpointSetting,
+    ) -> Result<ConfigSetting, ActorError> {
+        let secret_key = self.endpoint().await?;
         Ok(secret_key)
     }
 }
@@ -149,14 +174,14 @@ impl Handler<InsertSetting> for HostActor {
 
 #[message(result = "Result<NcubeConfig, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct ShowConfig;
+pub(crate) struct Settings;
 
 #[async_trait]
-impl Handler<ShowConfig> for HostActor {
+impl Handler<Settings> for HostActor {
     async fn handle(
         &mut self,
         _ctx: &Context<Self>,
-        _: ShowConfig,
+        _: Settings,
     ) -> Result<NcubeConfig, ActorError> {
         let store = config_store(self.db.clone());
         let config = store.show().await?;
