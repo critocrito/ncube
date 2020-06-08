@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_data::{Collection, ConfigSetting, NcubeConfig};
+use ncube_data::{ConfigSetting, NcubeConfig};
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 use std::fmt::Debug;
@@ -24,8 +24,6 @@ pub(crate) fn config_store(wrapped_db: Database) -> impl ConfigStore {
 pub(crate) trait ConfigStore {
     async fn init(&self) -> Result<(), StoreError>;
     async fn upgrade(&self) -> Result<(), StoreError>;
-    // FIXME: this method is deprecated and can be removed (with associated sql)
-    async fn list_collections(&self) -> Result<Vec<Collection>, StoreError>;
     async fn is_bootstrapped(&self) -> Result<bool, StoreError>;
     async fn show(&self) -> Result<NcubeConfig, StoreError>;
     async fn show_all(&self) -> Result<NcubeConfig, StoreError>;
@@ -56,21 +54,6 @@ impl ConfigStore for ConfigStoreSqlite {
         // happy.
         embedded::migrations::runner().run(&mut **conn)?;
         Ok(())
-    }
-
-    #[instrument]
-    async fn list_collections(&self) -> Result<Vec<Collection>, StoreError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare(include_str!("../sql/config/list_collections.sql"))?;
-
-        let collections_iter = from_rows::<Collection>(stmt.query(NO_PARAMS)?);
-
-        let mut collections: Vec<Collection> = vec![];
-        for collection in collections_iter {
-            collections.push(collection?);
-        }
-
-        Ok(collections)
     }
 
     #[instrument]
