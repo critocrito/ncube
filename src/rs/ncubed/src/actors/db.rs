@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use ncube_data::WorkspaceDatabase;
 use std::result::Result;
+use std::str::FromStr;
 use tracing::debug;
 use xactor::{message, Actor, Context, Handler};
 
@@ -45,6 +46,12 @@ impl Registry for DatabaseActor {}
 
 impl DatabaseActor {
     pub fn new() -> Self {
+        Default::default()
+    }
+}
+
+impl Default for DatabaseActor {
+    fn default() -> Self {
         let cache = DatabaseCache::new();
 
         Self { cache }
@@ -84,12 +91,12 @@ impl Handler<LookupDatabase> for DatabaseActor {
             WorkspaceDatabase::Sqlite { .. } => {
                 let db = sqlite::Database::from_str(&connection_string, 5)
                     .map_err(|e| ActorError::Store(StoreError::SqliteConfig(e)))?;
-                Database::Sqlite(db)
+                Database::Sqlite(Box::new(db))
             }
             WorkspaceDatabase::Http { .. } => {
                 let db = http::Database::from_str(&connection_string)
                     .map_err(|e| ActorError::Store(StoreError::HttpConfig(e)))?;
-                Database::Http(db)
+                Database::Http(Box::new(db))
             }
         };
 

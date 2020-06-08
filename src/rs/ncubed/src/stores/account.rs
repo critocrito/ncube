@@ -46,7 +46,7 @@ pub(crate) trait AccountStore {
 
 #[derive(Debug)]
 pub struct AccountStoreSqlite {
-    db: sqlite::Database,
+    db: Box<sqlite::Database>,
 }
 
 #[async_trait]

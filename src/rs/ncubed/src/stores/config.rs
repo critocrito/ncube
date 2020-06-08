@@ -32,7 +32,7 @@ pub(crate) trait ConfigStore {
 
 #[derive(Debug)]
 pub struct ConfigStoreSqlite {
-    db: sqlite::Database,
+    db: Box<sqlite::Database>,
 }
 
 #[async_trait]

@@ -2,9 +2,10 @@ use ncube_data::Workspace;
 use tracing::{error, instrument};
 
 use crate::actors::{
+    db::LookupDatabase,
     host::{RequirePool, WorkspaceRootSetting},
     task::SetupWorkspace,
-    HostActor, TaskActor,
+    DatabaseActor, HostActor, TaskActor,
 };
 use crate::errors::HandlerError;
 use crate::registry::Registry;
@@ -36,22 +37,26 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<Workspace, 
             .join(&workspace.slug())
             .to_string_lossy()
             .into_owned(),
-        WorkspaceKindRequest::Remote { endpoint } => endpoint.clone(),
+        WorkspaceKindRequest::Remote { endpoint, .. } => endpoint.clone(),
     };
 
     // Esnure that remote workspaces have a http database configured,
     let database = match workspace.database {
         DatabaseRequest::Sqlite => match &workspace.kind {
             WorkspaceKindRequest::Local => "sqlite",
-            _ => Err(HandlerError::Invalid(
-                "local workspaces don't work with a `http` database".into(),
-            ))?,
+            _ => {
+                return Err(HandlerError::Invalid(
+                    "local workspaces don't work with a `http` database".into(),
+                ))
+            }
         },
         DatabaseRequest::Http { .. } => match &workspace.kind {
             WorkspaceKindRequest::Remote { .. } => "http",
-            _ => Err(HandlerError::Invalid(
-                "remote workspaces require a `http` database".into(),
-            ))?,
+            _ => {
+                return Err(HandlerError::Invalid(
+                    "remote workspaces require a `http` database".into(),
+                ))
+            }
         },
     };
 
@@ -80,6 +85,15 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<Workspace, 
         let mut actor = TaskActor::from_registry().await.unwrap();
         actor.call(SetupWorkspace { location }).await??;
     }
+
+    let mut db_actor = DatabaseActor::from_registry().await.unwrap();
+    let workspace_db = db_actor
+        .call(LookupDatabase {
+            workspace: workspace.slug(),
+        })
+        .await??;
+
+    println!("{:?}", workspace_db);
 
     let workspace = workspace_store.show_by_slug(&slug).await?;
 

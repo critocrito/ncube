@@ -104,7 +104,7 @@ pub fn gen_symmetric_key<R: Rng>(mut rng: R) -> SecVec<u8> {
     SecVec::new(arr.to_vec())
 }
 
-pub fn aes_encrypt<R: Rng>(rng: R, key: &SecVec<u8>, plaintext: &Vec<u8>) -> String {
+pub fn aes_encrypt<R: Rng>(rng: R, key: &SecVec<u8>, plaintext: &[u8]) -> String {
     let iv = gen_nonce(rng);
     let cipher = Aes256Cbc::new_var(key.unsecure(), &iv).unwrap();
     let ciphertext = cipher.encrypt_vec(&plaintext);
@@ -114,7 +114,7 @@ pub fn aes_encrypt<R: Rng>(rng: R, key: &SecVec<u8>, plaintext: &Vec<u8>) -> Str
 }
 
 pub fn aes_decrypt(key: SecVec<u8>, ciphertext: &str) -> Result<Vec<u8>, HostError> {
-    let parts: Vec<&str> = ciphertext.split("$").take(3).collect();
+    let parts: Vec<&str> = ciphertext.split('$').take(3).collect();
     if parts.len() != 3 {
         return Err(HostError::AuthError);
     }

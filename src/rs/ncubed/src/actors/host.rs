@@ -31,7 +31,7 @@ impl HostActor {
             .map_err(|e| ActorError::Store(StoreError::SqliteConfig(e)))?;
 
         Ok(Self {
-            db: Database::Sqlite(db),
+            db: Database::Sqlite(Box::new(db)),
         })
     }
 

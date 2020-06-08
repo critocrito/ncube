@@ -37,9 +37,6 @@ impl Display for HttpConfigError {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct AuthToken(String);
-
-#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Config {
     pub(crate) endpoint: Url,
 }
@@ -94,16 +91,6 @@ impl Database {
     /// // Run a query on the connection object.
     /// # }
     /// ```
-    pub fn from_str(connection_string: &str) -> Result<Self, HttpConfigError> {
-        let config: Config = connection_string.parse::<Config>()?;
-        let client = Client::new();
-
-        Ok(Self {
-            client: ClientWrapper::new(client),
-            config,
-        })
-    }
-
     pub fn new(config: Config) -> Self {
         let client = Client::new();
 
@@ -203,6 +190,20 @@ impl Database {
         let data = serde_json::from_reader(body.reader())?;
 
         Ok(data)
+    }
+}
+
+impl FromStr for Database {
+    type Err = HttpConfigError;
+
+    fn from_str(connection_string: &str) -> Result<Self, HttpConfigError> {
+        let config: Config = connection_string.parse::<Config>()?;
+        let client = Client::new();
+
+        Ok(Self {
+            client: ClientWrapper::new(client),
+            config,
+        })
     }
 }
 
