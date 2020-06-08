@@ -381,10 +381,10 @@ pub(crate) mod user {
         request: UpdatePasswordRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
         // FIXME: Missing authorization whether request is allowed to update the password.
-        handlers::update_password(&workspace, &request.email, &request.password).await?;
+        let enc_password =
+            handlers::update_password(&workspace, &request.email, &request.password).await?;
 
-        // FIXME: Set location header
-        Ok(warp::reply())
+        Ok(warp::reply::json(&enc_password))
     }
 
     pub(crate) fn routes(
@@ -398,7 +398,6 @@ pub(crate) mod user {
                 .and(warp::path!("workspaces" / String / "account"))
                 .and(warp::put())
                 .and(warp::body::json())
-                .and_then(update)
-                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
+                .and_then(update))
     }
 }

@@ -1,11 +1,19 @@
+use aes::Aes256;
 use argon2::{self, Config};
+use base64::{decode, encode};
+use block_modes::block_padding::Iso7816;
+use block_modes::BlockMode;
+use block_modes::Cbc;
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use hmac::{Hmac, Mac};
 use jwt::{RegisteredClaims, SignWithKey, VerifyWithKey};
 use rand::Rng;
+use secstr::SecVec;
 use sha2::{Digest, Sha256, Sha512};
 
 use crate::errors::HostError;
+
+type Aes256Cbc = Cbc<Aes256, Iso7816>;
 
 const CHARSET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ\
                          abcdefghijklmnopqrstuvwxyz\
@@ -84,6 +92,42 @@ pub fn gen_secret_key(seed: &str) -> String {
     hex_digest
 }
 
+pub fn gen_nonce<R: Rng>(mut rng: R) -> [u8; 16] {
+    let mut arr = [0u8; 16];
+    rng.fill(&mut arr);
+    arr
+}
+
+pub fn gen_symmetric_key<R: Rng>(mut rng: R) -> SecVec<u8> {
+    let mut arr = [0u8; 32];
+    rng.fill(&mut arr);
+    SecVec::new(arr.to_vec())
+}
+
+pub fn aes_encrypt<R: Rng>(rng: R, key: &SecVec<u8>, plaintext: &Vec<u8>) -> String {
+    let iv = gen_nonce(rng);
+    let cipher = Aes256Cbc::new_var(key.unsecure(), &iv).unwrap();
+    let ciphertext = cipher.encrypt_vec(&plaintext);
+    let encoded_ciphertext = encode(ciphertext);
+    let encoded_iv = encode(iv);
+    format!("aes256cbc${}${}", encoded_iv, encoded_ciphertext)
+}
+
+pub fn aes_decrypt(key: SecVec<u8>, ciphertext: &str) -> Result<Vec<u8>, HostError> {
+    let parts: Vec<&str> = ciphertext.split("$").take(3).collect();
+    if parts.len() != 3 {
+        return Err(HostError::AuthError);
+    }
+    let (encoded_iv, encoded_ciphertext) = (parts[1], parts[2]);
+    let iv = decode(encoded_iv).map_err(|_| HostError::AuthError)?;
+    let ciphertext = decode(encoded_ciphertext).map_err(|_| HostError::AuthError)?;
+    let cipher = Aes256Cbc::new_var(key.unsecure(), &iv).unwrap();
+    let decrypted_ciphertext = cipher
+        .decrypt_vec(&ciphertext)
+        .map_err(|_| HostError::AuthError)?;
+    Ok(decrypted_ciphertext)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -93,6 +137,15 @@ mod tests {
     const PASSWORD: &str = "abcd";
     const PASSWORD_HASH: &str = "$argon2i$v=19$m=4096,t=3,p=1$AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8$t5fJGEKEOeaHTS8JrGC9GViRlfI1PeGscNHFYN4NCFE";
     const SHA256SUM: &str = "37b9403cf88cc2639d0a118d757a43a0ff6d4871823707ab6a8bb56bc68e8e79";
+
+    #[test]
+    fn aes_encrypt_decrypt() {
+        let key = gen_symmetric_key(StepRng::new(0, 1));
+        let plaintext: Vec<u8> = b"This is a secret I want to keep".to_vec();
+        let ciphertext = aes_encrypt(StepRng::new(0, 1), key.clone(), plaintext.clone());
+        let decrypted_text = aes_decrypt(key, &ciphertext).unwrap();
+        assert_eq!(plaintext, decrypted_text);
+    }
 
     #[test]
     fn generate_random_passwords() {

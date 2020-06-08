@@ -20,8 +20,6 @@ pub(crate) async fn account(workspace: &str, email: &str) {
     )
     .await
     .unwrap_or_else(|e| fatal!("cannot create account: {}", e.to_string()));
-
-    print!("{}", password);
 }
 
 pub(crate) async fn workspace(name: &str, database: DatabaseRequest) {

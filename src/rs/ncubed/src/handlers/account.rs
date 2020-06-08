@@ -20,11 +20,14 @@ pub async fn create_account(
     let workspace_store = workspace_store(db.clone());
     let account_store = account_store(db);
 
+    // During account creation the password serves as the OTP password.
     let AccountRequest {
         email, password, ..
     } = account_request;
-    let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
-
+    let rng = rand::thread_rng();
+    let hash = crypto::hash(rng, password.as_bytes());
+    let key = crypto::gen_symmetric_key(rng);
+    let otp = crypto::aes_encrypt(rng, &key, &password.as_bytes().to_vec());
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
     if account_store.exists(&email, workspace.id).await? {
@@ -33,9 +36,8 @@ pub async fn create_account(
         ));
     }
 
-    // FIXME: I'm not setting a name for the account yet.
     account_store
-        .create(&email, &hash, &password, None, workspace.id)
+        .create(&email, &hash, &otp, key, None, workspace.id)
         .await?;
 
     Ok(())
@@ -73,7 +75,15 @@ pub async fn login_account(
         .await?
         .ok_or_else(|| HandlerError::NotAllowed("login failed".into()))?;
 
-    Ok(crypto::verify(&hash, password.as_bytes()))
+    let key = account_store
+        .show_key(&email, workspace.id)
+        .await
+        .map_err(|_| HandlerError::NotAllowed("login failed".into()))?;
+
+    let decrypted_password = crypto::aes_decrypt(key, password)
+        .map_err(|_| HandlerError::NotAllowed("login failed".into()))?;
+
+    Ok(crypto::verify(&hash, &decrypted_password))
 }
 
 #[instrument]
@@ -81,7 +91,7 @@ pub async fn update_password(
     workspace: &str,
     email: &str,
     password: &str,
-) -> Result<(), HandlerError> {
+) -> Result<String, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -90,14 +100,16 @@ pub async fn update_password(
     let account_store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
-
     let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
+    let key = crypto::gen_symmetric_key(rand::thread_rng());
 
     account_store
-        .update_password(&email, &hash, workspace.id)
+        .update_password(&email, &hash, &key, workspace.id)
         .await?;
 
-    Ok(())
+    let new_password = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
+
+    Ok(new_password)
 }
 
 #[instrument]

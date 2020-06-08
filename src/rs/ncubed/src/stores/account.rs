@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::Account;
 use rusqlite::{self, params, NO_PARAMS};
+use secstr::SecVec;
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 
 use crate::db::{sqlite, Database};
@@ -22,6 +23,7 @@ pub(crate) trait AccountStore {
         email: &str,
         password: &str,
         otp: &str,
+        key: SecVec<u8>,
         name: Option<String>,
         workspace_id: i32,
     ) -> Result<(), StoreError>;
@@ -31,10 +33,12 @@ pub(crate) trait AccountStore {
         email: &str,
         workspace_id: i32,
     ) -> Result<Option<String>, StoreError>;
+    async fn show_key(&self, email: &str, workspace_id: i32) -> Result<SecVec<u8>, StoreError>;
     async fn update_password(
         &self,
         email: &str,
         hash: &str,
+        key: &SecVec<u8>,
         workspace_id: i32,
     ) -> Result<(), StoreError>;
     async fn show(&self, email: &str, workspace_id: i32) -> Result<Account, StoreError>;
@@ -64,6 +68,7 @@ impl AccountStore for AccountStoreSqlite {
         email: &str,
         password: &str,
         otp: &str,
+        key: SecVec<u8>,
         name: Option<String>,
         workspace_id: i32,
     ) -> Result<(), StoreError> {
@@ -77,6 +82,7 @@ impl AccountStore for AccountStoreSqlite {
             &email,
             &password,
             &otp,
+            &key.unsecure(),
             &name,
             &now.to_rfc3339(),
             &now.to_rfc3339()
@@ -122,16 +128,36 @@ impl AccountStore for AccountStoreSqlite {
         Ok(hash)
     }
 
+    async fn show_key(&self, email: &str, workspace_id: i32) -> Result<SecVec<u8>, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/account/show_key.sql"))?;
+
+        let key = stmt
+            .query_row(params![&email, workspace_id], |row| row.get(0))
+            .ok()
+            .ok_or_else(|| StoreError::NotFound("couldn't retrieve symmetric key".into()))?;
+
+        Ok(SecVec::new(key))
+    }
+
     async fn update_password(
         &self,
         email: &str,
         hash: &str,
+        key: &SecVec<u8>,
         workspace_id: i32,
     ) -> Result<(), StoreError> {
+        let now = Utc::now();
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/update_password.sql"))?;
 
-        stmt.execute(params![&hash, &email, &workspace_id])?;
+        stmt.execute(params![
+            &hash,
+            &key.unsecure(),
+            &now.to_rfc3339(),
+            &email,
+            &workspace_id
+        ])?;
 
         Ok(())
     }

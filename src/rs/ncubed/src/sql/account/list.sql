@@ -4,10 +4,8 @@ SELECT
   acc.name AS name,
   acc.created_at AS created_at,
   acc.updated_at AS updated_at,
-  CASE
-    WHEN acc.updated_at >= datetime('now', '-2 days', 'UTC') THEN acc.otp
-    ELSE NULL
-  END AS otp,
+  acc.is_otp AS is_otp,
+  acc.otp AS otp,
   w.slug AS workspace
 FROM access a
   LEFT JOIN account acc ON a.account = acc.id
