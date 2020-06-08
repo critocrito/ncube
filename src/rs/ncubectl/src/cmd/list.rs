@@ -44,24 +44,25 @@ pub(crate) async fn accounts() {
 
     table.add_row(row![
         "EMAIL",
+        "WORKSPACE",
         "CREATED_AT",
         "UPDATED_AT",
-        "OTP",
-        "WORKSPACE"
+        "OTP"
     ]);
 
     for account in accounts {
-        let otp = match account.otp {
-            Some(k) => k,
-            None => "".to_string(),
+        let otp = if account.is_otp && handlers::account::is_valid_otp(account.updated_at) {
+            account.otp.unwrap_or("".to_string())
+        } else {
+            "".to_string()
         };
 
         table.add_row(row![
             account.email,
-            account.created_at,
-            account.updated_at,
-            otp,
             account.workspace,
+            account.created_at.to_rfc3339(),
+            account.updated_at.to_rfc3339(),
+            otp,
         ]);
     }
     table.printstd();

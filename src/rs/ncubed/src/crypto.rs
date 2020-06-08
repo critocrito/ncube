@@ -142,7 +142,7 @@ mod tests {
     fn aes_encrypt_decrypt() {
         let key = gen_symmetric_key(StepRng::new(0, 1));
         let plaintext: Vec<u8> = b"This is a secret I want to keep".to_vec();
-        let ciphertext = aes_encrypt(StepRng::new(0, 1), key.clone(), plaintext.clone());
+        let ciphertext = aes_encrypt(StepRng::new(0, 1), &key, &plaintext);
         let decrypted_text = aes_decrypt(key, &ciphertext).unwrap();
         assert_eq!(plaintext, decrypted_text);
     }
