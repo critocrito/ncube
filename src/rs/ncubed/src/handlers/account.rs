@@ -40,7 +40,7 @@ pub async fn create_account(
         ));
     }
 
-    let password = crypto::mkpass(rand::thread_rng());
+    let password = crypto::gen_secret_key(rand::thread_rng());
     let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
     let key = crypto::gen_symmetric_key(rand::thread_rng());
     let otp = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());

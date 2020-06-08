@@ -121,8 +121,8 @@ pub(crate) async fn connection(workspace: &str, email: &str) {
 
 pub(crate) async fn reset_secret() {
     let rng = rand::thread_rng();
-    let seed = crypto::mkpass(rng);
-    let key = crypto::gen_secret_key(&seed);
+    let key = crypto::gen_secret_key(rng);
+
     handlers::config::insert_config_setting("secret_key", &key)
         .await
         .unwrap_or_else(|e| fatal!("failed to reset secret key: {}", e.to_string()));
