@@ -43,7 +43,6 @@ pub struct SourceRequest {
 #[derive(Debug)]
 pub struct AccountRequest {
     pub email: String,
-    pub password: String,
     pub name: Option<String>,
 }
 
