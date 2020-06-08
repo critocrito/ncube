@@ -3,7 +3,7 @@ use ncubed::handlers;
 use prettytable::{cell, format::FormatBuilder, row, Table};
 use serde::Serialize;
 use serde_json;
-use std::io::{self, Write};
+use std::io::Write;
 
 use crate::fatal;
 

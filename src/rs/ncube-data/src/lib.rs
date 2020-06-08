@@ -260,4 +260,5 @@ pub struct Account {
     pub updated_at: DateTime<Utc>,
     pub name: Option<String>,
     pub otp: Option<String>,
+    pub is_otp: bool,
 }
