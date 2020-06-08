@@ -4,9 +4,9 @@ use tracing::{error, instrument};
 use crate::actors::{
     db::{DatabaseActor, LookupDatabase},
     host::{HostActor, RequirePool},
+    Registry,
 };
 use crate::errors::HandlerError;
-use crate::registry::Registry;
 use crate::stores::{source_store, workspace_store, SourceStore, WorkspaceStore};
 use crate::types::SourceRequest;
 

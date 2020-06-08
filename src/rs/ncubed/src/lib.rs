@@ -5,14 +5,12 @@
 // I set all modules to pub in order to use them inside doc tests. This is not
 // intended to be a proper crate but rather a standalone application.
 pub mod actors;
-pub mod cache;
 pub mod crypto;
 pub mod db;
 pub mod errors;
 pub mod fs;
 pub mod handlers;
-pub(crate) mod http;
-pub mod registry;
+pub mod http;
 pub mod routes;
 pub mod stores;
 pub mod types;
@@ -20,8 +18,7 @@ pub mod types;
 use std::net::SocketAddr;
 use xactor::Actor;
 
-use self::actors::{DatabaseActor, HostActor, TaskActor};
-use self::registry::Registry;
+use self::actors::{DatabaseActor, HostActor, Registry, TaskActor};
 
 #[derive(Debug, Clone)]
 pub struct ApplicationConfig {

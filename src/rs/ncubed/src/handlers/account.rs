@@ -2,10 +2,12 @@ use chrono::{DateTime, Duration, Utc};
 use ncube_data::Account;
 use tracing::instrument;
 
-use crate::actors::host::{HostActor, RequirePool, SecretKeySetting};
+use crate::actors::{
+    host::{HostActor, RequirePool, SecretKeySetting},
+    Registry,
+};
 use crate::crypto;
 use crate::errors::HandlerError;
-use crate::registry::Registry;
 use crate::stores::{account_store, workspace_store, AccountStore, WorkspaceStore};
 use crate::types::{AccountRequest, JwtToken};
 

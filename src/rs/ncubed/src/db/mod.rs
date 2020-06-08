@@ -3,17 +3,23 @@ use std::fmt::Debug;
 use std::sync::{Mutex, RwLock};
 use tracing::{instrument, trace};
 
-use crate::db::Database;
+pub mod http;
+pub mod sqlite;
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Database {
+    Sqlite(Box<sqlite::Database>),
+    Http(Box<http::Database>),
+}
 
 /// Cache database connectors.
 ///
 /// # Example
 ///
 /// ```
-/// use ncubed::cache;
-/// use ncubed::{db, db::sqlite};
+/// use ncubed::{db::{self, DatabaseCache}, db::sqlite};
 ///
-/// let cache = cache::DatabaseCache::new();
+/// let cache = DatabaseCache::new();
 ///
 /// let url = "sqlite://:memory:";
 /// let db = sqlite::Database::from_str(url, 1).unwrap();

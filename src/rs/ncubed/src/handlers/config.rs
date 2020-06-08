@@ -4,11 +4,10 @@ use std::time::SystemTime;
 
 use crate::actors::{
     host::{AllSettings, InsertSetting, IsBootstrapped, SecretKeySetting, Settings},
-    HostActor,
+    HostActor, Registry,
 };
 use crate::crypto::{gen_secret_key, mkpass};
 use crate::errors::HandlerError;
-use crate::registry::Registry;
 
 pub async fn is_bootstrapped() -> Result<bool, HandlerError> {
     let mut actor = HostActor::from_registry().await.unwrap();
