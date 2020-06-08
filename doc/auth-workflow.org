@@ -1,0 +1,243 @@
+#+TITLE: Auth Workflow
+
+Communications between the local Ncube installation and any remote Ncube
+installation is restricted. Any request has to be authorized and authenticated.
+Operators of a remote Ncube installation can create accounts for a workspace and
+pass the connection details for those accounts to a user. Accounts are created
+using a special one time password (OTP) which can be used to update the account
+password upon creation. Those one time passwords expire after 48 hours.
+
+Passwords are stored on the remote Ncube installation using [[https://en.wikipedia.org/wiki/Argon2][Argon2]] password
+hashing. Each account has an additional key associated, which is used to encrypt
+the password using AES256CBC for storage on the local Ncube installation.
+
+* The JSON connection object
+
+The operator can provide special files that contain all needed data to connect a
+local Ncube installation to a remote Ncube installation. These connection files can be imported using the UI and simplify linking to a remote workspace. Connection objects contain the following fields:
+
+#+begin_src js
+{
+    "endpoint": "https://example.org",
+    "workspace": "some-workspace",
+    "description": "optionally a description of the workspace",
+    "email": "me@example.org",
+    "otp": "aes256$6DKBQtkjfXFvZnrbhozOUQ==$9wX5/XoLbCiN7fZhHu0qJPfsQsELZ9qn4+VJ+yIWkxo="
+}
+#+end_src
+
+#+RESULTS:
+
+* Account Create
+
+#+begin_src plantuml :file diagrams/auth-account-create.png
+  Operator -> RemoteNcube: create workspace
+  Operator -> RemoteNcube: create account for workspace
+  RemoteNcube -> HostDatabase: store otp, symmetric key and password (argon hash)
+  Operator -> RemoteNcube: show connection details
+  RemoteNcube -> Operator: json connection object (otp aes encrypted)
+  boundary AuthCreate
+  Operator -> AuthCreate: send json connection object using encrypted channel
+#+end_src
+
+#+RESULTS:
+[[file:diagrams/auth-account-create.png]]
+
+Account creation is a purely CLI process. The ~ncubectl~ command line tools is
+used to create accounts on server setups.
+
+#+begin_src shell
+ncubectl set endpoint https://example.org
+ncubectl workspace syrian-archive
+ncubectl account syrian-archive me@example.org
+ncubectl connection syrian-archive me@example.org
+#+end_src
+
+#+RESULTS:
+
+* Account Reset
+
+#+begin_src plantuml :file diagrams/auth-account-reset.png
+  Operator -> RemoteNcube: reset account
+  RemoteNcube -> HostDatabase: store otp, symmetric key and password (argon hash)
+  Operator -> RemoteNcube: show connection details
+  RemoteNcube -> Operator: json connection object (otp as argon hash)
+  boundary AuthReset
+  Operator -> AuthReset: send json connection object using encrypted channel
+#+end_src
+
+#+RESULTS:
+[[file:diagrams/auth-account-reset.png]]
+
+#+begin_src shell
+ncubectl reset account syrian-archive me@example.org
+ncubectl connection syrian-archive me@example.org
+#+end_src
+
+#+RESULTS:
+
+* Auth Login
+
+#+begin_src plantuml :file diagrams/auth-login.png
+  LocalNcube -> RemoteNcube: login using account password (aes encrypted)
+  RemoteNcube -> HostDatabase: decrypt user provided password using the aes symmetric key
+  RemoteNcube -> HostDatabase: verify decrypted password with password in database
+  RemoteNcube -> LocalNcube: provide jwt token
+#+end_src
+
+#+RESULTS:
+[[file:diagrams/auth-login.png]]
+
+
+* Auth Create
+
+#+begin_src plantuml :file diagrams/auth-create.png
+  boundary AccountCreate
+  AccountCreation -> User: provide json connection object
+  User -> UI: import json connection object
+  UI -> LocalNcube: create remote workspace
+  boundary UpdateHandshake
+  LocalNcube -> UpdateHandshake: use otp (aes encrypted) password
+#+end_src
+
+#+RESULTS:
+[[file:diagrams/auth-create.png]]
+
+#+begin_example
+BROWSE: http://127.0.0.1/link
+- Import ~connection.json~
+- Fill in name (req)
+- Fill in password & password-again (req)
+- Press 'Link to remote workspace'
+#+end_example
+
+The ~UI~ sends a HTTP call to ~LocalNcube~.
+
+#+begin_src restclient
+POST http://127.0.0.1:4066/workspaces
+Content-Type: application/json
+
+{
+  "name": "Syrian Archive",
+  "description": "A longer description of your workspace.",
+  "kind": "remote",
+  "endpoint": "https://example.org/workspaces/syrian-archive",
+  "database": "http",
+  "account": {
+    "email": "me@example.org",
+    "password": "new-pass",
+    "password_again": "new-pass",
+    "otp": "aes256cbc$otp-password"
+  }
+}
+#+end_src
+
+With this in place ~LocalNcube~ initiates a ~Reset Workflow~ and uses the ~otp~
+password as the account password.
+
+* Auth Reset
+
+#+begin_src plantuml :file diagrams/auth-reset.png
+  boundary AccountReset
+  AccountReset -> User: provide json connection object
+  User -> UI: import json connection object
+  UI -> LocalNcube: update workspace account
+  boundary UpdateHandshake
+  LocalNcube -> UpdateHandshake: use otp (aes encrypted) password
+#+end_src
+
+#+RESULTS:
+[[file:diagrams/auth-reset.png]]
+
+* Auth Update
+
+#+begin_src plantuml :file diagrams/auth-update.png
+  UI -> LocalNcube: update workspace account
+  boundary UpdateHandshake
+  LocalNcube -> UpdateHandshake: use account (aes encrypted) password
+#+end_src
+
+#+RESULTS:
+[[file:diagrams/auth-update.png]]
+
+#+begin_src restclient
+PUT http://127.0.0.1:4066/workspaces
+Content-Type: application/json
+
+{
+  "account": {
+    "email": "me@example.org",
+    "password": "new-pass",
+    "password_again": "new-pass",
+    "otp": "otp-password"
+  }
+}
+#+end_src
+
+* Update Handshake
+
+#+begin_src plantuml :file diagrams/auth-update-handshake.png
+  LocalNcube -> RemoteNcube: login using [otp|account] (aes encrypted) password
+  RemoteNcube -> LocalNcube: provide jwt token
+  LocalNcube -> RemoteNcube: send update password request signed with jwt token
+  RemoteNcube -> LocalNcube: return aes encrypted hash of password
+  LocalNcube -> RemoteNcube: login using updated (aes encrypted) password
+  RemoteNcube -> LocalNcube: provide jwt token
+#+end_src
+
+#+RESULTS:
+[[file:diagrams/auth-update-handshake.png]]
+
+~LocalNcube~ attempts to login to ~RemoteNcube~:
+
+#+begin_src restclient
+POST https://example.org/api/workspaces/syrian-archive/account
+Content-Type: application/json
+
+{
+    "email": "me@example.org",
+    "password": "aes256cbc$current-password"
+}
+#+end_src
+
+If the login fails the ~Update Handshake~ fails as a whole. No resources have
+been yet created on ~LocalNcube~.
+
+Otherwise the response contains a valid JWT token for this account.
+
+#+begin_src js
+{
+    "status": "success",
+    "data": {
+        "token": "<jwt-token>"
+    }
+}
+#+end_src
+
+Using the token, ~LocalNcube~ sends a account update request to ~RemoteNcube~:
+
+#+begin_src restclient
+PUT https://example.org/api/workspaces/syrian-archive/account
+Content-Type: application/json
+Authorization: Bearer <jwt-token>
+
+{
+    "email": "me@example.org",
+    "name": "Nomen Nescio",
+    "password": "new-password",
+    "password-again": "new-password"
+}
+#+end_src
+
+Upon successful update ~LocalNcube~ updates the JWT token by repeating the login
+using the newly updated password.
+
+#+begin_src restclient
+POST https://example.org/api/workspaces/syrian-archive/account
+Content-Type: application/json
+
+{
+    "email": "me@example.org",
+    "password": "aes256cbc$hash-from-new-password"
+}
+#+end_src
