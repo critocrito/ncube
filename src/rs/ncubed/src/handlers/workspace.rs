@@ -12,7 +12,7 @@ use crate::stores::{workspace_store, WorkspaceStore};
 use crate::types::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 
 #[instrument]
-pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<(), HandlerError> {
+pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<Workspace, HandlerError> {
     let slug = workspace.slug();
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
@@ -70,7 +70,7 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<(), Handler
     workspace_store
         .create(
             &workspace.name,
-            &workspace.slug(),
+            &slug,
             &workspace.description,
             &kind,
             &location,
@@ -84,7 +84,9 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<(), Handler
         actor.call(SetupWorkspace { location }).await??;
     }
 
-    Ok(())
+    let workspace = workspace_store.show_by_slug(&slug).await?;
+
+    Ok(workspace)
 }
 
 #[instrument]

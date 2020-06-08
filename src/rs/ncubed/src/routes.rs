@@ -107,7 +107,7 @@ pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::
 pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     let cors = warp::cors()
         .allow_any_origin()
-        .allow_methods(&[Method::GET, Method::POST, Method::DELETE])
+        .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_headers(vec!["content-type"]);
 
     warp::path("api")
@@ -201,11 +201,10 @@ pub(crate) mod workspace {
         _ctx: ReqCtx,
         workspace: WorkspaceRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        handlers::create_workspace(workspace).await?;
+        let workspace = handlers::create_workspace(workspace).await?;
+        let response = SuccessResponse::new(workspace);
 
-        // FIXME: Set location header
-        Ok(warp::reply())
-        // .map(|reply| {warp::reply::with_header(reply, "location", format!("/workspaces/{}", workspace.slug()),)})
+        Ok(warp::reply::json(&response))
     }
 
     async fn show(_ctx: ReqCtx, slug: String) -> Result<impl warp::Reply, warp::Rejection> {
@@ -380,9 +379,14 @@ pub(crate) mod user {
         workspace: String,
         request: UpdatePasswordRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        // FIXME: Missing authorization whether request is allowed to update the password.
+        let UpdatePasswordRequest {
+            email,
+            password,
+            password_again,
+        } = request;
+
         let enc_password =
-            handlers::update_password(&workspace, &request.email, &request.password).await?;
+            handlers::update_password(&workspace, &email, &password, &password_again).await?;
 
         Ok(warp::reply::json(&enc_password))
     }

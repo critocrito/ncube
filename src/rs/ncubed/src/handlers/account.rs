@@ -1,3 +1,4 @@
+use chrono::{DateTime, Duration, Utc};
 use ncube_data::Account;
 use rand;
 use tracing::instrument;
@@ -9,6 +10,15 @@ use crate::registry::Registry;
 use crate::stores::{account_store, workspace_store, AccountStore, WorkspaceStore};
 use crate::types::{AccountRequest, JwtToken};
 
+// This function sets the OTP max age policy. At this time this is set to 48
+// hours.
+pub fn is_valid_otp(ts: DateTime<Utc>) -> bool {
+    let now = Utc::now();
+    let otp_max_age = now - Duration::hours(48);
+
+    otp_max_age <= ts
+}
+
 #[instrument]
 pub async fn create_account(
     workspace: &str,
@@ -19,21 +29,20 @@ pub async fn create_account(
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
     let account_store = account_store(db);
-
-    // During account creation the password serves as the OTP password.
-    let AccountRequest { email, .. } = account_request;
-    let rng = rand::thread_rng();
-    let password = crypto::mkpass(rng);
-    let hash = crypto::hash(rng, password.as_bytes());
-    let key = crypto::gen_symmetric_key(rng);
-    let otp = crypto::aes_encrypt(rng, &key, &password.as_bytes().to_vec());
     let workspace = workspace_store.show_by_slug(&workspace).await?;
+
+    let AccountRequest { email, .. } = account_request;
 
     if account_store.exists(&email, workspace.id).await? {
         return Err(HandlerError::Invalid(
             "This email already exists for this workspace.".into(),
         ));
     }
+
+    let password = crypto::mkpass(rand::thread_rng());
+    let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
+    let key = crypto::gen_symmetric_key(rand::thread_rng());
+    let otp = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
 
     account_store
         .create(&email, &hash, &otp, key, None, workspace.id)
@@ -68,6 +77,13 @@ pub async fn login_account(
     let account_store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
+    let account = account_store.show(&email, workspace.id).await?;
+
+    // The account must have a still valid OTP password in case it is an active
+    // OTP account.
+    if account.is_otp && !is_valid_otp(account.updated_at) {
+        return Err(HandlerError::NotAllowed("login failed".into()));
+    }
 
     let hash = account_store
         .show_password(&email, workspace.id)
@@ -90,6 +106,7 @@ pub async fn update_password(
     workspace: &str,
     email: &str,
     password: &str,
+    password_again: &str,
 ) -> Result<String, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
@@ -99,12 +116,26 @@ pub async fn update_password(
     let account_store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
+    let account = account_store.show(&email, workspace.id).await?;
+
+    // The account must have a still valid OTP password in case it is an active
+    // OTP account.
+    if account.is_otp && !is_valid_otp(account.updated_at) {
+        return Err(HandlerError::NotAllowed("update failed".into()));
+    }
+
+    // Passwords must match.
+    if password != password_again {
+        return Err(HandlerError::NotAllowed("update failed".into()));
+    }
+
     let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
     let key = crypto::gen_symmetric_key(rand::thread_rng());
 
     account_store
         .update_password(&email, &hash, &key, workspace.id)
-        .await?;
+        .await
+        .map_err(|_| HandlerError::NotAllowed("update failed".into()))?;
 
     let new_password = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
 

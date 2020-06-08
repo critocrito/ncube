@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use chrono::Utc;
+use chrono::{Duration, Utc};
 use ncube_data::Account;
 use rusqlite::{self, params, NO_PARAMS};
 use secstr::SecVec;
@@ -148,6 +148,14 @@ impl AccountStore for AccountStoreSqlite {
         workspace_id: i32,
     ) -> Result<(), StoreError> {
         let now = Utc::now();
+        let otp_max_age = now - Duration::hours(48);
+
+        let account = self.show(&email, workspace_id).await?;
+
+        if account.is_otp && account.updated_at <= otp_max_age {
+            return Err(StoreError::Unauthorized);
+        }
+
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/update_password.sql"))?;
 

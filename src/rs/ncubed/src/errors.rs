@@ -25,6 +25,8 @@ pub enum StoreError {
     Invalid(#[from] serde_rusqlite::error::Error),
     #[error("Resource `{0}` does not exist in store.")]
     NotFound(String),
+    #[error("Operation is not authorized.")]
+    Unauthorized,
 }
 
 #[derive(Debug, Error)]

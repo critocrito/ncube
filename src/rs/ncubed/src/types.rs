@@ -52,7 +52,12 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-pub type UpdatePasswordRequest = LoginRequest;
+#[derive(Debug, Deserialize)]
+pub struct UpdatePasswordRequest {
+    pub email: String,
+    pub password: String,
+    pub password_again: String,
+}
 
 #[derive(Debug, Serialize)]
 pub struct JwtToken {
