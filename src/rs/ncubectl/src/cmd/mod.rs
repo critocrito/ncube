@@ -5,14 +5,14 @@ pub(crate) mod list;
 pub(crate) mod reset;
 pub(crate) mod setting;
 
-const HELP: &'static str = "{about}
+const HELP: &str = "{about}
 
 USAGE:
     {usage}
 
 {all-args}";
 
-const HELP_DELETE: &'static str = "{about}
+const HELP_DELETE: &str = "{about}
 
 USAGE:
     {usage}
@@ -20,7 +20,7 @@ USAGE:
 FLAGS:
 {flags}";
 
-const USAGE_DELETE: &'static str = "ncubectl delete workspace <workspace> [-y]
+const USAGE_DELETE: &str = "ncubectl delete workspace <workspace> [-y]
     ncubectl delete account <workspace> <email> [-y]";
 
 pub(crate) fn workspace_cli() -> App<'static> {

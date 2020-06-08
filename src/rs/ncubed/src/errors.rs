@@ -1,4 +1,3 @@
-use anyhow;
 use thiserror::Error;
 
 pub use crate::db::{http, sqlite};

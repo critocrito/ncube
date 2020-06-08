@@ -1,5 +1,4 @@
 use ncubed::{crypto, handlers};
-use rand;
 
 use crate::fatal;
 

@@ -2,7 +2,6 @@ use chrono::{DateTime, Utc};
 use ncubed::handlers;
 use prettytable::{cell, format::FormatBuilder, row, Table};
 use serde::Serialize;
-use serde_json;
 use std::io::Write;
 
 use crate::fatal;
@@ -52,7 +51,7 @@ pub(crate) async fn accounts() {
 
     for account in accounts {
         let otp = if account.is_otp && handlers::account::is_valid_otp(account.updated_at) {
-            account.otp.unwrap_or("".to_string())
+            account.otp.unwrap_or_else(|| "".to_string())
         } else {
             "".to_string()
         };
@@ -88,5 +87,5 @@ pub(crate) async fn connection(workspace: &str, email: &str) {
 
     let json = serde_json::to_string(&connection).unwrap();
     let mut stdout = std::io::stdout();
-    stdout.write(json.as_bytes()).unwrap();
+    stdout.write_all(json.as_bytes()).unwrap();
 }

@@ -86,7 +86,7 @@ fn is_loopback() -> warp::filters::BoxedFilter<(bool,)> {
                     return true;
                 }
             }
-            return false;
+            false
         })
         .boxed()
 }

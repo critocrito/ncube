@@ -12,7 +12,7 @@ pub(crate) async fn get() {
     for s in settings {
         table.add_row(row![
             s.name,
-            s.value.or(Some("".into())).unwrap(),
+            s.value.or_else(|| Some("".into())).unwrap(),
             s.required,
             s.restricted
         ]);
