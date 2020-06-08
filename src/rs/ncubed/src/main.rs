@@ -21,7 +21,7 @@ async fn main() {
                 .long("listen")
                 .about("Set the listen address and port.")
                 .required(false)
-                .default_value("127.0.0.1:40666".into())
+                .default_value("127.0.0.1:40666")
                 .takes_value(true),
         )
         .arg(
@@ -55,7 +55,8 @@ async fn main() {
         let tracing_level = match matches.occurrences_of("verbose") {
             1 => Level::INFO,
             2 => Level::DEBUG,
-            3 | _ => Level::TRACE,
+            3 => Level::TRACE,
+            _ => Level::TRACE,
         };
 
         tracing_subscriber::fmt()

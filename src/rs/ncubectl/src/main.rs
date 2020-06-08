@@ -6,7 +6,7 @@ use tracing::Level;
 
 mod cmd;
 
-const USAGE: &'static str = "ncubectl [-hV -d database -v]
+const USAGE: &str = "ncubectl [-hV -d database -v]
     ncubectl workspace <name> [<postgres_url>]
     ncubectl account <workspace> <email>
     ncubectl connection <workspace> <email>
@@ -18,7 +18,7 @@ const USAGE: &'static str = "ncubectl [-hV -d database -v]
     ncubectl delete account <workspace> <email> [-y]
 ";
 
-const HELP: &'static str = "{bin} - {about}
+const HELP: &str = "{bin} - {about}
 
 USAGE:
     {usage}
@@ -88,7 +88,8 @@ async fn main() {
         let tracing_level = match matches.occurrences_of("verbose") {
             1 => Level::INFO,
             2 => Level::DEBUG,
-            3 | _ => Level::TRACE,
+            3 => Level::TRACE,
+            _ => Level::TRACE,
         };
 
         tracing_subscriber::fmt()
@@ -112,12 +113,13 @@ async fn main() {
             cmd::create::account(&workspace, &email).await;
         }
         ("workspace", Some(workspace_matches)) => {
-            let database = if workspace_matches.is_present("postgres_url") {
-                // FIXME: handle Postgresql database kind
-                DatabaseRequest::Sqlite
-            } else {
-                DatabaseRequest::Sqlite
-            };
+            // FIXME: handle Postgresql database kind
+            // let database = if workspace_matches.is_present("postgres_url") {
+            //     DatabaseRequest::Postgresql
+            // } else {
+            //     DatabaseRequest::Sqlite
+            // };
+            let database = DatabaseRequest::Sqlite;
 
             let workspace_name = workspace_matches.value_of("name").unwrap();
 

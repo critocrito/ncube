@@ -56,14 +56,11 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<Workspace, 
     };
 
     let database_path = match workspace.database {
-        DatabaseRequest::Sqlite => {
-            let path = workspace_root
-                .join(&workspace.slug())
-                .join("sugarcube.db")
-                .to_string_lossy()
-                .into_owned();
-            path
-        }
+        DatabaseRequest::Sqlite => workspace_root
+            .join(&workspace.slug())
+            .join("sugarcube.db")
+            .to_string_lossy()
+            .into_owned(),
         DatabaseRequest::Http => location.clone(),
     };
 
