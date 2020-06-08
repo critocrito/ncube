@@ -5,10 +5,9 @@ use crate::actors::{
     db::LookupDatabase,
     host::{RequirePool, WorkspaceRootSetting},
     task::SetupWorkspace,
-    DatabaseActor, HostActor, TaskActor,
+    DatabaseActor, HostActor, Registry, TaskActor,
 };
 use crate::errors::HandlerError;
-use crate::registry::Registry;
 use crate::stores::{workspace_store, WorkspaceStore};
 use crate::types::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 

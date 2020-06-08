@@ -4,10 +4,10 @@ use std::path::PathBuf;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler};
 
+use crate::actors::Registry;
 use crate::db::{sqlite, Database};
 use crate::errors::{ActorError, StoreError};
 use crate::fs::expand_tilde;
-use crate::registry::Registry;
 use crate::stores::{config_store, ConfigStore};
 
 pub(crate) struct HostActor {

@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use tokio::sync::mpsc::{self, Sender};
 use xactor::{message, Actor, Context, Handler};
 
+use crate::actors::Registry;
 use crate::errors::{ActorError, HostError};
-use crate::registry::Registry;
 
 #[derive(Debug)]
 enum TaskMessage {

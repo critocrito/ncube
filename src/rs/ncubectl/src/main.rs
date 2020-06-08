@@ -4,6 +4,7 @@ use ncubed::{types::DatabaseRequest, Application, ApplicationConfig};
 use std::fs::create_dir_all;
 use tracing::Level;
 
+mod cli;
 mod cmd;
 
 const USAGE: &str = "ncubectl [-hV -d database -v]
@@ -67,14 +68,14 @@ async fn main() {
                 .multiple(true)
                 .takes_value(false),
         )
-        .subcommand(cmd::workspace_cli())
-        .subcommand(cmd::account_cli())
-        .subcommand(cmd::state_cli())
-        .subcommand(cmd::get_cli())
-        .subcommand(cmd::set_cli())
-        .subcommand(cmd::reset_cli())
-        .subcommand(cmd::connection_cli())
-        .subcommand(cmd::delete_cli())
+        .subcommand(cli::workspace_cli())
+        .subcommand(cli::account_cli())
+        .subcommand(cli::state_cli())
+        .subcommand(cli::get_cli())
+        .subcommand(cli::set_cli())
+        .subcommand(cli::reset_cli())
+        .subcommand(cli::connection_cli())
+        .subcommand(cli::delete_cli())
         .get_matches();
 
     // matches.is_present() returns true since we use a default value.
@@ -110,7 +111,7 @@ async fn main() {
             let workspace = matches.value_of("workspace").unwrap();
             let email = matches.value_of("email").unwrap();
 
-            cmd::create::account(&workspace, &email).await;
+            cmd::account(&workspace, &email).await;
         }
         ("workspace", Some(workspace_matches)) => {
             // FIXME: handle Postgresql database kind
@@ -123,25 +124,25 @@ async fn main() {
 
             let workspace_name = workspace_matches.value_of("name").unwrap();
 
-            cmd::create::workspace(&workspace_name, database).await;
+            cmd::workspace(&workspace_name, database).await;
         }
         ("connection", Some(connection_matches)) => {
             let workspace = connection_matches.value_of("workspace").unwrap();
             let email = connection_matches.value_of("email").unwrap();
 
-            cmd::list::connection(&workspace, &email).await;
+            cmd::connection(&workspace, &email).await;
         }
         ("state", Some(state_matches)) => {
             let modifier = state_matches.value_of("modifier").unwrap_or("all");
 
             match modifier {
-                "workspaces" => cmd::list::workspaces().await,
-                "accounts" => cmd::list::accounts().await,
+                "workspaces" => cmd::state_workspaces().await,
+                "accounts" => cmd::state_accounts().await,
                 "all" => {
                     println!("WORKSPACES:");
-                    cmd::list::workspaces().await;
+                    cmd::state_workspaces().await;
                     println!("\nACCOUNTS:");
-                    cmd::list::accounts().await;
+                    cmd::state_accounts().await;
                 }
                 _ => fatal!("Unknown state modifier."),
             }
@@ -150,7 +151,7 @@ async fn main() {
             let modifier = state_matches.value_of("modifier").unwrap();
 
             match modifier {
-                "secret" => cmd::reset::secret().await,
+                "secret" => cmd::reset_secret().await,
                 _ => fatal!("Unknown reset modifier."),
             }
         }
@@ -172,13 +173,13 @@ async fn main() {
             _ => unreachable!(),
         },
         ("get", Some(_)) => {
-            cmd::setting::get().await;
+            cmd::get().await;
         }
         ("set", Some(set_matches)) => {
             let setting = set_matches.value_of("setting").unwrap();
             let value = set_matches.value_of("value").unwrap();
 
-            cmd::setting::set(&setting, &value).await;
+            cmd::set(&setting, &value).await;
         }
         _ => unreachable!(),
     };

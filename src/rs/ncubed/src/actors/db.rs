@@ -5,11 +5,12 @@ use std::str::FromStr;
 use tracing::debug;
 use xactor::{message, Actor, Context, Handler};
 
-use crate::actors::host::{HostActor, RequirePool};
-use crate::cache::DatabaseCache;
-use crate::db::{http, sqlite, Database};
+use crate::actors::{
+    host::{HostActor, RequirePool},
+    Registry,
+};
+use crate::db::{http, sqlite, Database, DatabaseCache};
 use crate::errors::{ActorError, StoreError};
-use crate::registry::Registry;
 use crate::stores::{workspace_store, WorkspaceStore};
 
 /// The database actor can be queried for database connections for workspaces.
@@ -20,7 +21,7 @@ use crate::stores::{workspace_store, WorkspaceStore};
 ///
 /// ```no_run
 /// use ncubed::actors::db::{LookupDatabase, DatabaseActor};
-/// use crate::ncubed::registry::Registry;
+/// use crate::ncubed::actors::Registry;
 ///
 /// # #[tokio::main]
 /// # async fn main () {
