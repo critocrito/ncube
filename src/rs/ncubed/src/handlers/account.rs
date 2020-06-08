@@ -21,10 +21,9 @@ pub async fn create_account(
     let account_store = account_store(db);
 
     // During account creation the password serves as the OTP password.
-    let AccountRequest {
-        email, password, ..
-    } = account_request;
+    let AccountRequest { email, .. } = account_request;
     let rng = rand::thread_rng();
+    let password = crypto::mkpass(rng);
     let hash = crypto::hash(rng, password.as_bytes());
     let key = crypto::gen_symmetric_key(rng);
     let otp = crypto::aes_encrypt(rng, &key, &password.as_bytes().to_vec());
