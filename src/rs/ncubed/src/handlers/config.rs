@@ -6,7 +6,7 @@ use crate::actors::{
     host::{AllSettings, InsertSetting, IsBootstrapped, SecretKeySetting, Settings},
     HostActor, Registry,
 };
-use crate::crypto::{gen_secret_key, mkpass};
+use crate::crypto::gen_secret_key;
 use crate::errors::HandlerError;
 
 pub async fn is_bootstrapped() -> Result<bool, HandlerError> {
@@ -66,9 +66,9 @@ pub async fn bootstrap(settings: Vec<(String, String)>) -> Result<(), HandlerErr
         .duration_since(SystemTime::UNIX_EPOCH)
         .expect("Duration since UNIX_EPOCH failed");
     let rng = StdRng::seed_from_u64(d.as_secs());
-    let seed = mkpass(rng);
+    let secret_key_setting = ("secret_key".to_string(), gen_secret_key(rng));
 
-    let restricted_settings = vec![("secret_key".to_string(), gen_secret_key(&seed))];
+    let restricted_settings = vec![secret_key_setting];
 
     for (name, value) in settings {
         let _ = actor
