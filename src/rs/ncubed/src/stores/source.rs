@@ -25,7 +25,7 @@ pub(crate) trait SourceStore {
 
 #[derive(Debug)]
 pub struct SourceStoreSqlite {
-    db: sqlite::Database,
+    db: Box<sqlite::Database>,
 }
 
 #[async_trait]

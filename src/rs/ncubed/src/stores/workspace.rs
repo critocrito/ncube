@@ -42,7 +42,7 @@ pub(crate) trait WorkspaceStore {
 
 #[derive(Debug)]
 pub struct WorkspaceStoreSqlite {
-    db: sqlite::Database,
+    db: Box<sqlite::Database>,
 }
 
 #[async_trait]

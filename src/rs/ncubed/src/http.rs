@@ -94,9 +94,9 @@ fn is_loopback() -> warp::filters::BoxedFilter<(bool,)> {
 pub fn user_ctx() -> warp::filters::BoxedFilter<(Option<String>,)> {
     warp::header("authorization")
         .map(|header_value: String| {
-            let parts: Vec<&str> = header_value.split(" ").collect();
+            let parts: Vec<&str> = header_value.split(' ').collect();
             match &parts[..] {
-                ["Bearer", token] => Some(token.to_string()),
+                ["Bearer", token] => Some((*token).to_string()),
                 _ => None,
             }
         })

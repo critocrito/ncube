@@ -20,7 +20,7 @@ use crate::db::Database;
 ///
 /// assert!(cache.get(url).is_none());
 ///
-/// cache.put(url, db::Database::Sqlite(db));
+/// cache.put(url, db::Database::Sqlite(Box::new(db)));
 ///
 /// let db1 = cache.get(url).unwrap();
 /// let db2 = cache.get(url).unwrap();
@@ -101,8 +101,8 @@ mod tests {
         assert!(cache.get(url1).is_none());
         assert!(cache.get(url2).is_none());
 
-        cache.put(url1, Database::Sqlite(db1));
-        cache.put(url2, Database::Sqlite(db2));
+        cache.put(url1, Database::Sqlite(Box::new(db1)));
+        cache.put(url2, Database::Sqlite(Box::new(db2)));
 
         let db3 = cache.get(url1).unwrap();
         let db4 = cache.get(url1).unwrap();
@@ -118,7 +118,7 @@ mod tests {
 
         assert_eq!(cache.has(url), false);
 
-        cache.put(url, Database::Sqlite(db));
+        cache.put(url, Database::Sqlite(Box::new(db)));
 
         assert_eq!(cache.has(url), true);
     }
