@@ -1,23 +1,12 @@
-use chrono::{DateTime, Utc};
 use ncubed::{
     crypto, handlers,
     types::{AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest},
 };
 use prettytable::{cell, format::FormatBuilder, row, Table};
-use serde::Serialize;
 use std::io::Write;
 
 use crate::fatal;
-
-#[derive(Debug, Serialize)]
-struct ConnectionOut {
-    workspace: String,
-    description: Option<String>,
-    email: String,
-    otp: Option<String>,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-}
+use crate::types::ConnectionOut;
 
 pub(crate) async fn account(workspace: &str, email: &str) {
     handlers::account::create_account(

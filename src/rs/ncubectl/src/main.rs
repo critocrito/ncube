@@ -6,6 +6,7 @@ use tracing::Level;
 
 mod cli;
 mod cmd;
+mod types;
 
 const USAGE: &str = "ncubectl [-hV -d database -v]
     ncubectl workspace <name> [<postgres_url>]
