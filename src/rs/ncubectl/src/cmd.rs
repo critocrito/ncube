@@ -22,10 +22,9 @@ pub(crate) async fn account(workspace: &str, email: &str) {
 
 pub(crate) async fn workspace(name: &str, database: DatabaseRequest) {
     let request = WorkspaceRequest {
-        kind: WorkspaceKindRequest::Local {
-            name: name.to_string(),
-            description: None,
-        },
+        name: name.to_string(),
+        description: None,
+        kind: WorkspaceKindRequest::Local,
         database,
     };
     // FIXME: project directory get's created asynchronously, need to
@@ -98,6 +97,7 @@ pub(crate) async fn connection(workspace: &str, email: &str) {
         .unwrap_or_else(|e| fatal!("failed to retrieve endpoint setting: {}", e.to_string()));
 
     let connection = ConnectionOut {
+        name: workspace.name,
         workspace: workspace.slug,
         description: workspace.description,
         email: account.email,

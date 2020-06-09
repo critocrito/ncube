@@ -137,6 +137,18 @@
                       :value (values "workspace")
                       :on-change handle-change
                       :on-blur handle-blur}]
+         [text-input {:name "name"
+                      :label "Workspace Name"
+                      :disabled uploaded?
+                      :value (values "name")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
+         [text-input {:name "description"
+                      :label "Description"
+                      :disabled uploaded?
+                      :value (values "name")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
          [text-input {:name "endpoint"
                       :label "Ncube Endpoint"
                       :disabled uploaded?

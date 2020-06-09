@@ -21,10 +21,7 @@ pub struct AccountCreateRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "kind")]
 pub enum WorkspaceKindRequest {
-    Local {
-        name: String,
-        description: Option<String>,
-    },
+    Local,
     Remote {
         workspace: String,
         endpoint: String,
@@ -34,6 +31,8 @@ pub enum WorkspaceKindRequest {
 
 #[derive(Debug, Deserialize)]
 pub struct WorkspaceRequest {
+    pub name: String,
+    pub description: Option<String>,
     #[serde(flatten)]
     pub kind: WorkspaceKindRequest,
     #[serde(flatten)]
@@ -43,7 +42,7 @@ pub struct WorkspaceRequest {
 impl WorkspaceRequest {
     pub fn slug(&self) -> String {
         match &self.kind {
-            WorkspaceKindRequest::Local { name, .. } => slugify!(&name),
+            WorkspaceKindRequest::Local => slugify!(&self.name),
             WorkspaceKindRequest::Remote { workspace, .. } => workspace.clone(),
         }
     }
