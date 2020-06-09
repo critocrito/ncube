@@ -22,9 +22,10 @@ pub(crate) async fn account(workspace: &str, email: &str) {
 
 pub(crate) async fn workspace(name: &str, database: DatabaseRequest) {
     let request = WorkspaceRequest {
-        name: name.to_string(),
-        kind: WorkspaceKindRequest::Local,
-        description: None,
+        kind: WorkspaceKindRequest::Local {
+            name: name.to_string(),
+            description: None,
+        },
         database,
     };
     // FIXME: project directory get's created asynchronously, need to

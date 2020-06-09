@@ -27,11 +27,11 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<Workspace, 
     };
 
     let kind = match &workspace.kind {
-        WorkspaceKindRequest::Local => "local".to_string(),
+        WorkspaceKindRequest::Local { .. } => "local".to_string(),
         WorkspaceKindRequest::Remote { .. } => "remote".to_string(),
     };
     let location = match &workspace.kind {
-        WorkspaceKindRequest::Local => workspace_root
+        WorkspaceKindRequest::Local { .. } => workspace_root
             .clone()
             .join(&workspace.slug())
             .to_string_lossy()
@@ -42,7 +42,7 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<Workspace, 
     // Esnure that remote workspaces have a http database configured,
     let database = match workspace.database {
         DatabaseRequest::Sqlite => match &workspace.kind {
-            WorkspaceKindRequest::Local => "sqlite",
+            WorkspaceKindRequest::Local { .. } => "sqlite",
             _ => {
                 return Err(HandlerError::Invalid(
                     "local workspaces don't work with a `http` database".into(),
@@ -68,19 +68,24 @@ pub async fn create_workspace(workspace: WorkspaceRequest) -> Result<Workspace, 
         DatabaseRequest::Http => location.clone(),
     };
 
-    workspace_store
-        .create(
-            &workspace.name,
-            &slug,
-            &workspace.description,
-            &kind,
-            &location,
-            &database,
-            &database_path,
-        )
-        .await?;
+    match &workspace.kind {
+        WorkspaceKindRequest::Local { name, description } => {
+            workspace_store
+                .create(
+                    &name,
+                    &slug,
+                    &description,
+                    &kind,
+                    &location,
+                    &database,
+                    &database_path,
+                )
+                .await?
+        }
+        WorkspaceKindRequest::Remote { .. } => unimplemented!(),
+    }
 
-    if let WorkspaceKindRequest::Local = workspace.kind {
+    if let WorkspaceKindRequest::Local { .. } = workspace.kind {
         let mut actor = TaskActor::from_registry().await.unwrap();
         actor.call(SetupWorkspace { location }).await??;
     }
@@ -156,13 +161,14 @@ pub async fn update_workspace(
 
     let slug = workspace_request.slug();
 
-    let WorkspaceRequest {
-        name, description, ..
-    } = workspace_request;
-
-    workspace_store
-        .update(&current_slug.to_string(), &name, &slug, &description)
-        .await?;
+    match workspace_request.kind {
+        WorkspaceKindRequest::Local { name, description } => {
+            workspace_store
+                .update(&current_slug.to_string(), &name, &slug, &description)
+                .await?
+        }
+        WorkspaceKindRequest::Remote { .. } => unimplemented!(),
+    };
 
     Ok(())
 }
