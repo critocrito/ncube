@@ -3,6 +3,7 @@ use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 pub(crate) struct ConnectionOut {
+    pub(crate) name: String,
     pub(crate) workspace: String,
     pub(crate) endpoint: String,
     pub(crate) description: Option<String>,

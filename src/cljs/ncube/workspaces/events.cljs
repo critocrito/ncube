@@ -71,11 +71,12 @@
  [(fork/on-submit :form)]
  (fn-traced
   [{db :db} [_ {:keys [values]}]]
-  (let [req-body {:workspace (values "workspace")
+  (let [req-body {:name (values "name")
+                  :description (values "description")
+                  :workspace (values "workspace")
                   :kind "remote"
                   :endpoint (values "endpoint")
                   :database "http"
-                  :database_path (values "endpoint")
                   :account {:email (values "email")
                             :otp (values "otp")
                             :password (values "password")
