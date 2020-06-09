@@ -17,7 +17,9 @@
 //! # }
 //! ```
 use bytes::{buf::BufExt as _, Buf};
+use chrono::{DateTime, Duration, Utc};
 use hyper::{client::HttpConnector, Body, Client, Method, Request, Uri};
+use serde_json::Value;
 use std::fmt::{self, Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
@@ -59,10 +61,20 @@ impl FromStr for Config {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct HttpAuth {
+    token: String,
+    created_at: DateTime<Utc>,
+}
+
 #[derive(Clone)]
 pub struct Database {
     config: Config,
     client: ClientWrapper,
+    email: String,
+    password: String,
+    workspace: String,
+    auth: Option<HttpAuth>,
 }
 
 impl PartialEq for Database {
@@ -91,13 +103,23 @@ impl Database {
     /// // Run a query on the connection object.
     /// # }
     /// ```
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Config, workspace: &str, email: &str, password: &str) -> Self {
         let client = Client::new();
 
         Self {
             client: ClientWrapper::new(client),
+            auth: None,
+            email: email.to_string(),
+            password: password.to_string(),
+            workspace: workspace.to_string(),
             config,
         }
+    }
+
+    fn url(&self, path: &str) -> Uri {
+        let mut uri = self.config.endpoint.clone();
+        uri.set_path(path);
+        Uri::from_str(uri.as_str()).unwrap()
     }
 
     async fn execute(&self, req: Request<Body>) -> Result<impl Buf, hyper::error::Error> {
@@ -107,10 +129,42 @@ impl Database {
         Ok(body)
     }
 
-    fn url(&self, path: &str) -> Uri {
-        let mut uri = self.config.endpoint.clone();
-        uri.set_path(path);
-        Uri::from_str(uri.as_str()).unwrap()
+    #[allow(dead_code)]
+    pub(crate) async fn login_if_needed(&mut self) -> Result<(), StoreError> {
+        if let Some(auth) = &self.auth {
+            let now = Utc::now();
+            let expire = now - Duration::minutes(55);
+
+            if expire <= auth.created_at {
+                // We have a valid authentication token we can use.
+                return Ok(());
+            }
+        }
+
+        self.login().await?;
+
+        Ok(())
+    }
+
+    #[allow(dead_code)]
+    pub(crate) async fn login(&mut self) -> Result<(), StoreError> {
+        let login_path = format!("/api/workspaces/{}/account", self.workspace);
+        let url = self.url(&login_path);
+        let payload = serde_json::json!({"email": self.email, "password": self.password});
+        let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
+
+        let req = Request::post(url)
+            .header("content-type", "application/json")
+            .body(Body::from(payload_json))
+            .unwrap();
+        let body = self.execute(req).await?;
+
+        let data: Value = serde_json::from_reader(body.reader())?;
+        let token = data["data"]["token"].to_string();
+        let created_at = Utc::now();
+        self.auth = Some(HttpAuth { token, created_at });
+
+        Ok(())
     }
 
     #[allow(dead_code)]
@@ -190,20 +244,6 @@ impl Database {
         let data = serde_json::from_reader(body.reader())?;
 
         Ok(data)
-    }
-}
-
-impl FromStr for Database {
-    type Err = HttpConfigError;
-
-    fn from_str(connection_string: &str) -> Result<Self, HttpConfigError> {
-        let config: Config = connection_string.parse::<Config>()?;
-        let client = Client::new();
-
-        Ok(Self {
-            client: ClientWrapper::new(client),
-            config,
-        })
     }
 }
 

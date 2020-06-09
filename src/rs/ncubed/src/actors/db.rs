@@ -1,7 +1,6 @@
 use async_trait::async_trait;
-use ncube_data::WorkspaceDatabase;
+use ncube_data::{Account, WorkspaceDatabase};
 use std::result::Result;
-use std::str::FromStr;
 use tracing::debug;
 use xactor::{message, Actor, Context, Handler};
 
@@ -11,7 +10,7 @@ use crate::actors::{
 };
 use crate::db::{http, sqlite, Database, DatabaseCache};
 use crate::errors::{ActorError, StoreError};
-use crate::stores::{workspace_store, WorkspaceStore};
+use crate::stores::{account_store, workspace_store, WorkspaceStore};
 
 /// The database actor can be queried for database connections for workspaces.
 /// Connection pools are cached when requested first time and subsequently
@@ -95,8 +94,15 @@ impl Handler<LookupDatabase> for DatabaseActor {
                 Database::Sqlite(Box::new(db))
             }
             WorkspaceDatabase::Http { .. } => {
-                let db = http::Database::from_str(&connection_string)
+                let account_store = account_store(db);
+                let Account { email, .. } = workspace_store.show_account(&msg.workspace).await?;
+                let password = account_store.show_password(&email, workspace.id).await?;
+                let config: http::Config = connection_string
+                    .parse::<http::Config>()
                     .map_err(|e| ActorError::Store(StoreError::HttpConfig(e)))?;
+
+                let db = http::Database::new(config, &msg.workspace, &email, &password);
+
                 Database::Http(Box::new(db))
             }
         };
