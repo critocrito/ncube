@@ -14,6 +14,7 @@ pub(crate) async fn account(workspace: &str, email: &str) {
         AccountRequest {
             email: email.to_string(),
             name: None,
+            password: None,
         },
     )
     .await

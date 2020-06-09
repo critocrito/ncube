@@ -22,8 +22,8 @@ pub(crate) trait AccountStore {
         &self,
         email: &str,
         password: &str,
-        otp: &str,
-        key: SecVec<u8>,
+        otp: Option<String>,
+        key: Option<&SecVec<u8>>,
         name: Option<String>,
         workspace_id: i32,
     ) -> Result<(), StoreError>;
@@ -67,8 +67,8 @@ impl AccountStore for AccountStoreSqlite {
         &self,
         email: &str,
         password: &str,
-        otp: &str,
-        key: SecVec<u8>,
+        otp: Option<String>,
+        key: Option<&SecVec<u8>>,
         name: Option<String>,
         workspace_id: i32,
     ) -> Result<(), StoreError> {
@@ -82,7 +82,7 @@ impl AccountStore for AccountStoreSqlite {
             &email,
             &password,
             &otp,
-            &key.unsecure(),
+            &key.and_then(|v| Some(v.unsecure())),
             &name,
             &now.to_rfc3339(),
             &now.to_rfc3339()

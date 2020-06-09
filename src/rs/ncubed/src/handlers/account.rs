@@ -23,7 +23,7 @@ pub fn is_valid_otp(ts: DateTime<Utc>) -> bool {
 #[instrument]
 pub async fn create_account(
     workspace: &str,
-    account_request: AccountRequest,
+    account_req: AccountRequest,
 ) -> Result<(), HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
@@ -32,7 +32,9 @@ pub async fn create_account(
     let account_store = account_store(db);
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
-    let AccountRequest { email, .. } = account_request;
+    let AccountRequest {
+        email, password, ..
+    } = account_req;
 
     if account_store.exists(&email, workspace.id).await? {
         return Err(HandlerError::Invalid(
@@ -40,14 +42,23 @@ pub async fn create_account(
         ));
     }
 
-    let password = crypto::gen_secret_key(rand::thread_rng());
-    let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
-    let key = crypto::gen_symmetric_key(rand::thread_rng());
-    let otp = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
+    match password {
+        None => {
+            let password = crypto::gen_secret_key(rand::thread_rng());
+            let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
+            let key = crypto::gen_symmetric_key(rand::thread_rng());
+            let otp = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
 
-    account_store
-        .create(&email, &hash, &otp, key, None, workspace.id)
-        .await?;
+            account_store
+                .create(&email, &hash, Some(otp), Some(&key), None, workspace.id)
+                .await?;
+        }
+        Some(hash) => {
+            account_store
+                .create(&email, &hash, None, None, None, workspace.id)
+                .await?;
+        }
+    }
 
     Ok(())
 }
