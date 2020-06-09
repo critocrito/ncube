@@ -37,7 +37,7 @@ impl HostActor {
 
     async fn get_setting(&self, name: &str) -> Result<Option<ConfigSetting>, ActorError> {
         let store = config_store(self.db.clone());
-        let config = store.show().await?;
+        let config = store.show_all().await?;
         let setting = config.into_iter().find(|setting| {
             let comparator: String = name.into();
             comparator == setting.name

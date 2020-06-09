@@ -3,7 +3,9 @@ use rand::{self, rngs::StdRng, SeedableRng};
 use std::time::SystemTime;
 
 use crate::actors::{
-    host::{AllSettings, InsertSetting, IsBootstrapped, SecretKeySetting, Settings},
+    host::{
+        AllSettings, EndpointSetting, InsertSetting, IsBootstrapped, SecretKeySetting, Settings,
+    },
     HostActor, Registry,
 };
 use crate::crypto::gen_secret_key;
@@ -107,4 +109,12 @@ pub async fn show_secret_key() -> Result<String, HandlerError> {
     Ok(key
         .value
         .ok_or_else(|| HandlerError::NotFound("no secret key".into()))?)
+}
+
+pub async fn endpoint() -> Result<String, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let endpoint = host_actor.call(EndpointSetting).await??;
+    Ok(endpoint
+        .value
+        .ok_or_else(|| HandlerError::NotFound("no endpoint".into()))?)
 }

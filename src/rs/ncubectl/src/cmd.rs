@@ -90,10 +90,12 @@ pub(crate) async fn connection(workspace: &str, email: &str) {
     let workspace = handlers::workspace::show_workspace(&workspace)
         .await
         .unwrap_or_else(|e| fatal!("failed to show workspace: {}", e.to_string()));
-
     let account = handlers::account::show_account(&workspace.slug, &email)
         .await
         .unwrap_or_else(|e| fatal!("failed to show account: {}", e.to_string()));
+    let endpoint = handlers::config::endpoint()
+        .await
+        .unwrap_or_else(|e| fatal!("failed to retrieve endpoint setting: {}", e.to_string()));
 
     let connection = ConnectionOut {
         workspace: workspace.slug,
@@ -102,6 +104,7 @@ pub(crate) async fn connection(workspace: &str, email: &str) {
         otp: account.otp,
         created_at: account.created_at,
         updated_at: account.updated_at,
+        endpoint,
     };
 
     let json = serde_json::to_string(&connection).unwrap();
