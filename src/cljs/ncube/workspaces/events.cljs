@@ -11,11 +11,24 @@
   [_ _]
   {:navigate! :workspaces-create}))
 
+(rf/reg-event-fx
+ ::link-workspace
+ (fn-traced
+  [_ _]
+  {:navigate! :workspaces-link}))
+
 (rf/reg-event-db
  ::workspaces-loaded
  (fn-traced
   [db [_ {:keys [data]}]]
   (assoc db :workspaces data)))
+
+(rf/reg-event-fx
+ ::workspace-fetched
+ (fn-traced
+  [{db :db} [_ {:keys [data]}]]
+  {:navigate! [:workspace-details {:slug (:slug data)}]
+   :db (assoc db :current-workspace data)}))
 
 (rf/reg-event-fx
  ::success
@@ -27,17 +40,9 @@
                 [:navigate :home])}))
 
 (rf/reg-event-fx
- ::workspace-fetched
- (fn-traced
-  [{db :db} [_ {:keys [data]}]]
-  {:navigate! [:workspace-details {:slug (:slug data)}]
-   :db (assoc db :current-workspace data)}))
-
-(rf/reg-event-fx
  ::failure
  (fn-traced
   [{db :db} [_ result]]
-  (js/console.log result)
   {:db (-> db
            (fork/set-submitting :form false)
            (fork/set-status-code :form 500))}))
@@ -47,7 +52,7 @@
  [(fork/on-submit :form)]
  (fn-traced
   [{db :db} [_ {:keys [values]}]]
-  (let [req-body {:name (values "name")
+  (let [req-body {:workspace (values "workspace")
                   :kind "local"
                   :database "sqlite"
                   :description (values "description")}]
@@ -58,6 +63,30 @@
       :params req-body
       :format (ajax/json-request-format)
       :response-format (ajax/raw-response-format)
+      :on-success [::success]
+      :on-failure [::failure]}})))
+
+(rf/reg-event-fx
+ ::submit-link-workspace-form
+ [(fork/on-submit :form)]
+ (fn-traced
+  [{db :db} [_ {:keys [values]}]]
+  (let [req-body {:workspace (values "workspace")
+                  :kind "remote"
+                  :endpoint (values "endpoint")
+                  :database "http"
+                  :database_path (values "endpoint")
+                  :account {:email (values "email")
+                            :otp (values "otp")
+                            :password (values "password")
+                            :password_again (values "password-again")}}]
+    {:db (fork/set-submitting db :form false)
+     :http-xhrio
+     {:method :post
+      :uri "http://127.0.0.1:40666/api/workspaces"
+      :params req-body
+      :format (ajax/json-request-format)
+      :response-format (ajax/json-response-format {:keywords? true})
       :on-success [::success]
       :on-failure [::failure]}})))
 
