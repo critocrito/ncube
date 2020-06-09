@@ -4,8 +4,9 @@ use ncube_data::Source;
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 
-use crate::db::{sqlite, Database};
+use crate::db::{http, sqlite, Database};
 use crate::errors::StoreError;
+use crate::http::SuccessResponse;
 
 pub(crate) fn source_store(wrapped_db: Database) -> impl SourceStore {
     match wrapped_db {
@@ -81,5 +82,34 @@ impl SourceStore for SourceStoreSqlite {
         stmt.execute(params![&id, &kind, &term, &now.to_rfc3339()])?;
 
         Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub struct SourceStoreHttp {
+    client: http::Database,
+}
+
+#[async_trait]
+impl SourceStore for SourceStoreHttp {
+    async fn exists(&self, _id: i32) -> Result<bool, StoreError> {
+        todo!()
+    }
+
+    async fn create(&self, _kind: &str, _term: &str) -> Result<(), StoreError> {
+        todo!()
+    }
+
+    async fn list(&self) -> Result<Vec<Source>, StoreError> {
+        let SuccessResponse { data, .. } = self.client.get("workspaces").await.unwrap();
+        Ok(data)
+    }
+
+    async fn delete(&self, _id: i32) -> Result<(), StoreError> {
+        todo!()
+    }
+
+    async fn update(&self, _id: i32, _kind: &str, _term: &str) -> Result<(), StoreError> {
+        todo!()
     }
 }

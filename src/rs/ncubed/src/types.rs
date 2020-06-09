@@ -10,16 +10,30 @@ pub enum DatabaseRequest {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "lowercase", tag = "account")]
+pub struct AccountCreateRequest {
+    email: String,
+    password: String,
+    password_again: String,
+    otp: String,
+}
+
+#[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "kind")]
 pub enum WorkspaceKindRequest {
-    Local,
-    Remote { endpoint: String },
+    Local {
+        name: String,
+        description: Option<String>,
+    },
+    Remote {
+        workspace: String,
+        endpoint: String,
+        account: AccountCreateRequest,
+    },
 }
 
 #[derive(Debug, Deserialize)]
 pub struct WorkspaceRequest {
-    pub name: String,
-    pub description: Option<String>,
     #[serde(flatten)]
     pub kind: WorkspaceKindRequest,
     #[serde(flatten)]
@@ -28,7 +42,10 @@ pub struct WorkspaceRequest {
 
 impl WorkspaceRequest {
     pub fn slug(&self) -> String {
-        slugify!(&self.name)
+        match &self.kind {
+            WorkspaceKindRequest::Local { name, .. } => slugify!(&name),
+            WorkspaceKindRequest::Remote { workspace, .. } => workspace.clone(),
+        }
     }
 }
 
