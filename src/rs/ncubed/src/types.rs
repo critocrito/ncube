@@ -12,10 +12,10 @@ pub enum DatabaseRequest {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "account")]
 pub struct AccountCreateRequest {
-    email: String,
-    password: String,
-    password_again: String,
-    otp: String,
+    pub email: String,
+    pub password: String,
+    pub password_again: String,
+    pub otp: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -56,10 +56,11 @@ pub struct SourceRequest {
     pub annotations: Vec<AnnotationKind>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct AccountRequest {
     pub email: String,
     pub name: Option<String>,
+    pub password: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

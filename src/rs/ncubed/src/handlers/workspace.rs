@@ -2,14 +2,16 @@ use ncube_data::Workspace;
 use tracing::{error, instrument};
 
 use crate::actors::{
-    db::LookupDatabase,
     host::{RequirePool, WorkspaceRootSetting},
     task::SetupWorkspace,
-    DatabaseActor, HostActor, Registry, TaskActor,
+    HostActor, Registry, TaskActor,
 };
 use crate::errors::HandlerError;
+use crate::handlers::account;
 use crate::stores::{workspace_store, WorkspaceStore};
-use crate::types::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
+use crate::types::{
+    AccountCreateRequest, AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest,
+};
 
 #[instrument]
 pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspace, HandlerError> {
@@ -71,7 +73,9 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
             let mut actor = TaskActor::from_registry().await.unwrap();
             actor.call(SetupWorkspace { location }).await??;
         }
-        WorkspaceKindRequest::Remote { endpoint, .. } => {
+        WorkspaceKindRequest::Remote {
+            endpoint, account, ..
+        } => {
             let kind = "remote".to_string();
             let location = endpoint.clone();
             let database = match workspace_req.database {
@@ -89,6 +93,14 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
                     &workspace, &workspace, &None, &kind, &location, &database, &endpoint,
                 )
                 .await?;
+
+            let AccountCreateRequest { email, otp, .. } = account;
+            let account_req = AccountRequest {
+                email: email.to_string(),
+                password: Some(otp.to_string()),
+                ..Default::default()
+            };
+            account::create_account(&workspace, account_req).await?;
         }
     };
 
