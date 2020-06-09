@@ -13,6 +13,7 @@
 (def routes
   ["/"
    ["create" {:name :workspaces-create :view workspaces/create-workspaces}]
+   ["link" {:name :workspaces-link :view workspaces/link-workspace}]
    ["w"
     ["/" {:name :home :view workspaces/list-workspaces}]
     ["/:slug"

@@ -1,10 +1,26 @@
 (ns ncube.workspaces.views
-  (:require [re-frame.core :as rf]
+  (:require [clojure.core.async :as a]
+            [reagent.core :as r]
+            [re-frame.core :as rf]
             [fork.core :as fork]
             [ncube.components :refer [panel desc-text overline tag btn-large btn-small text-input]]
             [ncube.workspaces.events :as events]
             [ncube.workspaces.subscriptions :as subscriptions]
             [ncube.sources.events :as sources]))
+
+(defn handle-file-load
+  [c ev]
+  (let [result (-> ev .-target .-result)
+        data (js/JSON.parse result)]
+    (a/put! c (js->clj data))))
+
+(defn handle-file-select
+  [c ev]
+  (let [files (-> ev .-target .-files)
+        file (aget files 0)
+        reader (js/FileReader.)]
+    (aset reader "onload" #(handle-file-load c %))
+    (js-invoke reader "readAsText" file)))
 
 (defn workspace-stat
   [type value]
@@ -61,7 +77,7 @@
       [:div {:class "fl w-100 pa2"}
        [:div {:class "flex items-end fr"}
         [btn-large {:label "Link to remote workspace"
-                    :on-click #(rf/dispatch [::events/create-workspace])
+                    :on-click #(rf/dispatch [::events/link-workspace])
                     :style :secondary}]
         [btn-large {:label "Create a new workspace"
                     :on-click #(rf/dispatch [::events/create-workspace])}]]]]]))
@@ -96,6 +112,73 @@
                :disabled submitting?}]
    [:p on-submit-response]])
 
+(defn link-workspace-form
+  []
+  (let [c (a/chan)
+        uploaded? (r/atom false)]
+    (fn
+      [{:keys [state
+               values
+               form-id
+               submitting?
+               on-submit-response
+               handle-change
+               handle-blur
+               handle-submit
+               set-values]}]
+      (a/take! c (fn [coll]
+                   (set-values coll)
+                   (reset! uploaded? true)))
+      (if @uploaded?        
+        [:form {:id form-id :on-submit handle-submit}
+         [text-input {:name "workspace"
+                      :label "Workspace"
+                      :disabled uploaded?
+                      :value (values "workspace")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
+         [text-input {:name "endpoint"
+                      :label "Ncube Endpoint"
+                      :disabled uploaded?
+                      :value (values "endpoint")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
+         [text-input {:name "email"
+                      :label "Account Email"
+                      :disabled uploaded?
+                      :value (values "email")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
+         [text-input {:name "otp"
+                      :label "One-Time Password"
+                      :disabled uploaded?
+                      :value (values "otp")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
+         [text-input {:name "password"
+                      :label "New Password"
+                      :value (values "password")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
+         [text-input {:name "password-again"
+                      :label "New Password: Again"
+                      :value (values "password-again")
+                      :on-change handle-change
+                      :on-blur handle-blur}]
+         [:input {:name :database :type :hidden :value "http"}]
+         [btn-large {:label "Cancel"
+                     :on-click (fn [ev]
+                                 (.preventDefault ev)
+                                 (rf/dispatch [:navigate :home]))
+                     :disabled submitting?
+                     :style :secondary}]
+         [btn-large {:label "Link"
+                     :disabled submitting?}]
+         [:p on-submit-response]]
+        [:input {:type "file"
+                 :name "upload-file"
+                 :on-change #(handle-file-select c %)}]))))
+
 (defn create-workspaces
   []
   [:div {:class "mw8 center ph3-ns"}
@@ -110,6 +193,22 @@
                                      500 "server error"}
                 :on-submit #(rf/dispatch [::events/submit-create-workspace-form %])}
      create-workspace-form]]])
+
+(defn link-workspace
+  []
+  [:div {:class "mw8 center ph3-ns"}
+   [:div {:class "fl w-100 pa2"}
+    [:h1 {:class "fh1"} "Welcome to Ncube!"]
+    [:p {:class "fb1"} "Before you can start, upload the JSON connection file and set a new password."]
+    [fork/form {:path :form
+                :form-id "workspace-link-form"
+                :prevent-default? true
+                :clean-on-unmount? true
+                :on-submit-response {400 "client error"
+                                     500 "server error"}
+                :on-submit #(rf/dispatch [::events/submit-link-workspace-form %])}
+     link-workspace-form]
+    ]])
 
 (defn card
   [kind slug]
