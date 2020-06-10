@@ -52,7 +52,7 @@
  [(fork/on-submit :form)]
  (fn-traced
   [{db :db} [_ {:keys [values]}]]
-  (let [req-body {:workspace (values "workspace")
+  (let [req-body {:name (values "name")
                   :kind "local"
                   :database "sqlite"
                   :description (values "description")}]
