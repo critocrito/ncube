@@ -161,9 +161,14 @@ pkg-bin: $(release_dir)/ncube
 	@mkdir -p $(pkgs_release_dir)
 	cp $(release_dir)/ncube $(pkgs_release_dir)/ncube-$(shell uname -s | sed "y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/")
 
-pkg-deb:
+pkg-deb: $(release_dir)/ncube
 	@mkdir -p $(pkgs_release_dir)
 	cargo deb -p ncube
+	cp target/debian/ncube*.deb $(pkgs_release_dir)
+
+pkg-deb-ncubed: $(release_dir)/ncubed $(release_dir)/ncubectl
+	@mkdir -p $(pkgs_release_dir)
+	cargo deb -p ncubed
 	cp target/debian/ncube*.deb $(pkgs_release_dir)
 
 test:

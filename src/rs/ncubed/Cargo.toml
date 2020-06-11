@@ -51,3 +51,18 @@ ncube-data = { path = "../ncube-data" }
 
 [dev-dependencies]
 tokio-test = "0.2"
+
+[package.metadata.deb]
+section = "misc"
+assets = [
+  ["../../../target/release/ncubectl", "usr/bin/", "755"],
+  ["../../../target/release/ncubed", "usr/sbin/", "755"],
+  ["../../../license.txt", "usr/share/doc/ncubed/", "644"],
+  ["../../../CHANGELOG.md", "usr/share/doc/ncubed/CHANGELOG", "644"],
+  ["../../../README.md", "usr/share/doc/ncubed/README", "644"],
+]
+extended-description = """\
+ncube helps human rights researchers and investigative journalists to make use
+of publicy available data. ncube has first class support on Windows, macOS and
+Linux.
+"""
