@@ -1,15 +1,16 @@
 use chrono::{DateTime, Duration, Utc};
 use ncube_data::Account;
-use tracing::instrument;
+use tracing::{debug, error, info, instrument, warn};
 
 use crate::actors::{
-    host::{HostActor, RequirePool, SecretKeySetting},
-    Registry,
+    db::LookupDatabase,
+    host::{RequirePool, SecretKeySetting},
+    DatabaseActor, HostActor, Registry,
 };
 use crate::crypto;
 use crate::errors::HandlerError;
-use crate::stores::{account_store, workspace_store, AccountStore, WorkspaceStore};
-use crate::types::{AccountRequest, JwtToken};
+use crate::stores::{account_store, workspace_store, WorkspaceStore};
+use crate::types::{JwtToken, WorkspaceKind};
 
 // This function sets the OTP max age policy. At this time this is set to 48
 // hours.
@@ -21,10 +22,7 @@ pub fn is_valid_otp(ts: DateTime<Utc>) -> bool {
 }
 
 #[instrument]
-pub async fn create_account(
-    workspace: &str,
-    account_req: AccountRequest,
-) -> Result<(), HandlerError> {
+pub async fn create_account(workspace: &str, email: &str) -> Result<Account, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -32,35 +30,16 @@ pub async fn create_account(
     let account_store = account_store(db);
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
-    let AccountRequest {
-        email, password, ..
-    } = account_req;
-
-    if account_store.exists(&email, workspace.id).await? {
+    if account_store.exists(&email, &workspace).await? {
         return Err(HandlerError::Invalid(
             "This email already exists for this workspace.".into(),
         ));
     }
 
-    match password {
-        None => {
-            let password = crypto::gen_secret_key(rand::thread_rng());
-            let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
-            let key = crypto::gen_symmetric_key(rand::thread_rng());
-            let otp = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
+    account_store.create(&email, &workspace).await?;
+    let account = account_store.show(&email, &workspace).await?;
 
-            account_store
-                .create(&email, &hash, Some(otp), Some(&key), None, workspace.id)
-                .await?;
-        }
-        Some(hash) => {
-            account_store
-                .create(&email, &hash, None, None, None, workspace.id)
-                .await?;
-        }
-    }
-
-    Ok(())
+    Ok(account)
 }
 
 #[instrument]
@@ -89,28 +68,43 @@ pub async fn login_account(
     let account_store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
-    let account = account_store.show(&email, workspace.id).await?;
+    let account = account_store.show(&email, &workspace).await?;
 
     // The account must have a still valid OTP password in case it is an active
     // OTP account.
     if account.is_otp && !is_valid_otp(account.updated_at) {
+        warn!("otp expired for {}", workspace.slug);
         return Err(HandlerError::NotAllowed("login failed".into()));
     }
 
     let hash = account_store
-        .show_password(&email, workspace.id)
-        .await?
-        .ok_or_else(|| HandlerError::NotAllowed("login failed".into()))?;
+        .show_password(&email, &workspace)
+        .await
+        .map_err(|e| {
+            error!("login failed to fetch password: {:?}", e.to_string());
+            HandlerError::NotAllowed("login failed".into())
+        })?;
 
     let key = account_store
-        .show_key(&email, workspace.id)
+        .show_key(&email, &workspace)
         .await
-        .map_err(|_| HandlerError::NotAllowed("login failed".into()))?;
+        .map_err(|e| {
+            error!("login failed to fetch key: {:?}", e.to_string());
+            HandlerError::NotAllowed("login failed".into())
+        })?;
 
-    let decrypted_password = crypto::aes_decrypt(key, password)
-        .map_err(|_| HandlerError::NotAllowed("login failed".into()))?;
+    let decrypted_password = crypto::aes_decrypt(key, password).map_err(|e| {
+        error!("failed to decrypt password: {:?}", e.to_string());
+        HandlerError::NotAllowed("login failed".into())
+    })?;
 
-    Ok(crypto::verify(&hash, &decrypted_password))
+    let is_verified = crypto::verify(&hash, &decrypted_password);
+
+    if !is_verified {
+        error!("password verification failed");
+    }
+
+    Ok(is_verified)
 }
 
 #[instrument]
@@ -125,33 +119,69 @@ pub async fn update_password(
     let db = host_actor.call(RequirePool).await??;
 
     let workspace_store = workspace_store(db.clone());
-    let account_store = account_store(db);
+    let store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
-    let account = account_store.show(&email, workspace.id).await?;
+    let account = store.show(&email, &workspace).await?;
 
     // The account must have a still valid OTP password in case it is an active
     // OTP account.
     if account.is_otp && !is_valid_otp(account.updated_at) {
+        error!("otp expired for {:?}", workspace.slug);
         return Err(HandlerError::NotAllowed("update failed".into()));
     }
 
     // Passwords must match.
     if password != password_again {
+        error!("passwords don't match for {:?}", workspace.slug);
         return Err(HandlerError::NotAllowed("update failed".into()));
     }
 
-    let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
-    let key = crypto::gen_symmetric_key(rand::thread_rng());
+    // If the workspace is a remote one, we need to do the actual update
+    // remotely and then update the local database. The full update process is
+    // described in detail in the auth-workflow guide in the docs directory.
+    let new_hash = match &workspace.kind {
+        WorkspaceKind::Local(..) => {
+            debug!("updating local password ({:?}/{:?})", workspace.slug, email);
+            store.update_password(&email, &password, &workspace).await?
+        }
+        WorkspaceKind::Remote(..) => {
+            debug!(
+                "updating remote password ({:?}/{:?})",
+                workspace.slug, email
+            );
 
-    account_store
-        .update_password(&email, &hash, &key, workspace.id)
-        .await
-        .map_err(|_| HandlerError::NotAllowed("update failed".into()))?;
+            let mut db_actor = DatabaseActor::from_registry().await.unwrap();
+            let mut remote_db = db_actor
+                .call(LookupDatabase {
+                    workspace: workspace.slug.to_string(),
+                })
+                .await??;
 
-    let new_password = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
+            // Make sure we can login.
+            remote_db.login().await?;
+            let remote_store = account_store(remote_db.clone());
 
-    Ok(new_password)
+            // Update the password remotely and receive an AES encrypted hash to
+            // store locally.
+            let new_hash = remote_store
+                .update_password(&email, &password, &workspace)
+                .await?;
+
+            // Store the AES encrypted hash in the local database. This hash
+            // will be send when doing a login.
+            store
+                .update_hashed_password(&email, &new_hash, &workspace)
+                .await?;
+
+            // We make sure the update succeeded by forcing a login.
+            remote_db.force_login().await?;
+
+            new_hash
+        }
+    };
+
+    Ok(new_hash)
 }
 
 #[instrument]
@@ -162,9 +192,9 @@ pub async fn issue_token(
 ) -> Result<JwtToken, HandlerError> {
     let logged_in = login_account(&workspace, &email, &password).await?;
 
+    info!("{:?} -> {:?}/{:?}", workspace, email, password);
+
     if !logged_in {
-        // FIXME: This results in 403 Forbidden HTTP response, do I want a 410
-        // Unauthorized instead?
         return Err(HandlerError::NotAllowed("login failed".into()));
     }
 
@@ -188,7 +218,7 @@ pub async fn show_account(workspace: &str, email: &str) -> Result<Account, Handl
     let account_store = account_store(db);
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
-    let accounts = account_store.show(&email, workspace.id).await?;
+    let account = account_store.show(&email, &workspace).await?;
 
-    Ok(accounts)
+    Ok(account)
 }

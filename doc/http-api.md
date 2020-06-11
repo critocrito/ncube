@@ -90,8 +90,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImVtYWlsQ
 ```
 
 If no token was supplied or the token didn't verify, the API returns a **401
-Unauthorized** response. If the token is valid but the user lacks access rights
-the API returns a **403 Forbidden**.
+Unauthorized** response.
 
 Only access to remote workspaces require authorization; requests to the local
 Ncube installation (originating from `127.0.0.1`) don't.

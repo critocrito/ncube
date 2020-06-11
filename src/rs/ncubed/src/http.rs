@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 use tracing::debug;
@@ -17,14 +18,17 @@ pub enum Status {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct SuccessResponse<T> {
+pub struct SuccessResponse<T> {
     #[serde(flatten)]
-    pub(crate) status: Status,
-    pub(crate) data: T,
+    pub status: Status,
+    pub data: T,
 }
 
-impl<T> SuccessResponse<T> {
-    pub(crate) fn new(data: T) -> Self {
+impl<T> SuccessResponse<T>
+where
+    T: Debug,
+{
+    pub fn new(data: T) -> Self {
         Self {
             status: Status::Success,
             data,
@@ -33,21 +37,31 @@ impl<T> SuccessResponse<T> {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct ErrorResponse {
+pub struct ErrorResponse {
     #[serde(flatten)]
-    pub(crate) status: Status,
-    pub(crate) code: u16,
-    pub(crate) errors: String,
+    pub status: Status,
+    pub code: u16,
+    pub errors: String,
 }
 
 impl ErrorResponse {
-    pub(crate) fn new(code: StatusCode, errors: &str) -> Self {
+    pub fn new(code: StatusCode, errors: &str) -> Self {
         Self {
             status: Status::Error,
             code: code.as_u16(),
             errors: errors.into(),
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum HttpResponse<T>
+where
+    T: Debug,
+{
+    Empty,
+    Success(SuccessResponse<T>),
+    Error(ErrorResponse),
 }
 
 #[cfg(test)]
@@ -108,7 +122,7 @@ pub fn user_ctx() -> warp::filters::BoxedFilter<(Option<String>,)> {
 fn extract_claims(key: &str, token: &str) -> (Option<String>, Option<String>) {
     let claims = jwt_verify(&key, &token);
     match claims {
-        Ok(claims) => (claims.subject, claims.audience),
+        Ok(claims) => (claims.audience, claims.subject),
         Err(_) => (None, None),
     }
 }
@@ -128,9 +142,13 @@ pub(crate) fn authorize_req() -> impl Filter<Extract = (ReqCtx,), Error = warp::
 
             let key = show_secret_key().await;
 
+            debug!("authorizing token {:?} using key {:?}", token, key);
+
             match key {
                 Ok(key) => {
-                    let (email, workspace) = extract_claims(&key, &token);
+                    let (workspace, email) = extract_claims(&key, &token);
+
+                    debug!("authorized claims: {:?}/{:?}", workspace, email);
 
                     return Ok(ReqCtx {
                         is_authorized: email.is_some() && workspace.is_some(),
@@ -140,12 +158,15 @@ pub(crate) fn authorize_req() -> impl Filter<Extract = (ReqCtx,), Error = warp::
                     });
                 }
                 _ => {
+                    debug!("no key to extract claims");
+
                     return Ok(ReqCtx {
                         is_local,
                         ..Default::default()
-                    })
+                    });
                 }
             };
+
             // I added this code branch to have Rust infer the return type of
             // and_then.
             #[allow(unreachable_code)]
@@ -157,7 +178,7 @@ pub(crate) fn authorize_req() -> impl Filter<Extract = (ReqCtx,), Error = warp::
 pub(crate) fn restrict_to_local_req(
 ) -> impl Filter<Extract = (ReqCtx,), Error = warp::Rejection> + Clone {
     authorize_req().and_then(move |ctx: ReqCtx| {
-        debug!("{:?}", ctx);
+        debug!("restrict to local request: {:?}", ctx);
 
         match ctx {
             ReqCtx { is_local: true, .. } => futures::future::ok(ctx),
@@ -169,12 +190,12 @@ pub(crate) fn restrict_to_local_req(
 pub(crate) fn authenticate_remote_req(
 ) -> impl Filter<Extract = (ReqCtx,), Error = warp::Rejection> + Clone {
     authorize_req().and_then(move |ctx: ReqCtx| {
-        debug!("{:?}", ctx);
+        debug!("authenticate remote request: {:?}", ctx);
 
         match ctx {
             ReqCtx {
                 is_local: false,
-                is_authorized: true,
+                is_authorized: false,
                 ..
             } => futures::future::err(warp::reject::custom(HostError::AuthError)),
             _ => futures::future::ok(ctx),

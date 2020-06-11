@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::{Mutex, RwLock};
-use tracing::{instrument, trace};
+use tracing::{debug, error, instrument};
 
 pub mod http;
 pub mod sqlite;
+
+use crate::errors::HostError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Database {
@@ -12,6 +14,40 @@ pub enum Database {
     Http(Box<http::Database>),
 }
 
+impl Database {
+    #[instrument]
+    pub(crate) async fn force_login(&mut self) -> Result<(), HostError> {
+        match self {
+            Database::Http(inner_db) => {
+                inner_db.update_password().await.map_err(|e| {
+                    error!("updating password failed: {:?}", e.to_string());
+                    HostError::AuthError
+                })?;
+                inner_db.login().await.map_err(|e| {
+                    error!("login failed: {:?}", e.to_string());
+                    HostError::AuthError
+                })?;
+                Ok(())
+            }
+            _ => Ok(()),
+        }
+    }
+
+    #[allow(dead_code)]
+    #[instrument]
+    pub(crate) async fn login(&mut self) -> Result<(), HostError> {
+        match self {
+            Database::Http(inner_db) => {
+                inner_db.ensure_login().await.map_err(|e| {
+                    error!("login failed: {:?}", e.to_string());
+                    HostError::AuthError
+                })?;
+                Ok(())
+            }
+            _ => Ok(()),
+        }
+    }
+}
 /// Cache database connectors.
 ///
 /// # Example
@@ -57,10 +93,10 @@ impl DatabaseCache {
         if let Some(elem) = cache.get(&trimmed) {
             let elem = elem.lock().expect("Mutex poisoned");
             let db = elem.clone();
-            trace!("database served from cache");
+            debug!("database {} served from cache", key);
             return Some(db);
         }
-        trace!("database not in cache");
+        debug!("database {} not in cache", key);
         None
     }
 
@@ -69,7 +105,7 @@ impl DatabaseCache {
         let trimmed = key.trim().to_string();
         let mut cache = self.0.write().expect("RwLock poisoned");
         cache.entry(trimmed).or_insert_with(|| {
-            trace!("new database inserted into cache");
+            debug!("new database {} inserted into cache", key);
             Mutex::new(db)
         });
     }
@@ -80,11 +116,11 @@ impl DatabaseCache {
         let cache = self.0.read().expect("RwLock poisoned");
         match cache.get(&trimmed) {
             Some(_) => {
-                trace!("database found in cache");
+                debug!("database {} found in cache", key);
                 true
             }
             _ => {
-                trace!("database not found in cache");
+                debug!("database {} not found in cache", key);
                 false
             }
         }

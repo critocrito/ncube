@@ -1,6 +1,9 @@
 use thiserror::Error;
 
-pub use crate::db::{http, sqlite};
+pub use crate::{
+    db::{http, sqlite},
+    http::ErrorResponse,
+};
 
 #[derive(Error, Debug)]
 pub enum StoreError {
@@ -26,6 +29,8 @@ pub enum StoreError {
     NotFound(String),
     #[error("Operation is not authorized.")]
     Unauthorized,
+    #[error("{0:?}")]
+    HttpFail(ErrorResponse),
 }
 
 #[derive(Debug, Error)]
@@ -60,8 +65,8 @@ pub enum ActorError {
 pub enum HandlerError {
     #[error(transparent)]
     Store(#[from] StoreError),
-    #[error("The host failed for reasons: {0}")]
-    Host(String),
+    #[error(transparent)]
+    Host(#[from] HostError),
     #[error(transparent)]
     Other(#[from] anyhow::Error),
     #[error("{0}")]
@@ -98,8 +103,7 @@ impl From<ActorError> for HandlerError {
                 StoreError::Invalid(inner_err) => HandlerError::Invalid(inner_err.to_string()),
                 _ => HandlerError::Store(err),
             },
-            ActorError::Invalid(msg) => HandlerError::Invalid(msg),
-            ActorError::Host(err) => HandlerError::Host(err),
+            ActorError::Invalid(msg) | ActorError::Host(msg) => HandlerError::Invalid(msg),
         }
     }
 }

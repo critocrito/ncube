@@ -95,13 +95,13 @@ impl Handler<LookupDatabase> for DatabaseActor {
             }
             WorkspaceDatabase::Http { .. } => {
                 let account_store = account_store(db);
-                let Account { email, .. } = workspace_store.show_account(&msg.workspace).await?;
-                let password = account_store.show_password(&email, workspace.id).await?;
+                let Account { email, .. } = account_store.show_by_workspace(&workspace).await?;
+                let password = account_store.show_password(&email, &workspace).await?;
                 let config: http::Config = connection_string
                     .parse::<http::Config>()
                     .map_err(|e| ActorError::Store(StoreError::HttpConfig(e)))?;
 
-                let db = http::Database::new(config, &msg.workspace, &email, &password);
+                let db = http::Database::new(config, &workspace, &email, &password);
 
                 Database::Http(Box::new(db))
             }

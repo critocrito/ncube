@@ -1,17 +1,17 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use ncube_data::Source;
+use ncube_data::{Source, Workspace};
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
+use tracing::instrument;
 
 use crate::db::{http, sqlite, Database};
 use crate::errors::StoreError;
-use crate::http::SuccessResponse;
 
-pub(crate) fn source_store(wrapped_db: Database) -> impl SourceStore {
+pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send + Sync> {
     match wrapped_db {
-        Database::Sqlite(db) => SourceStoreSqlite { db },
-        Database::Http(_client) => todo!(),
+        Database::Sqlite(db) => Box::new(SourceStoreSqlite { db }),
+        Database::Http(client) => Box::new(SourceStoreHttp { client }),
     }
 }
 
@@ -19,7 +19,7 @@ pub(crate) fn source_store(wrapped_db: Database) -> impl SourceStore {
 pub(crate) trait SourceStore {
     async fn exists(&self, id: i32) -> Result<bool, StoreError>;
     async fn create(&self, kind: &str, term: &str) -> Result<(), StoreError>;
-    async fn list(&self) -> Result<Vec<Source>, StoreError>;
+    async fn list(&self, workspace: &Workspace) -> Result<Vec<Source>, StoreError>;
     async fn delete(&self, id: i32) -> Result<(), StoreError>;
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
 }
@@ -31,6 +31,7 @@ pub struct SourceStoreSqlite {
 
 #[async_trait]
 impl SourceStore for SourceStoreSqlite {
+    #[instrument]
     async fn exists(&self, id: i32) -> Result<bool, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/exists.sql"))?;
@@ -43,6 +44,7 @@ impl SourceStore for SourceStoreSqlite {
         }
     }
 
+    #[instrument]
     async fn create(&self, kind: &str, term: &str) -> Result<(), StoreError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
@@ -53,7 +55,8 @@ impl SourceStore for SourceStoreSqlite {
         Ok(())
     }
 
-    async fn list(&self) -> Result<Vec<Source>, StoreError> {
+    #[instrument]
+    async fn list(&self, _workspace: &Workspace) -> Result<Vec<Source>, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/list.sql"))?;
 
@@ -65,6 +68,7 @@ impl SourceStore for SourceStoreSqlite {
         Ok(sources)
     }
 
+    #[instrument]
     async fn delete(&self, id: i32) -> Result<(), StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/delete.sql"))?;
@@ -74,6 +78,7 @@ impl SourceStore for SourceStoreSqlite {
         Ok(())
     }
 
+    #[instrument]
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
@@ -87,7 +92,7 @@ impl SourceStore for SourceStoreSqlite {
 
 #[derive(Debug)]
 pub struct SourceStoreHttp {
-    client: http::Database,
+    client: Box<http::Database>,
 }
 
 #[async_trait]
@@ -100,8 +105,11 @@ impl SourceStore for SourceStoreHttp {
         todo!()
     }
 
-    async fn list(&self) -> Result<Vec<Source>, StoreError> {
-        let SuccessResponse { data, .. } = self.client.get("workspaces").await.unwrap();
+    #[instrument]
+    async fn list(&self, workspace: &Workspace) -> Result<Vec<Source>, StoreError> {
+        let url_path = format!("/api/workspaces/{}/sources", workspace.slug);
+        let data: Vec<Source> = self.client.get(&url_path).await?.unwrap_or_else(|| vec![]);
+
         Ok(data)
     }
 

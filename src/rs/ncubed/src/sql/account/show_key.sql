@@ -1,4 +1,4 @@
-SELECT acc.key AS key
+SELECT acc.symmetric_key AS key
 FROM access a
   LEFT JOIN account acc ON a.account = acc.id
   LEFT JOIN workspace w ON a.workspace = w.id
