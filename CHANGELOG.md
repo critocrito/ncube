@@ -1,3 +1,44 @@
+<a name="0.5.0"></a>
+## 0.5.0 (2020-06-11)
+
+
+#### Bug Fixes
+
+*   respect -v flag for ncubed and ncubectl ([7b5c0795](7b5c0795))
+* **ncubed:**
+  *  include remote workspace endpoint in the connection object ([65882bbe](65882bbe))
+  *  normalized sql include path in config store ([e9c0af05](e9c0af05))
+  *  store database paths expanded ([7d2488bf](7d2488bf))
+* **ui:**  send the name field when creating local workspaces ([69e31543](69e31543))
+
+#### Features
+
+* **ncubectl:**
+  *  export connection details ([0bdc4472](0bdc4472))
+  *  get and set configurations settings ([7ebb48a4](7ebb48a4))
+  *  specify the path to the database ([0c045451](0c045451))
+  *  create/list workspaces and accounts ([6a8c5854](6a8c5854))
+* **ncubed:**
+  *  finalize the account initializtion workflow ([145fbfba](145fbfba))
+  *  allow login for http database backends ([3fd8827a](3fd8827a))
+  *  create local account when creating a remote workspace ([93b3b8a6](93b3b8a6))
+  *  add a config setting for the endpoint ([912c5c0b](912c5c0b))
+  *  add enduser api for HTTP database ([7119b9dc](7119b9dc))
+  *  add a HTTP database backend ([bac46d84](bac46d84))
+  *  restrict access to endpoints ([67eeceb6](67eeceb6))
+  *  read configuration from the command line arguments ([0af05061](0af05061))
+  *  create remote workspaces using the HTTP api ([b5588394](b5588394))
+  *  verify JWT tokens in HTTP requests ([16bdeb23](16bdeb23))
+  *  add support for secret key in setting ([2f34d2bc](2f34d2bc))
+  *  login account over HTTP and issue JWT tokens ([0563bec4](0563bec4))
+  *  update passwords using an HTTP endpoint ([d4897f5c](d4897f5c))
+  *  handler to verify a password login ([6077c208](6077c208))
+  *  create accounts for a workspace ([77676bf1](77676bf1))
+  *  run ncubed without an HTTP server ([5cc93d92](5cc93d92))
+* **ui:**  upload connection files to link remote workspaces ([3255cad7](3255cad7))
+
+
+
 <a name="0.4.0"></a>
 ## 0.4.0 (2020-05-25)
 
