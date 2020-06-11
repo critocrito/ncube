@@ -169,7 +169,7 @@ pkg-deb: $(release_dir)/ncube
 pkg-deb-ncubed: $(release_dir)/ncubed $(release_dir)/ncubectl
 	@mkdir -p $(pkgs_release_dir)
 	cargo deb -p ncubed
-	cp target/debian/ncube*.deb $(pkgs_release_dir)
+	cp target/debian/ncubed*.deb $(pkgs_release_dir)
 
 test:
 	cargo test
