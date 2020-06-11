@@ -39,7 +39,7 @@ pub struct ConfigStoreSqlite {
 impl ConfigStore for ConfigStoreSqlite {
     #[instrument]
     async fn init(&self) -> Result<(), StoreError> {
-        let mut conn = self.db.connection().await?;
+        let conn = self.db.connection().await?;
         conn.pragma_update(None, "foreign_keys", &"ON")?;
         // FIXME: Should I enable this?
         // conn.pragma_update(None, "journal_mode", &"WAL")?;
