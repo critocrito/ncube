@@ -61,7 +61,7 @@ cp -a resources/workspace/* "$BUILD_DIR"
 
 curl -s "$NODE_URL" | tar xz --strip-components 1 -C "$WORKSPACE_DIR"/build/dist/nodejs
 curl -s -o "$BUILD_DIR"/dist/ffmpeg/ffmpeg -L "$FFMPEG_URL"
-curl -s -o "$BUILD_DIR"/dist/youtube-dl/youtube-dl -L "$YOUTUBEDL_URL"
+curl -k -s -o "$BUILD_DIR"/dist/youtube-dl/youtube-dl -L "$YOUTUBEDL_URL"
 
 chmod +x "$BUILD_DIR"/dist/ffmpeg/ffmpeg
 chmod +x "$BUILD_DIR"/dist/youtube-dl/youtube-dl
