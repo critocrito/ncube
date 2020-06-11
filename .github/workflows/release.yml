@@ -258,11 +258,13 @@ jobs:
         cargo build --bin ncubed --release ${{ env.TARGET_FLAGS }}
         cargo build --bin ncubectl --release ${{ env.TARGET_FLAGS }}
 
-    - name: Strip release binary (linux and macos)
-      run: strip "target/${{ matrix.target }}/release/ncube"
+    - name: Strip ncubed release binary (linux and macos)
+      run: strip "target/${{ matrix.target }}/release/ncubed"
+
+    - name: Strip ncubectl release binary (linux and macos)
+      run: strip "target/${{ matrix.target }}/release/ncubectl"
 
     - name: Build binary release
-      if: matrix.build == 'linux'
       shell: bash
       run: |
         staging="ncube-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
@@ -275,7 +277,6 @@ jobs:
         echo "::set-env name=ASSET::$staging.tar.gz"
 
     - name: Build installable DEB package
-      if: matrix.build == 'linux-pkg'
       shell: bash
       run: |
         cargo install cargo-deb

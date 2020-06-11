@@ -60,6 +60,8 @@ assets = [
   ["../../../license.txt", "usr/share/doc/ncubed/", "644"],
   ["../../../CHANGELOG.md", "usr/share/doc/ncubed/CHANGELOG", "644"],
   ["../../../README.md", "usr/share/doc/ncubed/README", "644"],
+  ["../../../doc/ncubed.1", "usr/share/man/man1/ncubed.1", "644"],
+  ["../../../doc/ncubectl.8", "usr/share/man/man8/ncubectl.8", "644"],
 ]
 extended-description = """\
 ncube helps human rights researchers and investigative journalists to make use
