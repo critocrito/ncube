@@ -96,6 +96,8 @@ ncubectl connection syrian-archive me@example.org
   AccountCreation -> User: provide json connection object
   User -> UI: import json connection object
   UI -> LocalNcube: create remote workspace
+  LocalNcube -> LocalNcube: create remote workspace in local database
+  LocalNcube -> LocalNcube: create account in local database using otp as password
   boundary UpdateHandshake
   LocalNcube -> UpdateHandshake: use otp (aes encrypted) password
 #+end_src
@@ -152,6 +154,7 @@ password as the account password.
 * Auth Update
 
 #+begin_src plantuml :file diagrams/auth-update.png
+  scale 2
   UI -> LocalNcube: update workspace account
   boundary UpdateHandshake
   LocalNcube -> UpdateHandshake: use account (aes encrypted) password
@@ -177,10 +180,12 @@ Content-Type: application/json
 * Update Handshake
 
 #+begin_src plantuml :file diagrams/auth-update-handshake.png
+  scale 2
   LocalNcube -> RemoteNcube: login using [otp|account] (aes encrypted) password
   RemoteNcube -> LocalNcube: provide jwt token
   LocalNcube -> RemoteNcube: send update password request signed with jwt token
   RemoteNcube -> LocalNcube: return aes encrypted hash of password
+  LocalNcube -> LocalNcube: store aes encrypted password in local database
   LocalNcube -> RemoteNcube: login using updated (aes encrypted) password
   RemoteNcube -> LocalNcube: provide jwt token
 #+end_src

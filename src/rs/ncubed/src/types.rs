@@ -11,11 +11,10 @@ pub enum DatabaseRequest {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "account")]
-pub struct AccountCreateRequest {
+pub struct AccountRequest {
     pub email: String,
     pub password: String,
     pub password_again: String,
-    pub otp: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -25,7 +24,7 @@ pub enum WorkspaceKindRequest {
     Remote {
         workspace: String,
         endpoint: String,
-        account: AccountCreateRequest,
+        account: AccountRequest,
     },
 }
 
@@ -56,20 +55,13 @@ pub struct SourceRequest {
     pub annotations: Vec<AnnotationKind>,
 }
 
-#[derive(Debug, Default)]
-pub struct AccountRequest {
-    pub email: String,
-    pub name: Option<String>,
-    pub password: Option<String>,
-}
-
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct UpdatePasswordRequest {
     pub email: String,
     pub password: String,
@@ -87,4 +79,9 @@ pub struct ReqCtx {
     pub is_authorized: bool,
     pub email: Option<String>,
     pub workspace: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LoginResponse {
+    pub token: String,
 }

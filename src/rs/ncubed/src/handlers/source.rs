@@ -7,7 +7,7 @@ use crate::actors::{
     Registry,
 };
 use crate::errors::HandlerError;
-use crate::stores::{source_store, workspace_store, SourceStore, WorkspaceStore};
+use crate::stores::{source_store, workspace_store, WorkspaceStore};
 use crate::types::SourceRequest;
 
 #[instrument]
@@ -50,16 +50,20 @@ pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> 
         return Err(HandlerError::Invalid(msg));
     };
 
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
+
     let mut database_actor = DatabaseActor::from_registry().await.unwrap();
 
-    let database = database_actor
+    let mut database = database_actor
         .call(LookupDatabase {
-            workspace: workspace.into(),
+            workspace: workspace.slug.clone(),
         })
         .await??;
 
+    database.login().await?;
+
     let store = source_store(database);
-    let sources = store.list().await?;
+    let sources = store.list(&workspace).await?;
 
     Ok(sources)
 }

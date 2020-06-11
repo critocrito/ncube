@@ -1,6 +1,6 @@
 # Update the account details
 
-Change details for this account.
+Change details for this account. This request must be authorized.
 
 **URL** : `/workspaces/<workspace_slug>/account`
 
@@ -23,7 +23,14 @@ Change details for this account.
 
 ## Success Response
 
-**Code** : `204 No Content`
+**Code** : `200 OK`
+
+```json
+{
+  "status": "success",
+  "data": "<encrypted password hash>"
+}
+```
 
 ## Error Response
 

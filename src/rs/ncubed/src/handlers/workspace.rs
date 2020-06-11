@@ -9,9 +9,7 @@ use crate::actors::{
 use crate::errors::HandlerError;
 use crate::handlers::account;
 use crate::stores::{workspace_store, WorkspaceStore};
-use crate::types::{
-    AccountCreateRequest, AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest,
-};
+use crate::types::{AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 
 #[instrument]
 pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspace, HandlerError> {
@@ -26,9 +24,10 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
     let workspace_store = workspace_store(db.clone());
 
     if let Ok(true) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` already exists.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
+        return Err(HandlerError::Invalid(format!(
+            "Workspace `{}` already exists.",
+            workspace
+        )));
     };
 
     // Depending if we have a local or remote workspace we have to do different
@@ -94,13 +93,14 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
                 )
                 .await?;
 
-            let AccountCreateRequest { email, otp, .. } = account;
-            let account_req = AccountRequest {
-                email: email.to_string(),
-                password: Some(otp.to_string()),
-                ..Default::default()
-            };
-            account::create_account(&workspace, account_req).await?;
+            let AccountRequest {
+                email,
+                password,
+                password_again,
+            } = account;
+
+            account::create_account(&workspace, &email).await?;
+            account::update_password(&workspace, &email, &password, &password_again).await?;
         }
     };
 

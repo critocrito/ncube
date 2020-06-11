@@ -5,7 +5,7 @@ use warp::{
     Filter,
 };
 
-use crate::errors::{HandlerError, HostError};
+use crate::errors::{HandlerError, HostError, StoreError};
 use crate::http::{ErrorResponse, SuccessResponse};
 
 #[instrument]
@@ -30,6 +30,10 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
     } else if let Some(HostError::AuthError) = err.find() {
         code = StatusCode::UNAUTHORIZED;
         message = "request did not authorize".to_string();
+    } else if let Some(StoreError::HttpFail(reason)) = err.find() {
+        code = StatusCode::INTERNAL_SERVER_ERROR;
+        error!("{:?}", reason);
+        message = "UNHANDLED_REJECTION".into();
     } else if let Some(rejection) = err.find::<warp::reject::MethodNotAllowed>() {
         code = StatusCode::METHOD_NOT_ALLOWED;
         message = rejection.to_string();
@@ -356,6 +360,7 @@ pub(crate) mod source {
 }
 
 pub(crate) mod user {
+    use super::SuccessResponse;
     use tracing::instrument;
     use warp::Filter;
 
@@ -368,9 +373,10 @@ pub(crate) mod user {
         workspace: String,
         login: LoginRequest,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        let jwt_token = handlers::issue_token(&workspace, &login.email, &login.password).await?;
+        let token = handlers::issue_token(&workspace, &login.email, &login.password).await?;
+        let response = SuccessResponse::new(token);
 
-        Ok(warp::reply::json(&jwt_token))
+        Ok(warp::reply::json(&response))
     }
 
     #[instrument]
@@ -384,11 +390,11 @@ pub(crate) mod user {
             password,
             password_again,
         } = request;
-
         let enc_password =
             handlers::update_password(&workspace, &email, &password, &password_again).await?;
+        let response = SuccessResponse::new(enc_password);
 
-        Ok(warp::reply::json(&enc_password))
+        Ok(warp::reply::json(&response))
     }
 
     pub(crate) fn routes(

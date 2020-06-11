@@ -3,6 +3,8 @@
 
 use chrono::prelude::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::default::Default;
+use std::fmt::{self, Display};
 
 #[derive(Debug)]
 pub struct Ncube;
@@ -44,6 +46,14 @@ pub enum WorkspaceDatabase {
     },
 }
 
+impl Default for WorkspaceDatabase {
+    fn default() -> Self {
+        WorkspaceDatabase::Sqlite {
+            path: "ncubed.db".to_string(),
+        }
+    }
+}
+
 /// There can be either `local` or `remote` workspaces.
 ///
 /// # Example
@@ -61,6 +71,12 @@ pub enum WorkspaceDatabase {
 pub enum WorkspaceKind {
     Local(String),
     Remote(String),
+}
+
+impl Default for WorkspaceKind {
+    fn default() -> Self {
+        WorkspaceKind::Local("./workspace".to_string())
+    }
 }
 
 /// A single Ncube workspace. Workspaces can either be `local` or `remote`. They
@@ -118,6 +134,22 @@ pub struct Workspace {
     pub database: WorkspaceDatabase,
 }
 
+impl Default for Workspace {
+    fn default() -> Self {
+        let now = Utc::now();
+        Self {
+            id: i32::default(),
+            name: String::default(),
+            slug: String::default(),
+            description: Option::default(),
+            created_at: now,
+            updated_at: now,
+            kind: WorkspaceKind::default(),
+            database: WorkspaceDatabase::default(),
+        }
+    }
+}
+
 impl Workspace {
     /// Construct a valid database string for this workspace.
     ///
@@ -147,6 +179,11 @@ impl Workspace {
     }
 }
 
+impl Display for Workspace {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?} ({:?})", self.name, self.kind)
+    }
+}
 /// There are different types of annotations.
 ///
 /// - tags : simple labels that can categorize data.

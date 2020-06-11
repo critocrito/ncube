@@ -1,6 +1,6 @@
 use ncubed::{
     crypto, handlers,
-    types::{AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest},
+    types::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest},
 };
 use prettytable::{cell, format::FormatBuilder, row, Table};
 use std::io::Write;
@@ -9,16 +9,9 @@ use crate::fatal;
 use crate::types::ConnectionOut;
 
 pub(crate) async fn account(workspace: &str, email: &str) {
-    handlers::account::create_account(
-        workspace,
-        AccountRequest {
-            email: email.to_string(),
-            name: None,
-            password: None,
-        },
-    )
-    .await
-    .unwrap_or_else(|e| fatal!("cannot create account: {}", e.to_string()));
+    handlers::account::create_account(workspace, email)
+        .await
+        .unwrap_or_else(|e| fatal!("cannot create account: {}", e.to_string()));
 }
 
 pub(crate) async fn workspace(name: &str, database: DatabaseRequest) {
