@@ -275,10 +275,10 @@ jobs:
     - name: Build binary release
       shell: bash
       run: |
-        staging="ncube-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
+        staging="ncubed-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
         mkdir -p "$staging"/doc
         cp {README.md,license.txt} "$staging/"
-        cp {CHANGELOG.md,doc/glossary.md} "$staging/doc/"
+        cp {CHANGELOG.md,doc/glossary.md,doc/ncubectl.8*,doc/ncubed.1*} "$staging/doc/"
         cp "target/${{ matrix.target }}/release/ncubed" "$staging/"
         cp "target/${{ matrix.target }}/release/ncubectl" "$staging/"
         tar czf "$staging.tar.gz" "$staging"
