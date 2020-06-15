@@ -29,3 +29,5 @@ Cargo.lock
 node_modules
 yarn*.log
 npm*.log
+*.db
+connection.json
