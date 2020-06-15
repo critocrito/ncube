@@ -1,4 +1,5 @@
 pub use ncube_data::{AnnotationKind, WorkspaceKind};
+
 use serde::{Deserialize, Serialize};
 use slugify::slugify;
 
@@ -15,6 +16,7 @@ pub struct AccountRequest {
     pub email: String,
     pub password: String,
     pub password_again: String,
+    pub otp: String,
 }
 
 #[derive(Debug, Deserialize)]

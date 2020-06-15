@@ -21,7 +21,12 @@ pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send
 #[async_trait]
 pub(crate) trait AccountStore {
     async fn exists(&self, email: &str, workspace: &Workspace) -> Result<bool, StoreError>;
-    async fn create(&self, email: &str, workspace: &Workspace) -> Result<(), StoreError>;
+    async fn create(
+        &self,
+        email: &str,
+        otp: Option<String>,
+        workspace: &Workspace,
+    ) -> Result<(), StoreError>;
     async fn list(&self) -> Result<Vec<Account>, StoreError>;
     async fn show_password(&self, email: &str, workspace: &Workspace)
         -> Result<String, StoreError>;
@@ -63,23 +68,36 @@ impl AccountStore for AccountStoreSqlite {
     }
 
     #[instrument]
-    async fn create(&self, email: &str, workspace: &Workspace) -> Result<(), StoreError> {
+    async fn create(
+        &self,
+        email: &str,
+        otp: Option<String>,
+        workspace: &Workspace,
+    ) -> Result<(), StoreError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/create.sql"))?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/account/grant_access.sql"))?;
 
-        let password = crypto::gen_secret_key(rand::thread_rng());
-        let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
-        let key = crypto::gen_symmetric_key(rand::thread_rng());
-        let otp = crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
+        let (hash, otp, key) = match otp {
+            Some(otp) => (otp, None, None),
+            None => {
+                let password = crypto::gen_secret_key(rand::thread_rng());
+                let key = crypto::gen_symmetric_key(rand::thread_rng());
+                let otp =
+                    crypto::aes_encrypt(rand::thread_rng(), &key, &password.as_bytes().to_vec());
+                let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
+
+                (hash, Some(otp), Some(key))
+            }
+        };
 
         conn.execute_batch("BEGIN;")?;
         let account_id = stmt.insert(params![
             &email,
             &hash,
-            otp,
-            key.unsecure(),
+            &otp,
+            &key.map(|v| v.unsecure().to_owned()),
             &now.to_rfc3339(),
             &now.to_rfc3339()
         ])?;
@@ -245,7 +263,12 @@ impl AccountStore for AccountStoreHttp {
     }
 
     #[instrument]
-    async fn create(&self, _email: &str, _workspace: &Workspace) -> Result<(), StoreError> {
+    async fn create(
+        &self,
+        _email: &str,
+        _otp: Option<String>,
+        _workspace: &Workspace,
+    ) -> Result<(), StoreError> {
         unreachable!()
     }
 

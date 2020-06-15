@@ -97,9 +97,10 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
                 email,
                 password,
                 password_again,
+                otp,
             } = account;
 
-            account::create_account(&workspace, &email).await?;
+            account::create_account(&workspace, &email, Some(otp.clone())).await?;
             account::update_password(&workspace, &email, &password, &password_again).await?;
         }
     };
