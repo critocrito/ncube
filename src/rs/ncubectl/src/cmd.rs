@@ -9,7 +9,7 @@ use crate::fatal;
 use crate::types::ConnectionOut;
 
 pub(crate) async fn account(workspace: &str, email: &str) {
-    handlers::account::create_account(workspace, email)
+    handlers::account::create_account(workspace, email, None)
         .await
         .unwrap_or_else(|e| fatal!("cannot create account: {}", e.to_string()));
 }

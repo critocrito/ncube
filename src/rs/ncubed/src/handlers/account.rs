@@ -21,8 +21,22 @@ pub fn is_valid_otp(ts: DateTime<Utc>) -> bool {
     otp_max_age <= ts
 }
 
+/// Creating an account works differently whether a workspace is local or
+/// remote. A remote workspace is associated with one local account. This local
+/// account only needs to store the AES encrypted password and requires nothing
+/// else. In order to create such an account a AES encrypted OTP password has to
+/// be provided.
+///
+/// This local account is mapped to a local account on the remote server, where
+/// the workspace is regarded as local. These accounts are created using the the
+/// `ncubectl` command and are created with `None` as value to the `otp`
+/// argument. In this case a otp password and AES key generated for the account.
 #[instrument]
-pub async fn create_account(workspace: &str, email: &str) -> Result<Account, HandlerError> {
+pub async fn create_account(
+    workspace: &str,
+    email: &str,
+    otp: Option<String>,
+) -> Result<Account, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -36,7 +50,7 @@ pub async fn create_account(workspace: &str, email: &str) -> Result<Account, Han
         ));
     }
 
-    account_store.create(&email, &workspace).await?;
+    account_store.create(&email, otp, &workspace).await?;
     let account = account_store.show(&email, &workspace).await?;
 
     Ok(account)
