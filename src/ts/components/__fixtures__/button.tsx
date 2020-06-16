@@ -13,10 +13,10 @@ const buttons: React.ReactElement[] = [];
 styles.forEach((style) => {
   sizes.forEach((size) => {
     buttons.push(
-      <div key={`${style}-${size}`}>
-        <h5 className="header5">
+      <div key={`${style}-${size}`} className="flex items-center w-100">
+        <p className="b w-30">
           {style} {size}
-        </h5>
+        </p>
         <Button type={style} size={size}>
           Button
         </Button>
@@ -24,10 +24,13 @@ styles.forEach((style) => {
     );
 
     buttons.push(
-      <div key={`${style}-${size}-disabled`}>
-        <h5 className="header5">
+      <div
+        key={`${style}-${size}-disabled`}
+        className="flex items-center w-100"
+      >
+        <p className="b w-30">
           {style} {size} disabled
-        </h5>
+        </p>
         <Button disabled type={style} size={size}>
           Button
         </Button>
