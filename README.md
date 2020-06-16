@@ -56,6 +56,10 @@ The following prerequesites are required to build Ncube from source:
   `npm`/`yarn`. Run `yarn install` (or `npm install`) to fetch all dependencies.
 
 ```sh
+yarn install
+```
+
+```sh
 $ cargo --version
 rustc 1.42.0 (b8cedc004 2020-03-09)
 
@@ -91,9 +95,6 @@ All documentation can be [found in the `doc`](doc) directory.
 The HTTP endpoints of `ncubed` are described in the [HTTP API
 documentation](doc/http-api.md).
 
-The architecture choices for Ncube are described as a series of [architecture
-decision
-records](https://www.thoughtworks.com/de/radar/techniques/lightweight-architecture-decision-records).
 They are supported with a series of [diagrams](doc/diagrams/ncube). To
 re-generate the architecture diagrams install
 [`fc4`](https://fundingcircle.github.io/fc4-framework/docs/get-started) and
@@ -103,18 +104,51 @@ regenerate the images:
 fc4 -fsr doc/diagrams
 ```
 
+The account authorization for remote workspaces is described in [a dedicated
+document](doc/auth-workflow.pdf).
+
 ## Development
 
 Ncube consists of several parts:
 
 - `ncubed` is the backend of Ncube that exposes all functionality of Ncube.
+- `ncubectl` is a CLI tool to manage server installations of Ncube.
 - The frontend UI is a single page web app that communicates to `ncubed`.
 - `ncube` is the full desktop app including `ncubed` and wrapping the frontend UI in a local browser window.
 
 See the [installation from source](#from-source) section to setup all the build
 dependencies.
 
-### Setup
+Since the backend delivers the frontend using it's own HTTP server, the frontend
+assets must be available when compiling the backend. there is an [open issue](https://github.com/critocrito/ncube/issues/39) to resolve this but until then before compiling the backend you need to run the following:
+
+```sh
+make ui
+make workspace
+```
+
+Open a terminal in the project root and start the backend:
+
+```sh
+cargo run --bin ncubed
+```
+
+In a different terminal start the webpack development server to build the UI:
+
+```sh
+yarn start
+```
+
+This will open a browser at `http://localhost:8080` that provides the UI.
+Further this will start [React
+Cosmos](https://github.com/react-cosmos/react-cosmos) on
+`http://localhost:5000`.
+
+### Deprecated
+
+The UI is being rewritten using [TypeScript](https://typescriptlang.org) and
+[React](https://reactjs.org). The instructions below are related to the
+deprecated UI in Clojurescript.
 
 Begin by compiling the stylesheets. I usually leave this command running in a
 terminal. It will watch the stylesheets for any changes and recompile if needed.
@@ -142,18 +176,6 @@ clj -A:fig-deps:dev-deps:cards-deps:dev
 ```
 
 This opens the browser at port 9500 on `localhost`.
-
-Since the backend delivers the frontend using it's own HTTP server, the frontend
-assets must be available when compiling the backend. This is the case even if
-you use Figwheel to load the UI on port 9500 and have it communicate with the
-backend on port 40666 since they produce different assets in a different
-locations. Open yet another terminal and run the following:
-
-```sh
-make ui
-make workspace
-cargo run --bin ncubed
-```
 
 ### Tests
 
