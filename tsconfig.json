@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "lib": ["es2018", "dom"],
+    "target": "es2018",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "moduleResolution": "node",
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "jsx": "react",
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/ts/**/*",
+    "test/ts/**/*",
+    "webpack*.js",
+    "test/test-setup.js"
+  ],
+  "exclude": ["node_modules", "target"]
+}

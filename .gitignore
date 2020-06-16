@@ -6,8 +6,9 @@
 # will have all package artifacts
 /pkgs
 
-# Ncube config databases
-ncube.db*
+# Ncube config databases and connection objects
+ncube*.db*
+connection.json
 
 # annoying mac artifacts
 .DS_Store
@@ -29,5 +30,10 @@ Cargo.lock
 node_modules
 yarn*.log
 npm*.log
-*.db
-connection.json
+.node_repl_history
+
+# Typescript
+.log
+
+# Eslint
+.eslintcache

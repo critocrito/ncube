@@ -1,4 +1,4 @@
-.PHONY: all test ui workspace dist devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb
+.PHONY: all test ui workspace dist devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb pkg-deb-ncubed verify
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -9,6 +9,7 @@ dist_fonts_dir = $(dist_dir)/fonts
 dist_images_dir = $(dist_dir)/images
 css_dir = $(target_dir)/css
 cljs_dir = $(target_dir)/public/cljs-out
+webpack_dir = $(target_dir)/webpack
 workspace_dir = $(target_dir)/workspace
 workspace_archive = $(workspace_dir)/workspace.tar.gz
 pkgs_release_dir = pkgs
@@ -23,6 +24,9 @@ $(cljs_dir)/prod-main.js:
 $(cljs_dir)/cards-main.js:
 	@mkdir -p $(cljs_dir)
 	clojure -A:fig-deps:prod-deps:cards-deps:cards
+
+$(webpack_dir)/index.html $(webpack_dir)/main.js $(webpack_dir)/styles.css:
+	yarn compile
 
 $(css_dir)/styles.css:
 	@mkdir -p $(css_dir)
@@ -116,11 +120,11 @@ $(release_dir)/ncube: dist
 	@mkdir -p $(release_dir)
 	cargo build --bin ncube --release
 
-$(release_dir)/ncubed:
+$(release_dir)/ncubed: dist
 	@mkdir -p $(release_dir)
 	cargo build --bin ncubed --release
 
-$(release_dir)/ncubectl:
+$(release_dir)/ncubectl: dist
 	@mkdir -p $(release_dir)
 	cargo build --bin ncubectl --release
 
@@ -136,6 +140,7 @@ $(pkg_build_macos): $(release_dir)/ncube
 clean-dist:
 	rm -rf $(release_dir)/ncube
 	rm -rf $(cljs_dir)
+	rm -rf $(webpack_dir)
 	rm -rf $(dist_dir)
 	rm -rf $(workspace_dir)
 	rm $(workspace_archive)
@@ -170,6 +175,10 @@ pkg-deb-ncubed: $(release_dir)/ncubed $(release_dir)/ncubectl
 	@mkdir -p $(pkgs_release_dir)
 	cargo deb -p ncubed
 	cp target/debian/ncubed*.deb $(pkgs_release_dir)
+
+verify:
+	yarn verify
+	cargo check
 
 test:
 	cargo test
