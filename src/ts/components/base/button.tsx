@@ -5,9 +5,10 @@ interface ButtonProps {
   children?: React.ReactNode;
   className?: string;
   onClick?: () => void;
-  type?: "primary" | "secondary" | "caution";
+  kind?: "primary" | "secondary" | "caution";
   size?: "normal" | "large";
   disabled?: boolean;
+  type?: "submit" | "button" | "reset";
 }
 
 const styles = {
@@ -22,16 +23,17 @@ const sizes = {
 };
 
 const Button = ({
-  type = "primary",
+  kind = "primary",
   size = "normal",
   onClick = () => {},
   disabled = false,
+  type = "button",
   children,
   className,
 }: ButtonProps) => {
   const classes = c(
-    "link white ma2 ttu br2 tc b nowrap",
-    styles[type] !== undefined ? styles[type] : undefined,
+    "link white mt2 mb2 ttu br2 tc b nowrap",
+    styles[kind] !== undefined ? styles[kind] : undefined,
     sizes[size] !== undefined ? sizes[size] : undefined,
     disabled ? "o-50 bg-white ba b--nasty-color" : "dim pointer",
     className,
@@ -39,7 +41,7 @@ const Button = ({
 
   return (
     <button
-      type="button"
+      type={type}
       disabled={disabled}
       className={classes}
       onClick={onClick}

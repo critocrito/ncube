@@ -1,40 +1,53 @@
+import c from "classnames";
+import {useField} from "formik";
 import React from "react";
 
 interface InputProps {
   label: string;
   name: string;
-  onChange?: (value: string | undefined) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
-  value?: string;
   disabled?: boolean;
+  type?: "text" | "email" | "password";
 }
 
 const Input = ({
-  placeholder = "",
-  value = "",
-  disabled = false,
-  onChange = (_value: string | undefined) => {},
-  name,
   label,
+  placeholder = "",
+  disabled = false,
+  type = "text",
+  ...props
 }: InputProps) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {value: newValue}: {value: string} = e.target;
-    onChange(newValue === "" ? undefined : newValue);
+  const fieldProps = {
+    placeholder,
+    type,
+    ...props,
   };
+  const [field, meta] = useField(fieldProps);
+
+  const {name, value, onChange, onBlur} = field;
+  const {touched, error} = meta;
+
+  const hasError = touched && error;
+  const classes = c("fb1 pa2 ba", hasError ? "b--error" : "b--barrier");
 
   return (
-    <div className="flex flex-column fb1 mt3 mb2 w-two-thirds">
+    <div className="flex flex-column fb1 mt3 mb2">
       <label htmlFor={name} className="mb1">
         {label}
       </label>
       <input
-        className="fb1 pa2 ba b--barrier"
+        className={classes}
         name={name}
         value={value}
-        disabled={disabled}
+        type={type}
         placeholder={placeholder}
-        onChange={handleChange}
+        disabled={disabled}
+        onChange={onChange}
+        onBlur={onBlur}
       />
+      {hasError ? <div className="error">{meta.error}</div> : undefined}
     </div>
   );
 };
