@@ -30,7 +30,7 @@ const Input = ({
   const {touched, error} = meta;
 
   const hasError = touched && error;
-  const classes = c("fb1 pa2 ba", hasError ? "b--error" : "b--barrier");
+  const classes = c("fb1 pa2 ba", hasError ? "b--error" : "b--solitude");
 
   return (
     <div className="flex flex-column fb1 mt3 mb2">

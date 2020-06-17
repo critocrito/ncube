@@ -1,6 +1,39 @@
 @import "tachyons";
 
 :root {
+  /* Main colors. Headers, infotext, buttons, borders */
+
+  --color-canvas: #faf8f7;
+  --color-bittersweet: #fd7268;
+  --color-sapphire: #0a2463;
+  --color-fair-pink: #f8ece8;
+  --color-solitude: #eff3fc;
+
+  /* Gray scale. Secondary text, disable status, borders */
+
+  --color-gray-75: #474747;
+  --color-gray-25: #c0bfbf;
+
+  /* Feedback Colors */
+
+  --color-success: #78d397;
+  --color-error: #c94d07;
+
+  /* Sources Colors */
+
+  --color-youtube: #e52d27;
+  --color-twitter: #08a0e9;
+  --color-url: #463764;
+
+  /* Random Colors */
+
+  --color-washed-red: #e19f9f;
+  --color-washed-purple: #c4ccea;
+  --color-washed-blue: #a2cae0;
+  --color-washed-green: #b6ddb0;
+  --color-washed-yellow: #e4d976;
+
+  /* Deprecatd colors */
   --color-background: #faf8f7;
 
   --color-disabled: #f8ece8;
@@ -8,9 +41,7 @@
   --color-secondary: #0a2463;
   --color-caution: #000000;
 
-  --color-success: #78d397;
   --color-warning: #ece28e;
-  --color-error: #e19f9f;
   --color-info: #7eb8e2;
   --color-new: #7a197c;
 
@@ -20,6 +51,235 @@
   --color-default-active: #dfe2ec;
 }
 
+/* Colors */
+.canvas {
+  color: var(--color-canvas);
+}
+
+.bittersweet {
+  color: var(--color-bittersweet);
+}
+
+.sapphire {
+  color: var(--color-sapphire);
+}
+
+.fair-pink {
+  color: var(--color-fair-pink);
+}
+
+.solitude {
+  color: var(--color-solitude);
+}
+
+. {
+  color: var(--color-);
+}
+
+.gray-25 {
+  color: var(--color-gray-25);
+}
+
+.gray-75 {
+  color: var(--color-gray-75);
+}
+
+.success {
+  color: var(--color-success);
+}
+
+.error {
+  color: var(--color-error);
+}
+/* Background */
+
+.bg-canvas {
+  background: var(--color-canvas);
+}
+
+.bg-bittersweet {
+  background: var(--color-bittersweet);
+}
+
+.bg-sapphire {
+  background: var(--color-sapphire);
+}
+
+.bg-fair-pink {
+  background: var(--color-fair-pink);
+}
+
+.bg-solitude {
+  background: var(--color-solitude); /* Background of tags */
+}
+
+.bg-gray-25 {
+  background: var(--color-gray-25);
+}
+
+.bg-gray-75 {
+  background: var(--color-gray-75);
+}
+
+.bg-success {
+  background: var(--color-success);
+}
+
+.bg-error {
+  background: var(--color-error);
+}
+/* Background */
+
+.bg-youtube {
+  background: var(--color-youtube);
+}
+
+.bg-twitter {
+  background: var(--color-twitter);
+}
+
+.bg-url {
+  background: var(--color-url);
+}
+
+/* Borders */
+
+.b--canvas {
+  border-color: var(--color-canvas);
+}
+
+.b--bittersweet {
+  border-color: var(--color-bittersweet);
+}
+
+.b--sapphire {
+  border-color: var(--color-sapphire);
+}
+
+.b--fair-pink {
+  border-color: var(--color-fair-pink);
+}
+
+.b--solitude {
+  border-color: var(--color-solitude);
+}
+
+.b--gray-25 {
+  border-color: var(--color-gray-25);
+}
+
+.b--gray-75 {
+  border-color: var(--color-gray-75);
+}
+
+.b--error {
+  border-color: var(--color-error);
+}
+
+.b--youtube {
+  border-color: var(--color-youtube);
+}
+
+.b--twitter {
+  border-color: var(--color-twitter);
+}
+
+.b--url {
+  border-color: var(--color-url);
+}
+
+/* Fonts and text */
+
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local("Noto Sans Bold"), local("NotoSans-Bold"),
+    url(/fonts/NotoSans-Bold.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local("Noto Sans"), local("NotoSans"),
+    url(/fonts/NotoSans-Regular.ttf) format("truetype");
+}
+
+.noto {
+  font-family: "Noto Sans", sans-serif;
+}
+
+.header1 {
+  font-size: 3.052em;
+  color: var(--color-sapphire);
+}
+.header2 {
+  font-size: 2.441em;
+}
+.header3 {
+  font-size: 1.953em;
+}
+.header4 {
+  font-size: 1.563em;
+}
+.header5 {
+  font-size: 1.25em;
+}
+
+.text-medium {
+  font-size: 0.8em;
+}
+
+.text-small {
+  font-size: 0.64em;
+}
+
+/* Butons */
+
+.btn {
+  @insert .white .link .pa2 .ttu .br2 .tc .b .nowrap;
+  border-radius: 2px;
+}
+
+.btn-active {
+  @insert .btn;
+  cursor: pointer;
+}
+
+.btn-active:hover {
+  @insert .o-50;
+}
+
+.btn-disabled {
+  @insert .btn .gray-75 .bg-white .b--gray-75 .o-50;
+  cursor: unset;
+}
+
+.btn-sapphire {
+  @insert .bg-sapphire .b--sapphire;
+}
+
+.btn-bittersweet {
+  @insert .bg-bittersweet .b--bittersweet;
+}
+
+.btn-black {
+  @insert .bg-black .b--black;
+}
+
+.btn-large {
+  width: 12rem;
+}
+
+.btn-regular {
+  width: 6rem;
+}
+
+/* Global elements */
+
 body {
   font-size: 16px;
   letter-spacing: 0.01em;
@@ -28,6 +288,12 @@ body {
 form {
   @insert .flex .flex-column .mw6;
 }
+
+::placeholder {
+  @insert .gray-25 .o-100;
+}
+
+/* Tables */
 
 th {
   @insert .pa2;
@@ -59,51 +325,16 @@ tr:hover span.trash {
   display: block;
 }
 
-@font-face {
-  font-family: "Noto Sans";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: local("Noto Sans Bold"), local("NotoSans-Bold"),
-    url(/fonts/NotoSans-Bold.ttf) format("truetype");
+/* Other elements */
+
+.tag {
+  @insert .pl3 .pr3 .br4 .text-medium .tc .b .ttu;
+  height: 1.5rem;
+  max-width: 12rem;
+  min-width: 4rem;
 }
 
-@font-face {
-  font-family: "Noto Sans";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: local("Noto Sans"), local("NotoSans"),
-    url(/fonts/NotoSans-Regular.ttf) format("truetype");
-}
-
-.noto {
-  font-family: "Noto Sans", sans-serif;
-}
-
-.header1 {
-  font-size: 3.052em;
-}
-.header2 {
-  font-size: 2.441em;
-}
-.header3 {
-  font-size: 1.953em;
-}
-.header4 {
-  font-size: 1.563em;
-}
-.header5 {
-  font-size: 1.25em;
-}
-
-.text-medium {
-  font-size: 0.8em;
-}
-
-.text-small {
-  font-size: 0.64em;
-}
+/* FIXME: deprecated, remove onece refactor is done */
 
 .background {
   color: var(--color-background);
@@ -161,32 +392,12 @@ tr:hover span.trash {
   background: var(--color-secondary);
 }
 
-.success {
-  color: var(--color-success);
-}
-
-.bg-success {
-  background: var(--color-success);
-}
-
 .warning {
   color: var(--color-warning);
 }
 
 .bg-warning {
   background: var(--color-warning);
-}
-
-.error {
-  color: var(--color-error);
-}
-
-.bg-error {
-  background: var(--color-error);
-}
-
-.b--error {
-  border-color: var(--color-error);
 }
 
 .info {
@@ -219,57 +430,4 @@ tr:hover span.trash {
 
 .bg-remote-workspace {
   background: var(--color-neutral-grey);
-}
-
-.large {
-  width: 11rem;
-}
-
-.small {
-  width: 5rem;
-}
-
-.btn {
-  @insert .link .pa2 .ttu .br2 .tc .b;
-  cursor: pointer;
-}
-
-.btn-primary {
-  @insert .bg-fresh-frivolous .b--fresh-frivolous;
-  color: white;
-}
-
-.btn-primary:hover {
-  opacity: 0.5;
-}
-
-.btn-secondary {
-  @insert .bg-back-to-reality .b--back-to-reality;
-  color: white;
-}
-
-.btn-secondary:hover {
-  opacity: 0.5;
-}
-
-.btn-caution {
-  @insert .bg-black .b--black;
-  color: white;
-}
-
-.btn-caution:hover {
-  opacity: 0.5;
-}
-
-.btn-disabled {
-  @insert .bg-white .ba .b--nasty-color;
-  color: var(--color-disabled) !important;
-  cursor: not-allowed;
-}
-
-.tag {
-  @insert .pl3 .pr3 .text-medium;
-  height: 1.5rem;
-  max-width: 12rem;
-  min-width: 5rem;
 }
