@@ -1,7 +1,7 @@
 import {Form, Formik} from "formik";
 import React from "react";
 
-import Input from "../base/input";
+import Input from "../input";
 
 interface WrapperProps {
   label: string;
