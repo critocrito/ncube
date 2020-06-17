@@ -12,14 +12,14 @@ interface ButtonProps {
 }
 
 const styles = {
-  primary: "bg-fresh-frivolous b--fresh-frivolous",
-  secondary: "bg-back-to-reality b--back-to-reality",
-  caution: "bg-black b--black",
+  primary: "btn-bittersweet",
+  secondary: "btn-sapphire",
+  caution: "btn-black",
 };
 
 const sizes = {
-  normal: "small",
-  large: "large",
+  normal: "btn-regular",
+  large: "btn-large",
 };
 
 const Button = ({
@@ -32,10 +32,9 @@ const Button = ({
   className,
 }: ButtonProps) => {
   const classes = c(
-    "link white mt2 mb2 ttu br2 tc b nowrap",
-    styles[kind] !== undefined ? styles[kind] : undefined,
+    styles[kind] !== undefined && !disabled ? styles[kind] : undefined,
     sizes[size] !== undefined ? sizes[size] : undefined,
-    disabled ? "o-50 bg-white ba b--nasty-color" : "dim pointer",
+    disabled ? "btn-disabled" : "btn-active",
     className,
   );
 
