@@ -3,35 +3,32 @@ import React from "react";
 import Button from "../base/button";
 
 type Size = "normal" | "large";
-type Style = "primary" | "secondary" | "caution";
+type Kind = "primary" | "secondary" | "caution";
 
 const sizes: Size[] = ["normal", "large"];
-const styles: Style[] = ["primary", "secondary", "caution"];
+const kinds: Kind[] = ["primary", "secondary", "caution"];
 
 const buttons: React.ReactElement[] = [];
 
-styles.forEach((style) => {
+kinds.forEach((kind) => {
   sizes.forEach((size) => {
     buttons.push(
-      <div key={`${style}-${size}`} className="flex items-center w-100">
+      <div key={`${kind}-${size}`} className="flex items-center w-100">
         <p className="b w-30">
-          {style} {size}
+          {kind} {size}
         </p>
-        <Button type={style} size={size}>
+        <Button kind={kind} size={size}>
           Button
         </Button>
       </div>,
     );
 
     buttons.push(
-      <div
-        key={`${style}-${size}-disabled`}
-        className="flex items-center w-100"
-      >
+      <div key={`${kind}-${size}-disabled`} className="flex items-center w-100">
         <p className="b w-30">
-          {style} {size} disabled
+          {kind} {size} disabled
         </p>
-        <Button disabled type={style} size={size}>
+        <Button disabled kind={kind} size={size}>
           Button
         </Button>
       </div>,

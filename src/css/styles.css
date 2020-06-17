@@ -25,6 +25,10 @@ body {
   letter-spacing: 0.01em;
 }
 
+form {
+  @insert .flex .flex-column .mw6;
+}
+
 th {
   @insert .pa2;
 }
@@ -179,6 +183,10 @@ tr:hover span.trash {
 
 .bg-error {
   background: var(--color-error);
+}
+
+.b--error {
+  border-color: var(--color-error);
 }
 
 .info {

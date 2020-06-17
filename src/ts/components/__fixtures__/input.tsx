@@ -1,4 +1,5 @@
-import React, {useState} from "react";
+import {Form, Formik} from "formik";
+import React from "react";
 
 import Input from "../base/input";
 
@@ -8,18 +9,17 @@ interface WrapperProps {
   disabled?: boolean;
 }
 const Wrapper = ({label, placeholder = "", disabled = false}: WrapperProps) => {
-  const [state, setState] = useState<string | undefined>();
-  const name = label.replace(" ", "-");
-
   return (
-    <Input
-      name={name}
-      label={label}
-      placeholder={placeholder}
-      disabled={disabled}
-      value={state}
-      onChange={setState}
-    />
+    <Formik initialValues={{field: ""}} onSubmit={() => {}}>
+      <Form>
+        <Input
+          name="field"
+          label={label}
+          placeholder={placeholder}
+          disabled={disabled}
+        />
+      </Form>
+    </Formik>
   );
 };
 
@@ -30,10 +30,6 @@ export default (
       label="Input with Placeholder"
       placeholder="Type something here."
     />
-    <Wrapper
-      disabled
-      label="Disabled Input"
-      placeholder="Type something here."
-    />
+    <Wrapper disabled label="Disabled Input" placeholder="Can't type here." />
   </div>
 );
