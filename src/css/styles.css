@@ -196,7 +196,7 @@
   font-weight: 700;
   font-display: swap;
   src: local("Noto Sans Bold"), local("NotoSans-Bold"),
-    url(/fonts/NotoSans-Bold.ttf) format("truetype");
+    url(../../resources/public/fonts/NotoSans-Bold.ttf) format("truetype");
 }
 
 @font-face {
@@ -205,7 +205,7 @@
   font-weight: 400;
   font-display: swap;
   src: local("Noto Sans"), local("NotoSans"),
-    url(/fonts/NotoSans-Regular.ttf) format("truetype");
+    url(../../resources/public/fonts/NotoSans-Regular.ttf) format("truetype");
 }
 
 .noto {
