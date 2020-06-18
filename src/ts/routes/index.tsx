@@ -1,4 +1,4 @@
-import {Router} from "@reach/router";
+import {Redirect, Router} from "@reach/router";
 import React from "react";
 
 import Home from "./home";
@@ -7,8 +7,9 @@ import Onboarding from "./onboarding";
 const Routes = () => {
   return (
     <Router>
-      <Home path="/" />
+      <Redirect from="/" to="onboarding" />
       <Onboarding path="onboarding" />
+      <Home path="w" />
     </Router>
   );
 };
