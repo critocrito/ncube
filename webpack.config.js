@@ -11,6 +11,8 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "target/webpack"),
     filename: "app.js",
+    // FIXME: ncubed needs to serve hash based assets first
+    // filename: "[name].[hash:8].js",
     publicPath: "/",
   },
 
@@ -44,7 +46,7 @@ module.exports = {
         use: [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"],
       },
       {
-        test: /\.(jpe?g|png|gif|svg)$/i,
+        test: /\.(jpe?g|png|gif|svg|woff|woff2|eot|ttf)$/i,
         use: [
           {
             loader: "url-loader",
@@ -79,6 +81,9 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "styles.css",
       chunkFilename: "styles.css",
+      // FIXME: ncubed needs to serve hash based assets first
+      // filename: "[name].[hash:8].css",
+      // chunkFilename: "[name].[chunkhash:8].css",
     }),
   ],
 };
