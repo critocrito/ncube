@@ -11,9 +11,14 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "target/webpack"),
     filename: "app.js",
+    publicPath: "/",
   },
 
   devtool: "source-map",
+
+  devServer: {
+    historyApiFallback: true,
+  },
 
   module: {
     rules: [
