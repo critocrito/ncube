@@ -7,7 +7,6 @@ interface HomeContext {
 }
 
 type HomeEvent =
-  | {type: "SHOW_DETAILS"}
   | {type: "CREATE_WORKSPACE"}
   | {type: "LINK_WORKSPACE"}
   | {type: "UPLOAD_CONNECTION_DETAILS"}
@@ -24,7 +23,6 @@ type HomeState =
   | {value: "uploadConnectionDetails"; context: HomeContext}
   | {value: "linkWorkspace"; context: HomeContext}
   | {value: "saveWorkspace"; context: HomeContext}
-  | {value: "showDetails"; context: HomeContext}
   | {value: "homeError"; context: HomeContext}
   | {value: "saveError"; context: HomeContext};
 
@@ -53,7 +51,6 @@ export default createMachine<HomeContext, HomeEvent, HomeState>({
     },
     home: {
       on: {
-        SHOW_DETAILS: "showDetails",
         CREATE_WORKSPACE: "createWorkspace",
         UPLOAD_CONNECTION_DETAILS: "uploadConnectionDetails",
       },
@@ -87,10 +84,6 @@ export default createMachine<HomeContext, HomeEvent, HomeState>({
           target: "saveError",
         },
       },
-    },
-    showDetails: {
-      entry: "showWorkspace",
-      type: "final",
     },
   },
 });

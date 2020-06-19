@@ -1,4 +1,4 @@
-import {RouteComponentProps} from "@reach/router";
+import {navigate, RouteComponentProps} from "@reach/router";
 import {useMachine} from "@xstate/react";
 import React from "react";
 
@@ -15,10 +15,6 @@ import {isString, unreachable} from "../utils";
 
 const Home = (_: RouteComponentProps) => {
   const [state, send] = useMachine(HomeMachine, {
-    actions: {
-      showWorkspace: (_ctx) => console.log("Showing workspace details"),
-    },
-
     services: {
       listWorkspaces: async (_ctx, _ev) => list(),
       saveWorkspace: async (_ctx, {data}) => {
@@ -54,7 +50,7 @@ const Home = (_: RouteComponentProps) => {
                       process: 42,
                       investigation: 23,
                     }}
-                    handleOpen={() => console.log(workspace)}
+                    handleOpen={() => navigate(`/w/${workspace.slug}`)}
                   />
                 ))}
               </ul>

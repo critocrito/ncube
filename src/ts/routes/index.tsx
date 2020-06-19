@@ -3,6 +3,7 @@ import React from "react";
 
 import Home from "./home";
 import Onboarding from "./onboarding";
+import Workspace from "./workspace";
 
 const Routes = () => {
   return (
@@ -10,6 +11,7 @@ const Routes = () => {
       <Redirect from="/" to="onboarding" />
       <Onboarding path="onboarding" />
       <Home path="w" />
+      <Workspace path="w/:slug" />
     </Router>
   );
 };
