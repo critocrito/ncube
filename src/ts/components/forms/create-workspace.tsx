@@ -8,11 +8,15 @@ import Input from "../base/input";
 export interface CreateWorkspaceFormValues {
   name: string;
   description?: string;
+  database: "sqlite";
+  kind: "local";
 }
 
 export const defaultValues: CreateWorkspaceFormValues = {
   name: "",
   description: "",
+  database: "sqlite",
+  kind: "local",
 };
 
 export const validationSchema = Yup.object({
@@ -20,6 +24,8 @@ export const validationSchema = Yup.object({
     .required("Please provide a name for this workspace.")
     .max(150, "A workspace name cannot have more than 150 characters."),
   description: Yup.string(),
+  database: Yup.string().oneOf(["sqlite"]).required(),
+  kind: Yup.string().oneOf(["local"]).required(),
 });
 
 interface CreateWorkspaceFormProps {
@@ -49,6 +55,9 @@ const CreateWorkspaceForm = ({
               label="If you like, you can add a short description."
               name="description"
             />
+
+            <input name="database" type="hidden" value="sqlite" />
+            <input name="kind" type="hidden" value="local" />
 
             <div className="flex justify-between ml-auto w-80">
               <Button

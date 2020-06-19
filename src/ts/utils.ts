@@ -5,3 +5,7 @@ export const unreachable = (message?: string): never => {
     throw new Error(`Unreachable code reached: ${message}`);
   }
 };
+
+export const isString = (x: unknown): x is string => {
+  return typeof x === "string";
+};

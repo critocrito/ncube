@@ -11,7 +11,7 @@ import {unreachable} from "../utils";
 const Onboarding = (_: RouteComponentProps) => {
   const [state, send] = useMachine(OnboardingMachine, {
     actions: {
-      finishBootstrap: (_ctx) => navigate("/home"),
+      finishBootstrap: (_ctx) => navigate("/w"),
     },
 
     services: {
