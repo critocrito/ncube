@@ -2,8 +2,8 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Button from "../base/button";
-import Input from "../base/input";
+import Button from "../common/button";
+import Input from "../common/input";
 
 export interface LinkWorkspaceFormValues {
   workspace: string;

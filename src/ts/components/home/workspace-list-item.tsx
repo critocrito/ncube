@@ -1,8 +1,8 @@
 import React from "react";
 
 import {Workspace} from "../../types";
-import Button from "../base/button";
-import WorkspaceTag from "../base/workspace-tag";
+import Button from "../common/button";
+import WorkspaceTag from "../common/workspace-tag";
 import Stat from "./stat";
 
 interface WorkspaceListItemProps {
