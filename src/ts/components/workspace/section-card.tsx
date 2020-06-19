@@ -4,7 +4,7 @@ import dataIcon from "../../../../resources/public/images/icon_data.svg";
 import investigationIcon from "../../../../resources/public/images/icon_investigation.svg";
 import processIcon from "../../../../resources/public/images/icon_process.svg";
 import sourceIcon from "../../../../resources/public/images/icon_source.svg";
-import Button from "../base/button";
+import Button from "../common/button";
 
 interface SectionCardProps {
   kind: "source" | "data" | "process" | "investigation";

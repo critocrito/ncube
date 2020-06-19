@@ -2,9 +2,9 @@ import {navigate, RouteComponentProps} from "@reach/router";
 import {useMachine} from "@xstate/react";
 import React from "react";
 
-import Button from "../components/base/button";
-import FileUpload from "../components/base/file-upload";
-import Overline from "../components/base/overline";
+import Button from "../components/common/button";
+import FileUpload from "../components/common/file-upload";
+import Overline from "../components/common/overline";
 import CreateWorkspaceForm from "../components/forms/create-workspace";
 import LinkWorkspaceForm from "../components/forms/link-workspace";
 import WorkspaceListItem from "../components/home/workspace-list-item";
