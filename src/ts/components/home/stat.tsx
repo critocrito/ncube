@@ -3,19 +3,19 @@ import React from "react";
 import dataIcon from "../../../../resources/public/images/icon_data.svg";
 import investigationIcon from "../../../../resources/public/images/icon_investigation.svg";
 import processIcon from "../../../../resources/public/images/icon_process.svg";
-import queryIcon from "../../../../resources/public/images/icon_query.svg";
+import sourceIcon from "../../../../resources/public/images/icon_source.svg";
 
 interface StatProps {
-  kind: "query" | "data" | "process" | "investigation";
+  kind: "source" | "data" | "process" | "investigation";
   value: number;
 }
 
 const Stat = ({kind, value}: StatProps) => {
   let icon;
   let label;
-  if (kind === "query") {
+  if (kind === "source") {
     label = "Queries";
-    icon = queryIcon;
+    icon = sourceIcon;
   } else if (kind === "data") {
     label = "Data";
     icon = dataIcon;

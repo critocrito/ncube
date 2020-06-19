@@ -49,7 +49,7 @@ const Home = (_: RouteComponentProps) => {
                     key={`workspace-${workspace.id}`}
                     workspace={workspace}
                     stats={{
-                      query: 123,
+                      source: 123,
                       data: 123,
                       process: 42,
                       investigation: 23,
