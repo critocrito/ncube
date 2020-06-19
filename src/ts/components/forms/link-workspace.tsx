@@ -14,6 +14,8 @@ export interface LinkWorkspaceFormValues {
   otp: string;
   password: string;
   password_again: string;
+  database: "http";
+  kind: "remote";
 }
 
 export const validationSchema = Yup.object({
@@ -41,6 +43,8 @@ export const validationSchema = Yup.object({
     [Yup.ref("password"), undefined],
     "Passwords must match",
   ),
+  database: Yup.string().oneOf(["http"]).required(),
+  kind: Yup.string().oneOf(["remote"]).required(),
 });
 
 interface LinkWorkspaceFormProps {
@@ -99,6 +103,9 @@ const LinkWorkspaceForm = ({
             <Input label="Please provide a new password." name="password" />
 
             <Input label="Repeat your new password." name="password_again" />
+
+            <input name="database" type="hidden" value="http" />
+            <input name="kind" type="hidden" value="remote" />
 
             <div className="flex justify-between ml-auto w-80">
               <Button

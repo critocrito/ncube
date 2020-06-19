@@ -27,7 +27,7 @@ const Wrapper = () => {
   return (
     <div>
       <LinkWorkspace
-        initialValues={initialValues}
+        initialValues={{database: "http", kind: "remote", ...initialValues}}
         onCancel={handleCancel}
         onSubmit={handleSubmit}
       />
