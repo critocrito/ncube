@@ -8,7 +8,7 @@ import Stat from "./stat";
 interface WorkspaceListItemProps {
   workspace: Workspace;
   stats: {
-    query: number;
+    source: number;
     data: number;
     process: number;
     investigation: number;
@@ -30,7 +30,7 @@ const WorkspaceListItem = ({
         <div className="flex justify-between items-center w-70">
           <WorkspaceTag kind={kind} />
           <div className="flex items-center justify-between">
-            <Stat kind="query" value={stats.query} />
+            <Stat kind="source" value={stats.source} />
             <Stat kind="data" value={stats.data} />
             <Stat kind="process" value={stats.process} />
             <Stat kind="investigation" value={stats.investigation} />
