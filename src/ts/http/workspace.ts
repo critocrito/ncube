@@ -16,3 +16,9 @@ export const create = async (body: WorkspaceReq): Promise<void> => {
 
   return emptyResponse(resp);
 };
+
+export const show = async (slug: string): Promise<Workspace> => {
+  const resp = await fetch(`http://localhost:40666/api/workspaces/${slug}`);
+
+  return dataResponse(resp);
+};
