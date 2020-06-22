@@ -1,13 +1,13 @@
 import c from "classnames";
 import React, {useState} from "react";
 
-import dataIcon from "../../../../resources/public/images/icon_data.svg";
-import investigationIcon from "../../../../resources/public/images/icon_investigation.svg";
-import processIcon from "../../../../resources/public/images/icon_process.svg";
-import sourceIcon from "../../../../resources/public/images/icon_source.svg";
-import logoIcon from "../../../../resources/public/images/logo_horizontal.svg";
-import settingsIcon from "../../../../resources/public/images/settings.svg";
-import {Workspace} from "../../types";
+import dataIcon from "../../../resources/public/images/icon_data.svg";
+import investigationIcon from "../../../resources/public/images/icon_investigation.svg";
+import processIcon from "../../../resources/public/images/icon_process.svg";
+import sourceIcon from "../../../resources/public/images/icon_source.svg";
+import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
+import settingsIcon from "../../../resources/public/images/settings.svg";
+import {Workspace} from "../types";
 
 interface SidebarProps {
   workspaces: Workspace[];

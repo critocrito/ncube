@@ -2,8 +2,8 @@ import {RouteComponentProps} from "@reach/router";
 import {useMachine} from "@xstate/react";
 import React from "react";
 
-import Panel from "../components/layout/panel";
-import SectionCard from "../components/workspace/section-card";
+import Panel from "../layout/panel";
+import SectionCard from "../workspace/section-card";
 import {list, show} from "../http/workspace";
 import WorkspaceMachine from "../machines/workspace";
 import {unreachable} from "../utils";

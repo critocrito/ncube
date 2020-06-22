@@ -2,7 +2,7 @@
 import React, {useCallback} from "react";
 import {useDropzone} from "react-dropzone";
 
-import {isString} from "../../utils";
+import {isString} from "../utils";
 
 interface FileUploadProps {
   handleUpload: (data: Record<string, unknown>) => void;
