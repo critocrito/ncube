@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Workspace} from "../../types";
+import {Workspace} from "../types";
 import Navbar from "../common/navbar";
 import Sidebar from "../common/sidebar";
 import Header from "../workspace/header";

@@ -1,9 +1,9 @@
 import React from "react";
 
-import dataIcon from "../../../../resources/public/images/icon_data.svg";
-import investigationIcon from "../../../../resources/public/images/icon_investigation.svg";
-import processIcon from "../../../../resources/public/images/icon_process.svg";
-import sourceIcon from "../../../../resources/public/images/icon_source.svg";
+import dataIcon from "../../../resources/public/images/icon_data.svg";
+import investigationIcon from "../../../resources/public/images/icon_investigation.svg";
+import processIcon from "../../../resources/public/images/icon_process.svg";
+import sourceIcon from "../../../resources/public/images/icon_source.svg";
 
 interface StatProps {
   kind: "source" | "data" | "process" | "investigation";

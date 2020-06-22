@@ -1,6 +1,6 @@
 import React from "react";
 
-import {isString} from "../../utils";
+import {isString} from "../utils";
 
 interface BasicPanelProps {
   header?: string;

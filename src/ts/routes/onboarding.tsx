@@ -2,7 +2,7 @@ import {navigate, RouteComponentProps} from "@reach/router";
 import {useMachine} from "@xstate/react";
 import React from "react";
 
-import OnboardingForm from "../components/forms/onboarding";
+import OnboardingForm from "../forms/onboarding";
 import {create, show} from "../http/config";
 import OnboardingMachine from "../machines/onboarding";
 import {ConfigSettingReq} from "../types";
