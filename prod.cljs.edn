@@ -1,2 +1,0 @@
-^{:open-url "http://localhost:[[server-port]]/prod.html"}
-{:main ncube.core}

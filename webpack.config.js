@@ -64,14 +64,14 @@ module.exports = {
 
   plugins: [
     new HtmlWebPackPlugin({
-      template: path.resolve(__dirname, "resources/public/dist.html"),
+      template: path.resolve(__dirname, "resources/public/index.html"),
       filename: "./index.html",
       meta: isProd
         ? {
             "Content-Security-Policy": {
               "http-equiv": "Content-Security-Policy",
               content:
-                "default-src http://127.0.0.1:40666 'unsafe-eval' 'unsafe-inline'",
+                "default-src http://127.0.0.1:40666 'unsafe-eval' 'unsafe-inline'; img-src 'self' data:;",
             },
             viewport: "width=device-width, initial-scale=1, shrink-to-fit=no",
           }

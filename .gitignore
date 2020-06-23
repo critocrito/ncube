@@ -13,18 +13,9 @@ connection.json
 # annoying mac artifacts
 .DS_Store
 
-# Emacs
-.dir-locals.el
-
 # Rust
 Cargo.lock
 **/*.rs.bk
-
-# Clojurescript
-.cpcache
-.nrepl-history
-.nrepl-port
-.rebel_readline_history
 
 # NodeJS
 node_modules

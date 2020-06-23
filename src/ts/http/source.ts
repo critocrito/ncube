@@ -4,7 +4,7 @@ import {dataResponse, emptyResponse} from ".";
 
 export const list = async (workspace: string): Promise<Source[]> => {
   const resp = await fetch(
-    `http://localhost:40666/api/workspaces/${workspace}/sources`,
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/sources`,
   );
 
   return dataResponse(resp);
@@ -17,7 +17,7 @@ export const create = async (
   await sourceReq.isValid(body);
 
   const resp = await fetch(
-    `http://localhost:40666/api/workspaces/${workspace}/sources`,
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/sources`,
     {
       body: JSON.stringify(body),
       method: "POST",
@@ -30,7 +30,7 @@ export const create = async (
 
 export const remove = async (workspace: string, id: number): Promise<void> => {
   const resp = await fetch(
-    `http://localhost:40666/api/workspaces/${workspace}/sources/${id}`,
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/sources/${id}`,
     {
       method: "DELETE",
     },

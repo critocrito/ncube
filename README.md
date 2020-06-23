@@ -120,7 +120,10 @@ See the [installation from source](#from-source) section to setup all the build
 dependencies.
 
 Since the backend delivers the frontend using it's own HTTP server, the frontend
-assets must be available when compiling the backend. there is an [open issue](https://github.com/critocrito/ncube/issues/39) to resolve this but until then before compiling the backend you need to run the following:
+assets must be available when compiling the backend. there is an [open
+issue](https://github.com/critocrito/ncube/issues/39) to resolve this but until
+then before compiling the backend you need to run the following once, and
+everytime you clean the `target` directory.:
 
 ```sh
 make ui
@@ -143,39 +146,6 @@ This will open a browser at `http://localhost:8080` that provides the UI.
 Further this will start [React
 Cosmos](https://github.com/react-cosmos/react-cosmos) on
 `http://localhost:5000`.
-
-### Deprecated
-
-The UI is being rewritten using [TypeScript](https://typescriptlang.org) and
-[React](https://reactjs.org). The instructions below are related to the
-deprecated UI in Clojurescript.
-
-Begin by compiling the stylesheets. I usually leave this command running in a
-terminal. It will watch the stylesheets for any changes and recompile if needed.
-
-```sh
-yarn css
-```
-
-The UI development environment is based on [Figwheel](https://figwheel.org/).
-The [`dev.cljs.edn`](./dev.cljs.edn) configuration starts a development REPL for
-the UI development. Emacs users can place a `.dir-locals.el` file to make the
-integration with [Cider](https://cider.mx/) easier.
-
-```emacs-lisp
-((nil
-  (cider-default-cljs-repl . figwheel-main)
-  (cider-figwheel-main-default-options . ":dev")
-  (cider-clojure-cli-global-options . "-A:fig-deps:dev-deps:cards-deps")))
-```
-
-Alternatively start a development REPL manually in another terminal window:
-
-```sh
-clj -A:fig-deps:dev-deps:cards-deps:dev
-```
-
-This opens the browser at port 9500 on `localhost`.
 
 ### Tests
 

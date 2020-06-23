@@ -3,7 +3,7 @@ import * as v from "../validations";
 import {dataResponse, emptyResponse} from ".";
 
 export const list = async (): Promise<Workspace[]> => {
-  const resp = await fetch("http://localhost:40666/api/workspaces");
+  const resp = await fetch("http://127.0.0.1:40666/api/workspaces");
 
   return dataResponse(resp);
 };
@@ -20,7 +20,7 @@ export const create = async (body: WorkspaceReq): Promise<void> => {
     }
   }
 
-  const resp = await fetch("http://localhost:40666/api/workspaces", {
+  const resp = await fetch("http://127.0.0.1:40666/api/workspaces", {
     body: JSON.stringify(body),
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -30,7 +30,7 @@ export const create = async (body: WorkspaceReq): Promise<void> => {
 };
 
 export const show = async (slug: string): Promise<Workspace> => {
-  const resp = await fetch(`http://localhost:40666/api/workspaces/${slug}`);
+  const resp = await fetch(`http://127.0.0.1:40666/api/workspaces/${slug}`);
 
   return dataResponse(resp);
 };

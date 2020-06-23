@@ -32,23 +32,6 @@
   --color-washed-blue: #a2cae0;
   --color-washed-green: #b6ddb0;
   --color-washed-yellow: #e4d976;
-
-  /* Deprecatd colors */
-  --color-background: #faf8f7;
-
-  --color-disabled: #f8ece8;
-  --color-primary: #fd7268;
-  --color-secondary: #0a2463;
-  --color-caution: #000000;
-
-  --color-warning: #ece28e;
-  --color-info: #7eb8e2;
-  --color-new: #7a197c;
-
-  --color-barrier: #dfe2ec;
-
-  --color-neutral-grey: #c0bfbf;
-  --color-default-active: #dfe2ec;
 }
 
 /* Colors */
@@ -300,7 +283,7 @@ th {
 }
 
 td {
-  @insert .ba .b--nasty-color .pa2;
+  @insert .ba .b--sapphire .pa2;
   position: relative;
 }
 
@@ -309,7 +292,7 @@ tr {
 }
 
 tr:hover {
-  @insert .bg-background;
+  @insert .bg-canvas;
 }
 
 span.trash {
@@ -332,102 +315,4 @@ tr:hover span.trash {
   height: 1.5rem;
   max-width: 12rem;
   min-width: 4rem;
-}
-
-/* FIXME: deprecated, remove onece refactor is done */
-
-.background {
-  color: var(--color-background);
-}
-
-.bg-background {
-  background: var(--color-background);
-}
-
-.b--background {
-  border-color: var(--color-background);
-}
-
-.buzzy-boop {
-  color: var(--color-background);
-}
-
-.bg-buzzy-boop {
-  background: var(--color-background);
-}
-
-.nasty-color {
-  color: var(--color-disabled);
-}
-
-.b--nasty-color {
-  border-color: var(--color-disabled);
-}
-
-.b--back-to-reality {
-  border-color: var(--color-secondary);
-}
-
-.bg-nasty-color {
-  background: var(--color-disabled);
-}
-
-.fresh-frivolous {
-  color: var(--color-primary);
-}
-
-.bg-fresh-frivolous {
-  background: var(--color-primary);
-}
-
-.b--fresh-frivolous {
-  border-color: var(--color-primary);
-}
-
-.back-to-reality {
-  color: var(--color-secondary);
-}
-
-.bg-back-to-reality {
-  background: var(--color-secondary);
-}
-
-.warning {
-  color: var(--color-warning);
-}
-
-.bg-warning {
-  background: var(--color-warning);
-}
-
-.info {
-  color: var(--color-info);
-}
-
-.bg-info {
-  background: var(--color-info);
-}
-
-.new {
-  color: var(--color-new);
-}
-
-.bg-new {
-  background: var(--color-new);
-}
-
-.b--barrier {
-  border-color: var(--color-barrier);
-}
-
-.bg-local-workspace {
-  background: var(--color-default-active);
-}
-
-.b--local-workspace {
-  border-color: var(--color-default-active);
-}
-
-.bg-remote-workspace {
-  background: var(--color-neutral-grey);
 }
