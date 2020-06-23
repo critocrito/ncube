@@ -1,49 +1,80 @@
-import {assign, createMachine} from "xstate";
+import {createMachine} from "xstate";
 
 import {Workspace} from "../types";
 
-interface WorkspaceContext {
-  workspaces: Workspace[];
-  current: Workspace | undefined;
+export interface WorkspaceContext {
+  workspace: Workspace;
 }
 
-type WorkspaceEvent = {type: "RETRY"};
+export type WorkspaceEvent =
+  | {type: "OVERVIEW"}
+  | {type: "SOURCE"}
+  | {type: "DATA"}
+  | {type: "PROCESS"}
+  | {type: "INVESTIGATION"};
 
-type WorkspaceState =
-  | {
-      value: "prepareData";
-      context: WorkspaceContext;
-    }
+export type WorkspaceState =
   | {
       value: "overview";
       context: WorkspaceContext;
     }
   | {
-      value: "workspaceError";
+      value: "source" | "data" | "process" | "investigation";
       context: WorkspaceContext;
     };
 
 export default createMachine<WorkspaceContext, WorkspaceEvent, WorkspaceState>({
   id: "workspace",
-  context: {workspaces: [], current: undefined},
-  initial: "prepareData",
+  initial: "overview",
   states: {
-    prepareData: {
-      invoke: {
-        src: "prepareData",
-        onDone: {
-          target: "overview",
-          actions: assign({
-            workspaces: (_, {data}) => data.workspaces,
-            current: (_, {data}) => data.current,
-          }),
-        },
-        onError: {
-          target: "workspaceError",
-        },
+    overview: {
+      on: {
+        OVERVIEW: "overview",
+        SOURCE: "source",
+        DATA: "data",
+        PROCESS: "process",
+        INVESTIGATION: "investigation",
       },
     },
-    workspaceError: {on: {RETRY: "prepareData"}},
-    overview: {},
+
+    source: {
+      on: {
+        OVERVIEW: "overview",
+        SOURCE: "source",
+        DATA: "data",
+        PROCESS: "process",
+        INVESTIGATION: "investigation",
+      },
+    },
+
+    data: {
+      on: {
+        OVERVIEW: "overview",
+        SOURCE: "source",
+        DATA: "data",
+        PROCESS: "process",
+        INVESTIGATION: "investigation",
+      },
+    },
+
+    process: {
+      on: {
+        OVERVIEW: "overview",
+        SOURCE: "source",
+        DATA: "data",
+        PROCESS: "process",
+        INVESTIGATION: "investigation",
+      },
+    },
+
+    investigation: {
+      on: {
+        OVERVIEW: "overview",
+        SOURCE: "source",
+        DATA: "data",
+        PROCESS: "process",
+        INVESTIGATION: "investigation",
+      },
+    },
   },
 });

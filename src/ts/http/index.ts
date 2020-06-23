@@ -24,8 +24,10 @@ export const dataResponse = async <T>(resp: Response): Promise<T> => {
   switch (body.status) {
     case "success":
       return Promise.resolve(body.data);
+
     case "error":
       return Promise.reject(body.errors);
+
     default:
       return unreachable(
         "HTTP response yielded neither a success nor an error.",
@@ -37,9 +39,11 @@ export const emptyResponse = async (resp: Response): Promise<void> => {
   if (resp.ok) return Promise.resolve();
 
   const body: HttpErrorResponse = await resp.json();
+
   switch (body.status) {
     case "error":
       return Promise.reject(body.errors);
+
     default:
       return unreachable(
         "HTTP response yielded neither a success nor an error.",

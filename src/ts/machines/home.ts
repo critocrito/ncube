@@ -1,89 +1,37 @@
-import {assign, createMachine} from "xstate";
+import {createMachine} from "xstate";
 
-import {ConnectionDetails, Workspace, WorkspaceReq} from "../types";
-
-interface HomeContext {
-  workspaces: Workspace[];
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface HomeContext {}
 
 type HomeEvent =
   | {type: "CREATE_WORKSPACE"}
   | {type: "LINK_WORKSPACE"}
-  | {type: "UPLOAD_CONNECTION_DETAILS"}
-  | {type: "NEXT"; details: ConnectionDetails}
-  | {type: "ERROR"; msg: string}
-  | {type: "SAVE"; data: WorkspaceReq}
-  | {type: "CANCEL"}
   | {type: "RETRY"};
 
-type HomeState =
-  | {value: "listWorkspaces"; context: HomeContext}
-  | {value: "home"; context: HomeContext}
-  | {value: "createWorkspace"; context: HomeContext}
-  | {value: "uploadConnectionDetails"; context: HomeContext}
-  | {value: "linkWorkspace"; context: HomeContext}
-  | {value: "saveWorkspace"; context: HomeContext}
-  | {value: "homeError"; context: HomeContext}
-  | {value: "saveError"; context: HomeContext};
+type HomeState = {
+  value: "home" | "create" | "link" | "done";
+  context: HomeContext;
+};
 
 export default createMachine<HomeContext, HomeEvent, HomeState>({
   id: "home",
   context: {workspaces: []},
-  initial: "listWorkspaces",
+  initial: "home",
   states: {
-    listWorkspaces: {
-      invoke: {
-        src: "listWorkspaces",
-        onDone: {
-          target: "home",
-          actions: assign({workspaces: (_, {data}) => data}),
-        },
-        onError: {
-          target: "homeError",
-        },
-      },
-    },
-    homeError: {
-      on: {RETRY: "listWorkspaces"},
-    },
-    saveError: {
-      on: {CANCEL: "home", RETRY: "saveWorkspace"},
-    },
     home: {
       on: {
-        CREATE_WORKSPACE: "createWorkspace",
-        UPLOAD_CONNECTION_DETAILS: "uploadConnectionDetails",
+        CREATE_WORKSPACE: "create",
+        LINK_WORKSPACE: "link",
       },
     },
-    createWorkspace: {
-      on: {
-        CANCEL: "home",
-        SAVE: "saveWorkspace",
-      },
-    },
-    uploadConnectionDetails: {
-      on: {
-        CANCEL: "home",
-        NEXT: "linkWorkspace",
-        ERROR: "homeError",
-      },
-    },
-    linkWorkspace: {
-      on: {
-        CANCEL: "home",
-        SAVE: "saveWorkspace",
-      },
-    },
-    saveWorkspace: {
-      invoke: {
-        src: "saveWorkspace",
-        onDone: {
-          target: "listWorkspaces",
-        },
-        onError: {
-          target: "saveError",
-        },
-      },
+
+    create: {},
+
+    link: {},
+
+    done: {
+      entry: "done",
+      type: "final",
     },
   },
 });
