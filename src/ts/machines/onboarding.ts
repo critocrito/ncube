@@ -1,20 +1,14 @@
 import {createMachine} from "xstate";
 
-import {HostConfig} from "../types";
-
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface OnboardingContext {}
 
-type OnboardingEvent =
-  | {type: "SAVE_CONFIG"; values: HostConfig}
-  | {type: "RETRY"};
+type OnboardingEvent = {type: "SHOW_CONFIG"};
 
-type OnboardingState =
-  | {value: "showConfig"; context: OnboardingContext}
-  | {value: "bootstrap"; context: OnboardingContext}
-  | {value: "storeConfig"; context: OnboardingContext}
-  | {value: "bootstrapError"; context: OnboardingContext}
-  | {value: "bootstrapped"; context: OnboardingContext};
+type OnboardingState = {
+  value: "showConfig" | "bootstrap" | "done";
+  context: OnboardingContext;
+};
 
 export default createMachine<
   OnboardingContext,
@@ -29,32 +23,22 @@ export default createMachine<
       invoke: {
         src: "fetchData",
         onDone: {
-          target: "bootstrapped",
+          target: "done",
         },
         onError: {
           target: "bootstrap",
         },
       },
     },
+
     bootstrap: {
-      on: {SAVE_CONFIG: "storeConfig"},
-    },
-    storeConfig: {
-      invoke: {
-        src: "storeData",
-        onDone: {
-          target: "showConfig",
-        },
-        onError: {
-          target: "bootstrapError",
-        },
+      on: {
+        SHOW_CONFIG: "showConfig",
       },
     },
-    bootstrapError: {
-      on: {RETRY: "bootstrap"},
-    },
-    bootstrapped: {
-      entry: "finishBootstrap",
+
+    done: {
+      entry: "done",
       type: "final",
     },
   },

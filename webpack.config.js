@@ -13,7 +13,6 @@ module.exports = {
     filename: "app.js",
     // FIXME: ncubed needs to serve hash based assets first
     // filename: "[name].[hash:8].js",
-    publicPath: "/",
   },
 
   devtool: "source-map",

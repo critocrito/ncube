@@ -1,19 +1,20 @@
 import React from "react";
 
-import dataIcon from "../../../../resources/public/images/icon_data.svg";
-import investigationIcon from "../../../../resources/public/images/icon_investigation.svg";
-import processIcon from "../../../../resources/public/images/icon_process.svg";
-import sourceIcon from "../../../../resources/public/images/icon_source.svg";
+import dataIcon from "../../../resources/public/images/icon_data.svg";
+import investigationIcon from "../../../resources/public/images/icon_investigation.svg";
+import processIcon from "../../../resources/public/images/icon_process.svg";
+import sourceIcon from "../../../resources/public/images/icon_source.svg";
 import Button from "../common/button";
 
 interface SectionCardProps {
   kind: "source" | "data" | "process" | "investigation";
+  onClick: () => void;
 }
 
 const dummy =
   "I'm some sort of description. What I will be, I don't know yet. But I'm convinced, it will be mganificient.";
 
-const SectionCard = ({kind}: SectionCardProps) => {
+const SectionCard = ({kind, onClick = () => {}}: SectionCardProps) => {
   let title;
   let icon;
   let label;
@@ -52,7 +53,7 @@ const SectionCard = ({kind}: SectionCardProps) => {
         </div>
       </div>
       <div className="pr2">
-        <Button onClick={() => {}}>{label}</Button>
+        <Button onClick={onClick}>{label}</Button>
       </div>
     </div>
   );

@@ -4,11 +4,11 @@ import * as Yup from "yup";
 
 import Button from "../common/button";
 import Input from "../common/input";
+import {FormProps} from "../types";
 
-interface OnboardingFormProps {
-  onSubmit: (values: OnboardingFormValues) => void;
-  initialValues?: OnboardingFormValues;
-}
+type OnboardingFormProps<OnboardingFormValues> = FormProps<
+  OnboardingFormValues
+>;
 
 export interface OnboardingFormValues {
   workspace_root: string;
@@ -30,11 +30,14 @@ export const validationSchema = Yup.object({
 
 const OnboardingForm = ({
   initialValues = defaultValues,
+  disabled = false,
   onSubmit,
-}: OnboardingFormProps) => {
+}: OnboardingFormProps<OnboardingFormValues>) => {
+  const formValues = {...defaultValues, ...initialValues};
+
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={formValues}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
     >
@@ -48,23 +51,26 @@ const OnboardingForm = ({
               name="workspace_root"
               placeholder="e.g. ~/Ncube"
             />
+
             <Input
               label="What is your name?"
               name="name"
               placeholder="e.g. Alice"
             />
+
             <Input
               label="What is your email?"
               name="email"
               type="email"
               placeholder="jane@example.org"
             />
+
             <div>
               <Button
                 className="fr"
                 type="submit"
                 size="large"
-                disabled={disableSubmit}
+                disabled={disableSubmit || disabled}
               >
                 Continue
               </Button>

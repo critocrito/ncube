@@ -16,6 +16,8 @@ const Wrapper = () => {
       "aes256cbc$xQqdV4FqxcivzACEs6cBAA==$3Nac+j09z28xPHSXquWeVa2kpbFHn+aeTwhA1nfW+qUAAxi33JgI3JGvUb7dGXrVHcFOPw6BWMBrZxZCUUt3FRXFDN1I1yFY41lD4+/4Efg=",
     password: "",
     password_again: "",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
 
   const handleSubmit = (values: LinkWorkspaceFormValues) => {

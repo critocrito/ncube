@@ -4,41 +4,39 @@ import * as Yup from "yup";
 
 import Button from "../common/button";
 import Input from "../common/input";
+import {ConnectionDetails, FormProps} from "../types";
+import * as v from "../validations";
 
-export interface LinkWorkspaceFormValues {
-  workspace: string;
-  name: string;
-  description?: string;
-  endpoint: string;
-  email: string;
-  otp: string;
+export type LinkWorkspaceFormValues = ConnectionDetails & {
   password: string;
   password_again: string;
   database: "http";
   kind: "remote";
-}
+};
+
+export const defaultValues: LinkWorkspaceFormValues = {
+  workspace: "",
+  name: "",
+  description: "",
+  endpoint: "",
+  email: "",
+  otp: "",
+  password: "",
+  password_again: "",
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  database: "http",
+  kind: "remote",
+};
 
 export const validationSchema = Yup.object({
-  workspace: Yup.string()
-    .required("This workspace requires an identifier.")
-    .max(150, "A workspace name cannot have more than 150 characters."),
-  name: Yup.string()
-    .required("Please provide a name for this workspace.")
-    .max(150, "A workspace name cannot have more than 150 characters."),
-  description: Yup.string(),
-  endpoint: Yup.string()
-    .url()
-    .required("Please provide the endpoint for this remote workspace."),
-  email: Yup.string()
-    .email()
-    .required("Your account must be linked to an Email address."),
-  otp: Yup.string().required(
-    "Provide your One-Time-Password to link to the remote workspace.",
-  ),
-  password: Yup.string()
-    .required("Provide a password to reset the One-Time-Password")
-    .min(15, "A password must be at least 15 characters long.")
-    .max(250, "A password can be at least 250 characters long."),
+  workspace: v.workspaceLabel,
+  name: v.workspaceName,
+  description: v.workspaceDescription,
+  endpoint: v.workspaceEndpoint,
+  email: v.email,
+  otp: v.otp,
+  password: v.password,
   password_again: Yup.string().oneOf(
     [Yup.ref("password"), undefined],
     "Passwords must match",
@@ -47,20 +45,20 @@ export const validationSchema = Yup.object({
   kind: Yup.string().oneOf(["remote"]).required(),
 });
 
-interface LinkWorkspaceFormProps {
-  onSubmit: (values: LinkWorkspaceFormValues) => void;
-  onCancel: () => void;
-  initialValues: LinkWorkspaceFormValues;
-}
+type LinkWorkspaceFormProps<LinkWorkspaceFormValues> = FormProps<
+  LinkWorkspaceFormValues
+>;
 
 const LinkWorkspaceForm = ({
-  initialValues,
+  initialValues = defaultValues,
   onSubmit,
   onCancel,
-}: LinkWorkspaceFormProps) => {
+}: LinkWorkspaceFormProps<LinkWorkspaceFormValues>) => {
+  const formValues = {...defaultValues, ...initialValues};
+
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={formValues}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
     >

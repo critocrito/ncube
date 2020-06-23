@@ -1,3 +1,4 @@
+/* eslint no-console: off */
 import React, {useState} from "react";
 
 import FileUpload from "../file-upload";

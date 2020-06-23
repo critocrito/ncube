@@ -6,38 +6,30 @@ import Button from "../common/button";
 import Input from "../common/input";
 import {FormProps} from "../types";
 
-export type CreateWorkspaceFormValues = {
-  name: string;
-  description?: string;
-  database: "sqlite";
-  kind: "local";
-};
+type CreateSourceFormProps<CreateSourceFormValues> = FormProps<
+  CreateSourceFormValues
+>;
 
-export const defaultValues: CreateWorkspaceFormValues = {
-  name: "",
-  description: "",
-  database: "sqlite",
-  kind: "local",
+export interface CreateSourceFormValues {
+  type: string;
+  term: string;
+}
+
+export const defaultValues: CreateSourceFormValues = {
+  type: "",
+  term: "",
 };
 
 export const validationSchema = Yup.object({
-  name: Yup.string()
-    .required("Please provide a name for this workspace.")
-    .max(150, "A workspace name cannot have more than 150 characters."),
-  description: Yup.string(),
-  database: Yup.string().oneOf(["sqlite"]).required(),
-  kind: Yup.string().oneOf(["local"]).required(),
+  type: Yup.string().required("This field is required."),
+  term: Yup.string().required("This field is required."),
 });
 
-type CreateWorkspaceFormProps<CreateWorkspaceFormValues> = FormProps<
-  CreateWorkspaceFormValues
->;
-
-const CreateWorkspaceForm = ({
+const CreateSourceForm = ({
   initialValues = defaultValues,
   onCancel,
   onSubmit,
-}: CreateWorkspaceFormProps<CreateWorkspaceFormValues>) => {
+}: CreateSourceFormProps<CreateSourceFormValues>) => {
   const formValues = {...defaultValues, ...initialValues};
 
   return (
@@ -51,14 +43,13 @@ const CreateWorkspaceForm = ({
 
         return (
           <Form>
-            <Input label="What is the name of this workspace?" name="name" />
-            <Input
-              label="If you like, you can add a short description."
-              name="description"
-            />
+            <Input label="Type" name="type" placeholder="e.g. youtube_video" />
 
-            <input name="database" type="hidden" value="sqlite" />
-            <input name="kind" type="hidden" value="local" />
+            <Input
+              label="Term"
+              name="term"
+              placeholder="e.g. http://youtube.com/watch?v=abcdef"
+            />
 
             <div className="flex justify-between ml-auto w-80">
               <Button
@@ -76,7 +67,7 @@ const CreateWorkspaceForm = ({
                 size="large"
                 disabled={disableSubmit}
               >
-                Create Workspace
+                Create Source
               </Button>
             </div>
           </Form>
@@ -86,4 +77,4 @@ const CreateWorkspaceForm = ({
   );
 };
 
-export default CreateWorkspaceForm;
+export default CreateSourceForm;

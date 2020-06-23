@@ -1,17 +1,25 @@
 import React from "react";
 
-import {Workspace} from "../types";
 import Navbar from "../common/navbar";
 import Sidebar from "../common/sidebar";
+import {Workspace} from "../types";
 import Header from "../workspace/header";
 
 interface PanelProps {
+  header: string;
+  description?: string;
   workspaces: Workspace[];
   workspace: Workspace;
   children: JSX.Element;
 }
 
-const Panel = ({children, workspaces, workspace}: PanelProps) => {
+const Panel = ({
+  children,
+  header,
+  description,
+  workspaces,
+  workspace,
+}: PanelProps) => {
   return (
     <div className="flex">
       <Sidebar workspaces={workspaces} />
@@ -20,8 +28,8 @@ const Panel = ({children, workspaces, workspace}: PanelProps) => {
         <div className="pa3 ma2 mw8 center">
           <Header workspace={workspace} />
           <div>
-            <h1 className="header1">{workspace.name}</h1>
-            <p className="text-medium">{workspace.description}</p>
+            <h1 className="header1">{header}</h1>
+            <p className="text-medium">{description}</p>
           </div>
           <div className="cf w-100 pa2">{children}</div>
         </div>

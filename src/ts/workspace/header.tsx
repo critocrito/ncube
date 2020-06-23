@@ -1,7 +1,7 @@
 import React from "react";
 
-import {Workspace} from "../types";
 import WorkspaceTag from "../common/workspace-tag";
+import {Workspace} from "../types";
 
 interface HeaderProps {
   workspace: Workspace;

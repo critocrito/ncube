@@ -3,8 +3,8 @@ import "../css/styles.css";
 import React from "react";
 import ReactDOM from "react-dom";
 
-import Routes from "./routes";
+import App from "./app";
 
 const domContainer = document.querySelector("#app");
 
-ReactDOM.render(<Routes />, domContainer);
+ReactDOM.render(<App />, domContainer);

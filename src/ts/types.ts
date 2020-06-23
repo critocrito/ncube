@@ -1,6 +1,17 @@
-export interface ConfigSettingReq {
-  name: string;
-  value: string;
+import * as Yup from "yup";
+
+import * as v from "./validations";
+
+export interface FormValues<T> {
+  values: T;
+  error: string;
+}
+
+export interface FormProps<T> {
+  onSubmit: (values: T) => void;
+  onCancel?: () => void;
+  initialValues?: Partial<T>;
+  disabled?: boolean;
 }
 
 export interface ConfigSetting {
@@ -36,6 +47,44 @@ export type WorkspaceRemote = {
 
 export type Workspace = WorkspaceLocal | WorkspaceRemote;
 
+export interface ConnectionDetails {
+  name: string;
+  workspace: string;
+  endpoint: string;
+  email: string;
+  otp: string;
+  created_at: string;
+  updated_at: string;
+  description?: string;
+}
+
+export interface Annotation {
+  kind: "tag";
+  term: string;
+}
+
+export interface Source {
+  id: number;
+  type: string;
+  term: string;
+  annotations: Annotation[];
+}
+
+/*
+ * The request types represent request objects to the HTTP API. They are
+ * usually used in the `./http/*` functions. Additionally to types I run
+ * validations for the requests. Yup allows to infer types based on the
+ * validations.
+ */
+
+export type ConfigSettingReq = Yup.InferType<typeof v.configSettingReq>;
+export type SourceReq = Yup.InferType<typeof v.sourceReq>;
+
+/*
+ * It is currently tricky (not possible?) to express discriminated union types
+ * with Yup. See: https://github.com/jquense/yup/issues/593
+ * So I have to keep the types and the validations in sync for the time being.
+ */
 export interface WorkspaceLocalReq {
   kind: "local";
   name: string;
@@ -58,15 +107,7 @@ export interface WorkspaceRemoteReq {
   };
 }
 
-export type WorkspaceReq = WorkspaceLocalReq | WorkspaceRemoteReq;
+// export type WorkspaceLocalReq = Yup.InferType<typeof v.localWorkspaceReq>;
+// export type WorkspaceRemoteReq = Yup.InferType<typeof v.remoteWorkspaceReq>;
 
-export interface ConnectionDetails {
-  name: string;
-  workspace: string;
-  endpoint: string;
-  email: string;
-  otp: string;
-  created_at: string;
-  updated_at: string;
-  description?: string;
-}
+export type WorkspaceReq = WorkspaceLocalReq | WorkspaceRemoteReq;
