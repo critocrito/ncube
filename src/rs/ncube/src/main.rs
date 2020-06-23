@@ -41,7 +41,7 @@ fn main() {
     web_view::builder()
         .title("Ncube")
         .content(Content::Url(format!("http://{}/index.html", local_listen)))
-        .size(1024, 800)
+        .size(1280, 1024)
         .resizable(true)
         .debug(true)
         .user_data(())

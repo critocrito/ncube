@@ -76,36 +76,26 @@ pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::
         .or(warp::path("app.js")
             .map(|| include_str!("../../../../target/dist/app.js"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/javascript")))
-        .or(warp::path!("fonts" / "NotoSans-Regular.ttf")
+        .or(warp::path("styles.css.map")
+            .map(|| include_str!("../../../../target/dist/styles.css.map"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "text/css")))
+        .or(warp::path("app.js.map")
+            .map(|| include_str!("../../../../target/dist/app.js.map"))
+            .map(|reply| warp::reply::with_header(reply, "content-type", "text/javascript")))
+        .or(warp::path("82b1a58ddf26951345dcec05fb4d7b5c.ttf")
             .map(|| {
-                let file = include_bytes!("../../../../target/dist/fonts/NotoSans-Regular.ttf");
+                let file =
+                    include_bytes!("../../../../target/dist/82b1a58ddf26951345dcec05fb4d7b5c.ttf");
                 file.to_vec()
             })
             .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
-        .or(warp::path!("fonts" / "NotoSans-Bold.ttf")
+        .or(warp::path("e962f548522aa99bb8f9c3505bcf56a9.ttf")
             .map(|| {
-                let file = include_bytes!("../../../../target/dist/fonts/NotoSans-Bold.ttf");
+                let file =
+                    include_bytes!("../../../../target/dist/e962f548522aa99bb8f9c3505bcf56a9.ttf");
                 file.to_vec()
             })
             .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
-        .or(warp::path!("images" / "logo_big.svg")
-            .map(|| include_str!("../../../../target/dist/images/logo_big.svg"))
-            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
-        .or(warp::path!("images" / "icon_data.svg")
-            .map(|| include_str!("../../../../target/dist/images/icon_data.svg"))
-            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
-        .or(warp::path!("images" / "icon_help.svg")
-            .map(|| include_str!("../../../../target/dist/images/icon_help.svg"))
-            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
-        .or(warp::path!("images" / "icon_investigation.svg")
-            .map(|| include_str!("../../../../target/dist/images/icon_investigation.svg"))
-            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
-        .or(warp::path!("images" / "icon_process.svg")
-            .map(|| include_str!("../../../../target/dist/images/icon_process.svg"))
-            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
-        .or(warp::path!("images" / "icon_query.svg")
-            .map(|| include_str!("../../../../target/dist/images/icon_query.svg"))
-            .map(|reply| warp::reply::with_header(reply, "content-type", "image/svg+xml")))
 }
 
 pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {

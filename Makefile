@@ -1,4 +1,4 @@
-.PHONY: all test ui workspace dist devcards clean-dist clean-build clean-devcards pkg-dmg pkg-bin pkg-deb pkg-deb-ncubed verify
+.PHONY: all test ui workspace dist clean-dist clean-build clean-pkg-dmg pkg-bin pkg-deb pkg-deb-ncubed verify
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -8,113 +8,22 @@ dist_dir = $(target_dir)/dist
 dist_fonts_dir = $(dist_dir)/fonts
 dist_images_dir = $(dist_dir)/images
 css_dir = $(target_dir)/css
-cljs_dir = $(target_dir)/public/cljs-out
 webpack_dir = $(target_dir)/webpack
 workspace_dir = $(target_dir)/workspace
 workspace_archive = $(workspace_dir)/workspace.tar.gz
 pkgs_release_dir = pkgs
-devcards_dir = $(target_dir)/devcards
 
 all: $(release_dir)/ncube
 
-$(cljs_dir)/prod-main.js:
-	@mkdir -p $(cljs_dir)
-	clojure -A:fig-deps:prod-deps:min
-
-$(cljs_dir)/cards-main.js:
-	@mkdir -p $(cljs_dir)
-	clojure -A:fig-deps:prod-deps:cards-deps:cards
-
-$(webpack_dir)/index.html $(webpack_dir)/main.js $(webpack_dir)/styles.css:
+$(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css:
 	yarn compile
 
-$(css_dir)/styles.css:
-	@mkdir -p $(css_dir)
-	node_modules/.bin/postcss -o $(css_dir)/styles.css src/css/styles.css
-
-$(dist_dir)/app.js: $(cljs_dir)/prod-main.js
-	@mkdir -p  $(dist_dir)
-	cp $(cljs_dir)/prod-main.js $(dist_dir)/app.js
-
-$(dist_dir)/cards.js: $(cljs_dir)/cards-main.js
-	@mkdir -p $(dist_dir)
-	cp $(cljs_dir)/cards-main.js $(dist_dir)/cards.js
-
-$(dist_dir)/index.html:
-	@mkdir -p $(dist_dir)
-	cp resources/public/prod.html $(dist_dir)/index.html
-
-$(dist_dir)/styles.css: $(css_dir)/styles.css
-	@mkdir -p  $(dist_dir)
-	cp $(css_dir)/styles.css $(dist_dir)/styles.css
-
-$(dist_fonts_dir)/NotoSans-Regular.ttf:
-	@mkdir -p $(dist_fonts_dir)
-	cp resources/public/fonts/NotoSans-Regular.ttf $(dist_fonts_dir)
-
-$(dist_fonts_dir)/NotoSans-Bold.ttf:
-	@mkdir -p $(dist_fonts_dir)
-	cp resources/public/fonts/NotoSans-Bold.ttf $(dist_fonts_dir)
-
-$(dist_images_dir)/logo_big.svg:
-	@mkdir -p $(dist_images_dir)
-	cp resources/public/images/logo_big.svg $(dist_images_dir)
-
-$(dist_images_dir)/icon_data.svg:
-	@mkdir -p $(dist_images_dir)
-	cp resources/public/images/icon_data.svg $(dist_images_dir)
-
-$(dist_images_dir)/icon_help.svg:
-	@mkdir -p $(dist_images_dir)
-	cp resources/public/images/icon_help.svg $(dist_images_dir)
-
-$(dist_images_dir)/icon_investigation.svg:
-	@mkdir -p $(dist_images_dir)
-	cp resources/public/images/icon_investigation.svg $(dist_images_dir)
-
-$(dist_images_dir)/icon_process.svg:
-	@mkdir -p $(dist_images_dir)
-	cp resources/public/images/icon_process.svg $(dist_images_dir)
-
-$(dist_images_dir)/icon_query.svg:
-	@mkdir -p $(dist_images_dir)
-	cp resources/public/images/icon_query.svg $(dist_images_dir)
+$(dist_dir): $(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css
+	cp -av $(webpack_dir) $(dist_dir)
 
 $(workspace_archive):
 	@mkdir -p $(workspace_dir)
 	./scripts/build_workspace.sh $(workspace_dir) $(workspace_archive)
-
-$(devcards_dir)/app.js: $(cljs_dir)/cards-main.js
-	@mkdir -p $(devcards_dir)
-	cp $(cljs_dir)/cards-main.js $(devcards_dir)/app.js
-
-$(devcards_dir)/index.html:
-	@mkdir -p $(devcards_dir)
-	cp resources/public/cards.html $(devcards_dir)/index.html
-
-$(devcards_dir)/styles.css: $(css_dir)/styles.css
-	@mkdir -p $(devcards_dir)
-	cp $(css_dir)/styles.css $(devcards_dir)/styles.css
-
-$(devcards_dir)/fonts:
-	@mkdir -p $(devcards_dir)/fonts
-	cp resources/public/fonts/NotoSans-Regular.ttf $(devcards_dir)/fonts
-	cp resources/public/fonts/NotoSans-Bold.ttf $(devcards_dir)/fonts
-
-$(devcards_dir)/images:
-	@mkdir -p $(devcards_dir)/images
-	cp resources/public/images/logo_big.svg $(devcards_dir)/images
-	cp resources/public/images/icon_data.svg $(devcards_dir)/images
-	cp resources/public/images/icon_help.svg $(devcards_dir)/images
-	cp resources/public/images/icon_investigation.svg $(devcards_dir)/images
-	cp resources/public/images/icon_process.svg $(devcards_dir)/images
-	cp resources/public/images/icon_query.svg $(devcards_dir)/images
-
-devcards: clean-devcards \
-			$(devcards_dir)/app.js \
-			$(devcards_dir)/styles.css \
-			$(devcards_dir)/index.html \
-			$(devcards_dir)/fonts
 
 $(release_dir)/ncube: dist
 	@mkdir -p $(release_dir)
@@ -139,7 +48,6 @@ $(pkg_build_macos): $(release_dir)/ncube
 
 clean-dist:
 	rm -rf $(release_dir)/ncube
-	rm -rf $(cljs_dir)
 	rm -rf $(webpack_dir)
 	rm -rf $(dist_dir)
 	rm -rf $(workspace_dir)
@@ -147,9 +55,6 @@ clean-dist:
 
 clean-build:
 	rm -rf $(pkg_build_dir)
-
-clean-devcards:
-	rm -rf $(devcards_dir)
 
 clean:
 	rm -rf $(target_dir)
@@ -183,17 +88,7 @@ verify:
 test:
 	cargo test
 
-ui: $(dist_dir)/app.js \
-	$(dist_dir)/index.html \
-	$(dist_dir)/styles.css \
-	$(dist_fonts_dir)/NotoSans-Regular.ttf \
-	$(dist_fonts_dir)/NotoSans-Bold.ttf \
-	$(dist_images_dir)/logo_big.svg \
-	$(dist_images_dir)/icon_data.svg \
-	$(dist_images_dir)/icon_help.svg \
-	$(dist_images_dir)/icon_investigation.svg \
-	$(dist_images_dir)/icon_process.svg \
-	$(dist_images_dir)/icon_query.svg
+ui: $(dist_dir)
 
 workspace: $(workspace_archive)
 
