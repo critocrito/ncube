@@ -63,8 +63,6 @@ export default createMachine<AppContext, AppEvent, AppState>({
     },
 
     fetchWorkspace: {
-      entry: assign({workspace: (_ctx, _ev) => undefined}),
-
       invoke: {
         src: "fetchWorkspace",
 

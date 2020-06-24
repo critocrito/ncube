@@ -229,7 +229,8 @@
       "react/button-has-type": "off",
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "unicorn/prevent-abbreviations": "off"
+      "unicorn/prevent-abbreviations": "off",
+      "unicorn/no-useless-undefined": "off"
     },
     "overrides": [
       {
