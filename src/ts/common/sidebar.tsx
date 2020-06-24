@@ -59,9 +59,9 @@ const Sidebar = ({workspaces}: SidebarProps) => {
           <div className="flex flex-column justify-between h-100">
             <div className="pa2">
               <ul className="list pl0">
-                <li className="flex items-center">
+                <li>
                   <button
-                    className="b--none bg-canvas"
+                    className="flex items-center b--none bg-canvas"
                     onClick={() => workspaceSend("SOURCE")}
                   >
                     <img
@@ -74,9 +74,9 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                   </button>
                 </li>
 
-                <li className="flex items-center mt3">
+                <li className="mt3">
                   <button
-                    className="b--none bg-canvas"
+                    className="flex items-center b--none bg-canvas"
                     onClick={() => workspaceSend("DATA")}
                   >
                     <img
@@ -89,9 +89,9 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                   </button>
                 </li>
 
-                <li className="flex items-center mt3">
+                <li className="mt3">
                   <button
-                    className="b--none bg-canvas"
+                    className="flex items-center b--none bg-canvas"
                     onClick={() => workspaceSend("PROCESS")}
                   >
                     <img
@@ -104,9 +104,9 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                   </button>
                 </li>
 
-                <li className="flex items-center mt3">
+                <li className="mt3">
                   <button
-                    className="b--none bg-canvas"
+                    className="flex items-center b--none bg-canvas"
                     onClick={() => workspaceSend("INVESTIGATION")}
                   >
                     <img
