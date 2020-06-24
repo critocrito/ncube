@@ -35,7 +35,6 @@ type WorkspaceCtx = [
 // undefined initial value, but not having to null check the value inside the
 // component. This code was taken from a gist, see the links on top.
 const createContext = <A>() => {
-  // eslint-disable-next-line unicorn/no-useless-undefined
   const ctx = React.createContext<A | undefined>(undefined);
   const useCtx = () => {
     const c = React.useContext(ctx);

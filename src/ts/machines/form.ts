@@ -5,7 +5,7 @@ export type FormContext<T> = {
   error?: string;
 };
 export type FormEvent<T> =
-  | {type: "SAVE"; error: undefined; values: T}
+  | {type: "SAVE"; values: T}
   | {type: "CANCEL"}
   | {type: "DONE"}
   | {type: "RETRY"; values: T};
@@ -15,7 +15,7 @@ export type FormState<T> =
       value: "initial";
       context: FormContext<T> & {values: T};
     }
-  | {value: "saving"; context: FormContext<T> & {error: undefined}}
+  | {value: "saving"; context: FormContext<T>}
   | {value: "error"; context: FormContext<T> & {error: string}}
   | {value: "done"; context: FormContext<T>};
 
@@ -38,8 +38,6 @@ export default <T extends unknown>(initialValues?: Partial<T>) =>
             target: "saving",
             actions: assign({
               values: (_ctx, ev) => ev.values,
-              // eslint-disable-next-line unicorn/no-useless-undefined
-              error: (_ctx, _ev) => undefined,
             }),
           },
           CANCEL: "done",

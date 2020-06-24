@@ -11,7 +11,6 @@ const Wrapper = () => {
     setState(values);
   };
   const handleCancel = () => {
-    // eslint-disable-next-line unicorn/no-useless-undefined
     setState(undefined);
     setIsCanceled(true);
   };
