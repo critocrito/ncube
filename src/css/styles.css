@@ -309,10 +309,18 @@ tr:hover span.trash {
 }
 
 /* Other elements */
-
-.tag {
+.base-tag {
   @insert .pl3 .pr3 .br4 .text-medium .tc .b .ttu;
   height: 1.5rem;
-  max-width: 12rem;
-  min-width: 4rem;
+}
+
+.tag {
+  @insert .base-tag;
+  width: 12rem;
+}
+
+.short-tag {
+  @insert .base-tag;
+  width: 5rem;
+  color: white;
 }
