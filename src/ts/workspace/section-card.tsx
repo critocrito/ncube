@@ -38,7 +38,7 @@ const SectionCard = ({kind, onClick = () => {}}: SectionCardProps) => {
   }
 
   return (
-    <div className="h4 bg-white shadow-1 flex items-center justify-between mb4">
+    <div className="h4 bg-white pa3 shadow-4 flex items-center justify-between mb4">
       <div className="w-40 pa2">
         <div className="flex flex-column pl2">
           <div className="flex h3 items-center w-100">
@@ -52,7 +52,7 @@ const SectionCard = ({kind, onClick = () => {}}: SectionCardProps) => {
           <p className="text-small">{dummy}</p>
         </div>
       </div>
-      <div className="pr2">
+      <div className="pr3">
         <Button onClick={onClick}>{label}</Button>
       </div>
     </div>
