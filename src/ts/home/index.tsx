@@ -36,7 +36,7 @@ const Home = ({onDone, workspaces}: HomeProps) => {
       return (
         <BasicPanel>
           <div>
-            <div className="fl w-100 pa2">
+            <div className="fl w-100 pa3">
               <Overline label="Workspaces" />
               <ul className="list pl0 mt0 mb0">
                 {workspaces.map((workspace) => (
