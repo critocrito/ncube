@@ -105,7 +105,7 @@ const LinkWorkspaceForm = ({
             <input name="database" type="hidden" value="http" />
             <input name="kind" type="hidden" value="remote" />
 
-            <div className="flex justify-between ml-auto w-80">
+            <div className="flex justify-between ml-auto w-80 pv2">
               <Button
                 type="reset"
                 size="large"
