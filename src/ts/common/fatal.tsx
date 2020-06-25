@@ -17,7 +17,7 @@ const Fatal = ({msg, reset}: FatalProps) => {
           proceed. All I got was the following error message:
         </p>
 
-        <p className="error b">{msg}</p>
+        <p className="error b bg-fair-pink pa4">{msg}</p>
 
         <p>
           This should not have happened. Unfortunately I don&apos;t know how to
