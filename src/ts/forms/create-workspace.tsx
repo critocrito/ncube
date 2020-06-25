@@ -60,7 +60,7 @@ const CreateWorkspaceForm = ({
             <input name="database" type="hidden" value="sqlite" />
             <input name="kind" type="hidden" value="local" />
 
-            <div className="flex justify-between ml-auto w-80">
+            <div className="flex justify-between ml-auto w-80 pv2 pv2">
               <Button
                 type="reset"
                 size="large"

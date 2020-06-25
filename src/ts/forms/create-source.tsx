@@ -51,7 +51,7 @@ const CreateSourceForm = ({
               placeholder="e.g. http://youtube.com/watch?v=abcdef"
             />
 
-            <div className="flex justify-between ml-auto w-80">
+            <div className="flex justify-between ml-auto w-80 pv2">
               <Button
                 type="reset"
                 size="large"
