@@ -55,10 +55,6 @@
   color: var(--color-solitude);
 }
 
-. {
-  color: var(--color-);
-}
-
 .gray-25 {
   color: var(--color-gray-25);
 }
@@ -295,16 +291,16 @@ tr:hover {
   @insert .bg-canvas;
 }
 
-span.trash {
+.trash {
   cursor: pointer;
   display: none;
-  width: 20px;
-  height: 20px;
+  width: 40px;
+  height: 40px;
   position: absolute;
-  left: -20px;
+  left: -40px;
 }
 
-tr:hover span.trash {
+tr:hover .trash {
   display: block;
 }
 
