@@ -11,15 +11,18 @@ type SourceContext = {
 type SourceEvent =
   | {type: "SHOW_HOME"}
   | {type: "CREATE_SOURCE"}
-  | {type: "RETRY"};
+  | {type: "DELETE_SOURCE"; source: Source}
+  | {type: "RETRY"}
+  | {type: "CANCEL"}
+  | {type: "CONFIRM_DELETE"; sourceId: number};
 
 type SourceState =
   | {
-      value: "listing";
+      value: "listing" | "deleting";
       context: SourceContext;
     }
   | {
-      value: "home" | "create";
+      value: "home" | "create" | "delete";
       context: SourceContext & {sources: Source[]};
     }
   | {
@@ -49,15 +52,38 @@ export default createMachine<SourceContext, SourceEvent, SourceState>({
       },
     },
 
+    deleting: {
+      invoke: {
+        src: "deleteSource",
+
+        onDone: {
+          target: "listing",
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     home: {
       on: {
         CREATE_SOURCE: "create",
+        DELETE_SOURCE: "delete",
       },
     },
 
     create: {
       on: {
         SHOW_HOME: "listing",
+      },
+    },
+
+    delete: {
+      on: {
+        CANCEL: "home",
+        CONFIRM_DELETE: "deleting",
       },
     },
 

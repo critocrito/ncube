@@ -3,7 +3,8 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   entry: "./src/ts/cosmos.tsx",
-  devtool: "source-map",
+  // devtool: "source-map",
+  devtool: "eval-source-map",
   module: {
     rules: [
       {
