@@ -8,7 +8,7 @@ import FormHandler from "../common/form-handler";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
 import CreateSourceForm, {CreateSourceFormValues} from "../forms/create-source";
-import {create, list, remove} from "../http/source";
+import {createSource, listSources, removeSource} from "../http";
 import machine from "../machines/source";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -23,14 +23,15 @@ const saveSource = (
   values: CreateSourceFormValues,
 ): Promise<void> => {
   // FIXME: remove annotations stub
-  return create(slug, Object.assign(values, {annotations: []}));
+  return createSource(slug, Object.assign(values, {annotations: []}));
 };
 
 const Source = ({workspace}: SourceProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
-      listSources: (_ctx, _ev) => list(workspace.slug),
-      deleteSource: (_ctx, {sourceId}) => remove(workspace.slug, sourceId),
+      listSources: (_ctx, _ev) => listSources(workspace.slug),
+      deleteSource: (_ctx, {sourceId}) =>
+        removeSource(workspace.slug, sourceId),
     },
 
     context: {

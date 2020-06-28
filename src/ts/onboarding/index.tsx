@@ -4,7 +4,7 @@ import React from "react";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
 import OnboardingForm, {OnboardingFormValues} from "../forms/onboarding";
-import {create, show} from "../http/config";
+import {createConfig, showConfig} from "../http";
 import BasicPanel from "../layout/basic-panel";
 import machine from "../machines/onboarding";
 import {ConfigSettingReq} from "../types";
@@ -22,7 +22,7 @@ const saveOnboardingForm = async (values: OnboardingFormValues) => {
     }),
   );
 
-  return create(body);
+  return createConfig(body);
 };
 
 const Onboarding = ({onDone}: OnboardingProps) => {
@@ -32,7 +32,7 @@ const Onboarding = ({onDone}: OnboardingProps) => {
     },
 
     services: {
-      fetchData: async (_ctx, _ev) => show(),
+      fetchData: async (_ctx, _ev) => showConfig(),
     },
   });
 

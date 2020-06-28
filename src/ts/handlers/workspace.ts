@@ -1,8 +1,8 @@
 import {CreateWorkspaceFormValues} from "../forms/create-workspace";
 import {LinkWorkspaceFormValues} from "../forms/link-workspace";
-import {create, list} from "../http/workspace";
+import {createWorkspace} from "../http";
 
-export const listWorkspaces = list;
+export {listWorkspaces} from "../http";
 
 export const saveWorkspace = async (
   data: LinkWorkspaceFormValues | CreateWorkspaceFormValues,
@@ -11,10 +11,10 @@ export const saveWorkspace = async (
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const {email, otp, password, password_again, ...rest} = data;
     const body = {account: {email, otp, password, password_again}, ...rest};
-    return create(body);
+    return createWorkspace(body);
   }
   if (data.kind === "local") {
-    return create(data);
+    return createWorkspace(data);
   }
   throw new Error(
     "No valid workspace kind detected. Should be either 'remote' or 'local'.",
