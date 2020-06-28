@@ -1,1 +1,1 @@
-SELECT EXISTS(SELECT id FROM queries WHERE id = ?1);
+SELECT EXISTS(SELECT id FROM query WHERE id = ?1);

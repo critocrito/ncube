@@ -1,4 +1,4 @@
-INSERT INTO queries (
+INSERT INTO query (
   type,
   term,
   created_at,
