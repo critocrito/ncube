@@ -7,7 +7,7 @@
   --color-bittersweet: #fd7268;
   --color-sapphire: #0a2463;
   --color-fair-pink: #f8ece8;
-  --color-solitude: #eff3fc;
+  --color-solitude: #DFE2EC;
 
   /* Gray scale. Secondary text, disable status, borders */
 
@@ -194,18 +194,26 @@
 .header1 {
   font-size: 3.052em;
   color: var(--color-sapphire);
+  line-height: 1em;
 }
 .header2 {
   font-size: 2.441em;
+  color: var(--color-sapphire);
+  line-height: 1em;
 }
 .header3 {
   font-size: 1.953em;
+  color: var(--color-sapphire);
+  line-height: 1em;
 }
 .header4 {
   font-size: 1.563em;
+  color: var(--color-sapphire);
+  line-height: 1em;
 }
 .header5 {
   font-size: 1.25em;
+  line-height: 1em;
 }
 
 .text-medium {
@@ -214,13 +222,15 @@
 
 .text-small {
   font-size: 0.64em;
+  color: var(--color-gray-75);
 }
 
 /* Butons */
 
 .btn {
   @insert .white .link .pa2 .ttu .br2 .tc .b .nowrap;
-  border-radius: 2px;
+  border-radius: 3px;
+  border: none;
 }
 
 .btn-active {
@@ -261,7 +271,8 @@
 
 body {
   font-size: 16px;
-  letter-spacing: 0.01em;
+  color: var(--color-gray-75);
+
 }
 
 form {
@@ -312,7 +323,7 @@ tr:hover .trash {
 
 .tag {
   @insert .base-tag;
-  width: 12rem;
+  width: auto;
 }
 
 .short-tag {

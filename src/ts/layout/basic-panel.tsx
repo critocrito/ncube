@@ -13,7 +13,7 @@ const BasicPanel = ({children, header, description}: BasicPanelProps) => {
   const desc = isString(description) ? <p>{description}</p> : "";
   return (
     <div className="mw8 center">
-      <div className="cf w-100 pa2">
+      <div className="cf w-100">
         {head}
         {desc}
         {children}

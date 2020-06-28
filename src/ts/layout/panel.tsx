@@ -25,13 +25,13 @@ const Panel = ({
       <Sidebar workspaces={workspaces} />
       <div className="w-100">
         <Navbar />
-        <div className="pa3 ma2 mw8 center">
+        <div className="ph4 pv3 mw8 center">
           <Header workspace={workspace} />
           <div>
             <h1 className="header1">{header}</h1>
             <p className="text-medium">{description}</p>
           </div>
-          <div className="cf w-100 pa2">{children}</div>
+          <div className="cf w-100 pv3">{children}</div>
         </div>
       </div>
     </div>
