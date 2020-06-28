@@ -9,8 +9,8 @@ interface HeaderProps {
 
 const Header = ({workspace}: HeaderProps) => {
   return (
-    <div className="bb b--sapphire w-100 flex justify-between items-center">
-      <div className="b text-medium sapphire ttu">{`Workspace: ${workspace.name}`}</div>
+    <div className="bb b--sapphire w-100 flex justify-between items-center pb2">
+      <div className="b text-medium sapphire ttu w-30">{`Workspace: ${workspace.name}`}</div>
       <WorkspaceTag className="mb1" kind={workspace.kind} />
     </div>
   );
