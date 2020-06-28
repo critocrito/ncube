@@ -26,30 +26,27 @@ const WorkspaceListItem = ({
   return (
     <li key={id} className="bb">
       <div className="flex items-center justify-between w-100">
-      <div className="flex flex-wrap w-80">
-        <div class=" w-100 flex justify-between items-center">
-          <div className="flex w-10 mr3">
-            <WorkspaceTag kind={kind} /></div>
+        <div className="flex flex-wrap w-80">
+          <div className=" w-100 flex justify-between items-center">
+            <div className="flex w-10 mr3">
+              <WorkspaceTag kind={kind} />
+            </div>
             <h3 className="header3 flex-nowrap w-100 ma0 pv4">{name}</h3>
-        </div>
-        <div class="w-70 pb4 mr2">
-          <div className="flex items-center justify-between">
-            <Stat kind="source" value={stats.source} />
-            <Stat kind="data" value={stats.data} />
-            <Stat kind="process" value={stats.process} />
-            <Stat kind="investigation" value={stats.investigation} />
+          </div>
+          <div className="w-70 pb4 mr2">
+            <div className="flex items-center justify-between">
+              <Stat kind="source" value={stats.source} />
+              <Stat kind="data" value={stats.data} />
+              <Stat kind="process" value={stats.process} />
+              <Stat kind="investigation" value={stats.investigation} />
+            </div>
           </div>
         </div>
-
-      </div>
 
         <Button className="ml1" onClick={handleOpen}>
           Open
         </Button>
       </div>
-
-
-
     </li>
   );
 };
