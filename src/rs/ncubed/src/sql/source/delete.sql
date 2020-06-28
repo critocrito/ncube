@@ -1,1 +1,1 @@
-DELETE FROM queries WHERE id = ?1;
+DELETE FROM query WHERE id = ?1;
