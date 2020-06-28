@@ -1,8 +1,8 @@
-import {CreateWorkspaceFormValues} from "../forms/create-workspace";
-import {LinkWorkspaceFormValues} from "../forms/link-workspace";
-import {createWorkspace} from "../http";
+import {CreateWorkspaceFormValues} from "./forms/create-workspace";
+import {LinkWorkspaceFormValues} from "./forms/link-workspace";
+import {createWorkspace} from "./http";
 
-export {listWorkspaces} from "../http";
+export {listWorkspaces} from "./http";
 
 export const saveWorkspace = async (
   data: LinkWorkspaceFormValues | CreateWorkspaceFormValues,

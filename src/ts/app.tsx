@@ -4,7 +4,7 @@ import React from "react";
 import Error from "./common/error";
 import Fatal from "./common/fatal";
 import {AppProvider} from "./context";
-import {listWorkspaces} from "./handlers/workspace";
+import {listWorkspaces} from "./handlers";
 import Home from "./home";
 import {showWorkspace} from "./http";
 import machine from "./machines/app";
