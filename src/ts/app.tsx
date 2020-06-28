@@ -6,7 +6,7 @@ import Fatal from "./common/fatal";
 import {AppProvider} from "./context";
 import {listWorkspaces} from "./handlers/workspace";
 import Home from "./home";
-import {show} from "./http/workspace";
+import {showWorkspace} from "./http";
 import machine from "./machines/app";
 import Onboarding from "./onboarding";
 import {useServiceLogger} from "./utils";
@@ -18,7 +18,7 @@ const App = () => {
       listWorkspaces: async (_ctx, _ev) => listWorkspaces(),
 
       fetchWorkspace: async (_ctx, {slug}) => {
-        return show(slug);
+        return showWorkspace(slug);
       },
     },
   });
