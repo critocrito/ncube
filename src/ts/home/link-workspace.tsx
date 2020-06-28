@@ -7,7 +7,7 @@ import Fatal from "../common/fatal";
 import FileUpload from "../common/file-upload";
 import FormHandler from "../common/form-handler";
 import LinkWorkspaceForm from "../forms/link-workspace";
-import {saveWorkspace} from "../handlers/workspace";
+import {saveWorkspace} from "../handlers";
 import BasicPanel from "../layout/basic-panel";
 import machine from "../machines/link-workspace";
 import {useServiceLogger} from "../utils";
