@@ -227,6 +227,12 @@ pub struct Annotation {
     pub kind: AnnotationKind,
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct QueryTag {
+    pub name: String,
+    pub value: String,
+}
+
 /// A source represents a place where data can be fetched from. It is combined
 /// with a data process to yield units of data.
 ///
@@ -234,21 +240,21 @@ pub struct Annotation {
 ///
 /// ```
 /// # use serde_json;
-/// # use ncube_data::{Source, Annotation, AnnotationKind};
-/// let annotation = Annotation {
-///   id: 1,
-///   kind: AnnotationKind::Tag("xyz".into()),
+/// # use ncube_data::{Source, QueryTag};
+/// let tag = QueryTag {
+///   name: "code".to_string(),
+///   value: "tag value".to_string(),
 /// };
 ///
 /// let source = Source {
 ///   id: 1,
 ///   kind: "youtube_video".into(),
 ///   term: "https://youtube.com/watch?v=123456".into(),
-///   annotations: vec![annotation],
+///   tags: vec![tag],
 /// };
 ///
 /// assert_eq!(
-///   "{\"id\":1,\"type\":\"youtube_video\",\"term\":\"https://youtube.com/watch?v=123456\",\"annotations\":[{\"id\":1,\"type\":\"tag\",\"term\":\"xyz\"}]}",
+///   "{\"id\":1,\"type\":\"youtube_video\",\"term\":\"https://youtube.com/watch?v=123456\",\"tags\":[{\"name\":\"code\",\"value\":\"tag value\"}]}",
 ///   serde_json::to_string(&source).unwrap()
 /// );
 /// ```
@@ -259,7 +265,7 @@ pub struct Source {
     pub kind: String,
     pub term: String,
     #[serde(default)]
-    pub annotations: Vec<Annotation>,
+    pub tags: Vec<QueryTag>,
 }
 
 /// An account is required to gain access to a remote workspace.

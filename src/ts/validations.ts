@@ -49,6 +49,13 @@ export const annotation = Yup.object({
 
 export const annotations = Yup.array().of(annotation);
 
+export const sourceTag = Yup.object({
+  name: Yup.string().required("This field is required."),
+  value: Yup.string().required("This field is required."),
+});
+
+export const sourceTags = Yup.array().of(sourceTag);
+
 export const configSettingReq = Yup.object({
   name: Yup.string().defined(),
   value: Yup.string().defined(),
@@ -57,7 +64,7 @@ export const configSettingReq = Yup.object({
 export const sourceReq = Yup.object({
   type: sourceType.defined(),
   term: sourceTerm.defined(),
-  annotations: annotations.defined(),
+  tags: sourceTags.defined(),
 });
 
 export const localWorkspaceReq = Yup.object({

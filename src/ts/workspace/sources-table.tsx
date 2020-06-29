@@ -1,10 +1,11 @@
 import React, {useMemo} from "react";
 import {Cell, Column} from "react-table";
 
+import QueryTag from "../common/query-tag";
 import SourceTag from "../common/source-tag";
 import Table from "../table";
 import SelectColumnFilter from "../table/select-filter";
-import {Source} from "../types";
+import {Source, SourceTag as Tag} from "../types";
 
 interface SourcesTableProps {
   sources: Source[];
@@ -42,19 +43,40 @@ const SourcesTable = ({
         filter: "fuzzyText",
         Cell: ({value}: Cell) => decodeURI(String(value)),
       },
+
       {
         Header: "Type",
         accessor: "type",
         Filter: SelectColumnFilter,
         filter: "includes",
-        minWidth: 50,
-        width: 50,
-        maxWidth: 50,
+        minWidth: 60,
+        width: 60,
+        maxWidth: 60,
         Cell: ({value}: Cell) => {
           const kind = mapToKind(value);
           return (
             <div className="flex justify-around">
               <SourceTag kind={kind} />
+            </div>
+          );
+        },
+      },
+
+      {
+        Header: "Tags",
+        accessor: "tags",
+        // Filter: SelectColumnFilter,
+        // filter: "includes",
+        disableFilters: true,
+        minWidth: 40,
+        width: 40,
+        maxWidth: 40,
+        Cell: ({value}: Cell) => {
+          return (
+            <div className="flex justify-around">
+              {value.map((tag: Tag) => (
+                <QueryTag key={tag.name} label={tag.value} />
+              ))}
             </div>
           );
         },

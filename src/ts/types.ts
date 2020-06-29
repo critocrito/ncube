@@ -63,11 +63,16 @@ export interface Annotation {
   term: string;
 }
 
+export interface SourceTag {
+  name: string;
+  value: string;
+}
+
 export interface Source {
   id: number;
   type: string;
   term: string;
-  annotations: Annotation[];
+  tags: SourceTag[];
 }
 
 /*

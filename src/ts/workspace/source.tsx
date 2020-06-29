@@ -22,8 +22,7 @@ const saveSource = (
   slug: string,
   values: CreateSourceFormValues,
 ): Promise<void> => {
-  // FIXME: remove annotations stub
-  return createSource(slug, Object.assign(values, {annotations: []}));
+  return createSource(slug, values);
 };
 
 const Source = ({workspace}: SourceProps) => {

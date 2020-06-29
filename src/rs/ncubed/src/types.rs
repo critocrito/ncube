@@ -1,4 +1,4 @@
-pub use ncube_data::{AnnotationKind, WorkspaceKind};
+pub use ncube_data::{AnnotationKind, QueryTag, WorkspaceKind};
 
 use serde::{Deserialize, Serialize};
 use slugify::slugify;
@@ -54,7 +54,7 @@ pub struct SourceRequest {
     #[serde(rename = "type")]
     pub kind: String,
     pub term: String,
-    pub annotations: Vec<AnnotationKind>,
+    pub tags: Vec<QueryTag>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
