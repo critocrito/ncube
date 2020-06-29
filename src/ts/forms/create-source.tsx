@@ -48,13 +48,13 @@ const CreateSourceForm = ({
 
         return (
           <Form>
-            <Input label="Type" name="type" placeholder="e.g. youtube_video" />
-
             <Input
               label="Term"
               name="term"
               placeholder="e.g. http://youtube.com/watch?v=abcdef"
             />
+
+            <Input label="Type" name="type" placeholder="e.g. youtube_video" />
 
             <FieldArray
               name="tags"
