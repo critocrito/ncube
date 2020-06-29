@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use ncube_data::{Source, Workspace};
+use ncube_data::{QueryTag, Source, Workspace};
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
@@ -18,7 +18,7 @@ pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send +
 #[async_trait]
 pub(crate) trait SourceStore {
     async fn exists(&self, id: i32) -> Result<bool, StoreError>;
-    async fn create(&self, kind: &str, term: &str) -> Result<(), StoreError>;
+    async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError>;
     async fn list(&self, workspace: &Workspace) -> Result<Vec<Source>, StoreError>;
     async fn delete(&self, id: i32) -> Result<(), StoreError>;
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
@@ -45,12 +45,25 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn create(&self, kind: &str, term: &str) -> Result<(), StoreError> {
+    async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
+
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/create.sql"))?;
+        let mut stmt2 = conn.prepare_cached(include_str!("../sql/source/show.sql"))?;
+        let mut stmt3 = conn.prepare_cached(include_str!("../sql/source/create-query-tag.sql"))?;
+
+        conn.execute_batch("BEGIN;")?;
 
         stmt.execute(params![&kind, &term, &now.to_rfc3339(), &now.to_rfc3339()])?;
+
+        let query_id: i32 = stmt2.query_row(params![&kind, &term], |row| row.get(0))?;
+
+        for tag in tags {
+            stmt3.execute(params![query_id, &tag.name, &tag.value])?;
+        }
+
+        conn.execute_batch("COMMIT")?;
 
         Ok(())
     }
@@ -59,10 +72,21 @@ impl SourceStore for SourceStoreSqlite {
     async fn list(&self, _workspace: &Workspace) -> Result<Vec<Source>, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/list.sql"))?;
+        let mut stmt2 = conn.prepare_cached(include_str!("../sql/source/list-query-tags.sql"))?;
 
         let mut sources: Vec<Source> = vec![];
         for source in from_rows::<Source>(stmt.query(NO_PARAMS)?) {
-            sources.push(source?);
+            let mut source = source?;
+
+            let mut tags: Vec<QueryTag> = vec![];
+
+            for tag in from_rows::<QueryTag>(stmt2.query(params![source.id])?) {
+                tags.push(tag?)
+            }
+
+            source.tags = tags;
+
+            sources.push(source);
         }
 
         Ok(sources)
@@ -71,9 +95,11 @@ impl SourceStore for SourceStoreSqlite {
     #[instrument]
     async fn delete(&self, id: i32) -> Result<(), StoreError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/source/delete.sql"))?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/source/delete-query-tags.sql"))?;
+        let mut stmt2 = conn.prepare_cached(include_str!("../sql/source/delete.sql"))?;
 
         stmt.execute(params![&id])?;
+        stmt2.execute(params![&id])?;
 
         Ok(())
     }
@@ -101,7 +127,12 @@ impl SourceStore for SourceStoreHttp {
         todo!()
     }
 
-    async fn create(&self, _kind: &str, _term: &str) -> Result<(), StoreError> {
+    async fn create(
+        &self,
+        _kind: &str,
+        _term: &str,
+        _tags: Vec<QueryTag>,
+    ) -> Result<(), StoreError> {
         todo!()
     }
 

@@ -32,7 +32,9 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
         .await??;
 
     let store = source_store(database);
-    store.create(&source.kind, &source.term).await?;
+    store
+        .create(&source.kind, &source.term, source.tags)
+        .await?;
 
     Ok(())
 }
