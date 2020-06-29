@@ -1,9 +1,11 @@
 import {useMachine} from "@xstate/react";
 import React from "react";
 
+import Error from "../common/error";
 import Fatal from "../common/fatal";
 import Panel from "../common/panel";
 import {WorkspaceProvider} from "../context";
+import {statSources} from "../http";
 import machine from "../machines/workspace";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -19,10 +21,17 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
   const [state, send, service] = useMachine(machine, {
     context: {
       workspace,
+      stats: {},
+    },
+
+    services: {
+      fetchStats: (_ctx, _ev) => statSources(workspace.slug),
     },
   });
 
   useServiceLogger(service, machine.id);
+
+  const {stats, error} = state.context;
 
   switch (true) {
     case state.matches("overview"):
@@ -35,7 +44,11 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             description={workspace.description}
           >
             <div>
-              <SectionCard onClick={() => send("SOURCE")} kind="source" />
+              <SectionCard
+                onClick={() => send("SOURCE")}
+                kind="source"
+                stats={stats}
+              />
               <SectionCard onClick={() => send("DATA")} kind="data" />
               <SectionCard onClick={() => send("PROCESS")} kind="process" />
               <SectionCard
@@ -99,6 +112,23 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             description=""
           >
             <div />
+          </Panel>
+        </WorkspaceProvider>
+      );
+
+    case state.matches("error"):
+      return (
+        <WorkspaceProvider value={[state, send]}>
+          <Panel
+            workspaces={workspaces}
+            workspace={workspace}
+            header=""
+            description=""
+          >
+            <Error
+              msg={error || "Failed to fetch stats."}
+              recover={() => send("RETRY")}
+            />
           </Panel>
         </WorkspaceProvider>
       );

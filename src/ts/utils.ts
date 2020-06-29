@@ -145,3 +145,13 @@ export const useCombinedRefs = <T extends HTMLElement>(
 
   return targetRef;
 };
+
+export const pick = <T extends Record<string, unknown>, U extends keyof T>(
+  keys: U[],
+  obj: T,
+): Pick<T, U> => {
+  return keys.reduce(
+    (memo, k) => Object.assign(memo, {[k]: obj[k]}),
+    {} as Pick<T, U>,
+  );
+};

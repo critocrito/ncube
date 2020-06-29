@@ -109,7 +109,8 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
             config::routes()
                 .or(workspace::routes())
                 .or(source::routes())
-                .or(user::routes()),
+                .or(user::routes())
+                .or(stat::routes()),
         )
         .with(cors)
 }
@@ -399,5 +400,28 @@ pub(crate) mod user {
                 .and(warp::put())
                 .and(warp::body::json())
                 .and_then(update))
+    }
+}
+
+pub(crate) mod stat {
+    use super::SuccessResponse;
+    use tracing::instrument;
+    use warp::Filter;
+
+    use crate::handlers::workspace as handlers;
+
+    #[instrument]
+    async fn sources(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let stats = handlers::stat_source(&workspace).await?;
+        let response = SuccessResponse::new(stats);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    pub(crate) fn routes(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("workspaces" / String / "stats" / "sources")
+            .and(warp::get())
+            .and_then(sources)
     }
 }

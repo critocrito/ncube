@@ -5,24 +5,37 @@ import investigationIcon from "../../../resources/public/images/icon_investigati
 import processIcon from "../../../resources/public/images/icon_process.svg";
 import sourceIcon from "../../../resources/public/images/icon_source.svg";
 import Button from "../common/button";
+import StatsTable from "../common/stats-table";
+import {Stats} from "../types";
 
 interface SectionCardProps {
   kind: "source" | "data" | "process" | "investigation";
   onClick: () => void;
+  stats?: Stats;
 }
 
 const dummy =
   "I'm some sort of description. What I will be, I don't know yet. But I'm convinced, it will be mganificient.";
 
-const SectionCard = ({kind, onClick = () => {}}: SectionCardProps) => {
+const SectionCard = ({
+  kind,
+  stats = {},
+  onClick = () => {},
+}: SectionCardProps) => {
   let title;
   let icon;
   let label;
+  let statNames: Array<{key: string; name: string} | undefined> = [];
 
   if (kind === "source") {
     title = "Sources";
     icon = sourceIcon;
     label = "Manage";
+    statNames = [
+      {name: "Total", key: "count_sources"},
+      {name: "Types", key: "count_source_types"},
+      undefined,
+    ];
   } else if (kind === "data") {
     title = "Data";
     icon = dataIcon;
@@ -52,6 +65,11 @@ const SectionCard = ({kind, onClick = () => {}}: SectionCardProps) => {
           <p className="text-small">{dummy}</p>
         </div>
       </div>
+
+      <div className="w-40">
+        <StatsTable stats={stats} statNames={statNames} />
+      </div>
+
       <div className="pr3">
         <Button onClick={onClick}>{label}</Button>
       </div>

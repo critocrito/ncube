@@ -280,3 +280,9 @@ pub struct Account {
     pub otp: Option<String>,
     pub is_otp: bool,
 }
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct Stat {
+    pub name: String,
+    pub value: i32,
+}

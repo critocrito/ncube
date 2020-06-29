@@ -28,7 +28,7 @@ const saveSource = (
 const Source = ({workspace}: SourceProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
-      listSources: (_ctx, _ev) => listSources(workspace.slug),
+      fetchData: (_ctx, _ev) => listSources(workspace.slug),
       deleteSource: (_ctx, {sourceId}) =>
         removeSource(workspace.slug, sourceId),
     },

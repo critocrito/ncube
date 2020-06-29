@@ -36,7 +36,7 @@ export default createMachine<SourceContext, SourceEvent, SourceState>({
   states: {
     listing: {
       invoke: {
-        src: "listSources",
+        src: "fetchData",
 
         onDone: {
           target: "home",
