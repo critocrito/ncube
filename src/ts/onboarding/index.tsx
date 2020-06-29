@@ -1,11 +1,11 @@
 import {useMachine} from "@xstate/react";
 import React from "react";
 
+import BasicPanel from "../common/basic-panel";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
 import OnboardingForm, {OnboardingFormValues} from "../forms/onboarding";
 import {createConfig, showConfig} from "../http";
-import BasicPanel from "../layout/basic-panel";
 import machine from "../machines/onboarding";
 import {ConfigSettingReq} from "../types";
 import {useServiceLogger} from "../utils";

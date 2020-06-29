@@ -1,6 +1,7 @@
 import {useMachine} from "@xstate/react";
 import React from "react";
 
+import BasicPanel from "../common/basic-panel";
 import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
@@ -8,7 +9,6 @@ import FileUpload from "../common/file-upload";
 import FormHandler from "../common/form-handler";
 import LinkWorkspaceForm from "../forms/link-workspace";
 import {saveWorkspace} from "../handlers";
-import BasicPanel from "../layout/basic-panel";
 import machine from "../machines/link-workspace";
 import {useServiceLogger} from "../utils";
 import {connectionDetailsUpload} from "../validations";

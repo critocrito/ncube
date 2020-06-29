@@ -2,8 +2,8 @@ import {useMachine} from "@xstate/react";
 import React from "react";
 
 import Fatal from "../common/fatal";
+import Panel from "../common/panel";
 import {WorkspaceProvider} from "../context";
-import Panel from "../layout/panel";
 import machine from "../machines/workspace";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
