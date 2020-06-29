@@ -1,9 +1,9 @@
 import React from "react";
 
-import Navbar from "../common/navbar";
-import Sidebar from "../common/sidebar";
 import {Workspace} from "../types";
 import Header from "../workspace/header";
+import Navbar from "./navbar";
+import Sidebar from "./sidebar";
 
 interface PanelProps {
   header: string;

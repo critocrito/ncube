@@ -1,6 +1,6 @@
 import React from "react";
 
-import BasicPanel from "../layout/basic-panel";
+import BasicPanel from "./basic-panel";
 import Button from "./button";
 
 interface ErrorProps {

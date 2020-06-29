@@ -1,6 +1,7 @@
 import {useMachine} from "@xstate/react";
 import React from "react";
 
+import BasicPanel from "../common/basic-panel";
 import Button from "../common/button";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
@@ -8,7 +9,6 @@ import Overline from "../common/overline";
 import {useAppCtx} from "../context";
 import CreateWorkspaceForm from "../forms/create-workspace";
 import {saveWorkspace} from "../handlers";
-import BasicPanel from "../layout/basic-panel";
 import machine from "../machines/home";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
