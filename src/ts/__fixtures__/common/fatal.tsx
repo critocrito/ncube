@@ -1,6 +1,6 @@
 import React from "react";
 
-import Fatal from "../fatal";
+import Fatal from "../../common/fatal";
 
 const Wrapper = () => {
   return (

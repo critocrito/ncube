@@ -1,6 +1,8 @@
 import React, {useState} from "react";
 
-import LinkWorkspace, {LinkWorkspaceFormValues} from "../link-workspace";
+import LinkWorkspace, {
+  LinkWorkspaceFormValues,
+} from "../../forms/link-workspace";
 
 const Wrapper = () => {
   const [state, setState] = useState<LinkWorkspaceFormValues | undefined>();

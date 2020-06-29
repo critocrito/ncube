@@ -1,6 +1,6 @@
 import React from "react";
 
-import Button from "../button";
+import Button from "../../common/button";
 
 type Size = "normal" | "large";
 type Kind = "primary" | "secondary" | "caution";

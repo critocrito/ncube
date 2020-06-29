@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 
-import Onboarding, {OnboardingFormValues} from "../onboarding";
+import Onboarding, {OnboardingFormValues} from "../../forms/onboarding";
 
 const Wrapper = () => {
   const [state, setState] = useState<OnboardingFormValues | undefined>();
