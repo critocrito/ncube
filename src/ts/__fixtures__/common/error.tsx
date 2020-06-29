@@ -1,6 +1,6 @@
 import React from "react";
 
-import Error from "../Error";
+import Error from "../../common/error";
 
 const Wrapper = () => {
   return (

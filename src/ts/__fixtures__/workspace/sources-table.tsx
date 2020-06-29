@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 
 import {Source} from "../../types";
-import SourcesTable from "../sources-table";
+import SourcesTable from "../../workspace/sources-table";
 import data from "./sources.json";
 
 const Wrapper = () => {

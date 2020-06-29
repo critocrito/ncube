@@ -1,7 +1,7 @@
 /* eslint no-console: off */
 import React, {useState} from "react";
 
-import FileUpload from "../file-upload";
+import FileUpload from "../../common/file-upload";
 
 const Wrapper = () => {
   const [state, setState] = useState<Record<string, unknown> | undefined>();

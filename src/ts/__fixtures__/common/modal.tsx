@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 
-import Modal from "../modal";
+import Modal from "../../common/modal";
 
 const Wrapper = () => {
   const [expanded, setExpanded] = useState<boolean>(false);

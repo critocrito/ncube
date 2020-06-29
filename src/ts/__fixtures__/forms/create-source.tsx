@@ -1,20 +1,23 @@
 import React, {useState} from "react";
 
-import CreateWorkspace, {CreateWorkspaceFormValues} from "../create-workspace";
+import CreateSource, {CreateSourceFormValues} from "../../forms/create-source";
 
 const Wrapper = () => {
-  const [state, setState] = useState<CreateWorkspaceFormValues | undefined>();
+  const [state, setState] = useState<CreateSourceFormValues | undefined>();
   const [isCanceled, setIsCanceled] = useState<boolean>(false);
 
-  const handleSubmit = (values: CreateWorkspaceFormValues) => {
+  const handleSubmit = (values: CreateSourceFormValues) => {
     setIsCanceled(false);
     setState(values);
   };
-  const handleCancel = () => setIsCanceled(true);
+  const handleCancel = () => {
+    setState(undefined);
+    setIsCanceled(true);
+  };
 
   return (
     <div>
-      <CreateWorkspace onCancel={handleCancel} onSubmit={handleSubmit} />
+      <CreateSource onSubmit={handleSubmit} onCancel={handleCancel} />
 
       {state === undefined ? (
         ""

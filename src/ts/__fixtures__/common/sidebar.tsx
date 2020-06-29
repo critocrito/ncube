@@ -1,8 +1,8 @@
 import {parseISO} from "date-fns";
 import React from "react";
 
+import Sidebar from "../../common/sidebar";
 import {Workspace} from "../../types";
-import Sidebar from "../sidebar";
 
 const workspaces: Workspace[] = [
   {
