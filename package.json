@@ -17,7 +17,7 @@
     "test:watch": "yarn test --watch",
     "type-check": "tsc --noEmit",
     "type-check:watch": "yarn type-check -w",
-    "verify": "yarn lint && yarn type-check"
+    "verify": "yarn lint && yarn type-check && yarn test"
   },
   "dependencies": {
     "@xstate/react": "^1.0.0-rc.4",
