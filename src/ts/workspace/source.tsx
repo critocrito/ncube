@@ -69,12 +69,39 @@ const Source = ({workspace}: SourceProps) => {
       );
 
     case state.matches("create"):
+      if (sources === undefined)
+        return (
+          <Fatal
+            msg="The source/home state lacks sources."
+            reset={() => appSend("RESTART_APP")}
+          />
+        );
+
       return (
-        <FormHandler
-          onSave={(values) => saveSource(workspace.slug, values)}
-          onDone={() => send("SHOW_HOME")}
-          Form={CreateSourceForm}
-        />
+        <div>
+          <Modal
+            onCancel={() => send("SHOW_HOME")}
+            title="Create a new source."
+            description="Please fill in the following details."
+          >
+            <div className="flex flex-column">
+              <p>Add a new data source for your workspace.</p>
+
+              <FormHandler
+                onSave={(values) => saveSource(workspace.slug, values)}
+                onDone={() => send("SHOW_HOME")}
+                Form={CreateSourceForm}
+              />
+            </div>
+          </Modal>
+
+          <SourcesTable
+            sources={sources}
+            onCreate={() => send("CREATE_SOURCE")}
+            onDelete={(source) => send("DELETE_SOURCE", {source})}
+            handleSelected={console.log}
+          />
+        </div>
       );
 
     case state.matches("delete"): {
