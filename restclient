@@ -154,3 +154,10 @@ PUT http://:api/api/workspaces/syrian-archive/sources/1
     {"type": "tag", "term": "zyx"}
   ]
 }
+
+###
+# Workspace stats
+###
+
+# Fetch statistics for sources
+GET http://:api/api/workspaces/syrian-archive/stats/sources

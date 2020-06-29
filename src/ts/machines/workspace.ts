@@ -1,9 +1,11 @@
-import {createMachine} from "xstate";
+import {assign, createMachine} from "xstate";
 
-import {Workspace} from "../types";
+import {Stats, Workspace} from "../types";
 
 export interface WorkspaceContext {
   workspace: Workspace;
+  stats: Stats;
+  error?: string;
 }
 
 export type WorkspaceEvent =
@@ -11,22 +13,48 @@ export type WorkspaceEvent =
   | {type: "SOURCE"}
   | {type: "DATA"}
   | {type: "PROCESS"}
-  | {type: "INVESTIGATION"};
+  | {type: "INVESTIGATION"}
+  | {type: "RETRY"}
+  | {type: "CANCEL"};
 
 export type WorkspaceState =
   | {
-      value: "overview";
+      value:
+        | "stats"
+        | "overview"
+        | "source"
+        | "data"
+        | "process"
+        | "investigation";
       context: WorkspaceContext;
     }
   | {
-      value: "source" | "data" | "process" | "investigation";
-      context: WorkspaceContext;
+      value: "error";
+      context: WorkspaceContext & {error: string};
     };
 
 export default createMachine<WorkspaceContext, WorkspaceEvent, WorkspaceState>({
   id: "workspace",
-  initial: "overview",
+  initial: "stats",
   states: {
+    stats: {
+      invoke: {
+        src: "fetchStats",
+
+        onDone: {
+          target: "overview",
+          actions: assign({
+            stats: (_, {data}) => data,
+          }),
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     overview: {
       on: {
         OVERVIEW: "overview",
@@ -74,6 +102,12 @@ export default createMachine<WorkspaceContext, WorkspaceEvent, WorkspaceState>({
         DATA: "data",
         PROCESS: "process",
         INVESTIGATION: "investigation",
+      },
+    },
+
+    error: {
+      on: {
+        RETRY: "stats",
       },
     },
   },

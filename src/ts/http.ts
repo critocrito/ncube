@@ -3,6 +3,7 @@ import {
   HostConfig,
   Source,
   SourceReq,
+  Stats,
   Workspace,
   WorkspaceReq,
 } from "./types";
@@ -27,12 +28,27 @@ export interface HttpErrorResponse {
 export type HttpDataResponse<T> = HttpSuccessResponse<T> | HttpErrorResponse;
 export type HttpCreatedResponse = HttpEmptyResponse | HttpErrorResponse;
 
-export const dataResponse = async <T>(resp: Response): Promise<T> => {
+type ResponseMapper<T extends Array<unknown>, K extends unknown> = (a: T) => K;
+
+type DataResponse = {
+  <T>(resp: Response): Promise<T>;
+  <T extends Array<unknown>, K>(
+    resp: Response,
+    mapper: ResponseMapper<T, K>,
+  ): Promise<K>;
+};
+
+export const dataResponse: DataResponse = async <T, K>(
+  resp: Response,
+  mapper?: (a: T) => K,
+) => {
   const body: HttpDataResponse<T> = await resp.json();
 
   switch (body.status) {
     case "success":
-      return Promise.resolve(body.data);
+      return Promise.resolve(
+        mapper === undefined ? body.data : mapper(body.data),
+      );
 
     case "error":
       return Promise.reject(body.errors);
@@ -158,4 +174,22 @@ export const removeSource = async (
   );
 
   return emptyResponse(resp);
+};
+
+/*
+ * Workspace stats
+ */
+// We collapse the array of stats into an object of stats.
+const mapStatsResponse = (data: Array<{name: string; value: number}>): Stats =>
+  data.reduce(
+    (memo, {name, value}) => Object.assign(memo, {[name]: value}),
+    {} as Stats,
+  );
+
+export const statSources = async (workspace: string): Promise<Stats> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/sources`,
+  );
+
+  return dataResponse(resp, mapStatsResponse);
 };

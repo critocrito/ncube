@@ -234,7 +234,8 @@
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       "unicorn/prevent-abbreviations": "off",
-      "unicorn/no-useless-undefined": "off"
+      "unicorn/no-useless-undefined": "off",
+      "unicorn/no-reduce": "off"
     },
     "overrides": [
       {
