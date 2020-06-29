@@ -40,6 +40,7 @@ const SourcesTable = ({
         Header: "Term",
         accessor: "term",
         filter: "fuzzyText",
+        Cell: ({value}: Cell) => decodeURI(String(value)),
       },
       {
         Header: "Type",
