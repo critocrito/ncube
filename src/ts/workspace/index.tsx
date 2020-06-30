@@ -34,6 +34,9 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
   const {stats, error} = state.context;
 
   switch (true) {
+    case state.matches("stats"):
+      return <div />;
+
     case state.matches("overview"):
       return (
         <WorkspaceProvider value={[state, send]}>
