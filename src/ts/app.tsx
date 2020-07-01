@@ -31,7 +31,7 @@ const App = () => {
     case state.matches("onboarding"):
       return <Onboarding onDone={() => send("SHOW_HOME")} />;
 
-    case state.matches("listing"):
+    case state.matches("list_workspaces"):
       return <div />;
 
     case state.matches("home"):
@@ -41,10 +41,9 @@ const App = () => {
         </AppProvider>
       );
 
-    case state.matches("fetchWorkspace") && workspace === undefined:
+    case state.matches("show_workspace"):
       return <div />;
 
-    case state.matches("fetchWorkspace") && workspace:
     case state.matches("workspace"):
       if (workspace === undefined)
         return (
