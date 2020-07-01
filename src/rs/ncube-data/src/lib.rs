@@ -258,6 +258,7 @@ pub struct QueryTag {
 ///   serde_json::to_string(&source).unwrap()
 /// );
 /// ```
+// FIXME: Do I need the id?
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct Source {
     pub id: i32,
@@ -285,4 +286,57 @@ pub struct Account {
 pub struct Stat {
     pub name: String,
     pub value: i32,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "lowercase", tag = "type")]
+pub enum MediaType {
+    Video,
+    Image,
+    Url,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct Media {
+    pub id_hash: String,
+    #[serde(flatten)]
+    pub kind: MediaType,
+    pub term: String,
+    // pub data: Option<Map<String, Value>>,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct Download {
+    pub id_hash: String,
+    #[serde(flatten)]
+    pub kind: MediaType,
+    pub term: String,
+    pub md5: Option<String>,
+    pub sha256: Option<String>,
+    pub location: Option<String>,
+    // pub data: Option<Map<String, Value>>,
+}
+
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct Unit {
+    pub id: i32,
+    pub id_hash: String,
+    pub content_hash: String,
+    pub source: String,
+    pub unit_id: Option<String>,
+    pub body: Option<String>,
+    pub href: Option<String>,
+    pub author: Option<String>,
+    pub title: Option<String>,
+    pub description: Option<String>,
+    pub language: Option<String>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub fetched_at: DateTime<Utc>,
+    // pub data: Option<Value>,
+    #[serde(default)]
+    pub media: Vec<Media>,
+    #[serde(default)]
+    pub downloads: Vec<Download>,
+    #[serde(default)]
+    pub sources: Vec<Source>,
 }
