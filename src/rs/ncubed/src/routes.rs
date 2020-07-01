@@ -110,7 +110,8 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
                 .or(workspace::routes())
                 .or(source::routes())
                 .or(user::routes())
-                .or(stat::routes()),
+                .or(stat::routes())
+                .or(unit::routes()),
         )
         .with(cors)
 }
@@ -434,5 +435,41 @@ pub(crate) mod stat {
             .or(warp::path!("workspaces" / String / "stats" / "data")
                 .and(warp::get())
                 .and_then(data))
+    }
+}
+
+pub(crate) mod unit {
+    use super::SuccessResponse;
+    use serde::Deserialize;
+    use tracing::instrument;
+    use warp::Filter;
+
+    use crate::handlers::workspace as handlers;
+
+    // The query parameters for list data.
+    #[derive(Debug, Deserialize)]
+    pub struct ListOptions {
+        pub page: Option<usize>,
+        pub size: Option<usize>,
+    }
+
+    #[instrument]
+    async fn data(
+        workspace: String,
+        opts: ListOptions,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let data = handlers::list_data(&workspace, opts.page.unwrap_or(0), opts.size.unwrap_or(25))
+            .await?;
+        let response = SuccessResponse::new(data);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    pub(crate) fn routes(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        warp::path!("workspaces" / String / "data")
+            .and(warp::get())
+            .and(warp::query::<ListOptions>())
+            .and_then(data)
     }
 }
