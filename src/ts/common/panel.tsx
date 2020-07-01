@@ -23,15 +23,17 @@ const Panel = ({
   return (
     <div className="flex">
       <Sidebar workspaces={workspaces} />
-      <div className="w-100">
+      <div className="w-100 flex flex-column">
         <Navbar />
-        <div className="ph4 pv3 mw8 center">
-          <Header workspace={workspace} />
-          <div>
-            <h1 className="header1">{header}</h1>
-            <p className="text-medium">{description}</p>
+        <div className="ml4 mr4">
+          <div className="ph4 pv3 center">
+            <Header workspace={workspace} />
+            <div>
+              <h1 className="header1">{header}</h1>
+              <p className="text-medium">{description}</p>
+            </div>
+            <div className="cf w-100 pv3">{children}</div>
           </div>
-          <div className="cf w-100 pv3">{children}</div>
         </div>
       </div>
     </div>
