@@ -40,6 +40,11 @@ const SectionCard = ({
     title = "Data";
     icon = dataIcon;
     label = "Explore";
+    statNames = [
+      {name: "Total", key: "count_units"},
+      {name: "Sources", key: "count_unit_types"},
+      undefined,
+    ];
   } else if (kind === "process") {
     title = "Processes";
     icon = processIcon;
