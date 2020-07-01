@@ -193,3 +193,11 @@ export const statSources = async (workspace: string): Promise<Stats> => {
 
   return dataResponse(resp, mapStatsResponse);
 };
+
+export const statData = async (workspace: string): Promise<Stats> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/data`,
+  );
+
+  return dataResponse(resp, mapStatsResponse);
+};

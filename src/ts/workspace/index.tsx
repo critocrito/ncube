@@ -5,7 +5,7 @@ import Error from "../common/error";
 import Fatal from "../common/fatal";
 import Panel from "../common/panel";
 import {WorkspaceProvider} from "../context";
-import {statSources} from "../http";
+import {statData, statSources} from "../http";
 import machine from "../machines/workspace";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -25,7 +25,14 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
     },
 
     services: {
-      fetchStats: (_ctx, _ev) => statSources(workspace.slug),
+      fetchStats: async (_ctx, _ev) => {
+        const [sourceStats, dataStats] = await Promise.all([
+          statSources(workspace.slug),
+          statData(workspace.slug),
+        ]);
+
+        return {...sourceStats, ...dataStats};
+      },
     },
   });
 
@@ -52,7 +59,11 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
                 kind="source"
                 stats={stats}
               />
-              <SectionCard onClick={() => send("DATA")} kind="data" />
+              <SectionCard
+                onClick={() => send("DATA")}
+                kind="data"
+                stats={stats}
+              />
               <SectionCard onClick={() => send("PROCESS")} kind="process" />
               <SectionCard
                 onClick={() => send("INVESTIGATION")}
