@@ -418,10 +418,21 @@ pub(crate) mod stat {
         Ok(warp::reply::json(&response))
     }
 
+    #[instrument]
+    async fn data(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let stats = handlers::stat_data(&workspace).await?;
+        let response = SuccessResponse::new(stats);
+
+        Ok(warp::reply::json(&response))
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         warp::path!("workspaces" / String / "stats" / "sources")
             .and(warp::get())
             .and_then(sources)
+            .or(warp::path!("workspaces" / String / "stats" / "data")
+                .and(warp::get())
+                .and_then(data))
     }
 }

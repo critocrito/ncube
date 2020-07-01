@@ -161,3 +161,6 @@ PUT http://:api/api/workspaces/syrian-archive/sources/1
 
 # Fetch statistics for sources
 GET http://:api/api/workspaces/syrian-archive/stats/sources
+
+# Fetch statistics for data
+GET http://:api/api/workspaces/syrian-archive/stats/data
