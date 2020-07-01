@@ -17,6 +17,7 @@ pub(crate) fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Syn
 #[async_trait]
 pub(crate) trait StatStore {
     async fn sources(&self) -> Result<Vec<Stat>, StoreError>;
+    async fn data(&self) -> Result<Vec<Stat>, StoreError>;
 }
 
 #[derive(Debug)]
@@ -46,6 +47,27 @@ impl StatStore for StatStoreSqlite {
             },
         ])
     }
+
+    #[instrument]
+    async fn data(&self) -> Result<Vec<Stat>, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_units.sql"))?;
+        let mut stmt2 = conn.prepare_cached(include_str!("../sql/stat/count_unit_types.sql"))?;
+
+        let count_units: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+        let count_unit_types: i32 = stmt2.query_row(NO_PARAMS, |row| row.get(0))?;
+
+        Ok(vec![
+            Stat {
+                name: "count_units".into(),
+                value: count_units,
+            },
+            Stat {
+                name: "count_unit_types".into(),
+                value: count_unit_types,
+            },
+        ])
+    }
 }
 
 #[derive(Debug)]
@@ -57,6 +79,11 @@ pub struct StatStoreHttp {
 impl StatStore for StatStoreHttp {
     #[instrument]
     async fn sources(&self) -> Result<Vec<Stat>, StoreError> {
+        todo!()
+    }
+
+    #[instrument]
+    async fn data(&self) -> Result<Vec<Stat>, StoreError> {
         todo!()
     }
 }
