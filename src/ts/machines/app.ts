@@ -17,7 +17,12 @@ export type AppEvent =
 
 export type AppState =
   | {
-      value: "onboarding" | "listing" | "fetchWorkspace" | "workspace" | "home";
+      value:
+        | "onboarding"
+        | "list_workspaces"
+        | "show_workspace"
+        | "workspace"
+        | "home";
       context: AppContext;
     }
   | {
@@ -42,11 +47,11 @@ export default createMachine<AppContext, AppEvent, AppState>({
   states: {
     onboarding: {
       on: {
-        SHOW_HOME: "listing",
+        SHOW_HOME: "list_workspaces",
       },
     },
 
-    listing: {
+    list_workspaces: {
       invoke: {
         src: "listWorkspaces",
 
@@ -62,7 +67,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
       },
     },
 
-    fetchWorkspace: {
+    show_workspace: {
       invoke: {
         src: "fetchWorkspace",
 
@@ -81,9 +86,9 @@ export default createMachine<AppContext, AppEvent, AppState>({
     home: {
       on: {
         SHOW_WORKSPACE: {
-          target: "fetchWorkspace",
+          target: "show_workspace",
         },
-        RELOAD_WORKSPACES: "listing",
+        RELOAD_WORKSPACES: "list_workspaces",
         RESTART_APP: "onboarding",
       },
     },
@@ -91,7 +96,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
     workspace: {
       on: {
         SHOW_WORKSPACE: {
-          target: "fetchWorkspace",
+          target: "show_workspace",
         },
         RESTART_APP: "onboarding",
         SHOW_HOME: "home",
@@ -100,7 +105,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
 
     error: {
       on: {
-        RETRY: "listing",
+        RETRY: "list_workspaces",
       },
     },
   },
