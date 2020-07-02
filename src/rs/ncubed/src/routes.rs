@@ -271,12 +271,20 @@ pub(crate) mod workspace {
 
 pub(crate) mod source {
     use super::SuccessResponse;
+    use serde::Deserialize;
     use tracing::instrument;
     use warp::Filter;
 
     use crate::handlers::source as handlers;
     use crate::http::authenticate_remote_req;
     use crate::types::{ReqCtx, SourceRequest};
+
+    // The query parameters for list source.
+    #[derive(Debug, Deserialize)]
+    pub struct ListOptions {
+        pub page: Option<i32>,
+        pub size: Option<i32>,
+    }
 
     #[instrument]
     async fn create(
@@ -294,8 +302,14 @@ pub(crate) mod source {
     async fn list(
         _ctx: ReqCtx,
         workspace_slug: String,
+        opts: ListOptions,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        let sources = handlers::list_sources(&workspace_slug).await?;
+        let sources = handlers::list_sources(
+            &workspace_slug,
+            opts.page.unwrap_or(0),
+            opts.size.unwrap_or(20),
+        )
+        .await?;
         let response = SuccessResponse::new(sources);
 
         Ok(warp::reply::json(&response))
@@ -336,6 +350,7 @@ pub(crate) mod source {
             .or(authenticate_remote_req()
                 .and(warp::path!("workspaces" / String / "sources"))
                 .and(warp::get())
+                .and(warp::query::<ListOptions>())
                 .and_then(list))
             .or(authenticate_remote_req()
                 .and(warp::path!("workspaces" / String / "sources" / i32))
@@ -412,29 +427,70 @@ pub(crate) mod stat {
     use crate::handlers::workspace as handlers;
 
     #[instrument]
-    async fn sources(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
-        let stats = handlers::stat_source(&workspace).await?;
-        let response = SuccessResponse::new(stats);
+    async fn sources_total(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let stat = handlers::stat_sources_total(&workspace).await?;
+        let response = SuccessResponse::new(stat.value);
 
         Ok(warp::reply::json(&response))
     }
 
     #[instrument]
-    async fn data(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
-        let stats = handlers::stat_data(&workspace).await?;
-        let response = SuccessResponse::new(stats);
+    async fn sources_types(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let stat = handlers::stat_sources_types(&workspace).await?;
+        let response = SuccessResponse::new(stat.value);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    #[instrument]
+    async fn data_total(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let stat = handlers::stat_data_total(&workspace).await?;
+        let response = SuccessResponse::new(stat.value);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    #[instrument]
+    async fn data_sources(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let stat = handlers::stat_data_sources(&workspace).await?;
+        let response = SuccessResponse::new(stat.value);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    #[instrument]
+    async fn data_videos(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let stat = handlers::stat_data_videos(&workspace).await?;
+        let response = SuccessResponse::new(stat.value);
 
         Ok(warp::reply::json(&response))
     }
 
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("workspaces" / String / "stats" / "sources")
+        warp::path!("workspaces" / String / "stats" / "sources" / "total")
             .and(warp::get())
-            .and_then(sources)
-            .or(warp::path!("workspaces" / String / "stats" / "data")
-                .and(warp::get())
-                .and_then(data))
+            .and_then(sources_total)
+            .or(
+                warp::path!("workspaces" / String / "stats" / "sources" / "types")
+                    .and(warp::get())
+                    .and_then(sources_types),
+            )
+            .or(
+                warp::path!("workspaces" / String / "stats" / "data" / "total")
+                    .and(warp::get())
+                    .and_then(data_total),
+            )
+            .or(
+                warp::path!("workspaces" / String / "stats" / "data" / "sources")
+                    .and(warp::get())
+                    .and_then(data_sources),
+            )
+            .or(
+                warp::path!("workspaces" / String / "stats" / "data" / "videos")
+                    .and(warp::get())
+                    .and_then(data_videos),
+            )
     }
 }
 
@@ -458,7 +514,7 @@ pub(crate) mod unit {
         workspace: String,
         opts: ListOptions,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        let data = handlers::list_data(&workspace, opts.page.unwrap_or(0), opts.size.unwrap_or(25))
+        let data = handlers::list_data(&workspace, opts.page.unwrap_or(0), opts.size.unwrap_or(20))
             .await?;
         let response = SuccessResponse::new(data);
 
