@@ -8,7 +8,7 @@ import {WorkspaceProvider} from "../context";
 import {
   statDataSources,
   statDataTotal,
-  statDataVideos,
+  // statDataVideos,
   statSourcesTotal,
   statSourcesTypes,
 } from "../http";
@@ -31,7 +31,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
       dataStats: {
         total: 0,
         sources: 0,
-        videos: 0,
+        // videos: 0,
       },
       sourceStats: {
         total: 0,
@@ -44,13 +44,13 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
         const [
           dataTotal,
           dataSources,
-          dataVideos,
+          // dataVideos,
           sourcesTotal,
           sourcesTypes,
         ] = await Promise.all([
           statDataTotal(workspace.slug),
           statDataSources(workspace.slug),
-          statDataVideos(workspace.slug),
+          // statDataVideos(workspace.slug),
           statSourcesTotal(workspace.slug),
           statSourcesTypes(workspace.slug),
         ]);
@@ -59,7 +59,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
           dataStats: {
             total: dataTotal,
             sources: dataSources,
-            videos: dataVideos,
+            // videos: dataVideos,
           },
           sourceStats: {
             total: sourcesTotal,

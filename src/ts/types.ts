@@ -80,7 +80,8 @@ export type Stats<T extends string> = {
   [key in T]: number;
 };
 
-export type DataStats = Stats<"total" | "sources" | "videos">;
+// export type DataStats = Stats<"total" | "sources" | "videos">;
+export type DataStats = Stats<"total" | "sources">;
 export type SourceStats = Stats<"total" | "types">;
 
 export type MediaType = "video" | "image" | "url";
