@@ -169,8 +169,17 @@ GET http://:api/api/workspaces/syrian-archive/data?page=2
 # Workspace stats
 ###
 
-# Fetch statistics for sources
-GET http://:api/api/workspaces/syrian-archive/stats/sources
+# Fetch total count for sources
+GET http://:api/api/workspaces/my-little-archive/stats/sources/total
 
-# Fetch statistics for data
-GET http://:api/api/workspaces/syrian-archive/stats/data
+# Fetch count of source types
+GET http://:api/api/workspaces/my-little-archive/stats/sources/types
+
+# Fetch total count for data
+GET http://:api/api/workspaces/syrian-archive/stats/data/total
+
+# Fetch count for different sources of data
+GET http://:api/api/workspaces/syrian-archive/stats/data/sources
+
+# Fetch count of videos in database
+GET http://:api/api/workspaces/syrian-archive/stats/data/videos

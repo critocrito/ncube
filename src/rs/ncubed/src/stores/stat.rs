@@ -16,8 +16,11 @@ pub(crate) fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Syn
 
 #[async_trait]
 pub(crate) trait StatStore {
-    async fn sources(&self) -> Result<Vec<Stat>, StoreError>;
-    async fn data(&self) -> Result<Vec<Stat>, StoreError>;
+    async fn sources_total(&self) -> Result<Stat, StoreError>;
+    async fn sources_types(&self) -> Result<Stat, StoreError>;
+    async fn data_total(&self) -> Result<Stat, StoreError>;
+    async fn data_sources(&self) -> Result<Stat, StoreError>;
+    async fn data_videos(&self) -> Result<Stat, StoreError>;
 }
 
 #[derive(Debug)]
@@ -28,45 +31,68 @@ pub struct StatStoreSqlite {
 #[async_trait]
 impl StatStore for StatStoreSqlite {
     #[instrument]
-    async fn sources(&self) -> Result<Vec<Stat>, StoreError> {
+    async fn sources_total(&self) -> Result<Stat, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_sources.sql"))?;
-        let mut stmt2 = conn.prepare_cached(include_str!("../sql/stat/count_source_types.sql"))?;
 
         let count_sources: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
-        let count_source_types: i32 = stmt2.query_row(NO_PARAMS, |row| row.get(0))?;
 
-        Ok(vec![
-            Stat {
-                name: "count_sources".into(),
-                value: count_sources,
-            },
-            Stat {
-                name: "count_source_types".into(),
-                value: count_source_types,
-            },
-        ])
+        Ok(Stat {
+            name: "sources_total".into(),
+            value: count_sources,
+        })
     }
 
     #[instrument]
-    async fn data(&self) -> Result<Vec<Stat>, StoreError> {
+    async fn sources_types(&self) -> Result<Stat, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_source_types.sql"))?;
+
+        let count_source_types: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "sources_types".into(),
+            value: count_source_types,
+        })
+    }
+
+    #[instrument]
+    async fn data_total(&self) -> Result<Stat, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_units.sql"))?;
-        let mut stmt2 = conn.prepare_cached(include_str!("../sql/stat/count_unit_types.sql"))?;
 
-        let count_units: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
-        let count_unit_types: i32 = stmt2.query_row(NO_PARAMS, |row| row.get(0))?;
+        let count_sources: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
 
-        Ok(vec![
-            Stat {
-                name: "count_units".into(),
-                value: count_units,
-            },
-            Stat {
-                name: "count_unit_types".into(),
-                value: count_unit_types,
-            },
-        ])
+        Ok(Stat {
+            name: "data_total".into(),
+            value: count_sources,
+        })
+    }
+
+    #[instrument]
+    async fn data_sources(&self) -> Result<Stat, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_unit_types.sql"))?;
+
+        let count_unit_types: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "data_sources".into(),
+            value: count_unit_types,
+        })
+    }
+
+    #[instrument]
+    async fn data_videos(&self) -> Result<Stat, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_videos.sql"))?;
+
+        let count_videos: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "data_videos".into(),
+            value: count_videos,
+        })
     }
 }
 
@@ -78,12 +104,27 @@ pub struct StatStoreHttp {
 #[async_trait]
 impl StatStore for StatStoreHttp {
     #[instrument]
-    async fn sources(&self) -> Result<Vec<Stat>, StoreError> {
+    async fn sources_total(&self) -> Result<Stat, StoreError> {
         todo!()
     }
 
     #[instrument]
-    async fn data(&self) -> Result<Vec<Stat>, StoreError> {
+    async fn sources_types(&self) -> Result<Stat, StoreError> {
+        todo!()
+    }
+
+    #[instrument]
+    async fn data_total(&self) -> Result<Stat, StoreError> {
+        todo!()
+    }
+
+    #[instrument]
+    async fn data_sources(&self) -> Result<Stat, StoreError> {
+        todo!()
+    }
+
+    #[instrument]
+    async fn data_videos(&self) -> Result<Stat, StoreError> {
         todo!()
     }
 }

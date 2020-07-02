@@ -40,7 +40,11 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
 }
 
 #[instrument]
-pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> {
+pub async fn list_sources(
+    workspace: &str,
+    page: i32,
+    page_size: i32,
+) -> Result<Vec<Source>, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -65,7 +69,7 @@ pub async fn list_sources(workspace: &str) -> Result<Vec<Source>, HandlerError> 
     database.login().await?;
 
     let store = source_store(database);
-    let sources = store.list(&workspace).await?;
+    let sources = store.list(&workspace, page, page_size).await?;
 
     Ok(sources)
 }

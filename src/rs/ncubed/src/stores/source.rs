@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::{QueryTag, Source, Workspace};
-use rusqlite::{params, NO_PARAMS};
+use rusqlite::params;
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
@@ -19,7 +19,12 @@ pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send +
 pub(crate) trait SourceStore {
     async fn exists(&self, id: i32) -> Result<bool, StoreError>;
     async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError>;
-    async fn list(&self, workspace: &Workspace) -> Result<Vec<Source>, StoreError>;
+    async fn list(
+        &self,
+        workspace: &Workspace,
+        page: i32,
+        page_size: i32,
+    ) -> Result<Vec<Source>, StoreError>;
     async fn delete(&self, id: i32) -> Result<(), StoreError>;
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
 }
@@ -69,13 +74,20 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn list(&self, _workspace: &Workspace) -> Result<Vec<Source>, StoreError> {
+    async fn list(
+        &self,
+        _workspace: &Workspace,
+        page: i32,
+        page_size: i32,
+    ) -> Result<Vec<Source>, StoreError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/source/list.sql"))?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/source/paginate.sql"))?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/source/list-query-tags.sql"))?;
 
+        let offset = page * page_size;
         let mut sources: Vec<Source> = vec![];
-        for source in from_rows::<Source>(stmt.query(NO_PARAMS)?) {
+
+        for source in from_rows::<Source>(stmt.query(params![offset, page_size])?) {
             let mut source = source?;
 
             let mut tags: Vec<QueryTag> = vec![];
@@ -137,7 +149,12 @@ impl SourceStore for SourceStoreHttp {
     }
 
     #[instrument]
-    async fn list(&self, workspace: &Workspace) -> Result<Vec<Source>, StoreError> {
+    async fn list(
+        &self,
+        workspace: &Workspace,
+        _page: i32,
+        _page_size: i32,
+    ) -> Result<Vec<Source>, StoreError> {
         let url_path = format!("/api/workspaces/{}/sources", workspace.slug);
         let data: Vec<Source> = self.client.get(&url_path).await?.unwrap_or_else(|| vec![]);
 

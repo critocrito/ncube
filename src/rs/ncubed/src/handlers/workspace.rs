@@ -184,7 +184,7 @@ pub async fn update_workspace(
 }
 
 #[instrument]
-pub async fn stat_source(workspace: &str) -> Result<Vec<Stat>, HandlerError> {
+pub async fn stat_sources_total(workspace: &str) -> Result<Stat, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -205,13 +205,13 @@ pub async fn stat_source(workspace: &str) -> Result<Vec<Stat>, HandlerError> {
 
     let stat_store = stat_store(database);
 
-    let stats = stat_store.sources().await?;
+    let stats = stat_store.sources_total().await?;
 
     Ok(stats)
 }
 
 #[instrument]
-pub async fn stat_data(workspace: &str) -> Result<Vec<Stat>, HandlerError> {
+pub async fn stat_sources_types(workspace: &str) -> Result<Stat, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -232,7 +232,88 @@ pub async fn stat_data(workspace: &str) -> Result<Vec<Stat>, HandlerError> {
 
     let stat_store = stat_store(database);
 
-    let stats = stat_store.data().await?;
+    let stats = stat_store.sources_types().await?;
+
+    Ok(stats)
+}
+
+#[instrument]
+pub async fn stat_data_total(workspace: &str) -> Result<Stat, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.to_string(),
+        })
+        .await??;
+
+    let stat_store = stat_store(database);
+
+    let stats = stat_store.data_total().await?;
+
+    Ok(stats)
+}
+
+#[instrument]
+pub async fn stat_data_sources(workspace: &str) -> Result<Stat, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.to_string(),
+        })
+        .await??;
+
+    let stat_store = stat_store(database);
+
+    let stats = stat_store.data_sources().await?;
+
+    Ok(stats)
+}
+
+#[instrument]
+pub async fn stat_data_videos(workspace: &str) -> Result<Stat, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.to_string(),
+        })
+        .await??;
+
+    let stat_store = stat_store(database);
+
+    let stats = stat_store.data_videos().await?;
 
     Ok(stats)
 }
