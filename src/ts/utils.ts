@@ -155,3 +155,6 @@ export const pick = <T extends Record<string, unknown>, U extends keyof T>(
     {} as Pick<T, U>,
   );
 };
+
+export const capitalize = (s: string): string =>
+  `${s.charAt(0).toUpperCase()}${s.slice(1)}`;

@@ -1,19 +1,25 @@
 import c from "classnames";
 import React, {PropsWithChildren, useCallback} from "react";
-import {TableInstance} from "react-table";
 
 import {isNumber, paginate} from "../utils";
 
-const Pagination = <T extends Record<string, unknown>>({
-  instance,
-}: PropsWithChildren<{instance: TableInstance<T>}>) => {
-  const {
-    state: {pageIndex, pageSize},
-    pageCount,
-    gotoPage,
-    rows,
-  } = instance;
-  const total = rows.length;
+interface PaginationProps {
+  pageIndex: number;
+  pageSize: number;
+  pageCount: number;
+  total: number;
+  loading: boolean;
+  gotoPage: (page: number) => void;
+}
+
+const Pagination = ({
+  pageIndex,
+  pageSize,
+  pageCount,
+  total,
+  gotoPage,
+  loading,
+}: PropsWithChildren<PaginationProps>) => {
   const start = pageIndex === 0 ? 1 : pageIndex * pageSize + 1;
   const end = start + pageSize - 1;
   const baseClass = "ml2 mr2 cursor";
@@ -53,7 +59,7 @@ const Pagination = <T extends Record<string, unknown>>({
 
   return (
     <div className="mt3 text-medium gray-25">
-      {pager} <span className="ml2 mr2" /> {counter}
+      {pager} <span className="ml2 mr2" /> {loading ? "Loading" : counter}
     </div>
   );
 };

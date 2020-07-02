@@ -3,7 +3,7 @@ import {
   HostConfig,
   Source,
   SourceReq,
-  Stats,
+  Unit,
   Workspace,
   WorkspaceReq,
 } from "./types";
@@ -28,14 +28,13 @@ export interface HttpErrorResponse {
 export type HttpDataResponse<T> = HttpSuccessResponse<T> | HttpErrorResponse;
 export type HttpCreatedResponse = HttpEmptyResponse | HttpErrorResponse;
 
-type ResponseMapper<T extends Array<unknown>, K extends unknown> = (a: T) => K;
+type ResponseMapper<T extends unknown, K extends unknown> = (a: T) => K;
 
 type DataResponse = {
   <T>(resp: Response): Promise<T>;
-  <T extends Array<unknown>, K>(
-    resp: Response,
-    mapper: ResponseMapper<T, K>,
-  ): Promise<K>;
+  <T extends unknown, K>(resp: Response, mapper: ResponseMapper<T, K>): Promise<
+    K
+  >;
 };
 
 export const dataResponse: DataResponse = async <T, K>(
@@ -136,10 +135,19 @@ export const showWorkspace = async (slug: string): Promise<Workspace> => {
 /*
  * Sources
  */
-export const listSources = async (workspace: string): Promise<Source[]> => {
-  const resp = await fetch(
+export const listSources = async (
+  workspace: string,
+  pageIndex = 0,
+  pageSize = 20,
+): Promise<Source[]> => {
+  const url = new URL(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/sources`,
   );
+
+  url.searchParams.append("page", pageIndex.toString());
+  url.searchParams.append("size", pageSize.toString());
+
+  const resp = await fetch(url.toString());
 
   return dataResponse(resp);
 };
@@ -177,27 +185,64 @@ export const removeSource = async (
 };
 
 /*
- * Workspace stats
+ * Sources
  */
-// We collapse the array of stats into an object of stats.
-const mapStatsResponse = (data: Array<{name: string; value: number}>): Stats =>
-  data.reduce(
-    (memo, {name, value}) => Object.assign(memo, {[name]: value}),
-    {} as Stats,
+export const listUnits = async (
+  workspace: string,
+  pageIndex = 0,
+  pageSize = 20,
+): Promise<Unit[]> => {
+  const url = new URL(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/data`,
   );
 
-export const statSources = async (workspace: string): Promise<Stats> => {
-  const resp = await fetch(
-    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/sources`,
-  );
+  url.searchParams.append("page", pageIndex.toString());
+  url.searchParams.append("size", pageSize.toString());
 
-  return dataResponse(resp, mapStatsResponse);
+  const resp = await fetch(url.toString());
+
+  return dataResponse(resp);
 };
 
-export const statData = async (workspace: string): Promise<Stats> => {
+/*
+ * Workspace stats
+ */
+export const statSourcesTotal = async (workspace: string): Promise<number> => {
   const resp = await fetch(
-    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/data`,
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/sources/total`,
   );
 
-  return dataResponse(resp, mapStatsResponse);
+  return dataResponse(resp);
+};
+
+export const statSourcesTypes = async (workspace: string): Promise<number> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/sources/types`,
+  );
+
+  return dataResponse(resp);
+};
+
+export const statDataTotal = async (workspace: string): Promise<number> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/data/total`,
+  );
+
+  return dataResponse(resp);
+};
+
+export const statDataSources = async (workspace: string): Promise<number> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/data/sources`,
+  );
+
+  return dataResponse(resp);
+};
+
+export const statDataVideos = async (workspace: string): Promise<number> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/data/videos`,
+  );
+
+  return dataResponse(resp);
 };
