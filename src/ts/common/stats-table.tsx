@@ -1,15 +1,20 @@
 /* eslint react/no-array-index-key: off */
 import React from "react";
 
-import {Stats} from "../types";
+import {DataStats, SourceStats} from "../types";
+import {capitalize} from "../utils";
 
 interface StatsTableProps {
-  stats: Stats;
-  statNames?: Array<{name: string; key: string} | undefined>;
+  stats: DataStats | SourceStats;
 }
 
-const StatsTable = ({stats, statNames = []}: StatsTableProps) => {
-  if (statNames.length === 0) return <div />;
+const StatsTable = ({stats}: StatsTableProps) => {
+  // Tunr the variable length stats keys into a fixed length array. We do this in order to have a fixed number of columns.
+  const keys = Object.keys(stats).reduce((memo, key, index) => {
+    // eslint-disable-next-line no-param-reassign
+    memo[index] = key;
+    return memo;
+  }, new Array(3).fill(undefined));
 
   return (
     <table className="w-100 collapse bn ml3 mr3 no-hover">
@@ -21,8 +26,8 @@ const StatsTable = ({stats, statNames = []}: StatsTableProps) => {
 
       <thead>
         <tr>
-          {statNames.map((elem, index) =>
-            elem === undefined ? (
+          {keys.map((key, index) =>
+            key === undefined ? (
               <th
                 key={`header-${index}`}
                 className="bn"
@@ -30,10 +35,10 @@ const StatsTable = ({stats, statNames = []}: StatsTableProps) => {
               />
             ) : (
               <th
-                key={`${elem.key}-header-${index}`}
+                key={`${key}-header`}
                 className="ba b--fair-pink tc b sapphire"
               >
-                {elem.name}
+                {capitalize(key)}
               </th>
             ),
           )}
@@ -42,15 +47,12 @@ const StatsTable = ({stats, statNames = []}: StatsTableProps) => {
 
       <tbody>
         <tr>
-          {statNames.map((elem, index) =>
-            elem === undefined ? (
+          {keys.map((key: keyof typeof stats | undefined, index) =>
+            key === undefined ? (
               <td key={`row-${index}`} className="bn" />
             ) : (
-              <td
-                key={`${elem.key}-row-${index}`}
-                className="ba b--fair-pink tc sapphire"
-              >
-                {stats[elem.key]}
+              <td key={`${key}-row`} className="ba b--fair-pink tc sapphire">
+                {stats[key]}
               </td>
             ),
           )}

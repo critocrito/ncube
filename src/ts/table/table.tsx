@@ -1,14 +1,14 @@
 /* eslint react/jsx-props-no-spreading: off */
 import c from "classnames";
-import React, {PropsWithChildren, useMemo} from "react";
+import React, {PropsWithChildren, useEffect} from "react";
 import {
   CellProps,
-  FilterProps,
+  // FilterProps,
   HeaderProps,
   Hooks,
   Row,
   TableOptions,
-  useFilters,
+  // useFilters,
   useFlexLayout,
   usePagination,
   useRowSelect,
@@ -17,32 +17,36 @@ import {
 
 import ActionBar from "./action-bar";
 import DeleteRow from "./delete-row";
-import {fuzzyTextFilter} from "./filters";
+// import {fuzzyTextFilter} from "./filters";
 import Pagination from "./pagination";
 import SelectRow from "./select-row";
 
 // Define a default UI for filtering
-const DefaultColumnFilter = <T extends Record<string, unknown>>({
-  column: {filterValue, preFilteredRows, setFilter},
-}: FilterProps<T>) => {
-  const count = preFilteredRows.length;
-
-  return (
-    <input
-      value={filterValue || ""}
-      onChange={(e) => {
-        setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-      }}
-      placeholder={`Search ${count} records...`}
-    />
-  );
-};
+// const DefaultColumnFilter = <T extends Record<string, unknown>>({
+//   column: {filterValue, preFilteredRows, setFilter},
+// }: FilterProps<T>) => {
+//   const count = preFilteredRows.length;
+//
+//   return (
+//     <input
+//       value={filterValue || ""}
+//       onChange={(e) => {
+//         setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
+//       }}
+//       placeholder={`Search ${count} records...`}
+//     />
+//   );
+// };
 
 export interface TableProps<T extends {id: number}> extends TableOptions<T> {
   name: string;
+  total: number;
+  pageCount: number;
+  loading: boolean;
   onCreate?: () => void;
   onDelete?: (item: T) => void;
   handleSelected: (ids: string[]) => void;
+  fetchData: (page: number, size: number) => void;
 }
 
 const selectHook = <T extends {id: number}>(hooks: Hooks<T>) => {
@@ -74,7 +78,7 @@ const selectHook = <T extends {id: number}>(hooks: Hooks<T>) => {
 };
 
 const hooks = [
-  useFilters,
+  // useFilters,
   useFlexLayout,
   usePagination,
   useRowSelect,
@@ -84,36 +88,43 @@ const hooks = [
 const Table = <T extends {id: number}>({
   data,
   columns,
+  total,
+  loading,
   handleSelected,
   onCreate,
   onDelete,
+  fetchData,
+  pageCount: controlledPageCount,
 }: PropsWithChildren<TableProps<T>>) => {
   const baseClass = "ba b--gray-25";
   const cellClass = c(baseClass, "text-medium");
-
-  const filterTypes = useMemo(
-    () => ({
-      fuzzyText: fuzzyTextFilter,
-    }),
-    [],
-  );
-
-  const defaultColumn = useMemo(
-    () => ({
-      Filter: DefaultColumnFilter,
-    }),
-    [],
-  );
+  //
+  //   const filterTypes = useMemo(
+  //     () => ({
+  //       fuzzyText: fuzzyTextFilter,
+  //     }),
+  //     [],
+  //   );
+  //
+  //   const defaultColumn = useMemo(
+  //     () => ({
+  //       Filter: DefaultColumnFilter,
+  //     }),
+  //     [],
+  //   );
 
   const instance = useTable<T>(
     {
       columns,
       data,
-      defaultColumn,
-      filterTypes,
+      // defaultColumn,
+      // filterTypes,
       initialState: {
+        pageIndex: 0,
         pageSize: 20,
       },
+      manualPagination: true,
+      pageCount: controlledPageCount,
       getRowId: (row: T, _relativeIndex: number, _parent?: Row<T>): string =>
         row.id.toString(),
     },
@@ -125,11 +136,20 @@ const Table = <T extends {id: number}>({
     headerGroups,
     getTableBodyProps,
     page,
+    pageCount,
     prepareRow,
+    gotoPage,
+    state: {pageIndex, pageSize},
   } = instance;
 
+  useEffect(() => {
+    fetchData(pageIndex, pageSize);
+  }, [fetchData, pageIndex, pageSize]);
+
   return (
-    <div className="flex flex-column">
+    <div
+      className={c("flex flex-column", loading ? "o-40 no-hover" : undefined)}
+    >
       <ActionBar
         instance={instance}
         className="mb3"
@@ -191,7 +211,14 @@ const Table = <T extends {id: number}>({
         </tbody>
       </table>
 
-      <Pagination instance={instance} />
+      <Pagination
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        pageCount={pageCount}
+        total={total}
+        loading={loading}
+        gotoPage={(p: number) => gotoPage(p)}
+      />
     </div>
   );
 };

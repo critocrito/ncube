@@ -75,7 +75,53 @@ export interface Source {
   tags: SourceTag[];
 }
 
-export type Stats = Record<string, number>;
+// export type Stats = Record<string, number>;
+export type Stats<T extends string> = {
+  [key in T]: number;
+};
+
+export type DataStats = Stats<"total" | "sources" | "videos">;
+export type SourceStats = Stats<"total" | "types">;
+
+export type MediaType = "video" | "image" | "url";
+
+export type Media = {
+  id_hash: string;
+  type: MediaType;
+  term: string;
+  data?: Record<string, unknown>;
+};
+
+export type Download = {
+  id_hash: string;
+  type: MediaType;
+  term: string;
+  md5?: string;
+  sha256?: string;
+  location?: string;
+  data?: Record<string, unknown>;
+};
+
+export type Unit = {
+  id: number;
+  id_hash: string;
+  content_hash: string;
+  source: string;
+  unit_id?: string;
+  body?: string;
+  href?: string;
+  author?: string;
+  title?: string;
+  description?: string;
+  language?: string;
+  created_at?: Date;
+  fetched_at: Date;
+  data?: Record<string, unknown>;
+  media: Media[];
+  downloads: Download[];
+  sources: Source[];
+};
+
 /*
  * The request types represent request objects to the HTTP API. They are
  * usually used in the `./http/*` functions. Additionally to types I run

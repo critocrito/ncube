@@ -6,45 +6,30 @@ import processIcon from "../../../resources/public/images/icon_process.svg";
 import sourceIcon from "../../../resources/public/images/icon_source.svg";
 import Button from "../common/button";
 import StatsTable from "../common/stats-table";
-import {Stats} from "../types";
+import {DataStats, SourceStats} from "../types";
 
 interface SectionCardProps {
   kind: "source" | "data" | "process" | "investigation";
   onClick: () => void;
-  stats?: Stats;
+  stats?: DataStats | SourceStats;
 }
 
 const dummy =
   "I'm some sort of description. What I will be, I don't know yet. But I'm convinced, it will be mganificient.";
 
-const SectionCard = ({
-  kind,
-  stats = {},
-  onClick = () => {},
-}: SectionCardProps) => {
+const SectionCard = ({kind, stats, onClick = () => {}}: SectionCardProps) => {
   let title;
   let icon;
   let label;
-  let statNames: Array<{key: string; name: string} | undefined> = [];
 
   if (kind === "source") {
     title = "Sources";
     icon = sourceIcon;
     label = "Manage";
-    statNames = [
-      {name: "Total", key: "count_sources"},
-      {name: "Types", key: "count_source_types"},
-      undefined,
-    ];
   } else if (kind === "data") {
     title = "Data";
     icon = dataIcon;
     label = "Explore";
-    statNames = [
-      {name: "Total", key: "count_units"},
-      {name: "Sources", key: "count_unit_types"},
-      undefined,
-    ];
   } else if (kind === "process") {
     title = "Processes";
     icon = processIcon;
@@ -71,9 +56,7 @@ const SectionCard = ({
         </div>
       </div>
 
-      <div className="w-40">
-        <StatsTable stats={stats} statNames={statNames} />
-      </div>
+      <div className="w-40">{stats && <StatsTable stats={stats} />}</div>
 
       <div className="pr3">
         <Button onClick={onClick}>{label}</Button>

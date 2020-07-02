@@ -8,14 +8,15 @@ import FormHandler from "../common/form-handler";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
 import CreateSourceForm, {CreateSourceFormValues} from "../forms/create-source";
-import {createSource, listSources, removeSource} from "../http";
+import {createSource, removeSource} from "../http";
 import machine from "../machines/source";
-import {Workspace} from "../types";
+import {SourceStats, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import SourcesTable from "./sources-table";
 
 interface SourceProps {
   workspace: Workspace;
+  stats: SourceStats;
 }
 
 const saveSource = (
@@ -25,10 +26,9 @@ const saveSource = (
   return createSource(slug, values);
 };
 
-const Source = ({workspace}: SourceProps) => {
+const Source = ({workspace, stats}: SourceProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
-      fetchData: (_ctx, _ev) => listSources(workspace.slug),
       deleteSource: (_ctx, {sourceId}) =>
         removeSource(workspace.slug, sourceId),
     },
@@ -38,29 +38,21 @@ const Source = ({workspace}: SourceProps) => {
     },
   });
 
+  const {total} = stats;
+
   useServiceLogger(service, machine.id);
 
   const [, appSend] = useAppCtx();
 
-  const {sources, error} = state.context;
+  const {error} = state.context;
 
   switch (true) {
-    case state.matches("listing"):
-      return <div />;
-
     case state.matches("home"):
-      if (sources === undefined)
-        return (
-          <Fatal
-            msg="The source/home state lacks sources."
-            reset={() => appSend("RESTART_APP")}
-          />
-        );
-
       return (
         <div>
           <SourcesTable
-            sources={sources}
+            workspace={workspace}
+            total={total}
             onCreate={() => send("CREATE_SOURCE")}
             onDelete={(source) => send("DELETE_SOURCE", {source})}
             handleSelected={console.log}
@@ -69,14 +61,6 @@ const Source = ({workspace}: SourceProps) => {
       );
 
     case state.matches("create"):
-      if (sources === undefined)
-        return (
-          <Fatal
-            msg="The source/home state lacks sources."
-            reset={() => appSend("RESTART_APP")}
-          />
-        );
-
       return (
         <div>
           <Modal
@@ -96,7 +80,8 @@ const Source = ({workspace}: SourceProps) => {
           </Modal>
 
           <SourcesTable
-            sources={sources}
+            workspace={workspace}
+            total={total}
             onCreate={() => send("CREATE_SOURCE")}
             onDelete={(source) => send("DELETE_SOURCE", {source})}
             handleSelected={console.log}
@@ -105,14 +90,6 @@ const Source = ({workspace}: SourceProps) => {
       );
 
     case state.matches("delete"): {
-      if (sources === undefined)
-        return (
-          <Fatal
-            msg="The source/home state lacks sources."
-            reset={() => appSend("RESTART_APP")}
-          />
-        );
-
       switch (state.event.type) {
         case "DELETE_SOURCE":
           // eslint-disable-next-line no-case-declarations
@@ -157,8 +134,10 @@ const Source = ({workspace}: SourceProps) => {
                   </div>
                 </div>
               </Modal>
+
               <SourcesTable
-                sources={sources}
+                workspace={workspace}
+                total={total}
                 onCreate={() => send("CREATE_SOURCE")}
                 onDelete={(source) => send("DELETE_SOURCE", {source})}
                 handleSelected={console.log}

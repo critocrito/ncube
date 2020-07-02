@@ -1,10 +1,11 @@
 import {assign, createMachine} from "xstate";
 
-import {Stats, Workspace} from "../types";
+import {DataStats, SourceStats, Workspace} from "../types";
 
 export interface WorkspaceContext {
   workspace: Workspace;
-  stats: Stats;
+  dataStats: DataStats;
+  sourceStats: SourceStats;
   error?: string;
 }
 
@@ -44,7 +45,8 @@ export default createMachine<WorkspaceContext, WorkspaceEvent, WorkspaceState>({
         onDone: {
           target: "overview",
           actions: assign({
-            stats: (_, {data}) => data,
+            dataStats: (_, {data}) => data.dataStats,
+            sourceStats: (_, {data}) => data.sourceStats,
           }),
         },
 

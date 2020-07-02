@@ -1,19 +1,16 @@
 import React, {useCallback, useMemo, useState} from "react";
 import {Cell, Column} from "react-table";
 
-import QueryTag from "../common/query-tag";
 import SourceTag from "../common/source-tag";
-import {listSources} from "../http";
+import {listUnits} from "../http";
 import Table from "../table";
 import SelectColumnFilter from "../table/select-filter";
-import {Source, SourceTag as Tag, Workspace} from "../types";
+import {Unit, Workspace} from "../types";
 
-interface SourcesTableProps {
+interface DataTableProps {
   workspace: Workspace;
   total: number;
-  onCreate: () => void;
   handleSelected: (ids: string[]) => void;
-  onDelete: (source: Source) => void;
 }
 
 const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
@@ -29,39 +26,38 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
   }
 };
 
-const SourcesTable = ({
-  workspace,
-  total,
-  onCreate,
-  onDelete,
-  handleSelected,
-}: SourcesTableProps) => {
-  const [data, setData] = useState<Source[]>([]);
+const DataTable = ({workspace, total, handleSelected}: DataTableProps) => {
+  const [data, setData] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(false);
   const [pageCount, setPageCount] = useState(0);
 
   const fetchData = useCallback(
     async (pageIndex: number, pageSize: number) => {
       setLoading(true);
-      setData(await listSources(workspace.slug, pageIndex, pageSize));
+      setData(await listUnits(workspace.slug, pageIndex, pageSize));
       setPageCount(Math.ceil(total / pageSize));
       setLoading(false);
     },
     [total, workspace],
   );
 
-  const columns: Column<Source>[] = useMemo(
+  const columns: Column<Unit>[] = useMemo(
     () => [
       {
-        Header: "Term",
-        accessor: "term",
-        filter: "fuzzyText",
-        Cell: ({value}: Cell) => decodeURI(String(value)),
+        Header: "ID",
+        accessor: "id",
       },
 
       {
-        Header: "Type",
-        accessor: "type",
+        Header: "Url",
+        accessor: "href",
+        filter: "fuzzyText",
+        Cell: ({value}: Cell) => (value ? decodeURI(String(value)) : ""),
+      },
+
+      {
+        Header: "Source",
+        accessor: "source",
         Filter: SelectColumnFilter,
         filter: "includes",
         minWidth: 60,
@@ -76,26 +72,6 @@ const SourcesTable = ({
           );
         },
       },
-
-      {
-        Header: "Tags",
-        accessor: "tags",
-        // Filter: SelectColumnFilter,
-        // filter: "includes",
-        disableFilters: true,
-        minWidth: 40,
-        width: 40,
-        maxWidth: 40,
-        Cell: ({value}: Cell) => {
-          return (
-            <div className="flex justify-around">
-              {value.map((tag: Tag) => (
-                <QueryTag key={tag.name} label={tag.value} />
-              ))}
-            </div>
-          );
-        },
-      },
     ],
     [],
   );
@@ -103,11 +79,9 @@ const SourcesTable = ({
   // FIXME: Do I need to wrap the handlers in useCallback?
 
   return (
-    <Table<Source>
+    <Table<Unit>
       name="sourcesTable"
       handleSelected={handleSelected}
-      onCreate={onCreate}
-      onDelete={onDelete}
       data={data}
       columns={columns}
       fetchData={fetchData}
@@ -118,4 +92,4 @@ const SourcesTable = ({
   );
 };
 
-export default SourcesTable;
+export default DataTable;

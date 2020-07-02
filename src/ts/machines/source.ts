@@ -4,7 +4,6 @@ import {Source, Workspace} from "../types";
 
 type SourceContext = {
   workspace: Workspace;
-  sources?: Source[];
   error?: string;
 };
 
@@ -18,12 +17,8 @@ type SourceEvent =
 
 type SourceState =
   | {
-      value: "listing" | "deleting";
+      value: "home" | "create" | "delete" | "deleting";
       context: SourceContext;
-    }
-  | {
-      value: "home" | "create" | "delete";
-      context: SourceContext & {sources: Source[]};
     }
   | {
       value: "error";
@@ -32,32 +27,14 @@ type SourceState =
 
 export default createMachine<SourceContext, SourceEvent, SourceState>({
   id: "source",
-  initial: "listing",
+  initial: "home",
   states: {
-    listing: {
-      invoke: {
-        src: "fetchData",
-
-        onDone: {
-          target: "home",
-          actions: assign({
-            sources: (_, {data}) => data,
-          }),
-        },
-
-        onError: {
-          target: "error",
-          actions: assign({error: (_ctx, {data}) => data.message}),
-        },
-      },
-    },
-
     deleting: {
       invoke: {
         src: "deleteSource",
 
         onDone: {
-          target: "listing",
+          target: "home",
         },
 
         onError: {
@@ -76,7 +53,7 @@ export default createMachine<SourceContext, SourceEvent, SourceState>({
 
     create: {
       on: {
-        SHOW_HOME: "listing",
+        SHOW_HOME: "home",
       },
     },
 
@@ -89,7 +66,7 @@ export default createMachine<SourceContext, SourceEvent, SourceState>({
 
     error: {
       on: {
-        RETRY: "listing",
+        RETRY: "home",
       },
     },
   },
