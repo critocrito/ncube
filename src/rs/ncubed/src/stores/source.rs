@@ -57,6 +57,9 @@ impl SourceStore for SourceStoreSqlite {
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/create.sql"))?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/source/show.sql"))?;
         let mut stmt3 = conn.prepare_cached(include_str!("../sql/source/create-query-tag.sql"))?;
+        let mut stmt4 = conn.prepare_cached(include_str!("../sql/source/show-query-tag.sql"))?;
+        let mut stmt5 =
+            conn.prepare_cached(include_str!("../sql/source/create-tagged-query.sql"))?;
 
         conn.execute_batch("BEGIN;")?;
 
@@ -65,7 +68,9 @@ impl SourceStore for SourceStoreSqlite {
         let query_id: i32 = stmt2.query_row(params![&kind, &term], |row| row.get(0))?;
 
         for tag in tags {
-            stmt3.execute(params![query_id, &tag.name, &tag.value])?;
+            stmt3.execute(params![&tag.label, &tag.description])?;
+            let query_tag_id: i32 = stmt4.query_row(params![&tag.label], |row| row.get(0))?;
+            stmt5.execute(params![query_id, query_tag_id])?;
         }
 
         conn.execute_batch("COMMIT")?;
@@ -82,7 +87,8 @@ impl SourceStore for SourceStoreSqlite {
     ) -> Result<Vec<Source>, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/paginate.sql"))?;
-        let mut stmt2 = conn.prepare_cached(include_str!("../sql/source/list-query-tags.sql"))?;
+        let mut stmt2 =
+            conn.prepare_cached(include_str!("../sql/source/list-query-tags-for-query.sql"))?;
 
         let offset = page * page_size;
         let mut sources: Vec<Source> = vec![];
@@ -107,7 +113,8 @@ impl SourceStore for SourceStoreSqlite {
     #[instrument]
     async fn delete(&self, id: i32) -> Result<(), StoreError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/source/delete-query-tags.sql"))?;
+        let mut stmt =
+            conn.prepare_cached(include_str!("../sql/source/delete-tagged-query.sql"))?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/source/delete.sql"))?;
 
         stmt.execute(params![&id])?;

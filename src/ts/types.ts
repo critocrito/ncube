@@ -64,8 +64,8 @@ export interface Annotation {
 }
 
 export interface SourceTag {
-  name: string;
-  value: string;
+  label: string;
+  description?: string;
 }
 
 export interface Source {

@@ -90,7 +90,11 @@ const SourcesTable = ({
           return (
             <div className="flex justify-around">
               {value.map((tag: Tag) => (
-                <QueryTag key={tag.name} label={tag.value} />
+                <QueryTag
+                  key={tag.label}
+                  label={tag.label}
+                  description={tag.description}
+                />
               ))}
             </div>
           );
