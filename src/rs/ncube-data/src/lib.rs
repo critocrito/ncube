@@ -229,8 +229,8 @@ pub struct Annotation {
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct QueryTag {
-    pub name: String,
-    pub value: String,
+    pub label: String,
+    pub description: Option<String>,
 }
 
 /// A source represents a place where data can be fetched from. It is combined
@@ -242,8 +242,8 @@ pub struct QueryTag {
 /// # use serde_json;
 /// # use ncube_data::{Source, QueryTag};
 /// let tag = QueryTag {
-///   name: "code".to_string(),
-///   value: "tag value".to_string(),
+///   label: "code".to_string(),
+///   description: None,
 /// };
 ///
 /// let source = Source {
@@ -254,7 +254,7 @@ pub struct QueryTag {
 /// };
 ///
 /// assert_eq!(
-///   "{\"id\":1,\"type\":\"youtube_video\",\"term\":\"https://youtube.com/watch?v=123456\",\"tags\":[{\"name\":\"code\",\"value\":\"tag value\"}]}",
+///   "{\"id\":1,\"type\":\"youtube_video\",\"term\":\"https://youtube.com/watch?v=123456\",\"tags\":[{\"label\":\"code\",\"description\":null}]}",
 ///   serde_json::to_string(&source).unwrap()
 /// );
 /// ```

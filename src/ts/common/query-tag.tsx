@@ -2,6 +2,7 @@ import React from "react";
 
 interface QueryTagProps {
   label: string;
+  description?: string;
 }
 
 const QueryTag = ({label}: QueryTagProps) => {
