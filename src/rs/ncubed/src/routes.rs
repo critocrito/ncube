@@ -455,9 +455,14 @@ pub(crate) mod stat {
     use warp::Filter;
 
     use crate::handlers::workspace as handlers;
+    use crate::http::authenticate_remote_req;
+    use crate::types::ReqCtx;
 
     #[instrument]
-    async fn sources_total(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn sources_total(
+        _ctx: ReqCtx,
+        workspace: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         let stat = handlers::stat_sources_total(&workspace).await?;
         let response = SuccessResponse::new(stat.value);
 
@@ -465,7 +470,10 @@ pub(crate) mod stat {
     }
 
     #[instrument]
-    async fn sources_types(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn sources_types(
+        _ctx: ReqCtx,
+        workspace: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         let stat = handlers::stat_sources_types(&workspace).await?;
         let response = SuccessResponse::new(stat.value);
 
@@ -473,7 +481,10 @@ pub(crate) mod stat {
     }
 
     #[instrument]
-    async fn data_total(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn data_total(
+        _ctx: ReqCtx,
+        workspace: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         let stat = handlers::stat_data_total(&workspace).await?;
         let response = SuccessResponse::new(stat.value);
 
@@ -481,7 +492,10 @@ pub(crate) mod stat {
     }
 
     #[instrument]
-    async fn data_sources(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn data_sources(
+        _ctx: ReqCtx,
+        workspace: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         let stat = handlers::stat_data_sources(&workspace).await?;
         let response = SuccessResponse::new(stat.value);
 
@@ -489,7 +503,10 @@ pub(crate) mod stat {
     }
 
     #[instrument]
-    async fn data_videos(workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+    async fn data_videos(
+        _ctx: ReqCtx,
+        workspace: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
         let stat = handlers::stat_data_videos(&workspace).await?;
         let response = SuccessResponse::new(stat.value);
 
@@ -498,29 +515,36 @@ pub(crate) mod stat {
 
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("workspaces" / String / "stats" / "sources" / "total")
+        authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "stats" / "sources" / "total"
+            ))
             .and(warp::get())
             .and_then(sources_total)
-            .or(
-                warp::path!("workspaces" / String / "stats" / "sources" / "types")
-                    .and(warp::get())
-                    .and_then(sources_types),
-            )
-            .or(
-                warp::path!("workspaces" / String / "stats" / "data" / "total")
-                    .and(warp::get())
-                    .and_then(data_total),
-            )
-            .or(
-                warp::path!("workspaces" / String / "stats" / "data" / "sources")
-                    .and(warp::get())
-                    .and_then(data_sources),
-            )
-            .or(
-                warp::path!("workspaces" / String / "stats" / "data" / "videos")
-                    .and(warp::get())
-                    .and_then(data_videos),
-            )
+            .or(authenticate_remote_req()
+                .and(warp::path!(
+                    "workspaces" / String / "stats" / "sources" / "types"
+                ))
+                .and(warp::get())
+                .and_then(sources_types))
+            .or(authenticate_remote_req()
+                .and(warp::path!(
+                    "workspaces" / String / "stats" / "data" / "total"
+                ))
+                .and(warp::get())
+                .and_then(data_total))
+            .or(authenticate_remote_req()
+                .and(warp::path!(
+                    "workspaces" / String / "stats" / "data" / "sources"
+                ))
+                .and(warp::get())
+                .and_then(data_sources))
+            .or(authenticate_remote_req()
+                .and(warp::path!(
+                    "workspaces" / String / "stats" / "data" / "videos"
+                ))
+                .and(warp::get())
+                .and_then(data_videos))
     }
 }
 
@@ -531,6 +555,8 @@ pub(crate) mod unit {
     use warp::Filter;
 
     use crate::handlers::workspace as handlers;
+    use crate::http::authenticate_remote_req;
+    use crate::types::ReqCtx;
 
     // The query parameters for list data.
     #[derive(Debug, Deserialize)]
@@ -541,6 +567,7 @@ pub(crate) mod unit {
 
     #[instrument]
     async fn data(
+        _ctx: ReqCtx,
         workspace: String,
         opts: ListOptions,
     ) -> Result<impl warp::Reply, warp::Rejection> {
@@ -553,7 +580,8 @@ pub(crate) mod unit {
 
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-        warp::path!("workspaces" / String / "data")
+        authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "data"))
             .and(warp::get())
             .and(warp::query::<ListOptions>())
             .and_then(data)
