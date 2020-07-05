@@ -1,0 +1,11 @@
+{
+  "id": 23,
+  "name": "My Workspace",
+  "slug": "my-workspace",
+  "created_at": "2020-07-05T09:50:43.089Z",
+  "updated_at": "2020-07-05T09:50:43.089Z",
+  "database": "sqlite",
+  "database_path": "sugarcube.db",
+  "kind": "local",
+  "location": "project-dir"
+}

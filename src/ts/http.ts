@@ -3,6 +3,7 @@ import {
   HostConfig,
   Source,
   SourceReq,
+  SourceTag,
   Unit,
   Workspace,
   WorkspaceReq,
@@ -182,6 +183,16 @@ export const removeSource = async (
   );
 
   return emptyResponse(resp);
+};
+
+export const listSourceTags = async (
+  workspace: string,
+): Promise<SourceTag[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/source-tags`,
+  );
+
+  return dataResponse(resp);
 };
 
 /*

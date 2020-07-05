@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::{QueryTag, Source, Workspace};
-use rusqlite::params;
+use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
@@ -27,6 +27,7 @@ pub(crate) trait SourceStore {
     ) -> Result<Vec<Source>, StoreError>;
     async fn delete(&self, id: i32) -> Result<(), StoreError>;
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
+    async fn list_source_tags(&self, slug: &str) -> Result<Vec<QueryTag>, StoreError>;
 }
 
 #[derive(Debug)]
@@ -133,6 +134,20 @@ impl SourceStore for SourceStoreSqlite {
 
         Ok(())
     }
+
+    #[instrument]
+    async fn list_source_tags(&self, _slug: &str) -> Result<Vec<QueryTag>, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/source/list-source-tags.sql"))?;
+
+        let mut source_tags: Vec<QueryTag> = vec![];
+
+        for query_tag in from_rows::<QueryTag>(stmt.query(NO_PARAMS)?) {
+            source_tags.push(query_tag?);
+        }
+
+        Ok(source_tags)
+    }
 }
 
 #[derive(Debug)]
@@ -173,6 +188,10 @@ impl SourceStore for SourceStoreHttp {
     }
 
     async fn update(&self, _id: i32, _kind: &str, _term: &str) -> Result<(), StoreError> {
+        todo!()
+    }
+
+    async fn list_source_tags(&self, _slug: &str) -> Result<Vec<QueryTag>, StoreError> {
         todo!()
     }
 }

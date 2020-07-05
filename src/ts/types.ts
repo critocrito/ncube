@@ -12,6 +12,7 @@ export interface FormProps<T> {
   onCancel?: () => void;
   initialValues?: Partial<T>;
   disabled?: boolean;
+  workspace?: Workspace;
 }
 
 export interface ConfigSetting {

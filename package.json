@@ -23,6 +23,7 @@
     "@xstate/react": "^1.0.0-rc.4",
     "classnames": "^2.2.6",
     "date-fns": "^2.14.0",
+    "downshift": "^5.4.5",
     "formik": "^2.1.4",
     "match-sorter": "^4.1.0",
     "react": "^16.13.1",
@@ -40,6 +41,7 @@
     "@babel/preset-env": "^7.10.2",
     "@babel/preset-react": "^7.10.1",
     "@babel/preset-typescript": "^7.10.1",
+    "@react-mock/fetch": "^0.3.0",
     "@testing-library/react": "^10.2.1",
     "@types/classnames": "^2.2.10",
     "@types/date-fns": "^2.6.0",
@@ -225,7 +227,8 @@
             "webpack.cosmos.js",
             "test/ts/**/*.ts",
             "test/test-setup.js",
-            "scripts/**/*.js"
+            "scripts/**/*.js",
+            "src/ts/__fixtures__/**/*.tsx"
           ]
         }
       ],

@@ -1,6 +1,15 @@
+import {FetchMock} from "@react-mock/fetch";
 import React, {useState} from "react";
 
 import CreateSource, {CreateSourceFormValues} from "../../forms/create-source";
+import {WorkspaceLocal} from "../../types";
+import workspace from "../local-workspace.json";
+import data from "./source-tags.json";
+
+const resp = {
+  status: "success",
+  data,
+};
 
 const Wrapper = () => {
   const [state, setState] = useState<CreateSourceFormValues | undefined>();
@@ -17,8 +26,16 @@ const Wrapper = () => {
 
   return (
     <div>
-      <CreateSource onSubmit={handleSubmit} onCancel={handleCancel} />
-
+      <FetchMock
+        matcher="http://127.0.0.1:40666/api/workspaces/my-workspace/source-tags"
+        response={resp}
+      >
+        <CreateSource
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          workspace={(workspace as unknown) as WorkspaceLocal}
+        />
+      </FetchMock>
       {state === undefined ? (
         ""
       ) : (

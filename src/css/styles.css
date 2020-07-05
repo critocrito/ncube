@@ -318,6 +318,21 @@ tr:hover .trash {
   pointer-events: none;
 }
 
+/* Multi Select */
+.select {
+  position: relative;
+}
+.select > input {
+  height: 28px;
+  margin: 0;
+  width: 100%;
+  padding-right: 26px;
+}
+.select > button {
+  position: absolute;
+  right: 3px;
+}
+
 /* Other elements */
 .base-tag {
   @insert .pl3 .pr3 .br4 .text-medium .tc .b .ttu;

@@ -50,8 +50,8 @@ export const annotation = Yup.object({
 export const annotations = Yup.array().of(annotation);
 
 export const sourceTag = Yup.object({
-  name: Yup.string().required("This field is required."),
-  value: Yup.string().required("This field is required."),
+  label: Yup.string().max(20).required("This field is required."),
+  description: Yup.string().max(120),
 });
 
 export const sourceTags = Yup.array().of(sourceTag);

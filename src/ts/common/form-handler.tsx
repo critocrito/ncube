@@ -2,7 +2,7 @@ import {useMachine} from "@xstate/react";
 import React, {useMemo} from "react";
 
 import createFormMachine from "../machines/form";
-import {FormProps} from "../types";
+import {FormProps, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Fatal from "./fatal";
 
@@ -11,6 +11,7 @@ interface FormHandlerProps<T> {
   initialValues?: Partial<T>;
   onDone: () => void;
   onSave?: (values: T) => Promise<void>;
+  workspace?: Workspace;
 }
 
 const FormHandler = <T extends unknown>({
@@ -18,6 +19,7 @@ const FormHandler = <T extends unknown>({
   onDone,
   Form,
   initialValues,
+  workspace,
 }: FormHandlerProps<T>) => {
   const machine = useMemo(() => createFormMachine(initialValues), [
     initialValues,
@@ -50,6 +52,7 @@ const FormHandler = <T extends unknown>({
             onCancel={() => send("CANCEL")}
             disabled={isDisabled}
             initialValues={state.context.values}
+            workspace={workspace}
           />
         </>
       );

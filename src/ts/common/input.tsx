@@ -10,6 +10,7 @@ interface InputProps {
   placeholder?: string;
   disabled?: boolean;
   type?: "text" | "email" | "password";
+  value?: string;
 }
 
 const Input = ({
@@ -17,6 +18,7 @@ const Input = ({
   placeholder = "",
   disabled = false,
   type = "text",
+  value: defaultValue,
   ...props
 }: InputProps) => {
   const fieldProps = {
@@ -40,7 +42,7 @@ const Input = ({
       <input
         className={classes}
         name={name}
-        value={value}
+        value={value || defaultValue}
         type={type}
         placeholder={placeholder}
         disabled={disabled}
