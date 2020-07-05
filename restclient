@@ -156,6 +156,13 @@ PUT http://:api/api/workspaces/syrian-archive/sources/1
 }
 
 ###
+# Manage source tags
+###
+
+# List all source tags
+GET http://:api/api/workspaces/syrian-archive/source-tags
+
+###
 # Workspace data
 ###
 
@@ -170,10 +177,10 @@ GET http://:api/api/workspaces/syrian-archive/data?page=2
 ###
 
 # Fetch total count for sources
-GET http://:api/api/workspaces/my-little-archive/stats/sources/total
+GET http://:api/api/workspaces/syrian-archive/stats/sources/total
 
 # Fetch count of source types
-GET http://:api/api/workspaces/my-little-archive/stats/sources/types
+GET http://:api/api/workspaces/syrian-archive/stats/sources/types
 
 # Fetch total count for data
 GET http://:api/api/workspaces/syrian-archive/stats/data/total

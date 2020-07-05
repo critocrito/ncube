@@ -1,14 +1,23 @@
+import c from "classnames";
 import React from "react";
 
 interface QueryTagProps {
   label: string;
   description?: string;
+  className?: string;
 }
 
-const QueryTag = ({label}: QueryTagProps) => {
+const QueryTag = ({label, className}: QueryTagProps) => {
   return (
-    <div className="tag flex flex-column justify-around bg-gray-25 nowrap">
-      <span>{label}</span>
+    <div
+      className={c(
+        "tag mw5 flex justify-between items-center bg-solitude nowrap",
+        className,
+      )}
+    >
+      <div className="w-90 tc sapphire">
+        <span>{label}</span>
+      </div>
     </div>
   );
 };

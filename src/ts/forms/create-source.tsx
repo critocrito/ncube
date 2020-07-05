@@ -1,12 +1,14 @@
 /* eslint react/no-array-index-key: off */
 import {FieldArray, Form, Formik} from "formik";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
 import Button from "../common/button";
 import Input from "../common/input";
+import {listSourceTags} from "../http";
 import {FormProps, SourceTag} from "../types";
 import {sourceTags} from "../validations";
+import SourceTagMultiSelect from "./source-tag-multi-select";
 
 type CreateSourceFormProps<CreateSourceFormValues> = FormProps<
   CreateSourceFormValues
@@ -34,8 +36,19 @@ const CreateSourceForm = ({
   initialValues = defaultValues,
   onCancel,
   onSubmit,
+  workspace,
 }: CreateSourceFormProps<CreateSourceFormValues>) => {
+  const [sourceTagsData, setSourceTagsData] = useState<SourceTag[]>([]);
   const formValues = {...defaultValues, ...initialValues};
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!workspace) return;
+      const fetchedData = await listSourceTags(workspace.slug);
+      setSourceTagsData(fetchedData);
+    };
+    fetchData();
+  }, [workspace]);
 
   return (
     <Formik
@@ -60,37 +73,19 @@ const CreateSourceForm = ({
               name="tags"
               render={(helpers) => {
                 return (
-                  <div className="flex flex-column">
-                    <div>
-                      <Button
-                        size="normal"
-                        onClick={() => helpers.push({name: "", value: ""})}
-                      >
-                        Add Tag
-                      </Button>
-                    </div>
-
-                    {values.tags.map((_tag, index) => {
-                      return (
-                        <div
-                          key={`tag-${index}`}
-                          className="flex justify-between items-start"
-                        >
-                          <Input label="Name" name={`tags[${index}].name`} />
-                          <Input label="Value" name={`tags[${index}].value`} />
-
-                          <div style={{marginTop: "2.8rem"}}>
-                            <Button
-                              kind="secondary"
-                              onClick={() => helpers.remove(index)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        </div>
+                  <SourceTagMultiSelect
+                    className="mt3"
+                    data={sourceTagsData}
+                    onRemove={(tag: SourceTag) => {
+                      const index = values.tags.findIndex(
+                        (t) => t.label === tag.label,
                       );
-                    })}
-                  </div>
+                      helpers.remove(index);
+                    }}
+                    onAdd={(tag: SourceTag) => {
+                      helpers.push(tag);
+                    }}
+                  />
                 );
               }}
             />

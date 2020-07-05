@@ -111,7 +111,8 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
                 .or(source::routes())
                 .or(user::routes())
                 .or(stat::routes())
-                .or(unit::routes()),
+                .or(unit::routes())
+                .or(source_tag::routes()),
         )
         .with(cors)
 }
@@ -416,6 +417,35 @@ pub(crate) mod user {
                 .and(warp::put())
                 .and(warp::body::json())
                 .and_then(update))
+    }
+}
+
+pub(crate) mod source_tag {
+    use super::SuccessResponse;
+    use tracing::instrument;
+    use warp::Filter;
+
+    use crate::handlers::source as handlers;
+    use crate::http::authenticate_remote_req;
+    use crate::types::ReqCtx;
+
+    #[instrument]
+    async fn list(
+        _ctx: ReqCtx,
+        workspace_slug: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let sources = handlers::list_source_tags(&workspace_slug).await?;
+        let response = SuccessResponse::new(sources);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    pub(crate) fn routes(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "source-tags"))
+            .and(warp::get())
+            .and_then(list)
     }
 }
 

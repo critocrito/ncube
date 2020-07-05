@@ -75,6 +75,7 @@ const Source = ({workspace, stats}: SourceProps) => {
                 onSave={(values) => saveSource(workspace.slug, values)}
                 onDone={() => send("SHOW_HOME")}
                 Form={CreateSourceForm}
+                workspace={workspace}
               />
             </div>
           </Modal>

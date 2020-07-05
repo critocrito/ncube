@@ -1,4 +1,4 @@
-use ncube_data::Source;
+use ncube_data::{QueryTag, Source};
 use tracing::{error, instrument};
 
 use crate::actors::{
@@ -144,4 +144,35 @@ pub async fn update_source(
     store.update(id, &source.kind, &source.term).await?;
 
     Ok(())
+}
+
+#[instrument]
+pub async fn list_source_tags(workspace: &str) -> Result<Vec<QueryTag>, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+
+    let mut database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.slug.clone(),
+        })
+        .await??;
+
+    database.login().await?;
+
+    let store = source_store(database);
+    let sources = store.list_source_tags(&workspace.slug).await?;
+
+    Ok(sources)
 }
