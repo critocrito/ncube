@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 
 use ncube_data::Stat;
-use rusqlite::NO_PARAMS;
+use rusqlite::{params, NO_PARAMS};
 use tracing::instrument;
 
 use crate::db::{http, sqlite, Database};
@@ -17,8 +17,10 @@ pub(crate) fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Syn
 #[async_trait]
 pub(crate) trait StatStore {
     async fn sources_total(&self) -> Result<Stat, StoreError>;
+    async fn sources_total_search(&self, query: &str) -> Result<Stat, StoreError>;
     async fn sources_types(&self) -> Result<Stat, StoreError>;
     async fn data_total(&self) -> Result<Stat, StoreError>;
+    async fn data_total_search(&self, query: &str) -> Result<Stat, StoreError>;
     async fn data_sources(&self) -> Result<Stat, StoreError>;
     async fn data_videos(&self) -> Result<Stat, StoreError>;
 }
@@ -39,6 +41,19 @@ impl StatStore for StatStoreSqlite {
 
         Ok(Stat {
             name: "sources_total".into(),
+            value: count_sources,
+        })
+    }
+
+    #[instrument]
+    async fn sources_total_search(&self, query: &str) -> Result<Stat, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_sources_search.sql"))?;
+
+        let count_sources: i32 = stmt.query_row(params![&query], |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "sources_total_search".into(),
             value: count_sources,
         })
     }
@@ -65,6 +80,19 @@ impl StatStore for StatStoreSqlite {
 
         Ok(Stat {
             name: "data_total".into(),
+            value: count_sources,
+        })
+    }
+
+    #[instrument]
+    async fn data_total_search(&self, query: &str) -> Result<Stat, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_units_search.sql"))?;
+
+        let count_sources: i32 = stmt.query_row(params![&query], |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "data_total_search".into(),
             value: count_sources,
         })
     }
@@ -114,7 +142,17 @@ impl StatStore for StatStoreHttp {
     }
 
     #[instrument]
+    async fn sources_total_search(&self, _query: &str) -> Result<Stat, StoreError> {
+        todo!()
+    }
+
+    #[instrument]
     async fn data_total(&self) -> Result<Stat, StoreError> {
+        todo!()
+    }
+
+    #[instrument]
+    async fn data_total_search(&self, _query: &str) -> Result<Stat, StoreError> {
         todo!()
     }
 

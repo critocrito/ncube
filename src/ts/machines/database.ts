@@ -4,18 +4,22 @@ import {Workspace} from "../types";
 
 type DatabaseContext = {
   workspace: Workspace;
+  error?: string;
 };
 
-type DatabaseEvent = {type: "SHOW_HOME"} | {type: "SHOW_DATA"};
+type DatabaseEvent =
+  | {type: "SHOW_HOME"}
+  | {type: "SHOW_DATA"}
+  | {type: "RETRY"};
 
 type DatabaseState =
   | {
-      value: "list_data";
+      value: "home" | "exploration" | "list_data";
       context: DatabaseContext;
     }
   | {
-      value: "home" | "exploration";
-      context: DatabaseContext;
+      value: "error";
+      context: DatabaseContext & {error: string};
     };
 
 export default createMachine<DatabaseContext, DatabaseEvent, DatabaseState>({
@@ -31,6 +35,12 @@ export default createMachine<DatabaseContext, DatabaseEvent, DatabaseState>({
     exploration: {
       on: {
         SHOW_HOME: "home",
+      },
+    },
+
+    error: {
+      on: {
+        RETRY: "home",
       },
     },
   },

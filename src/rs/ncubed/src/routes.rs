@@ -272,19 +272,22 @@ pub(crate) mod workspace {
 
 pub(crate) mod source {
     use super::SuccessResponse;
+    use futures::try_join;
+    use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
     use warp::Filter;
 
     use crate::handlers::source as handlers;
     use crate::http::authenticate_remote_req;
-    use crate::types::{ReqCtx, SourceRequest};
+    use crate::types::{ReqCtx, SearchResponse, SourceRequest};
 
     // The query parameters for list source.
     #[derive(Debug, Deserialize)]
     pub struct ListOptions {
         pub page: Option<i32>,
         pub size: Option<i32>,
+        pub q: Option<String>,
     }
 
     #[instrument]
@@ -312,6 +315,35 @@ pub(crate) mod source {
         )
         .await?;
         let response = SuccessResponse::new(sources);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    #[instrument]
+    async fn search(
+        _ctx: ReqCtx,
+        workspace: String,
+        opts: ListOptions,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        // FIXME: Return a 4XX error if query isn't set
+        let query_opt = opts.q.unwrap_or("".to_string());
+        let query = percent_decode_str(&query_opt).decode_utf8_lossy();
+        let q2 = query.clone();
+
+        let (data, total) = try_join!(
+            handlers::search_sources(
+                &workspace,
+                &query,
+                opts.page.unwrap_or(0),
+                opts.size.unwrap_or(20),
+            ),
+            handlers::stat_sources_total_search(&workspace, &q2)
+        )?;
+
+        let response = SuccessResponse::new(SearchResponse {
+            data,
+            total: total.value,
+        });
 
         Ok(warp::reply::json(&response))
     }
@@ -353,6 +385,11 @@ pub(crate) mod source {
                 .and(warp::get())
                 .and(warp::query::<ListOptions>())
                 .and_then(list))
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "sources" / "search"))
+                .and(warp::get())
+                .and(warp::query::<ListOptions>())
+                .and_then(search))
             .or(authenticate_remote_req()
                 .and(warp::path!("workspaces" / String / "sources" / i32))
                 .and(warp::delete())
@@ -550,19 +587,22 @@ pub(crate) mod stat {
 
 pub(crate) mod unit {
     use super::SuccessResponse;
+    use futures::try_join;
+    use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
     use warp::Filter;
 
     use crate::handlers::workspace as handlers;
     use crate::http::authenticate_remote_req;
-    use crate::types::ReqCtx;
+    use crate::types::{ReqCtx, SearchResponse};
 
     // The query parameters for list data.
     #[derive(Debug, Deserialize)]
     pub struct ListOptions {
         pub page: Option<usize>,
         pub size: Option<usize>,
+        pub q: Option<String>,
     }
 
     #[instrument]
@@ -578,6 +618,35 @@ pub(crate) mod unit {
         Ok(warp::reply::json(&response))
     }
 
+    #[instrument]
+    async fn search(
+        _ctx: ReqCtx,
+        workspace: String,
+        opts: ListOptions,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        // FIXME: Return a 4XX error if query isn't set
+        let query_opt = opts.q.unwrap_or("".to_string());
+        let query = percent_decode_str(&query_opt).decode_utf8_lossy();
+        let query2 = query.clone();
+
+        let (data, total) = try_join!(
+            handlers::search_data(
+                &workspace,
+                &query,
+                opts.page.unwrap_or(0),
+                opts.size.unwrap_or(20),
+            ),
+            handlers::stat_data_total_search(&workspace, &query2)
+        )?;
+
+        let response = SuccessResponse::new(SearchResponse {
+            data,
+            total: total.value,
+        });
+
+        Ok(warp::reply::json(&response))
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         authenticate_remote_req()
@@ -585,5 +654,10 @@ pub(crate) mod unit {
             .and(warp::get())
             .and(warp::query::<ListOptions>())
             .and_then(data)
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "data" / "search"))
+                .and(warp::get())
+                .and(warp::query::<ListOptions>())
+                .and_then(search))
     }
 }

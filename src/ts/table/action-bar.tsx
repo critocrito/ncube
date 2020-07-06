@@ -20,7 +20,11 @@ const ActionBar = <T extends {id: number}>({
 }: ActionBarProps<T>) => {
   const {state} = instance;
 
-  const classes = c("flex justify-between items-center", className);
+  const classes = c(
+    "flex justify-between items-center",
+    onCreate ? undefined : "fr",
+    className,
+  );
   const countSelectedItems = Object.keys(state.selectedRowIds).length;
 
   const createButton = onCreate ? (

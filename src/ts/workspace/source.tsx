@@ -52,7 +52,7 @@ const Source = ({workspace, stats}: SourceProps) => {
         <div>
           <SourcesTable
             workspace={workspace}
-            total={total}
+            totalStat={total}
             onCreate={() => send("CREATE_SOURCE")}
             onDelete={(source) => send("DELETE_SOURCE", {source})}
             handleSelected={console.log}
@@ -82,7 +82,7 @@ const Source = ({workspace, stats}: SourceProps) => {
 
           <SourcesTable
             workspace={workspace}
-            total={total}
+            totalStat={total}
             onCreate={() => send("CREATE_SOURCE")}
             onDelete={(source) => send("DELETE_SOURCE", {source})}
             handleSelected={console.log}
@@ -138,7 +138,7 @@ const Source = ({workspace, stats}: SourceProps) => {
 
               <SourcesTable
                 workspace={workspace}
-                total={total}
+                totalStat={total}
                 onCreate={() => send("CREATE_SOURCE")}
                 onDelete={(source) => send("DELETE_SOURCE", {source})}
                 handleSelected={console.log}
