@@ -1,16 +1,17 @@
+import c from "classnames";
 import React, {useCallback, useMemo, useState} from "react";
 import {Cell, Column} from "react-table";
 
 import QueryTag from "../common/query-tag";
 import SourceTag from "../common/source-tag";
-import {listSources} from "../http";
+import {listSources, searchSources} from "../http";
 import Table from "../table";
 import SelectColumnFilter from "../table/select-filter";
 import {Source, SourceTag as Tag, Workspace} from "../types";
 
 interface SourcesTableProps {
   workspace: Workspace;
-  total: number;
+  totalStat: number;
   onCreate: () => void;
   handleSelected: (ids: string[]) => void;
   onDelete: (source: Source) => void;
@@ -31,23 +32,36 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
 
 const SourcesTable = ({
   workspace,
-  total,
+  totalStat,
   onCreate,
   onDelete,
   handleSelected,
 }: SourcesTableProps) => {
   const [data, setData] = useState<Source[]>([]);
   const [loading, setLoading] = useState(false);
-  const [pageCount, setPageCount] = useState(0);
+  const [total, setTotal] = useState(totalStat);
 
   const fetchData = useCallback(
-    async (pageIndex: number, pageSize: number) => {
+    async (query: string, pageIndex: number, pageSize: number) => {
       setLoading(true);
-      setData(await listSources(workspace.slug, pageIndex, pageSize));
-      setPageCount(Math.ceil(total / pageSize));
+
+      if (query === "") {
+        setData(await listSources(workspace.slug, pageIndex, pageSize));
+        setTotal(totalStat);
+      } else {
+        const {data: sources, total: newTotal} = await searchSources(
+          workspace.slug,
+          query,
+          pageIndex,
+          pageSize,
+        );
+        setData(sources);
+        setTotal(newTotal);
+      }
+
       setLoading(false);
     },
-    [total, workspace],
+    [totalStat, workspace],
   );
 
   const columns: Column<Source>[] = useMemo(
@@ -107,18 +121,21 @@ const SourcesTable = ({
   // FIXME: Do I need to wrap the handlers in useCallback?
 
   return (
-    <Table<Source>
-      name="sourcesTable"
-      handleSelected={handleSelected}
-      onCreate={onCreate}
-      onDelete={onDelete}
-      data={data}
-      columns={columns}
-      fetchData={fetchData}
-      loading={loading}
-      pageCount={pageCount}
-      total={total}
-    />
+    <div
+      className={c("flex flex-column", loading ? "o-40 no-hover" : undefined)}
+    >
+      <Table<Source>
+        name="sourcesTable"
+        handleSelected={handleSelected}
+        onCreate={onCreate}
+        onDelete={onDelete}
+        data={data}
+        columns={columns}
+        fetchData={fetchData}
+        loading={loading}
+        total={total}
+      />
+    </div>
   );
 };
 

@@ -1,4 +1,4 @@
-pub use ncube_data::{AnnotationKind, QueryTag, WorkspaceKind};
+pub use ncube_data::{AnnotationKind, QueryTag, Unit, WorkspaceKind};
 
 use serde::{Deserialize, Serialize};
 use slugify::slugify;
@@ -86,4 +86,10 @@ pub struct ReqCtx {
 #[derive(Debug, Deserialize)]
 pub struct LoginResponse {
     pub token: String,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct SearchResponse<T> {
+    pub data: Vec<T>,
+    pub total: i32,
 }

@@ -153,6 +153,25 @@ export const listSources = async (
   return dataResponse(resp);
 };
 
+export const searchSources = async (
+  workspace: string,
+  query: string,
+  pageIndex = 0,
+  pageSize = 20,
+): Promise<{data: Source[]; total: number}> => {
+  const url = new URL(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/sources/search`,
+  );
+
+  url.searchParams.append("page", pageIndex.toString());
+  url.searchParams.append("size", pageSize.toString());
+  url.searchParams.append("q", encodeURIComponent(query));
+
+  const resp = await fetch(url.toString());
+
+  return dataResponse(resp);
+};
+
 export const createSource = async (
   workspace: string,
   body: SourceReq,
@@ -196,7 +215,7 @@ export const listSourceTags = async (
 };
 
 /*
- * Sources
+ * Data
  */
 export const listUnits = async (
   workspace: string,
@@ -209,6 +228,25 @@ export const listUnits = async (
 
   url.searchParams.append("page", pageIndex.toString());
   url.searchParams.append("size", pageSize.toString());
+
+  const resp = await fetch(url.toString());
+
+  return dataResponse(resp);
+};
+
+export const searchUnits = async (
+  workspace: string,
+  query: string,
+  pageIndex = 0,
+  pageSize = 20,
+): Promise<{data: Unit[]; total: number}> => {
+  const url = new URL(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/data/search`,
+  );
+
+  url.searchParams.append("page", pageIndex.toString());
+  url.searchParams.append("size", pageSize.toString());
+  url.searchParams.append("q", encodeURIComponent(query));
 
   const resp = await fetch(url.toString());
 

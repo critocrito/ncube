@@ -1,4 +1,4 @@
-use ncube_data::{QueryTag, Source};
+use ncube_data::{QueryTag, Source, Stat};
 use tracing::{error, instrument};
 
 use crate::actors::{
@@ -7,7 +7,7 @@ use crate::actors::{
     Registry,
 };
 use crate::errors::HandlerError;
-use crate::stores::{source_store, workspace_store, WorkspaceStore};
+use crate::stores::{source_store, stat_store, workspace_store, WorkspaceStore};
 use crate::types::SourceRequest;
 
 #[instrument]
@@ -70,6 +70,42 @@ pub async fn list_sources(
 
     let store = source_store(database);
     let sources = store.list(&workspace, page, page_size).await?;
+
+    Ok(sources)
+}
+
+#[instrument]
+pub async fn search_sources(
+    workspace: &str,
+    query: &str,
+    page: i32,
+    page_size: i32,
+) -> Result<Vec<Source>, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+
+    let mut database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.slug.clone(),
+        })
+        .await??;
+
+    database.login().await?;
+
+    let store = source_store(database);
+    let sources = store.search(&workspace, &query, page, page_size).await?;
 
     Ok(sources)
 }
@@ -175,4 +211,31 @@ pub async fn list_source_tags(workspace: &str) -> Result<Vec<QueryTag>, HandlerE
     let sources = store.list_source_tags(&workspace.slug).await?;
 
     Ok(sources)
+}
+
+#[instrument]
+pub async fn stat_sources_total_search(workspace: &str, query: &str) -> Result<Stat, HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.to_string(),
+        })
+        .await??;
+
+    let stat_store = stat_store(database);
+
+    let stats = stat_store.sources_total_search(&query).await?;
+
+    Ok(stats)
 }

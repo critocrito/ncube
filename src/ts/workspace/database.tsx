@@ -2,13 +2,11 @@ import {useMachine} from "@xstate/react";
 import React from "react";
 
 // import Button from "../common/button";
-// import Error from "../common/error";
+import Error from "../common/error";
 import Fatal from "../common/fatal";
 // import FormHandler from "../common/form-handler";
 // import Modal from "../common/modal";
 import {useAppCtx} from "../context";
-// import {createSource, listSources, removeSource} from "../http";
-import {listSources} from "../http";
 import machine from "../machines/database";
 import {DataStats, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -22,10 +20,6 @@ interface DatabaseProps {
 
 const Database = ({workspace, stats}: DatabaseProps) => {
   const [state, send, service] = useMachine(machine, {
-    services: {
-      fetchData: (_ctx, _ev) => listSources(workspace.slug),
-    },
-
     context: {
       workspace,
     },
@@ -34,6 +28,8 @@ const Database = ({workspace, stats}: DatabaseProps) => {
   useServiceLogger(service, machine.id);
 
   const [, appSend] = useAppCtx();
+
+  const {error} = state.context;
   const {total} = stats;
 
   switch (true) {
@@ -55,8 +51,16 @@ const Database = ({workspace, stats}: DatabaseProps) => {
       return (
         <DataTable
           workspace={workspace}
-          total={total}
+          totalStat={total}
           handleSelected={console.log}
+        />
+      );
+
+    case state.matches("error"):
+      return (
+        <Error
+          msg={error || "Failed to fetch sources."}
+          recover={() => send("RETRY")}
         />
       );
 

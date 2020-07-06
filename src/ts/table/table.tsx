@@ -1,6 +1,6 @@
 /* eslint react/jsx-props-no-spreading: off */
 import c from "classnames";
-import React, {PropsWithChildren, useEffect} from "react";
+import React, {PropsWithChildren, useEffect, useState} from "react";
 import {
   CellProps,
   // FilterProps,
@@ -15,6 +15,7 @@ import {
   useTable,
 } from "react-table";
 
+import SearchBar from "../workspace/search-bar";
 import ActionBar from "./action-bar";
 import DeleteRow from "./delete-row";
 // import {fuzzyTextFilter} from "./filters";
@@ -41,12 +42,12 @@ import SelectRow from "./select-row";
 export interface TableProps<T extends {id: number}> extends TableOptions<T> {
   name: string;
   total: number;
-  pageCount: number;
   loading: boolean;
+  handleSelected: (ids: string[]) => void;
+  fetchData: (query: string, page: number, size: number) => void;
   onCreate?: () => void;
   onDelete?: (item: T) => void;
-  handleSelected: (ids: string[]) => void;
-  fetchData: (page: number, size: number) => void;
+  hasSearch?: boolean;
 }
 
 const selectHook = <T extends {id: number}>(hooks: Hooks<T>) => {
@@ -94,8 +95,13 @@ const Table = <T extends {id: number}>({
   onCreate,
   onDelete,
   fetchData,
-  pageCount: controlledPageCount,
+  hasSearch = false,
 }: PropsWithChildren<TableProps<T>>) => {
+  const [query, setQuery] = useState("");
+  const [controlledPageSize] = useState(20);
+
+  const controlledPageCount = Math.ceil(total / controlledPageSize);
+
   const baseClass = "ba b--gray-25";
   const cellClass = c(baseClass, "text-medium");
   //
@@ -121,15 +127,21 @@ const Table = <T extends {id: number}>({
       // filterTypes,
       initialState: {
         pageIndex: 0,
-        pageSize: 20,
+        pageSize: controlledPageSize,
       },
       manualPagination: true,
+      autoResetPage: true,
       pageCount: controlledPageCount,
       getRowId: (row: T, _relativeIndex: number, _parent?: Row<T>): string =>
         row.id.toString(),
     },
     ...hooks,
   );
+
+  const handleSearch = (q: string) => {
+    instance.state.pageIndex = 0;
+    setQuery(q);
+  };
 
   const {
     getTableProps,
@@ -143,13 +155,17 @@ const Table = <T extends {id: number}>({
   } = instance;
 
   useEffect(() => {
-    fetchData(pageIndex, pageSize);
-  }, [fetchData, pageIndex, pageSize]);
+    fetchData(query, pageIndex, pageSize);
+  }, [fetchData, pageIndex, pageSize, query]);
 
   return (
-    <div
-      className={c("flex flex-column", loading ? "o-40 no-hover" : undefined)}
-    >
+    <div>
+      {hasSearch && (
+        <div className="w-50 mt2 mb2">
+          <SearchBar onSearch={handleSearch} />
+        </div>
+      )}
+
       <ActionBar
         instance={instance}
         className="mb3"
