@@ -7,7 +7,7 @@ use crate::actors::{
     Registry,
 };
 use crate::errors::HandlerError;
-use crate::stores::{source_store, stat_store, workspace_store, WorkspaceStore};
+use crate::stores::{search_store, source_store, stat_store, workspace_store, WorkspaceStore};
 use crate::types::SourceRequest;
 
 #[instrument]
@@ -92,20 +92,17 @@ pub async fn search_sources(
         return Err(HandlerError::Invalid(msg));
     };
 
-    let workspace = workspace_store.show_by_slug(&workspace).await?;
-
     let mut database_actor = DatabaseActor::from_registry().await.unwrap();
-
     let mut database = database_actor
         .call(LookupDatabase {
-            workspace: workspace.slug.clone(),
+            workspace: workspace.to_string(),
         })
         .await??;
 
     database.login().await?;
 
-    let store = source_store(database);
-    let sources = store.search(&workspace, &query, page, page_size).await?;
+    let store = search_store(database);
+    let sources = store.sources(&workspace, &query, page, page_size).await?;
 
     Ok(sources)
 }

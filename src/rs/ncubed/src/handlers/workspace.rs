@@ -9,7 +9,7 @@ use crate::actors::{
 };
 use crate::errors::HandlerError;
 use crate::handlers::account;
-use crate::stores::{stat_store, unit_store, workspace_store, WorkspaceStore};
+use crate::stores::{search_store, stat_store, unit_store, workspace_store, WorkspaceStore};
 use crate::types::{AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 
 #[instrument]
@@ -72,6 +72,17 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
                 .await?;
             let mut actor = TaskActor::from_registry().await.unwrap();
             actor.call(SetupWorkspace { location }).await??;
+
+            // Generate the search indices and triggers for this workspace.
+            let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+            let database = database_actor
+                .call(LookupDatabase {
+                    workspace: workspace.clone(),
+                })
+                .await??;
+            let search_store = search_store(database);
+            search_store.unit_index().await?;
+            search_store.source_index().await?;
         }
         WorkspaceKindRequest::Remote {
             endpoint, account, ..
@@ -375,8 +386,8 @@ pub async fn stat_data_videos(workspace: &str) -> Result<Stat, HandlerError> {
 #[instrument]
 pub async fn list_data(
     workspace: &str,
-    page: usize,
-    page_size: usize,
+    page: i32,
+    page_size: i32,
 ) -> Result<Vec<Unit>, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
@@ -407,8 +418,8 @@ pub async fn list_data(
 pub async fn search_data(
     workspace: &str,
     query: &str,
-    page: usize,
-    page_size: usize,
+    page: i32,
+    page_size: i32,
 ) -> Result<Vec<Unit>, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
@@ -428,9 +439,11 @@ pub async fn search_data(
         })
         .await??;
 
-    let unit_store = unit_store(database);
+    let search_store = search_store(database);
 
-    let data = unit_store.search(&query, page, page_size).await?;
+    let data = search_store
+        .data(&workspace, &query, page, page_size)
+        .await?;
 
     Ok(data)
 }

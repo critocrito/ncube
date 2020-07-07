@@ -25,14 +25,6 @@ pub(crate) trait SourceStore {
         page: i32,
         page_size: i32,
     ) -> Result<Vec<Source>, StoreError>;
-    async fn search(
-        &self,
-        workspace: &Workspace,
-        query: &str,
-        page: i32,
-        page_size: i32,
-    ) -> Result<Vec<Source>, StoreError>;
-
     async fn delete(&self, id: i32) -> Result<(), StoreError>;
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
     async fn list_source_tags(&self, slug: &str) -> Result<Vec<QueryTag>, StoreError>;
@@ -120,39 +112,6 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn search(
-        &self,
-        _workspace: &Workspace,
-        query: &str,
-        page: i32,
-        page_size: i32,
-    ) -> Result<Vec<Source>, StoreError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/source/paginated-search.sql"))?;
-        let mut stmt2 =
-            conn.prepare_cached(include_str!("../sql/source/list-query-tags-for-query.sql"))?;
-
-        let offset = page * page_size;
-        let mut sources: Vec<Source> = vec![];
-
-        for source in from_rows::<Source>(stmt.query(params![&query, offset, page_size])?) {
-            let mut source = source?;
-
-            let mut tags: Vec<QueryTag> = vec![];
-
-            for tag in from_rows::<QueryTag>(stmt2.query(params![source.id])?) {
-                tags.push(tag?)
-            }
-
-            source.tags = tags;
-
-            sources.push(source);
-        }
-
-        Ok(sources)
-    }
-
-    #[instrument]
     async fn delete(&self, id: i32) -> Result<(), StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt =
@@ -219,20 +178,6 @@ impl SourceStore for SourceStoreHttp {
         _page_size: i32,
     ) -> Result<Vec<Source>, StoreError> {
         let url_path = format!("/api/workspaces/{}/sources", workspace.slug);
-        let data: Vec<Source> = self.client.get(&url_path).await?.unwrap_or_else(|| vec![]);
-
-        Ok(data)
-    }
-
-    #[instrument]
-    async fn search(
-        &self,
-        workspace: &Workspace,
-        _query: &str,
-        _page: i32,
-        _page_size: i32,
-    ) -> Result<Vec<Source>, StoreError> {
-        let url_path = format!("/api/workspaces/{}/sources/search", workspace.slug);
         let data: Vec<Source> = self.client.get(&url_path).await?.unwrap_or_else(|| vec![]);
 
         Ok(data)

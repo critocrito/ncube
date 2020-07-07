@@ -600,8 +600,8 @@ pub(crate) mod unit {
     // The query parameters for list data.
     #[derive(Debug, Deserialize)]
     pub struct ListOptions {
-        pub page: Option<usize>,
-        pub size: Option<usize>,
+        pub page: Option<i32>,
+        pub size: Option<i32>,
         pub q: Option<String>,
     }
 
