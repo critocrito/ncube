@@ -1,31 +1,28 @@
 import c from "classnames";
 import React from "react";
-import {TableInstance} from "react-table";
 
 import Button from "../common/button";
 // import addIcon from "../../../resources/public/images/icon_add.svg";
 
 interface ActionBarProps<T extends {id: number}> {
-  instance: TableInstance<T>;
-  handleSelected: (ids: string[]) => void;
+  selected: T[];
+  onProcessSelected: () => void;
   onCreate?: () => void;
   className?: string;
 }
 
 const ActionBar = <T extends {id: number}>({
-  instance,
+  selected = [],
   onCreate,
-  handleSelected,
+  onProcessSelected,
   className,
 }: ActionBarProps<T>) => {
-  const {state} = instance;
-
   const classes = c(
-    "flex justify-between items-center",
+    "flex justify-between items-center mb3",
     onCreate ? undefined : "fr",
     className,
   );
-  const countSelectedItems = Object.keys(state.selectedRowIds).length;
+  const countSelectedItems = selected.length;
 
   const createButton = onCreate ? (
     <Button className="flex items-center" onClick={onCreate} kind="secondary">
@@ -53,7 +50,7 @@ const ActionBar = <T extends {id: number}>({
         </span>
       )}
       <Button
-        onClick={() => handleSelected(Object.keys(state.selectedRowIds))}
+        onClick={onProcessSelected}
         disabled={countSelectedItems === 0}
         size="large"
       >

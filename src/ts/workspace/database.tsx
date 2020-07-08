@@ -1,11 +1,8 @@
 import {useMachine} from "@xstate/react";
 import React from "react";
 
-// import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
-// import FormHandler from "../common/form-handler";
-// import Modal from "../common/modal";
 import {useAppCtx} from "../context";
 import machine from "../machines/database";
 import {DataStats, Workspace} from "../types";
@@ -48,13 +45,7 @@ const Database = ({workspace, stats}: DatabaseProps) => {
       );
 
     case state.matches("exploration"):
-      return (
-        <DataTable
-          workspace={workspace}
-          totalStat={total}
-          handleSelected={console.log}
-        />
-      );
+      return <DataTable workspace={workspace} totalStat={total} />;
 
     case state.matches("error"):
       return (

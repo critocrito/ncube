@@ -1,17 +1,23 @@
+import {useMachine} from "@xstate/react";
 import c from "classnames";
-import React, {useCallback, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import {Cell, Column} from "react-table";
 
+import Error from "../common/error";
+import Fatal from "../common/fatal";
+import Modal from "../common/modal";
 import SourceTag from "../common/source-tag";
 import {listUnits, searchUnits} from "../http";
+import machine from "../machines/table";
 import Table from "../table";
-import SelectColumnFilter from "../table/select-filter";
+import ActionBar from "../table/action-bar";
 import {Unit, Workspace} from "../types";
+import {useServiceLogger} from "../utils";
+import SearchBar from "./search-bar";
 
 interface DataTableProps {
   workspace: Workspace;
   totalStat: number;
-  handleSelected: (ids: string[]) => void;
 }
 
 const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
@@ -27,33 +33,47 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
   }
 };
 
-const DataTable = ({workspace, totalStat, handleSelected}: DataTableProps) => {
-  const [data, setData] = useState<Unit[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(totalStat);
+const DataTable = ({workspace, totalStat}: DataTableProps) => {
+  const [state, send, service] = useMachine(machine, {
+    services: {
+      fetchData: async (_ctx, {query, pageIndex, pageSize}) => {
+        if (query === "") {
+          const units = await listUnits(workspace.slug, pageIndex, pageSize);
+          return {data: units, total: totalStat};
+        }
+        return searchUnits(workspace.slug, query, pageIndex, pageSize);
+      },
+    },
+
+    context: {
+      query: "",
+      pageIndex: 0,
+      pageSize: 20,
+      results: [],
+      selected: [],
+      total: totalStat,
+    },
+  });
+
+  useServiceLogger(service, machine.id);
+
+  const {error, total, results, selected, query} = state.context;
 
   const fetchData = useCallback(
-    async (query: string, pageIndex: number, pageSize: number) => {
-      setLoading(true);
-
-      if (query === "") {
-        setData(await listUnits(workspace.slug, pageIndex, pageSize));
-        setTotal(totalStat);
-      } else {
-        const {data: units, total: newTotal} = await searchUnits(
-          workspace.slug,
-          query,
-          pageIndex,
-          pageSize,
-        );
-        setData(units);
-        setTotal(newTotal);
-      }
-
-      setLoading(false);
+    async (pageIndex: number, pageSize: number) => {
+      send("SEARCH", {query, pageIndex, pageSize});
     },
-    [totalStat, workspace],
+    [send, query],
   );
+
+  // Force the initial fetch of data.
+  useEffect(() => {
+    send("SEARCH", {
+      query: state.context.query,
+      pageIndex: state.context.pageIndex,
+      pageSize: state.context.pageSize,
+    });
+  }, [send, state]);
 
   const columns: Column<Unit>[] = useMemo(
     () => [
@@ -65,15 +85,12 @@ const DataTable = ({workspace, totalStat, handleSelected}: DataTableProps) => {
       {
         Header: "Url",
         accessor: "href",
-        filter: "fuzzyText",
         Cell: ({value}: Cell) => (value ? decodeURI(String(value)) : ""),
       },
 
       {
         Header: "Source",
         accessor: "source",
-        Filter: SelectColumnFilter,
-        filter: "includes",
         minWidth: 60,
         width: 60,
         maxWidth: 60,
@@ -90,24 +107,130 @@ const DataTable = ({workspace, totalStat, handleSelected}: DataTableProps) => {
     [],
   );
 
-  // FIXME: Do I need to wrap the handlers in useCallback?
-
-  return (
-    <div
-      className={c("flex flex-column", loading ? "o-40 no-hover" : undefined)}
-    >
-      <Table<Unit>
-        name="sourcesTable"
-        handleSelected={handleSelected}
-        data={data}
-        columns={columns}
-        fetchData={fetchData}
-        loading={loading}
-        total={total}
-        hasSearch
-      />
-    </div>
+  const handleDetails = useCallback(
+    (unit: Unit) => send("SHOW_DETAILS", {item: unit}),
+    [send],
   );
+
+  const handleSelect = useCallback(
+    (units: Unit[]) => send("SET_SELECTION", {selected: units}),
+    [send],
+  );
+
+  switch (true) {
+    // eslint-disable-next-line no-fallthrough
+    case state.matches("fetch"):
+    case state.matches("table"): {
+      const loading = !!state.matches("fetch");
+
+      return (
+        <div
+          className={c(
+            "flex flex-column",
+            loading ? "o-40 no-hover" : undefined,
+          )}
+        >
+          <div className="w-50 mt2 mb2">
+            <SearchBar
+              initialQuery={query}
+              onSearch={(q) =>
+                send("SEARCH", {query: q, pageIndex: 0, pageSize: 20})
+              }
+            />
+          </div>
+
+          <ActionBar
+            selected={selected}
+            onProcessSelected={() => console.log(selected)}
+          />
+
+          <Table<Unit>
+            name="dataTable"
+            data={results as Unit[]}
+            selected={selected as Unit[]}
+            columns={columns}
+            fetchData={fetchData}
+            total={total}
+            controlledPageIndex={state.context.pageIndex}
+            controlledPageSize={state.context.pageSize}
+            onDetails={handleDetails}
+            onSelect={handleSelect}
+            loading={loading}
+          />
+        </div>
+      );
+    }
+
+    case state.matches("details"):
+      switch (state.event.type) {
+        case "SHOW_DETAILS": {
+          const {id} = state.event.item;
+
+          return (
+            <div>
+              <Modal
+                onCancel={() => send("SHOW_TABLE")}
+                title="Confirm"
+                description="Describing this modal"
+              >
+                <div className="flex flex-column">{id}</div>
+              </Modal>
+              <div className="flex flex-column">
+                <div className="w-50 mt2 mb2">
+                  <SearchBar
+                    initialQuery={query}
+                    onSearch={(q) =>
+                      send("SEARCH", {
+                        query: q,
+                        pageIndex: 0,
+                        pageSize: 20,
+                      })
+                    }
+                  />
+                </div>
+
+                <Table<Unit>
+                  name="dataTable"
+                  data={results as Unit[]}
+                  selected={selected as Unit[]}
+                  columns={columns}
+                  fetchData={fetchData}
+                  total={total}
+                  controlledPageIndex={state.context.pageIndex}
+                  controlledPageSize={state.context.pageSize}
+                  onDetails={handleDetails}
+                  onSelect={handleSelect}
+                />
+              </div>
+            </div>
+          );
+        }
+
+        default:
+          return (
+            <Fatal
+              msg={`Source route didn't match any valid state: ${state.value}`}
+              reset={() => send("RETRY")}
+            />
+          );
+      }
+
+    case state.matches("error"):
+      return (
+        <Error
+          msg={error || "Failed to fetch sources."}
+          recover={() => send("RETRY")}
+        />
+      );
+
+    default:
+      return (
+        <Fatal
+          msg={`Source route didn't match any valid state: ${state.value}`}
+          reset={() => send("RETRY")}
+        />
+      );
+  }
 };
 
 export default DataTable;

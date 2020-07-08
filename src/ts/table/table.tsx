@@ -1,53 +1,35 @@
 /* eslint react/jsx-props-no-spreading: off */
 import c from "classnames";
-import React, {PropsWithChildren, useEffect, useState} from "react";
+import React, {PropsWithChildren, useEffect} from "react";
 import {
   CellProps,
-  // FilterProps,
   HeaderProps,
   Hooks,
+  IdType,
   Row,
   TableOptions,
-  // useFilters,
   useFlexLayout,
   usePagination,
   useRowSelect,
   useTable,
 } from "react-table";
 
-import SearchBar from "../workspace/search-bar";
-import ActionBar from "./action-bar";
 import DeleteRow from "./delete-row";
-// import {fuzzyTextFilter} from "./filters";
 import Pagination from "./pagination";
 import SelectRow from "./select-row";
 
-// Define a default UI for filtering
-// const DefaultColumnFilter = <T extends Record<string, unknown>>({
-//   column: {filterValue, preFilteredRows, setFilter},
-// }: FilterProps<T>) => {
-//   const count = preFilteredRows.length;
-//
-//   return (
-//     <input
-//       value={filterValue || ""}
-//       onChange={(e) => {
-//         setFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
-//       }}
-//       placeholder={`Search ${count} records...`}
-//     />
-//   );
-// };
-
 export interface TableProps<T extends {id: number}> extends TableOptions<T> {
   name: string;
+  selected: T[];
   total: number;
-  loading: boolean;
-  handleSelected: (ids: string[]) => void;
-  fetchData: (query: string, page: number, size: number) => void;
-  onCreate?: () => void;
+  controlledPageIndex: number;
+  controlledPageSize: number;
+  fetchData: (page: number, size: number) => void;
+  loading?: boolean;
+  query?: string;
+  onSelect: (items: T[]) => void;
+  onDetails?: (item: T) => void;
   onDelete?: (item: T) => void;
-  hasSearch?: boolean;
 }
 
 const selectHook = <T extends {id: number}>(hooks: Hooks<T>) => {
@@ -78,59 +60,50 @@ const selectHook = <T extends {id: number}>(hooks: Hooks<T>) => {
   ]);
 };
 
-const hooks = [
-  // useFilters,
-  useFlexLayout,
-  usePagination,
-  useRowSelect,
-  selectHook,
-];
+const hooks = [useFlexLayout, usePagination, useRowSelect, selectHook];
 
 const Table = <T extends {id: number}>({
   data,
+  selected,
   columns,
   total,
-  loading,
-  handleSelected,
-  onCreate,
-  onDelete,
+  controlledPageIndex,
+  controlledPageSize,
   fetchData,
-  hasSearch = false,
+  onSelect,
+  onDetails,
+  onDelete,
+  loading = false,
 }: PropsWithChildren<TableProps<T>>) => {
-  const [query, setQuery] = useState("");
-  const [controlledPageSize] = useState(20);
-
   const controlledPageCount = Math.ceil(total / controlledPageSize);
 
   const baseClass = "ba b--gray-25";
   const cellClass = c(baseClass, "text-medium");
-  //
-  //   const filterTypes = useMemo(
-  //     () => ({
-  //       fuzzyText: fuzzyTextFilter,
-  //     }),
-  //     [],
-  //   );
-  //
-  //   const defaultColumn = useMemo(
-  //     () => ({
-  //       Filter: DefaultColumnFilter,
-  //     }),
-  //     [],
-  //   );
 
-  const instance = useTable<T>(
+  const {
+    getTableProps,
+    headerGroups,
+    getTableBodyProps,
+    page,
+    prepareRow,
+    gotoPage,
+    selectedFlatRows,
+    state: {pageIndex, pageSize},
+  } = useTable<T>(
     {
       columns,
       data,
-      // defaultColumn,
-      // filterTypes,
       initialState: {
-        pageIndex: 0,
+        pageIndex: controlledPageIndex,
         pageSize: controlledPageSize,
+        selectedRowIds: selected.reduce(
+          (memo, {id}) => Object.assign(memo, {[id]: true}),
+          {} as Record<IdType<T>, boolean>,
+        ),
       },
       manualPagination: true,
-      autoResetPage: true,
+      autoResetPage: false,
+      autoResetSelectedRows: false,
       pageCount: controlledPageCount,
       getRowId: (row: T, _relativeIndex: number, _parent?: Row<T>): string =>
         row.id.toString(),
@@ -138,41 +111,20 @@ const Table = <T extends {id: number}>({
     ...hooks,
   );
 
-  const handleSearch = (q: string) => {
-    instance.state.pageIndex = 0;
-    setQuery(q);
-  };
-
-  const {
-    getTableProps,
-    headerGroups,
-    getTableBodyProps,
-    page,
-    pageCount,
-    prepareRow,
-    gotoPage,
-    state: {pageIndex, pageSize},
-  } = instance;
+  useEffect(() => {
+    // We avoid unnecessary requests and rerenders
+    if (pageIndex !== controlledPageIndex || pageSize !== controlledPageSize)
+      fetchData(pageIndex, pageSize);
+  }, [fetchData, pageIndex, pageSize, controlledPageIndex, controlledPageSize]);
 
   useEffect(() => {
-    fetchData(query, pageIndex, pageSize);
-  }, [fetchData, pageIndex, pageSize, query]);
+    if (selected.length !== selectedFlatRows.length) {
+      onSelect(selectedFlatRows.map((row: Row<T>) => row.original));
+    }
+  }, [onSelect, selectedFlatRows, selected]);
 
   return (
     <div>
-      {hasSearch && (
-        <div className="w-50 mt2 mb2">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-      )}
-
-      <ActionBar
-        instance={instance}
-        className="mb3"
-        onCreate={onCreate}
-        handleSelected={handleSelected}
-      />
-
       <table className="w-100 collapse ba b--sapphire" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
@@ -183,11 +135,6 @@ const Table = <T extends {id: number}>({
                   {...column.getHeaderProps()}
                 >
                   {column.render("Header")}
-                  {column.canFilter ? (
-                    <span className="ml2">{column.render("Filter")}</span>
-                  ) : (
-                    ""
-                  )}
                 </th>
               ))}
             </tr>
@@ -217,7 +164,18 @@ const Table = <T extends {id: number}>({
                 {restCells.map((cell) => {
                   return (
                     <td className={cellClass} {...cell.getCellProps()}>
-                      {cell.render("Cell")}
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() =>
+                          onDetails ? onDetails(row.original) : {}
+                        }
+                        onKeyPress={() =>
+                          onDetails ? onDetails(row.original) : {}
+                        }
+                      >
+                        {cell.render("Cell")}
+                      </div>
                     </td>
                   );
                 })}
@@ -228,9 +186,9 @@ const Table = <T extends {id: number}>({
       </table>
 
       <Pagination
-        pageIndex={pageIndex}
-        pageSize={pageSize}
-        pageCount={pageCount}
+        pageIndex={controlledPageIndex}
+        pageSize={controlledPageSize}
+        pageCount={controlledPageCount}
         total={total}
         loading={loading}
         gotoPage={(p: number) => gotoPage(p)}

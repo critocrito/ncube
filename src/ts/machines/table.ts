@@ -1,0 +1,95 @@
+import {assign, createMachine} from "xstate";
+
+import {Source, Unit} from "../types";
+
+export interface TableContext<T extends {id: number}> {
+  query: string;
+  pageIndex: number;
+  pageSize: number;
+  total: number;
+  results: T[];
+  selected: T[];
+  error?: string;
+}
+
+export type TableEvent<T extends {id: number}> =
+  | {type: "SHOW_TABLE"}
+  | {type: "SHOW_DETAILS"; item: T}
+  | {type: "SET_SELECTION"; selected: T[]}
+  | {type: "SEARCH"; query: string; pageIndex: number; pageSize: number}
+  | {type: "RETRY"};
+
+export type TableState<T extends {id: number}> =
+  | {
+      value: "fetch" | "table" | "details";
+      context: TableContext<T>;
+    }
+  | {
+      value: "error";
+      context: TableContext<T> & {error: string};
+    };
+
+export default createMachine<
+  TableContext<Unit | Source>,
+  TableEvent<Unit | Source>,
+  TableState<Unit | Source>
+>({
+  id: "table",
+
+  initial: "table",
+
+  states: {
+    fetch: {
+      invoke: {
+        src: "fetchData",
+
+        onDone: {
+          target: "table",
+          actions: assign((_ctx, {data}) => ({
+            results: data.data,
+            total: data.total,
+            selected: [],
+          })),
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
+    table: {
+      on: {
+        SHOW_DETAILS: "details",
+
+        SEARCH: {
+          target: "fetch",
+          actions: assign((_ctx, {query, pageIndex, pageSize}) => ({
+            query,
+            pageIndex,
+            pageSize,
+          })),
+        },
+
+        SET_SELECTION: {
+          target: "table",
+          internal: true,
+          actions: assign({selected: (_ctx, {selected}) => selected}),
+        },
+      },
+    },
+
+    details: {
+      on: {
+        SHOW_TABLE: "table",
+      },
+    },
+
+    error: {
+      on: {
+        RETRY: "table",
+      },
+    },
+  },
+});
