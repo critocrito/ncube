@@ -1,19 +1,24 @@
+import {useMachine} from "@xstate/react";
 import c from "classnames";
-import React, {useCallback, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useMemo} from "react";
 import {Cell, Column} from "react-table";
 
+import Error from "../common/error";
+import Fatal from "../common/fatal";
+import Modal from "../common/modal";
 import QueryTag from "../common/query-tag";
 import SourceTag from "../common/source-tag";
 import {listSources, searchSources} from "../http";
+import machine from "../machines/table";
 import Table from "../table";
-import SelectColumnFilter from "../table/select-filter";
+import ActionBar from "../table/action-bar";
 import {Source, SourceTag as Tag, Workspace} from "../types";
+import {useServiceLogger} from "../utils";
 
 interface SourcesTableProps {
   workspace: Workspace;
   totalStat: number;
   onCreate: () => void;
-  handleSelected: (ids: string[]) => void;
   onDelete: (source: Source) => void;
 }
 
@@ -35,49 +40,59 @@ const SourcesTable = ({
   totalStat,
   onCreate,
   onDelete,
-  handleSelected,
 }: SourcesTableProps) => {
-  const [data, setData] = useState<Source[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(totalStat);
+  const [state, send, service] = useMachine(machine, {
+    services: {
+      fetchData: async (_ctx, {query, pageIndex, pageSize}) => {
+        if (query === "") {
+          const units = await listSources(workspace.slug, pageIndex, pageSize);
+          return {data: units, total: totalStat};
+        }
+        return searchSources(workspace.slug, query, pageIndex, pageSize);
+      },
+    },
+
+    context: {
+      query: "",
+      pageIndex: 0,
+      pageSize: 20,
+      results: [],
+      selected: [],
+      total: totalStat,
+    },
+  });
+
+  useServiceLogger(service, machine.id);
+
+  const {error, total, results, selected, query} = state.context;
 
   const fetchData = useCallback(
-    async (query: string, pageIndex: number, pageSize: number) => {
-      setLoading(true);
-
-      if (query === "") {
-        setData(await listSources(workspace.slug, pageIndex, pageSize));
-        setTotal(totalStat);
-      } else {
-        const {data: sources, total: newTotal} = await searchSources(
-          workspace.slug,
-          query,
-          pageIndex,
-          pageSize,
-        );
-        setData(sources);
-        setTotal(newTotal);
-      }
-
-      setLoading(false);
+    async (pageIndex: number, pageSize: number) => {
+      send("SEARCH", {query, pageIndex, pageSize});
     },
-    [totalStat, workspace],
+    [send, query],
   );
+
+  // Force the initial fetch of data.
+  useEffect(() => {
+    send("SEARCH", {
+      query: state.context.query,
+      pageIndex: state.context.pageIndex,
+      pageSize: state.context.pageSize,
+    });
+  }, [send, state]);
 
   const columns: Column<Source>[] = useMemo(
     () => [
       {
         Header: "Term",
         accessor: "term",
-        filter: "fuzzyText",
         Cell: ({value}: Cell) => decodeURI(String(value)),
       },
 
       {
         Header: "Type",
         accessor: "type",
-        Filter: SelectColumnFilter,
-        filter: "includes",
         minWidth: 60,
         width: 60,
         maxWidth: 60,
@@ -94,9 +109,6 @@ const SourcesTable = ({
       {
         Header: "Tags",
         accessor: "tags",
-        // Filter: SelectColumnFilter,
-        // filter: "includes",
-        disableFilters: true,
         minWidth: 40,
         width: 40,
         maxWidth: 40,
@@ -118,25 +130,115 @@ const SourcesTable = ({
     [],
   );
 
-  // FIXME: Do I need to wrap the handlers in useCallback?
-
-  return (
-    <div
-      className={c("flex flex-column", loading ? "o-40 no-hover" : undefined)}
-    >
-      <Table<Source>
-        name="sourcesTable"
-        handleSelected={handleSelected}
-        onCreate={onCreate}
-        onDelete={onDelete}
-        data={data}
-        columns={columns}
-        fetchData={fetchData}
-        loading={loading}
-        total={total}
-      />
-    </div>
+  const handleDetails = useCallback(
+    (source: Source) => send("SHOW_DETAILS", {item: source}),
+    [send],
   );
+
+  const handleSelect = useCallback(
+    (sources: Source[]) => send("SET_SELECTION", {selected: sources}),
+    [send],
+  );
+
+  switch (true) {
+    case state.matches("fetch"):
+    case state.matches("table"): {
+      const loading = !!state.matches("fetch");
+
+      return (
+        <div
+          className={c(
+            "flex flex-column",
+            loading ? "o-40 no-hover" : undefined,
+          )}
+        >
+          <ActionBar
+            selected={selected}
+            onProcessSelected={() => console.log(selected)}
+            onCreate={onCreate}
+          />
+
+          <Table<Source>
+            name="sourcesTable"
+            data={results as Source[]}
+            selected={selected as Source[]}
+            controlledPageIndex={state.context.pageIndex}
+            controlledPageSize={state.context.pageSize}
+            onDetails={handleDetails}
+            onSelect={handleSelect}
+            onDelete={onDelete}
+            loading={loading}
+            columns={columns}
+            fetchData={fetchData}
+            total={total}
+          />
+        </div>
+      );
+    }
+
+    case state.matches("details"):
+      switch (state.event.type) {
+        case "SHOW_DETAILS": {
+          const {id} = state.event.item;
+
+          return (
+            <div>
+              <Modal
+                onCancel={() => send("SHOW_TABLE")}
+                title="Confirm"
+                description="Describing this modal"
+              >
+                <div className="flex flex-column">{id}</div>
+              </Modal>
+              <div className="flex flex-column">
+                <ActionBar
+                  selected={selected}
+                  onProcessSelected={() => console.log(selected)}
+                  onCreate={onCreate}
+                />
+
+                <Table<Source>
+                  name="sourcesTable"
+                  data={results as Source[]}
+                  selected={selected as Source[]}
+                  controlledPageIndex={state.context.pageIndex}
+                  controlledPageSize={state.context.pageSize}
+                  onDetails={handleDetails}
+                  onSelect={handleSelect}
+                  columns={columns}
+                  fetchData={fetchData}
+                  total={total}
+                />
+              </div>
+            </div>
+          );
+        }
+
+        default:
+          return (
+            <Fatal
+              msg={`Sources table didn't match any valid state: ${state.value}`}
+              reset={() => send("RETRY")}
+            />
+          );
+      }
+
+    case state.matches("error"):
+      return (
+        <Error
+          msg={error || "Failed to fetch sources."}
+          recover={() => send("RETRY")}
+        />
+      );
+
+    default:
+      return (
+        <Fatal
+          msg={`Sources table didn't match any valid state: ${state.value}`}
+          reset={() => send("RETRY")}
+        />
+      );
+  }
 };
 
 export default SourcesTable;
