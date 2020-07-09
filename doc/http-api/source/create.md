@@ -16,7 +16,9 @@ Add a new source to a workspace.
 {
   "type": "youtube_video",
   "term": "https://youtube.com/watch?v=123456",
-  "annotations": []
+  "tags": [
+    {"label": "incident_code", "description": null}
+  ]
 }
 ```
 

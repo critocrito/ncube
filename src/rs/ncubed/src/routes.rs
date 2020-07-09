@@ -477,6 +477,7 @@ pub(crate) mod source_tag {
         Ok(warp::reply::json(&response))
     }
 
+    // FIXME: turn this into /workspaces/<workspace_id>/sources/tags endpoint
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         authenticate_remote_req()

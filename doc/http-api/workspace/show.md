@@ -3,7 +3,7 @@
 Show details of a single workspace. This endpoint responds only to local
 requests.
 
-**URL** : `/workspaces/<workspace_id`
+**URL** : `/workspaces/<workspace_id>`
 
 **Method** : `GET`
 
