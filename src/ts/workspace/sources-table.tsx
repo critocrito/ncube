@@ -3,12 +3,16 @@ import c from "classnames";
 import React, {useCallback, useEffect, useMemo} from "react";
 import {Cell, Column} from "react-table";
 
+import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
+import FormHandler from "../common/form-handler";
 import Modal from "../common/modal";
 import QueryTag from "../common/query-tag";
 import SourceTag from "../common/source-tag";
-import {listSources, searchSources} from "../http";
+import {useAppCtx} from "../context";
+import CreateSourceForm, {CreateSourceFormValues} from "../forms/create-source";
+import {createSource, listSources, removeSource, searchSources} from "../http";
 import machine from "../machines/table";
 import Table from "../table";
 import ActionBar from "../table/action-bar";
@@ -18,8 +22,6 @@ import {useServiceLogger} from "../utils";
 interface SourcesTableProps {
   workspace: Workspace;
   totalStat: number;
-  onCreate: () => void;
-  onDelete: (source: Source) => void;
 }
 
 const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
@@ -35,21 +37,29 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
   }
 };
 
-const SourcesTable = ({
-  workspace,
-  totalStat,
-  onCreate,
-  onDelete,
-}: SourcesTableProps) => {
+const saveSource = (
+  slug: string,
+  values: CreateSourceFormValues,
+): Promise<void> => {
+  return createSource(slug, values);
+};
+
+const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
-      fetchData: async (_ctx, {query, pageIndex, pageSize}) => {
+      listItems: async ({query, pageIndex, pageSize}, _ev) => {
         if (query === "") {
-          const units = await listSources(workspace.slug, pageIndex, pageSize);
-          return {data: units, total: totalStat};
+          const sources = await listSources(
+            workspace.slug,
+            pageIndex,
+            pageSize,
+          );
+          return {data: sources, total: totalStat};
         }
         return searchSources(workspace.slug, query, pageIndex, pageSize);
       },
+
+      deleteItem: (_ctx, {id}) => removeSource(workspace.slug, id),
     },
 
     context: {
@@ -64,23 +74,29 @@ const SourcesTable = ({
 
   useServiceLogger(service, machine.id);
 
-  const {error, total, results, selected, query} = state.context;
+  const [, appSend] = useAppCtx();
+
+  const {
+    error,
+    total,
+    results,
+    selected,
+    query,
+    pageIndex,
+    pageSize,
+  } = state.context;
 
   const fetchData = useCallback(
-    async (pageIndex: number, pageSize: number) => {
-      send("SEARCH", {query, pageIndex, pageSize});
+    (index: number, size: number) => {
+      send("SEARCH", {query, pageIndex: index, pageSize: size});
     },
     [send, query],
   );
 
   // Force the initial fetch of data.
   useEffect(() => {
-    send("SEARCH", {
-      query: state.context.query,
-      pageIndex: state.context.pageIndex,
-      pageSize: state.context.pageSize,
-    });
-  }, [send, state]);
+    fetchData(pageIndex, pageSize);
+  }, [fetchData, pageIndex, pageSize]);
 
   const columns: Column<Source>[] = useMemo(
     () => [
@@ -140,11 +156,42 @@ const SourcesTable = ({
     [send],
   );
 
-  switch (true) {
-    case state.matches("fetch"):
-    case state.matches("table"): {
-      const loading = !!state.matches("fetch");
+  const handleCreate = useCallback(() => send("CREATE"), [send]);
 
+  const handleDelete = useCallback((item: Source) => send("DELETE", {item}), [
+    send,
+  ]);
+
+  const actionBar = (
+    <ActionBar
+      selected={selected}
+      onProcessSelected={() => console.log(selected)}
+      onCreate={handleCreate}
+    />
+  );
+
+  const table = (
+    <Table<Source>
+      name="sourcesTable"
+      data={results as Source[]}
+      columns={columns}
+      selected={selected as Source[]}
+      total={total}
+      controlledPageIndex={state.context.pageIndex}
+      controlledPageSize={state.context.pageSize}
+      fetchData={fetchData}
+      onDetails={handleDetails}
+      onSelect={handleSelect}
+      onDelete={handleDelete}
+    />
+  );
+
+  const loading = !!state.matches("fetching") || !!state.matches("deleting");
+
+  switch (true) {
+    case state.matches("fetching"):
+    case state.matches("deleting"):
+    case state.matches("table"): {
       return (
         <div
           className={c(
@@ -152,26 +199,9 @@ const SourcesTable = ({
             loading ? "o-40 no-hover" : undefined,
           )}
         >
-          <ActionBar
-            selected={selected}
-            onProcessSelected={() => console.log(selected)}
-            onCreate={onCreate}
-          />
+          {actionBar}
 
-          <Table<Source>
-            name="sourcesTable"
-            data={results as Source[]}
-            selected={selected as Source[]}
-            controlledPageIndex={state.context.pageIndex}
-            controlledPageSize={state.context.pageSize}
-            onDetails={handleDetails}
-            onSelect={handleSelect}
-            onDelete={onDelete}
-            loading={loading}
-            columns={columns}
-            fetchData={fetchData}
-            total={total}
-          />
+          {table}
         </div>
       );
     }
@@ -191,24 +221,9 @@ const SourcesTable = ({
                 <div className="flex flex-column">{id}</div>
               </Modal>
               <div className="flex flex-column">
-                <ActionBar
-                  selected={selected}
-                  onProcessSelected={() => console.log(selected)}
-                  onCreate={onCreate}
-                />
+                {actionBar}
 
-                <Table<Source>
-                  name="sourcesTable"
-                  data={results as Source[]}
-                  selected={selected as Source[]}
-                  controlledPageIndex={state.context.pageIndex}
-                  controlledPageSize={state.context.pageSize}
-                  onDetails={handleDetails}
-                  onSelect={handleSelect}
-                  columns={columns}
-                  fetchData={fetchData}
-                  total={total}
-                />
+                {table}
               </div>
             </div>
           );
@@ -219,6 +234,113 @@ const SourcesTable = ({
             <Fatal
               msg={`Sources table didn't match any valid state: ${state.value}`}
               reset={() => send("RETRY")}
+            />
+          );
+      }
+
+    case state.matches("create"):
+      switch (state.event.type) {
+        case "CREATE": {
+          return (
+            <div>
+              <Modal
+                onCancel={() => send("SHOW_TABLE")}
+                title="Confirm"
+                description="Describing this modal"
+              >
+                <div className="flex flex-column">
+                  <p>Add a new data source for your workspace.</p>
+
+                  <FormHandler
+                    onSave={(values) => saveSource(workspace.slug, values)}
+                    onDone={() => send("SHOW_TABLE")}
+                    Form={CreateSourceForm}
+                    workspace={workspace}
+                  />
+                </div>
+              </Modal>
+
+              <div className="flex flex-column">
+                {actionBar}
+
+                {table}
+              </div>
+            </div>
+          );
+        }
+
+        default:
+          return (
+            <Fatal
+              msg={`Sources table didn't match any valid state: ${state.value}`}
+              reset={() => send("RETRY")}
+            />
+          );
+      }
+
+    case state.matches("delete"):
+      switch (state.event.type) {
+        case "DELETE": {
+          const {type, term, id} = state.event.item as Source;
+
+          return (
+            <div>
+              <Modal
+                onCancel={() => send("CANCEL")}
+                title="Confirm delete."
+                description={`Confirm you want to delete ${term}.`}
+              >
+                <div className="flex flex-column">
+                  <p>Are you sure you want to delete the following source?</p>
+
+                  <dl className="pa4 mt0 sapphire">
+                    <dt className="f6 b">Type</dt>
+                    <dd className="ml0">{type}</dd>
+                    <dt className="f6 b mt2">Term</dt>
+                    <dd className="ml0">{term}</dd>
+                  </dl>
+
+                  <div className="flex justify-between mt3 ml-auto">
+                    <Button
+                      className="mr3"
+                      type="reset"
+                      size="large"
+                      kind="secondary"
+                      onClick={() => send("CANCEL")}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button
+                      className="mr3 fr"
+                      type="submit"
+                      size="large"
+                      onClick={() =>
+                        send("CONFIRM_DELETE", {
+                          id,
+                        })
+                      }
+                    >
+                      Delete Source
+                    </Button>
+                  </div>
+                </div>
+              </Modal>
+
+              <div className="flex flex-column">
+                {actionBar}
+
+                {table}
+              </div>
+            </div>
+          );
+        }
+
+        default:
+          return (
+            <Fatal
+              msg={`An unknown event is triggering this state: ${state.event.type}`}
+              reset={() => appSend("RESTART_APP")}
             />
           );
       }

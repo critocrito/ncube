@@ -17,11 +17,21 @@ export type TableEvent<T extends {id: number}> =
   | {type: "SHOW_DETAILS"; item: T}
   | {type: "SET_SELECTION"; selected: T[]}
   | {type: "SEARCH"; query: string; pageIndex: number; pageSize: number}
+  | {type: "CREATE"}
+  | {type: "DELETE"; item: T}
+  | {type: "CONFIRM_DELETE"; id: number}
+  | {type: "CANCEL"}
   | {type: "RETRY"};
 
 export type TableState<T extends {id: number}> =
   | {
-      value: "fetch" | "table" | "details";
+      value:
+        | "fetching"
+        | "deleting"
+        | "table"
+        | "details"
+        | "create"
+        | "delete";
       context: TableContext<T>;
     }
   | {
@@ -39,9 +49,9 @@ export default createMachine<
   initial: "table",
 
   states: {
-    fetch: {
+    fetching: {
       invoke: {
-        src: "fetchData",
+        src: "listItems",
 
         onDone: {
           target: "table",
@@ -59,12 +69,29 @@ export default createMachine<
       },
     },
 
+    deleting: {
+      invoke: {
+        src: "deleteItem",
+
+        onDone: {
+          target: "fetching",
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     table: {
       on: {
         SHOW_DETAILS: "details",
 
+        CREATE: "create",
+
         SEARCH: {
-          target: "fetch",
+          target: "fetching",
           actions: assign((_ctx, {query, pageIndex, pageSize}) => ({
             query,
             pageIndex,
@@ -77,6 +104,21 @@ export default createMachine<
           internal: true,
           actions: assign({selected: (_ctx, {selected}) => selected}),
         },
+
+        DELETE: "delete",
+      },
+    },
+
+    create: {
+      on: {
+        SHOW_TABLE: "fetching",
+      },
+    },
+
+    delete: {
+      on: {
+        CANCEL: "table",
+        CONFIRM_DELETE: "deleting",
       },
     },
 

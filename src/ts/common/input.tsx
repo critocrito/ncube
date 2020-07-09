@@ -10,7 +10,6 @@ interface InputProps {
   placeholder?: string;
   disabled?: boolean;
   type?: "text" | "email" | "password";
-  value?: string;
 }
 
 const Input = ({
@@ -18,7 +17,6 @@ const Input = ({
   placeholder = "",
   disabled = false,
   type = "text",
-  value: defaultValue,
   ...props
 }: InputProps) => {
   const fieldProps = {
@@ -29,6 +27,7 @@ const Input = ({
   const [field, meta] = useField(fieldProps);
 
   const {name, value, onChange, onBlur} = field;
+
   const {touched, error} = meta;
 
   const hasError = touched && error;
@@ -42,7 +41,7 @@ const Input = ({
       <input
         className={classes}
         name={name}
-        value={value || defaultValue}
+        value={value}
         type={type}
         placeholder={placeholder}
         disabled={disabled}
