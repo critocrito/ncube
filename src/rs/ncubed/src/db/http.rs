@@ -2,7 +2,7 @@
 //! HTTP. Internally the HTTP endpoint is treated like a database.
 use bytes::buf::BufExt as _;
 use chrono::{DateTime, Duration, Utc};
-use hyper::{client::HttpConnector, Body, Client, Method, Request, StatusCode, Uri};
+use hyper::{client::HttpConnector, Body, Client, Method, Request, StatusCode};
 use ncube_data::Workspace;
 use std::fmt::{self, Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut};
@@ -62,6 +62,7 @@ pub struct Database {
     pub email: String,
     pub password: String,
     pub workspace: Workspace,
+    pub url: Url,
     config: Config,
     client: ClientWrapper,
     auth: Arc<RwLock<Option<HttpAuth>>>,
@@ -80,7 +81,7 @@ impl Debug for Database {
 }
 
 #[instrument]
-async fn login(url: &Uri, email: &str, password: &str) -> Result<HttpAuth, StoreError> {
+async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, StoreError> {
     let payload = serde_json::to_string(&LoginRequest {
         email: email.to_string(),
         password: password.to_string(),
@@ -88,7 +89,7 @@ async fn login(url: &Uri, email: &str, password: &str) -> Result<HttpAuth, Store
     .unwrap()
     .into_bytes();
 
-    let req = Request::post(url)
+    let req = Request::post(url.as_str())
         .header("content-type", "application/json")
         .body(Body::from(payload))
         .unwrap();
@@ -138,6 +139,7 @@ impl Database {
             email: email.to_string(),
             password: password.to_string(),
             workspace: workspace.clone(),
+            url: config.endpoint.clone(),
             config,
         }
     }
@@ -153,12 +155,6 @@ impl Database {
         self.password = password;
 
         Ok(())
-    }
-
-    fn url(&self, path: &str) -> Uri {
-        let mut uri = self.config.endpoint.clone();
-        uri.set_path(path);
-        Uri::from_str(uri.as_str()).unwrap()
     }
 
     async fn execute<T>(&self, req: Request<Body>) -> Result<HttpResponse<T>, StoreError>
@@ -207,8 +203,8 @@ impl Database {
     }
 
     pub(crate) async fn login(&mut self) -> Result<(), StoreError> {
-        let login_path = format!("/api/workspaces/{}/account", self.workspace.slug);
-        let url = self.url(&login_path);
+        let mut url = self.url.clone();
+        url.set_path(&format!("/api/workspaces/{}/account", self.workspace.slug));
         let http_auth = login(&url, &self.email, &self.password).await?;
         let mut lock = self.auth.write().await;
         *lock = Some(http_auth);
@@ -216,16 +212,15 @@ impl Database {
     }
 
     #[instrument]
-    pub(crate) async fn get<T>(&self, path: &str) -> Result<Option<T>, StoreError>
+    pub(crate) async fn get<T>(&self, url: Url) -> Result<Option<T>, StoreError>
     where
         T: serde::de::DeserializeOwned + Debug,
     {
         let lock = self.auth.read().await;
 
-        let url = self.url(&path);
         let req = Request::builder()
             .method(Method::GET)
-            .uri(&url)
+            .uri(url.as_str())
             .header("content-type", "application/json");
         let req = match &*lock {
             None => req,
@@ -233,7 +228,7 @@ impl Database {
         };
         let req = req.body(Default::default()).unwrap();
 
-        debug!("HTTP GET ({:?})", url);
+        debug!("HTTP GET ({:?})", url.as_str());
 
         let result = self.execute::<T>(req).await?;
 
@@ -246,24 +241,23 @@ impl Database {
 
     #[allow(dead_code)]
     #[instrument]
-    pub(crate) async fn post<T, S>(&self, path: &str, payload: S) -> Result<Option<T>, StoreError>
+    pub(crate) async fn post<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, StoreError>
     where
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
     {
         let lock = self.auth.read().await;
 
-        let url = self.url(&path);
         let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
 
-        let req = Request::post(&url).header("content-type", "application/json");
+        let req = Request::post(url.as_str()).header("content-type", "application/json");
         let req = match &*lock {
             None => req,
             Some(auth) => req.header("authorization", format!("Bearer {}", auth.token)),
         };
         let req = req.body(Body::from(payload_json)).unwrap();
 
-        debug!("HTTP POST ({:?}) -> {:?}", url, payload);
+        debug!("HTTP POST ({:?}) -> {:?}", url.as_str(), payload);
 
         let result = self.execute::<T>(req).await?;
 
@@ -275,24 +269,23 @@ impl Database {
     }
 
     #[instrument]
-    pub(crate) async fn put<T, S>(&self, path: &str, payload: S) -> Result<Option<T>, StoreError>
+    pub(crate) async fn put<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, StoreError>
     where
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
     {
         let lock = self.auth.read().await;
 
-        let url = self.url(&path);
         let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
 
-        let req = Request::put(&url).header("content-type", "application/json");
+        let req = Request::put(url.as_str()).header("content-type", "application/json");
         let req = match &*lock {
             None => req,
             Some(auth) => req.header("authorization", format!("Bearer {}", auth.token)),
         };
         let req = req.body(Body::from(payload_json)).unwrap();
 
-        debug!("HTTP PUT ({:?}) -> {:?}", url, payload);
+        debug!("HTTP PUT ({:?}) -> {:?}", url.as_str(), payload);
 
         let result = self.execute::<T>(req).await?;
 
@@ -305,21 +298,20 @@ impl Database {
 
     #[allow(dead_code)]
     #[instrument]
-    pub(crate) async fn delete<T, S>(&self, path: &str) -> Result<Option<T>, StoreError>
+    pub(crate) async fn delete<T, S>(&self, url: Url) -> Result<Option<T>, StoreError>
     where
         T: serde::de::DeserializeOwned + Debug,
     {
         let lock = self.auth.read().await;
 
-        let url = self.url(&path);
-        let req = Request::delete(&url).header("content-type", "application/json");
+        let req = Request::delete(url.as_str()).header("content-type", "application/json");
         let req = match &*lock {
             None => req,
             Some(auth) => req.header("authorization", format!("Bearer {}", auth.token)),
         };
         let req = req.body(Default::default()).unwrap();
 
-        debug!("HTTP DELETE ({:?})", url);
+        debug!("HTTP DELETE ({:?})", url.as_str());
 
         let result = self.execute::<T>(req).await?;
 

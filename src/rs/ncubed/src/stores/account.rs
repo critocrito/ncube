@@ -14,7 +14,7 @@ use crate::types::UpdatePasswordRequest;
 pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send + Sync> {
     match wrapped_db {
         Database::Sqlite(db) => Box::new(AccountStoreSqlite { db }),
-        Database::Http(db) => Box::new(AccountStoreHttp { db }),
+        Database::Http(client) => Box::new(AccountStoreHttp { client }),
     }
 }
 
@@ -252,7 +252,7 @@ impl AccountStore for AccountStoreSqlite {
 
 #[derive(Debug)]
 pub struct AccountStoreHttp {
-    db: Box<http::Database>,
+    client: Box<http::Database>,
 }
 
 #[async_trait]
@@ -302,14 +302,19 @@ impl AccountStore for AccountStoreHttp {
         password: &str,
         workspace: &Workspace,
     ) -> Result<String, StoreError> {
-        let path = format!("/api/workspaces/{}/account", workspace.slug);
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/account",
+            self.client.workspace.slug
+        ));
+
         let payload = UpdatePasswordRequest {
             email: email.to_string(),
             password: password.to_string(),
             password_again: password.to_string(),
         };
 
-        let new_password: String = self.db.put(&path, &payload).await?.unwrap();
+        let new_password: String = self.client.put(url, &payload).await?.unwrap();
 
         Ok(new_password)
     }
