@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use ncube_data::{QueryTag, Source, Workspace};
+use ncube_data::{QueryTag, Source};
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
@@ -19,15 +19,10 @@ pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send +
 pub(crate) trait SourceStore {
     async fn exists(&self, id: i32) -> Result<bool, StoreError>;
     async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError>;
-    async fn list(
-        &self,
-        workspace: &Workspace,
-        page: i32,
-        page_size: i32,
-    ) -> Result<Vec<Source>, StoreError>;
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, StoreError>;
     async fn delete(&self, id: i32) -> Result<(), StoreError>;
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
-    async fn list_source_tags(&self, slug: &str) -> Result<Vec<QueryTag>, StoreError>;
+    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, StoreError>;
 }
 
 #[derive(Debug)]
@@ -80,12 +75,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn list(
-        &self,
-        _workspace: &Workspace,
-        page: i32,
-        page_size: i32,
-    ) -> Result<Vec<Source>, StoreError> {
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/paginate.sql"))?;
         let mut stmt2 =
@@ -136,7 +126,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn list_source_tags(&self, _slug: &str) -> Result<Vec<QueryTag>, StoreError> {
+    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/list-source-tags.sql"))?;
 
@@ -171,14 +161,18 @@ impl SourceStore for SourceStoreHttp {
     }
 
     #[instrument]
-    async fn list(
-        &self,
-        workspace: &Workspace,
-        _page: i32,
-        _page_size: i32,
-    ) -> Result<Vec<Source>, StoreError> {
-        let url_path = format!("/api/workspaces/{}/sources", workspace.slug);
-        let data: Vec<Source> = self.client.get(&url_path).await?.unwrap_or_else(|| vec![]);
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/sources",
+            self.client.workspace.slug
+        ));
+        url.query_pairs_mut()
+            .clear()
+            .append_pair("page", &page.to_string())
+            .append_pair("size", &page_size.to_string());
+
+        let data: Vec<Source> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
 
         Ok(data)
     }
@@ -191,7 +185,7 @@ impl SourceStore for SourceStoreHttp {
         todo!()
     }
 
-    async fn list_source_tags(&self, _slug: &str) -> Result<Vec<QueryTag>, StoreError> {
+    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, StoreError> {
         todo!()
     }
 }

@@ -69,7 +69,7 @@ pub async fn list_sources(
     database.login().await?;
 
     let store = source_store(database);
-    let sources = store.list(&workspace, page, page_size).await?;
+    let sources = store.list(page, page_size).await?;
 
     Ok(sources)
 }
@@ -205,7 +205,7 @@ pub async fn list_source_tags(workspace: &str) -> Result<Vec<QueryTag>, HandlerE
     database.login().await?;
 
     let store = source_store(database);
-    let sources = store.list_source_tags(&workspace.slug).await?;
+    let sources = store.list_source_tags().await?;
 
     Ok(sources)
 }
