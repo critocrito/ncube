@@ -16,7 +16,7 @@ Modify an existing source.
 {
   "type": "youtube_video",
   "term": "https://youtube.com/watch?v=123456",
-  "annotations": []
+  "tags": []
 }
 ```
 
