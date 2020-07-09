@@ -36,7 +36,7 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
 const DataTable = ({workspace, totalStat}: DataTableProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
-      fetchData: async (_ctx, {query, pageIndex, pageSize}) => {
+      listItems: async (_ctx, {query, pageIndex, pageSize}) => {
         if (query === "") {
           const units = await listUnits(workspace.slug, pageIndex, pageSize);
           return {data: units, total: totalStat};
@@ -57,23 +57,27 @@ const DataTable = ({workspace, totalStat}: DataTableProps) => {
 
   useServiceLogger(service, machine.id);
 
-  const {error, total, results, selected, query} = state.context;
+  const {
+    error,
+    total,
+    results,
+    selected,
+    query,
+    pageIndex,
+    pageSize,
+  } = state.context;
 
   const fetchData = useCallback(
-    async (pageIndex: number, pageSize: number) => {
-      send("SEARCH", {query, pageIndex, pageSize});
+    async (index: number, size: number) => {
+      send("SEARCH", {query, pageIndex: index, pageSize: size});
     },
     [send, query],
   );
 
   // Force the initial fetch of data.
   useEffect(() => {
-    send("SEARCH", {
-      query: state.context.query,
-      pageIndex: state.context.pageIndex,
-      pageSize: state.context.pageSize,
-    });
-  }, [send, state]);
+    send("SEARCH", {query, pageIndex, pageSize});
+  }, [send, query, pageIndex, pageSize]);
 
   const columns: Column<Unit>[] = useMemo(
     () => [
@@ -119,9 +123,9 @@ const DataTable = ({workspace, totalStat}: DataTableProps) => {
 
   switch (true) {
     // eslint-disable-next-line no-fallthrough
-    case state.matches("fetch"):
+    case state.matches("fetching"):
     case state.matches("table"): {
-      const loading = !!state.matches("fetch");
+      const loading = !!state.matches("fetching");
 
       return (
         <div
@@ -188,6 +192,11 @@ const DataTable = ({workspace, totalStat}: DataTableProps) => {
                     }
                   />
                 </div>
+
+                <ActionBar
+                  selected={selected}
+                  onProcessSelected={() => console.log(selected)}
+                />
 
                 <Table<Unit>
                   name="dataTable"

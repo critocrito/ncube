@@ -17,7 +17,7 @@ import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Database from "./database";
 import SectionCard from "./section-card";
-import Source from "./source";
+import SourcesTable from "./sources-table";
 
 interface WorkspaceProps {
   workspace: Workspace;
@@ -117,7 +117,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header="Sources"
             description=""
           >
-            <Source workspace={workspace} stats={sourceStats} />
+            <SourcesTable workspace={workspace} totalStat={sourceStats.total} />
           </Panel>
         </WorkspaceProvider>
       );
