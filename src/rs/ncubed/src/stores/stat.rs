@@ -1,5 +1,4 @@
 use async_trait::async_trait;
-
 use ncube_data::Stat;
 use rusqlite::{params, NO_PARAMS};
 use tracing::instrument;

@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use ncube_data::{Account, Workspace};
+use ncube_data::{Account, UpdatePasswordRequest, Workspace};
 use rusqlite::{self, params, NO_PARAMS};
 use secstr::SecVec;
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
@@ -9,7 +9,6 @@ use tracing::{debug, instrument};
 use crate::crypto;
 use crate::db::{http, sqlite, Database};
 use crate::errors::StoreError;
-use crate::types::UpdatePasswordRequest;
 
 pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send + Sync> {
     match wrapped_db {

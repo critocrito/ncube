@@ -3,7 +3,7 @@
 use bytes::buf::BufExt as _;
 use chrono::{DateTime, Duration, Utc};
 use hyper::{client::HttpConnector, Body, Client, Method, Request, StatusCode};
-use ncube_data::Workspace;
+use ncube_data::{LoginRequest, LoginResponse, Workspace};
 use std::fmt::{self, Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
@@ -16,7 +16,6 @@ use crate::actors::{host::RequirePool, HostActor, Registry};
 use crate::errors::{ActorError, StoreError};
 use crate::http::{ErrorResponse, HttpResponse, SuccessResponse};
 use crate::stores::account_store;
-use crate::types::{LoginRequest, LoginResponse};
 
 #[derive(Error, Debug)]
 pub struct HttpConfigError;
