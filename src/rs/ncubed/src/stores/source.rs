@@ -1,12 +1,13 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::{QueryTag, Source};
-use rusqlite::{params, NO_PARAMS};
+use rusqlite::{params, Error as RusqliteError, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
 use crate::db::{http, sqlite, Database};
 use crate::errors::StoreError;
+use crate::types::SourceRequest;
 
 pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send + Sync> {
     match wrapped_db {
@@ -18,6 +19,7 @@ pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send +
 #[async_trait]
 pub(crate) trait SourceStore {
     async fn exists(&self, id: i32) -> Result<bool, StoreError>;
+    async fn show(&self, id: i32) -> Result<Option<Source>, StoreError>;
     async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError>;
     async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, StoreError>;
     async fn delete(&self, id: i32) -> Result<(), StoreError>;
@@ -72,6 +74,37 @@ impl SourceStore for SourceStoreSqlite {
         conn.execute_batch("COMMIT")?;
 
         Ok(())
+    }
+
+    #[instrument]
+    async fn show(&self, id: i32) -> Result<Option<Source>, StoreError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/source/show-by-id.sql"))?;
+        let mut stmt2 =
+            conn.prepare_cached(include_str!("../sql/source/list-query-tags-for-query.sql"))?;
+
+        let mut source = match stmt.query_row(params![id], |row| {
+            Ok(Source {
+                id: row.get(0)?,
+                kind: row.get(1)?,
+                term: row.get(2)?,
+                tags: vec![],
+            })
+        }) {
+            Ok(value) => value,
+            Err(RusqliteError::QueryReturnedNoRows) => return Ok(None),
+            Err(e) => Err(e)?,
+        };
+
+        let mut tags: Vec<QueryTag> = vec![];
+
+        for tag in from_rows::<QueryTag>(stmt2.query(params![source.id])?) {
+            tags.push(tag?)
+        }
+
+        source.tags = tags;
+
+        Ok(Some(source))
     }
 
     #[instrument]
@@ -147,17 +180,48 @@ pub struct SourceStoreHttp {
 
 #[async_trait]
 impl SourceStore for SourceStoreHttp {
-    async fn exists(&self, _id: i32) -> Result<bool, StoreError> {
-        todo!()
+    async fn exists(&self, id: i32) -> Result<bool, StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/sources/{}",
+            self.client.workspace.slug, id,
+        ));
+
+        match self.client.get::<Source>(url).await {
+            Ok(_) => Ok(true),
+            _ => Ok(false),
+        }
     }
 
-    async fn create(
-        &self,
-        _kind: &str,
-        _term: &str,
-        _tags: Vec<QueryTag>,
-    ) -> Result<(), StoreError> {
-        todo!()
+    async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/sources",
+            self.client.workspace.slug,
+        ));
+
+        let payload = SourceRequest {
+            kind: kind.to_string(),
+            term: term.to_string(),
+            tags,
+        };
+
+        self.client.post::<(), SourceRequest>(url, payload).await?;
+
+        Ok(())
+    }
+
+    #[instrument]
+    async fn show(&self, id: i32) -> Result<Option<Source>, StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/sources/{}",
+            self.client.workspace.slug, id
+        ));
+
+        let data: Option<Source> = self.client.get(url).await?;
+
+        Ok(data)
     }
 
     #[instrument]
@@ -177,15 +241,47 @@ impl SourceStore for SourceStoreHttp {
         Ok(data)
     }
 
-    async fn delete(&self, _id: i32) -> Result<(), StoreError> {
-        todo!()
+    async fn delete(&self, id: i32) -> Result<(), StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/sources/{}",
+            self.client.workspace.slug, id
+        ));
+
+        self.client.delete(url).await?;
+
+        Ok(())
     }
 
-    async fn update(&self, _id: i32, _kind: &str, _term: &str) -> Result<(), StoreError> {
-        todo!()
+    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/sources/{}",
+            self.client.workspace.slug, id
+        ));
+
+        let payload = SourceRequest {
+            kind: kind.to_string(),
+            term: term.to_string(),
+            // FIXME: allow to update tags as well.
+            tags: vec![],
+        };
+
+        // FIXME: Should I return an updated source from the update?
+        self.client.put::<(), SourceRequest>(url, payload).await?;
+
+        Ok(())
     }
 
     async fn list_source_tags(&self) -> Result<Vec<QueryTag>, StoreError> {
-        todo!()
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/source-tags",
+            self.client.workspace.slug
+        ));
+
+        let data: Vec<QueryTag> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
+
+        Ok(data)
     }
 }

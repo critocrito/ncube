@@ -6,6 +6,7 @@ use tracing::instrument;
 
 use crate::db::{http, sqlite, Database};
 use crate::errors::StoreError;
+use crate::types::SearchResponse;
 
 pub(crate) fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> {
     match wrapped_db {
@@ -18,16 +19,9 @@ pub(crate) fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send +
 pub(crate) trait SearchStore {
     async fn unit_index(&self) -> Result<(), StoreError>;
     async fn source_index(&self) -> Result<(), StoreError>;
-    async fn data(
-        &self,
-        workspace: &str,
-        query: &str,
-        page: i32,
-        page_size: i32,
-    ) -> Result<Vec<Unit>, StoreError>;
+    async fn data(&self, query: &str, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError>;
     async fn sources(
         &self,
-        workspace: &str,
         query: &str,
         page: i32,
         page_size: i32,
@@ -59,13 +53,7 @@ impl SearchStore for SearchStoreSqlite {
     }
 
     #[instrument]
-    async fn data(
-        &self,
-        _workspace: &str,
-        query: &str,
-        page: i32,
-        page_size: i32,
-    ) -> Result<Vec<Unit>, StoreError> {
+    async fn data(&self, query: &str, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/search/data.sql"))?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/unit/list-media.sql"))?;
@@ -108,7 +96,6 @@ impl SearchStore for SearchStoreSqlite {
     #[instrument]
     async fn sources(
         &self,
-        _workspace: &str,
         query: &str,
         page: i32,
         page_size: i32,
@@ -157,24 +144,57 @@ impl SearchStore for SearchStoreHttp {
     }
 
     #[instrument]
-    async fn data(
-        &self,
-        _workspace: &str,
-        _query: &str,
-        _page: i32,
-        _page_size: i32,
-    ) -> Result<Vec<Unit>, StoreError> {
-        todo!()
+    async fn data(&self, query: &str, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/data/search",
+            self.client.workspace.slug
+        ));
+        url.query_pairs_mut()
+            .clear()
+            .append_pair("q", &query)
+            .append_pair("page", &page.to_string())
+            .append_pair("size", &page_size.to_string());
+
+        let data: SearchResponse<Unit> =
+            self.client
+                .get(url)
+                .await?
+                .unwrap_or_else(|| SearchResponse {
+                    data: vec![],
+                    total: 0,
+                });
+
+        Ok(data.data)
     }
 
     #[instrument]
     async fn sources(
         &self,
-        _workspace: &str,
-        _query: &str,
-        _page: i32,
-        _page_size: i32,
+        query: &str,
+        page: i32,
+        page_size: i32,
     ) -> Result<Vec<Source>, StoreError> {
-        todo!()
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/sources/search",
+            self.client.workspace.slug
+        ));
+        url.query_pairs_mut()
+            .clear()
+            .append_pair("q", &query)
+            .append_pair("page", &page.to_string())
+            .append_pair("size", &page_size.to_string());
+
+        let data: SearchResponse<Source> =
+            self.client
+                .get(url)
+                .await?
+                .unwrap_or_else(|| SearchResponse {
+                    data: vec![],
+                    total: 0,
+                });
+
+        Ok(data.data)
     }
 }

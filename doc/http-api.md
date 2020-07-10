@@ -121,8 +121,9 @@ Ncube installation (originating from `127.0.0.1`) don't.
 
 - [List all sources](http-api/source/list.md) `GET /workspaces/<workspace_id>/sources`
 - [Create a query](http-api/source/create.md) `POST /workspaces/<workspace_id>/sources`
-- [Update a sources](http-api/source/update.md) `PUT /workspaces/<workspace_id>/sources/<query_id>`
-- [Remove a sources](http-api/source/remove.md) `DELETE /workspaces/<workspace_id>/sources/<query_id>`
+- [Show a query](http-api/source/show.md) `POST /workspaces/<workspace_id>/sources/<source_id>`
+- [Update a sources](http-api/source/update.md) `PUT /workspaces/<workspace_id>/sources/<source_id>`
+- [Remove a sources](http-api/source/remove.md) `DELETE /workspaces/<workspace_id>/sources/<source_id>`
 - [Search for sources](http-api/source/search.md) `GET /workspaces/<workspace_id>/sources/search`
 - [List all source tags](http-api/source/tags.md) `GET /workspaces/<workspace_id>/source-tags`
 

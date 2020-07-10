@@ -278,7 +278,8 @@ pub(crate) mod source {
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::handlers::source as handlers;
+    use crate::errors::HandlerError;
+    use crate::handlers::{source as handlers, workspace as workspace_handlers};
     use crate::http::authenticate_remote_req;
     use crate::types::{ReqCtx, SearchResponse, SourceRequest};
 
@@ -300,6 +301,22 @@ pub(crate) mod source {
 
         // FIXME: Set location header
         Ok(warp::reply())
+    }
+
+    #[instrument]
+    async fn show(
+        _ctx: ReqCtx,
+        workspace_slug: String,
+        id: i32,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let source = handlers::show_source(&workspace_slug, id).await?;
+        match source {
+            Some(value) => {
+                let response = SuccessResponse::new(value);
+                Ok(warp::reply::json(&response))
+            }
+            None => Err(HandlerError::NotFound(format!("Source {} not found.", id)))?,
+        }
     }
 
     #[instrument]
@@ -325,19 +342,26 @@ pub(crate) mod source {
         workspace: String,
         opts: ListOptions,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        // FIXME: Return a 4XX error if query isn't set
-        let query_opt = opts.q.unwrap_or("".to_string());
-        let query = percent_decode_str(&query_opt).decode_utf8_lossy();
-        let q2 = query.clone();
+        let query = opts
+            .q
+            .map(|q| percent_decode_str(&q).decode_utf8_lossy().to_string());
+
+        if let None = query {
+            return Err(HandlerError::Invalid(
+                "search requires a query parameter".into(),
+            ))?;
+        }
+
+        let query_str = query.clone().unwrap();
 
         let (data, total) = try_join!(
             handlers::search_sources(
                 &workspace,
-                &query,
+                &query_str,
                 opts.page.unwrap_or(0),
                 opts.size.unwrap_or(20),
             ),
-            handlers::stat_sources_total_search(&workspace, &q2)
+            workspace_handlers::stat_sources_total(&workspace, query)
         )?;
 
         let response = SuccessResponse::new(SearchResponse {
@@ -380,6 +404,10 @@ pub(crate) mod source {
             .and(warp::body::json())
             .and_then(create)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "sources" / i32))
+                .and(warp::get())
+                .and_then(show))
             .or(authenticate_remote_req()
                 .and(warp::path!("workspaces" / String / "sources"))
                 .and(warp::get())
@@ -489,6 +517,8 @@ pub(crate) mod source_tag {
 
 pub(crate) mod stat {
     use super::SuccessResponse;
+    use percent_encoding::percent_decode_str;
+    use serde::Deserialize;
     use tracing::instrument;
     use warp::Filter;
 
@@ -496,12 +526,23 @@ pub(crate) mod stat {
     use crate::http::authenticate_remote_req;
     use crate::types::ReqCtx;
 
+    // The query parameters for stats.
+    #[derive(Debug, Deserialize)]
+    pub struct ListOptions {
+        pub q: Option<String>,
+    }
+
     #[instrument]
     async fn sources_total(
         _ctx: ReqCtx,
         workspace: String,
+        opts: ListOptions,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        let stat = handlers::stat_sources_total(&workspace).await?;
+        let query = opts
+            .q
+            .map(|query| percent_decode_str(&query).decode_utf8_lossy().to_string());
+
+        let stat = handlers::stat_sources_total(&workspace, query).await?;
         let response = SuccessResponse::new(stat.value);
 
         Ok(warp::reply::json(&response))
@@ -522,8 +563,13 @@ pub(crate) mod stat {
     async fn data_total(
         _ctx: ReqCtx,
         workspace: String,
+        opts: ListOptions,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        let stat = handlers::stat_data_total(&workspace).await?;
+        let query = opts
+            .q
+            .map(|query| percent_decode_str(&query).decode_utf8_lossy().to_string());
+
+        let stat = handlers::stat_data_total(&workspace, query).await?;
         let response = SuccessResponse::new(stat.value);
 
         Ok(warp::reply::json(&response))
@@ -557,6 +603,7 @@ pub(crate) mod stat {
             .and(warp::path!(
                 "workspaces" / String / "stats" / "sources" / "total"
             ))
+            .and(warp::query::<ListOptions>())
             .and(warp::get())
             .and_then(sources_total)
             .or(authenticate_remote_req()
@@ -569,6 +616,7 @@ pub(crate) mod stat {
                 .and(warp::path!(
                     "workspaces" / String / "stats" / "data" / "total"
                 ))
+                .and(warp::query::<ListOptions>())
                 .and(warp::get())
                 .and_then(data_total))
             .or(authenticate_remote_req()
@@ -594,6 +642,7 @@ pub(crate) mod unit {
     use tracing::instrument;
     use warp::Filter;
 
+    use crate::errors::HandlerError;
     use crate::handlers::workspace as handlers;
     use crate::http::authenticate_remote_req;
     use crate::types::{ReqCtx, SearchResponse};
@@ -625,19 +674,26 @@ pub(crate) mod unit {
         workspace: String,
         opts: ListOptions,
     ) -> Result<impl warp::Reply, warp::Rejection> {
-        // FIXME: Return a 4XX error if query isn't set
-        let query_opt = opts.q.unwrap_or("".to_string());
-        let query = percent_decode_str(&query_opt).decode_utf8_lossy();
-        let query2 = query.clone();
+        let query = opts
+            .q
+            .map(|query| percent_decode_str(&query).decode_utf8_lossy().to_string());
+
+        if let None = query {
+            return Err(HandlerError::Invalid(
+                "search requires a query parameter".into(),
+            ))?;
+        }
+
+        let query_str = query.clone().unwrap();
 
         let (data, total) = try_join!(
             handlers::search_data(
                 &workspace,
-                &query,
+                &query_str,
                 opts.page.unwrap_or(0),
                 opts.size.unwrap_or(20),
             ),
-            handlers::stat_data_total_search(&workspace, &query2)
+            handlers::stat_data_total(&workspace, query)
         )?;
 
         let response = SuccessResponse::new(SearchResponse {

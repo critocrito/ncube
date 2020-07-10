@@ -75,7 +75,19 @@ pub struct UnitStoreHttp {
 #[async_trait]
 impl UnitStore for UnitStoreHttp {
     #[instrument]
-    async fn list(&self, _page: i32, _page_size: i32) -> Result<Vec<Unit>, StoreError> {
-        todo!()
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/data",
+            self.client.workspace.slug
+        ));
+        url.query_pairs_mut()
+            .clear()
+            .append_pair("page", &page.to_string())
+            .append_pair("size", &page_size.to_string());
+
+        let data: Vec<Unit> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
+
+        Ok(data)
     }
 }

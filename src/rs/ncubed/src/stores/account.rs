@@ -300,7 +300,7 @@ impl AccountStore for AccountStoreHttp {
         &self,
         email: &str,
         password: &str,
-        workspace: &Workspace,
+        _workspace: &Workspace,
     ) -> Result<String, StoreError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(

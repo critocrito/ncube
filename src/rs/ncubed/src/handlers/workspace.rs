@@ -194,8 +194,10 @@ pub async fn update_workspace(
     Ok(())
 }
 
-#[instrument]
-pub async fn stat_sources_total(workspace: &str) -> Result<Stat, HandlerError> {
+pub async fn stat_sources_total(
+    workspace: &str,
+    query: Option<String>,
+) -> Result<Stat, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -216,34 +218,7 @@ pub async fn stat_sources_total(workspace: &str) -> Result<Stat, HandlerError> {
 
     let stat_store = stat_store(database);
 
-    let stats = stat_store.sources_total().await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_sources_total_search(workspace: &str, query: &str) -> Result<Stat, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
-
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.sources_total_search(&query).await?;
+    let stats = stat_store.sources_total(query).await?;
 
     Ok(stats)
 }
@@ -275,8 +250,7 @@ pub async fn stat_sources_types(workspace: &str) -> Result<Stat, HandlerError> {
     Ok(stats)
 }
 
-#[instrument]
-pub async fn stat_data_total(workspace: &str) -> Result<Stat, HandlerError> {
+pub async fn stat_data_total(workspace: &str, query: Option<String>) -> Result<Stat, HandlerError> {
     let mut host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
@@ -297,34 +271,7 @@ pub async fn stat_data_total(workspace: &str) -> Result<Stat, HandlerError> {
 
     let stat_store = stat_store(database);
 
-    let stats = stat_store.data_total().await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_data_total_search(workspace: &str, query: &str) -> Result<Stat, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
-
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.data_total_search(&query).await?;
+    let stats = stat_store.data_total(query).await?;
 
     Ok(stats)
 }
@@ -441,9 +388,7 @@ pub async fn search_data(
 
     let search_store = search_store(database);
 
-    let data = search_store
-        .data(&workspace, &query, page, page_size)
-        .await?;
+    let data = search_store.data(&query, page, page_size).await?;
 
     Ok(data)
 }
