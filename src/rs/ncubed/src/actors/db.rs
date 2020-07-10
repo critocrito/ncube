@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use ncube_data::{Account, WorkspaceDatabase};
 use std::result::Result;
 use tracing::debug;
+use url::Url;
 use xactor::{message, Actor, Context, Handler};
 
 use crate::actors::{
@@ -97,11 +98,11 @@ impl Handler<LookupDatabase> for DatabaseActor {
                 let account_store = account_store(db);
                 let Account { email, .. } = account_store.show_by_workspace(&workspace).await?;
                 let password = account_store.show_password(&email, &workspace).await?;
-                let config: http::Config = connection_string
-                    .parse::<http::Config>()
-                    .map_err(|e| ActorError::Store(StoreError::HttpConfig(e)))?;
+                let endpoint = Url::parse(&connection_string).map_err(|_| {
+                    ActorError::Store(StoreError::HttpConfig(http::HttpConfigError))
+                })?;
 
-                let db = http::Database::new(config, &workspace, &email, &password);
+                let db = http::Database::new(endpoint, &workspace, &email, &password);
 
                 Database::Http(Box::new(db))
             }

@@ -6,7 +6,6 @@ use hyper::{client::HttpConnector, Body, Client, Method, Request, StatusCode};
 use ncube_data::Workspace;
 use std::fmt::{self, Debug, Display, Formatter};
 use std::ops::{Deref, DerefMut};
-use std::str::FromStr;
 use std::sync::Arc;
 use thiserror::Error;
 use tokio::sync::RwLock;
@@ -28,58 +27,6 @@ impl Display for HttpConfigError {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Config {
-    pub(crate) endpoint: Url,
-}
-
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            endpoint: Url::parse("http://127.0.0.1:40666").unwrap(),
-        }
-    }
-}
-
-impl FromStr for Config {
-    type Err = HttpConfigError;
-
-    fn from_str(s: &str) -> Result<Self, HttpConfigError> {
-        let endpoint = Url::parse(s).map_err(|_| HttpConfigError)?;
-
-        Ok(Config { endpoint })
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct HttpAuth {
-    token: String,
-    created_at: DateTime<Utc>,
-}
-
-#[derive(Clone)]
-pub struct Database {
-    pub email: String,
-    pub password: String,
-    pub workspace: Workspace,
-    pub url: Url,
-    config: Config,
-    client: ClientWrapper,
-    auth: Arc<RwLock<Option<HttpAuth>>>,
-}
-
-impl PartialEq for Database {
-    fn eq(&self, other: &Self) -> bool {
-        self.config == other.config
-    }
-}
-
-impl Debug for Database {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        write!(f, "Http::Database({:?})", self.config)
-    }
-}
-
 #[instrument]
 async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, StoreError> {
     let payload = serde_json::to_string(&LoginRequest {
@@ -93,6 +40,7 @@ async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, Store
         .header("content-type", "application/json")
         .body(Body::from(payload))
         .unwrap();
+
     let client = Client::new();
     let res = client.request(req).await?;
     let status = res.status();
@@ -108,6 +56,34 @@ async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, Store
         let data: ErrorResponse = serde_json::from_reader(body.reader())?;
         debug!("login failed {:?}", data);
         Err(StoreError::HttpFail(data))
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct HttpAuth {
+    token: String,
+    created_at: DateTime<Utc>,
+}
+
+#[derive(Clone)]
+pub struct Database {
+    pub email: String,
+    pub password: String,
+    pub workspace: Workspace,
+    pub url: Url,
+    client: ClientWrapper,
+    auth: Arc<RwLock<Option<HttpAuth>>>,
+}
+
+impl PartialEq for Database {
+    fn eq(&self, other: &Self) -> bool {
+        self.email == other.email && self.url.as_str() == other.url.as_str()
+    }
+}
+
+impl Debug for Database {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        write!(f, "Http::Database({:?})", self.url.as_str())
     }
 }
 
@@ -130,7 +106,7 @@ impl Database {
     /// // Run a query on the connection object.
     /// # }
     /// ```
-    pub fn new(config: Config, workspace: &Workspace, email: &str, password: &str) -> Self {
+    pub fn new(endpoint: Url, workspace: &Workspace, email: &str, password: &str) -> Self {
         let client = Client::new();
 
         Self {
@@ -139,8 +115,7 @@ impl Database {
             email: email.to_string(),
             password: password.to_string(),
             workspace: workspace.clone(),
-            url: config.endpoint.clone(),
-            config,
+            url: endpoint,
         }
     }
 
@@ -164,6 +139,7 @@ impl Database {
         let res = self.client.request(req).await?;
         let status = res.status();
         let body = hyper::body::aggregate(res).await?;
+
         if status.is_success() {
             if status == StatusCode::OK || status == StatusCode::CREATED {
                 let data: SuccessResponse<T> = serde_json::from_reader(body.reader())?;
@@ -180,7 +156,7 @@ impl Database {
         }
     }
 
-    pub(crate) async fn ensure_login(&mut self) -> Result<(), StoreError> {
+    pub(crate) async fn ensure_login(&self) -> Result<(), StoreError> {
         {
             let lock = self.auth.read().await;
 
@@ -199,14 +175,16 @@ impl Database {
             // reader lock dropped so that we can acquire a write lock if we
             // have to update the authentication details.
         }
-        self.login().await
+
+        self.login().await?;
+        Ok(())
     }
 
-    pub(crate) async fn login(&mut self) -> Result<(), StoreError> {
+    pub(crate) async fn login(&self) -> Result<(), StoreError> {
+        let mut lock = self.auth.write().await;
         let mut url = self.url.clone();
         url.set_path(&format!("/api/workspaces/{}/account", self.workspace.slug));
         let http_auth = login(&url, &self.email, &self.password).await?;
-        let mut lock = self.auth.write().await;
         *lock = Some(http_auth);
         Ok(())
     }
@@ -216,8 +194,8 @@ impl Database {
     where
         T: serde::de::DeserializeOwned + Debug,
     {
+        self.ensure_login().await?;
         let lock = self.auth.read().await;
-
         let req = Request::builder()
             .method(Method::GET)
             .uri(url.as_str())
@@ -239,13 +217,13 @@ impl Database {
         }
     }
 
-    #[allow(dead_code)]
     #[instrument]
     pub(crate) async fn post<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, StoreError>
     where
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
     {
+        self.ensure_login().await?;
         let lock = self.auth.read().await;
 
         let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
@@ -274,6 +252,8 @@ impl Database {
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
     {
+        self.ensure_login().await?;
+
         let lock = self.auth.read().await;
 
         let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
@@ -296,12 +276,9 @@ impl Database {
         }
     }
 
-    #[allow(dead_code)]
     #[instrument]
-    pub(crate) async fn delete<T, S>(&self, url: Url) -> Result<Option<T>, StoreError>
-    where
-        T: serde::de::DeserializeOwned + Debug,
-    {
+    pub(crate) async fn delete(&self, url: Url) -> Result<(), StoreError> {
+        self.ensure_login().await?;
         let lock = self.auth.read().await;
 
         let req = Request::delete(url.as_str()).header("content-type", "application/json");
@@ -313,12 +290,11 @@ impl Database {
 
         debug!("HTTP DELETE ({:?})", url.as_str());
 
-        let result = self.execute::<T>(req).await?;
+        let result = self.execute::<()>(req).await?;
 
         match result {
-            HttpResponse::Success(data) => Ok(Some(data.data)),
-            HttpResponse::Empty => Ok(None),
             HttpResponse::Error(data) => Err(StoreError::HttpFail(data)),
+            _ => Ok(()),
         }
     }
 }

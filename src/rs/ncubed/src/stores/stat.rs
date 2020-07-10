@@ -16,11 +16,9 @@ pub(crate) fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Syn
 
 #[async_trait]
 pub(crate) trait StatStore {
-    async fn sources_total(&self) -> Result<Stat, StoreError>;
-    async fn sources_total_search(&self, query: &str) -> Result<Stat, StoreError>;
+    async fn sources_total(&self, query: Option<String>) -> Result<Stat, StoreError>;
     async fn sources_types(&self) -> Result<Stat, StoreError>;
-    async fn data_total(&self) -> Result<Stat, StoreError>;
-    async fn data_total_search(&self, query: &str) -> Result<Stat, StoreError>;
+    async fn data_total(&self, query: Option<String>) -> Result<Stat, StoreError>;
     async fn data_sources(&self) -> Result<Stat, StoreError>;
     async fn data_videos(&self) -> Result<Stat, StoreError>;
 }
@@ -33,27 +31,19 @@ pub struct StatStoreSqlite {
 #[async_trait]
 impl StatStore for StatStoreSqlite {
     #[instrument]
-    async fn sources_total(&self) -> Result<Stat, StoreError> {
+    async fn sources_total(&self, query: Option<String>) -> Result<Stat, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_sources.sql"))?;
+        let mut stmt2 =
+            conn.prepare_cached(include_str!("../sql/stat/count_sources_search.sql"))?;
 
-        let count_sources: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+        let count_sources: i32 = match query {
+            Some(q) => stmt2.query_row(params![&q], |row| row.get(0))?,
+            None => stmt.query_row(NO_PARAMS, |row| row.get(0))?,
+        };
 
         Ok(Stat {
             name: "sources_total".into(),
-            value: count_sources,
-        })
-    }
-
-    #[instrument]
-    async fn sources_total_search(&self, query: &str) -> Result<Stat, StoreError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_sources_search.sql"))?;
-
-        let count_sources: i32 = stmt.query_row(params![&query], |row| row.get(0))?;
-
-        Ok(Stat {
-            name: "sources_total_search".into(),
             value: count_sources,
         })
     }
@@ -72,27 +62,18 @@ impl StatStore for StatStoreSqlite {
     }
 
     #[instrument]
-    async fn data_total(&self) -> Result<Stat, StoreError> {
+    async fn data_total(&self, query: Option<String>) -> Result<Stat, StoreError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_units.sql"))?;
+        let mut stmt2 = conn.prepare_cached(include_str!("../sql/stat/count_units_search.sql"))?;
 
-        let count_sources: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+        let count_sources: i32 = match query {
+            Some(q) => stmt2.query_row(params![&q], |row| row.get(0))?,
+            None => stmt.query_row(NO_PARAMS, |row| row.get(0))?,
+        };
 
         Ok(Stat {
             name: "data_total".into(),
-            value: count_sources,
-        })
-    }
-
-    #[instrument]
-    async fn data_total_search(&self, query: &str) -> Result<Stat, StoreError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_units_search.sql"))?;
-
-        let count_sources: i32 = stmt.query_row(params![&query], |row| row.get(0))?;
-
-        Ok(Stat {
-            name: "data_total_search".into(),
             value: count_sources,
         })
     }
@@ -132,37 +113,90 @@ pub struct StatStoreHttp {
 #[async_trait]
 impl StatStore for StatStoreHttp {
     #[instrument]
-    async fn sources_total(&self) -> Result<Stat, StoreError> {
-        todo!()
+    async fn sources_total(&self, query: Option<String>) -> Result<Stat, StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/sources/total",
+            self.client.workspace.slug
+        ));
+
+        if let Some(q) = query {
+            url.query_pairs_mut().clear().append_pair("q", &q);
+        }
+
+        let data: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "sources_total".into(),
+            value: data,
+        })
     }
 
     #[instrument]
     async fn sources_types(&self) -> Result<Stat, StoreError> {
-        todo!()
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/sources/types",
+            self.client.workspace.slug
+        ));
+
+        let data: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "sources_types".into(),
+            value: data,
+        })
     }
 
     #[instrument]
-    async fn sources_total_search(&self, _query: &str) -> Result<Stat, StoreError> {
-        todo!()
-    }
+    async fn data_total(&self, query: Option<String>) -> Result<Stat, StoreError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/data/total",
+            self.client.workspace.slug
+        ));
 
-    #[instrument]
-    async fn data_total(&self) -> Result<Stat, StoreError> {
-        todo!()
-    }
+        if let Some(q) = query {
+            url.query_pairs_mut().clear().append_pair("q", &q);
+        }
 
-    #[instrument]
-    async fn data_total_search(&self, _query: &str) -> Result<Stat, StoreError> {
-        todo!()
+        let data: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "data_total".into(),
+            value: data,
+        })
     }
 
     #[instrument]
     async fn data_sources(&self) -> Result<Stat, StoreError> {
-        todo!()
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/data/sources",
+            self.client.workspace.slug
+        ));
+
+        let data: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "data_sources".into(),
+            value: data,
+        })
     }
 
     #[instrument]
     async fn data_videos(&self) -> Result<Stat, StoreError> {
-        todo!()
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/data/videos",
+            self.client.workspace.slug
+        ));
+
+        let data: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "data_videos".into(),
+            value: data,
+        })
     }
 }

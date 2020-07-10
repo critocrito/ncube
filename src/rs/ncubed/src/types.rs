@@ -49,7 +49,7 @@ impl WorkspaceRequest {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SourceRequest {
     #[serde(rename = "type")]
     pub kind: String,
