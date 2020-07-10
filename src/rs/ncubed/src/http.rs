@@ -1,3 +1,4 @@
+use ncube_data::ReqCtx;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::net::{IpAddr, SocketAddr};
@@ -8,7 +9,6 @@ use warp::{http::StatusCode, Filter};
 use crate::crypto::jwt_verify;
 use crate::errors::HostError;
 use crate::handlers::config::show_secret_key;
-use crate::types::ReqCtx;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase", tag = "status")]

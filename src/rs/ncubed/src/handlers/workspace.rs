@@ -1,4 +1,6 @@
-use ncube_data::{Stat, Unit, Workspace};
+use ncube_data::{
+    AccountRequest, DatabaseRequest, Stat, Unit, Workspace, WorkspaceKindRequest, WorkspaceRequest,
+};
 use tracing::{error, instrument};
 
 use crate::actors::{
@@ -10,7 +12,6 @@ use crate::actors::{
 use crate::errors::HandlerError;
 use crate::handlers::account;
 use crate::stores::{search_store, stat_store, unit_store, workspace_store, WorkspaceStore};
-use crate::types::{AccountRequest, DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 
 #[instrument]
 pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspace, HandlerError> {

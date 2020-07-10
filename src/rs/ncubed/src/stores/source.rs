@@ -1,13 +1,12 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use ncube_data::{QueryTag, Source};
+use ncube_data::{QueryTag, Source, SourceRequest};
 use rusqlite::{params, Error as RusqliteError, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
 use crate::db::{http, sqlite, Database};
 use crate::errors::StoreError;
-use crate::types::SourceRequest;
 
 pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send + Sync> {
     match wrapped_db {

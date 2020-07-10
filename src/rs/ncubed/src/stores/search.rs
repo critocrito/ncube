@@ -1,12 +1,11 @@
 use async_trait::async_trait;
-use ncube_data::{Download, Media, QueryTag, Source, Unit};
+use ncube_data::{Download, Media, QueryTag, SearchResponse, Source, Unit};
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
 use crate::db::{http, sqlite, Database};
 use crate::errors::StoreError;
-use crate::types::SearchResponse;
 
 pub(crate) fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> {
     match wrapped_db {

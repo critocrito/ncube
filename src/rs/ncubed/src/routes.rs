@@ -119,12 +119,12 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
 
 pub(crate) mod config {
     use super::SuccessResponse;
+    use ncube_data::ReqCtx;
     use serde::Deserialize;
     use warp::Filter;
 
     use crate::handlers::config as handlers;
     use crate::http::restrict_to_local_req;
-    use crate::types::ReqCtx;
 
     #[derive(Debug, Deserialize)]
     struct SettingRequest {
@@ -188,11 +188,11 @@ pub(crate) mod config {
 
 pub(crate) mod workspace {
     use super::SuccessResponse;
+    use ncube_data::{ReqCtx, WorkspaceRequest};
     use warp::Filter;
 
     use crate::handlers::workspace as handlers;
     use crate::http::restrict_to_local_req;
-    use crate::types::{ReqCtx, WorkspaceRequest};
 
     async fn create(
         _ctx: ReqCtx,
@@ -273,6 +273,7 @@ pub(crate) mod workspace {
 pub(crate) mod source {
     use super::SuccessResponse;
     use futures::try_join;
+    use ncube_data::{ReqCtx, SearchResponse, SourceRequest};
     use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
@@ -281,7 +282,6 @@ pub(crate) mod source {
     use crate::errors::HandlerError;
     use crate::handlers::{source as handlers, workspace as workspace_handlers};
     use crate::http::authenticate_remote_req;
-    use crate::types::{ReqCtx, SearchResponse, SourceRequest};
 
     // The query parameters for list source.
     #[derive(Debug, Deserialize)]
@@ -434,12 +434,12 @@ pub(crate) mod source {
 
 pub(crate) mod user {
     use super::SuccessResponse;
+    use ncube_data::{LoginRequest, ReqCtx, UpdatePasswordRequest};
     use tracing::instrument;
     use warp::Filter;
 
     use crate::handlers::account as handlers;
     use crate::http::authenticate_remote_req;
-    use crate::types::{LoginRequest, ReqCtx, UpdatePasswordRequest};
 
     #[instrument]
     async fn login(
@@ -487,12 +487,12 @@ pub(crate) mod user {
 
 pub(crate) mod source_tag {
     use super::SuccessResponse;
+    use ncube_data::ReqCtx;
     use tracing::instrument;
     use warp::Filter;
 
     use crate::handlers::source as handlers;
     use crate::http::authenticate_remote_req;
-    use crate::types::ReqCtx;
 
     #[instrument]
     async fn list(
@@ -517,6 +517,7 @@ pub(crate) mod source_tag {
 
 pub(crate) mod stat {
     use super::SuccessResponse;
+    use ncube_data::ReqCtx;
     use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
@@ -524,7 +525,6 @@ pub(crate) mod stat {
 
     use crate::handlers::workspace as handlers;
     use crate::http::authenticate_remote_req;
-    use crate::types::ReqCtx;
 
     // The query parameters for stats.
     #[derive(Debug, Deserialize)]
@@ -637,6 +637,7 @@ pub(crate) mod stat {
 pub(crate) mod unit {
     use super::SuccessResponse;
     use futures::try_join;
+    use ncube_data::{ReqCtx, SearchResponse};
     use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
@@ -645,7 +646,6 @@ pub(crate) mod unit {
     use crate::errors::HandlerError;
     use crate::handlers::workspace as handlers;
     use crate::http::authenticate_remote_req;
-    use crate::types::{ReqCtx, SearchResponse};
 
     // The query parameters for list data.
     #[derive(Debug, Deserialize)]

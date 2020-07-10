@@ -14,7 +14,6 @@ pub mod http;
 pub mod routes;
 pub mod stores;
 pub mod tasks;
-pub mod types;
 
 use std::net::SocketAddr;
 use xactor::Actor;

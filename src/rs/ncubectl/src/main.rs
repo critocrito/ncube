@@ -1,6 +1,7 @@
 use clap::{crate_authors, crate_version, App, AppSettings, Arg};
 use directories::ProjectDirs;
-use ncubed::{types::DatabaseRequest, Application, ApplicationConfig};
+use ncube_data::DatabaseRequest;
+use ncubed::{Application, ApplicationConfig};
 use std::fs::create_dir_all;
 use tracing::Level;
 
