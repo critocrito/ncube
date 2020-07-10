@@ -95,13 +95,14 @@ impl Database {
     /// ```no_run
     /// # use ncube_data::Workspace;
     /// # use ncubed::db::http;
+    /// # use url::Url;
     /// #
     /// # #[tokio::main]
     /// # async fn main () {
     /// let workspace = Workspace::default();
-    /// let config = "http://example.org".parse::<http::Config>().unwrap();
+    /// let endpoint = Url::parse("http://example.org").unwrap();
     ///
-    /// let db = http::Database::new(config, &workspace, "my-email", "my-password");
+    /// let db = http::Database::new(endpoint, &workspace, "my-email", "my-password");
     ///
     /// // Run a query on the connection object.
     /// # }
