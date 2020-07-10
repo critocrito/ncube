@@ -1,4 +1,5 @@
 use ncube_data::ReqCtx;
+use ncube_errors::HostError;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::net::{IpAddr, SocketAddr};
@@ -7,7 +8,6 @@ use tracing::debug;
 use warp::{http::StatusCode, Filter};
 
 use crate::crypto::jwt_verify;
-use crate::errors::HostError;
 use crate::handlers::config::show_secret_key;
 
 #[derive(Debug, Serialize, Deserialize)]

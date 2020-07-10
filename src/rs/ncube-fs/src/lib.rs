@@ -1,12 +1,11 @@
 use flate2::read::GzDecoder;
+use ncube_errors::HostError;
 use std::convert::AsRef;
 use std::fmt::Debug;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tar::Archive;
 use tracing::{debug, instrument};
-
-use crate::errors::HostError;
 
 #[instrument]
 pub fn expand_tilde<P: AsRef<Path> + Debug>(path_user_input: P) -> Option<PathBuf> {
@@ -30,7 +29,7 @@ pub fn expand_tilde<P: AsRef<Path> + Debug>(path_user_input: P) -> Option<PathBu
 }
 
 #[instrument]
-pub(crate) fn mkdirp<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError> {
+pub fn mkdirp<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError> {
     #[cfg(unix)]
     {
         let expanded_path = expand_tilde(target)
@@ -49,7 +48,7 @@ pub(crate) fn mkdirp<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError>
 }
 
 #[instrument]
-pub(crate) fn unzip_workspace<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError> {
+pub fn unzip_workspace<P: AsRef<Path> + Debug>(target: P) -> Result<(), HostError> {
     let expanded_target =
         expand_tilde(target).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
 

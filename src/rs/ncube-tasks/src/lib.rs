@@ -1,13 +1,12 @@
+use ncube_errors::HostError;
+use ncube_fs::{expand_tilde, mkdirp, unzip_workspace};
 use std::fmt::Debug;
 use std::path::Path;
 use tokio::process::Command;
 use tracing::{debug, info, instrument};
 
-use crate::errors::HostError;
-use crate::fs::{expand_tilde, mkdirp, unzip_workspace};
-
 #[instrument]
-pub(crate) async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(), HostError> {
+pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(), HostError> {
     let expanded_path =
         expand_tilde(location).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
 

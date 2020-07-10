@@ -8,12 +8,10 @@ pub mod actors;
 pub mod crypto;
 pub mod db;
 pub mod errors;
-pub mod fs;
 pub mod handlers;
 pub mod http;
 pub mod routes;
 pub mod stores;
-pub mod tasks;
 
 use std::net::SocketAddr;
 use xactor::Actor;

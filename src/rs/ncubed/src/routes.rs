@@ -1,3 +1,4 @@
+use ncube_errors::HostError;
 use std::convert::Infallible;
 use tracing::{error, info, instrument};
 use warp::{
@@ -5,7 +6,7 @@ use warp::{
     Filter,
 };
 
-use crate::errors::{HandlerError, HostError, StoreError};
+use crate::errors::{HandlerError, StoreError};
 use crate::http::{ErrorResponse, SuccessResponse};
 
 #[instrument]

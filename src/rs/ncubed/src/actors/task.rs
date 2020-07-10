@@ -1,11 +1,12 @@
 use async_trait::async_trait;
+use ncube_errors::HostError;
+use ncube_tasks::create_workspace;
 use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Sender};
 use xactor::{message, Actor, Context, Handler};
 
 use crate::actors::Registry;
-use crate::errors::{ActorError, HostError};
-use crate::tasks::create_workspace;
+use crate::errors::ActorError;
 
 #[derive(Debug)]
 enum TaskMessage {

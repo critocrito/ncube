@@ -38,9 +38,6 @@ refinery-migrations = "0.2"
 time = { version = "0.2", features = ["serde"] }
 chrono = { version = "0.4", features = ["serde"] }
 slugify = "0.1.0"
-dirs = "2.0.2"
-flate2 = "1.0.14"
-tar = "0.4.26"
 rand = "0.7.3"
 rust-argon2 = "0.8.2"
 aes = "0.4.0"
@@ -51,6 +48,9 @@ sha2 = "0.8.2"
 jwt = "0.7.0"
 
 ncube-data = { path = "../ncube-data" }
+ncube-errors = { path = "../ncube-errors" }
+ncube-fs = { path = "../ncube-fs" }
+ncube-tasks = { path = "../ncube-tasks" }
 
 [dev-dependencies]
 tokio-test = "0.2"

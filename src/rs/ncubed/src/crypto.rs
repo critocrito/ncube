@@ -7,11 +7,10 @@ use block_modes::Cbc;
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use hmac::{Hmac, Mac};
 use jwt::{RegisteredClaims, SignWithKey, VerifyWithKey};
+use ncube_errors::HostError;
 use rand::Rng;
 use secstr::SecVec;
 use sha2::{Digest, Sha256, Sha512};
-
-use crate::errors::HostError;
 
 type Aes256Cbc = Cbc<Aes256, Iso7816>;
 

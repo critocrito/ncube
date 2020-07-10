@@ -1,3 +1,4 @@
+use ncube_errors::HostError;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::{Mutex, RwLock};
@@ -5,8 +6,6 @@ use tracing::{debug, error, instrument};
 
 pub mod http;
 pub mod sqlite;
-
-use crate::errors::HostError;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Database {
