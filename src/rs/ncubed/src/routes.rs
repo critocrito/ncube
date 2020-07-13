@@ -28,12 +28,13 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
     } else if let Some(HandlerError::NotAllowed(reason)) = err.find() {
         code = StatusCode::FORBIDDEN;
         message = reason.to_string();
-    } else if let Some(HostError::AuthError) = err.find() {
+    } else if let Some(HostError::AuthError(reason)) = err.find() {
+        error!("{:?}", reason);
         code = StatusCode::UNAUTHORIZED;
         message = "request did not authorize".to_string();
     } else if let Some(StoreError::HttpFail(reason)) = err.find() {
-        code = StatusCode::INTERNAL_SERVER_ERROR;
         error!("{:?}", reason);
+        code = StatusCode::INTERNAL_SERVER_ERROR;
         message = "UNHANDLED_REJECTION".into();
     } else if let Some(rejection) = err.find::<warp::reject::MethodNotAllowed>() {
         code = StatusCode::METHOD_NOT_ALLOWED;
