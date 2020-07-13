@@ -2,7 +2,7 @@ use ncube_errors::HostError;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::{Mutex, RwLock};
-use tracing::{debug, error, instrument};
+use tracing::{debug, instrument};
 
 pub mod http;
 pub mod sqlite;
@@ -19,12 +19,12 @@ impl Database {
         match self {
             Database::Http(inner_db) => {
                 inner_db.update_password().await.map_err(|e| {
-                    error!("updating password failed: {:?}", e.to_string());
-                    HostError::AuthError
+                    let msg = format!("updating password failed: {:?}", e.to_string());
+                    HostError::AuthError(msg)
                 })?;
                 inner_db.login().await.map_err(|e| {
-                    error!("login failed: {:?}", e.to_string());
-                    HostError::AuthError
+                    let msg = format!("login failed: {:?}", e.to_string());
+                    HostError::AuthError(msg)
                 })?;
                 Ok(())
             }
@@ -38,8 +38,8 @@ impl Database {
         match self {
             Database::Http(inner_db) => {
                 inner_db.ensure_login().await.map_err(|e| {
-                    error!("login failed: {:?}", e.to_string());
-                    HostError::AuthError
+                    let msg = format!("login failed: {:?}", e.to_string());
+                    HostError::AuthError(msg)
                 })?;
                 Ok(())
             }

@@ -7,12 +7,22 @@ use block_modes::Cbc;
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use hmac::{Hmac, Mac};
 use jwt::{RegisteredClaims, SignWithKey, VerifyWithKey};
-use ncube_errors::HostError;
 use rand::Rng;
 use secstr::SecVec;
 use sha2::{Digest, Sha256, Sha512};
+use std::fmt::{Display, Formatter};
+use thiserror::Error;
 
 type Aes256Cbc = Cbc<Aes256, Iso7816>;
+
+#[derive(Error, Debug)]
+pub struct AuthError;
+
+impl Display for AuthError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "AuthError")
+    }
+}
 
 pub fn gen_nonce<R: Rng>(mut rng: R) -> [u8; 16] {
     let mut arr = [0u8; 16];
@@ -48,7 +58,7 @@ pub fn verify(hash: &str, password: &[u8]) -> bool {
     argon2::verify_encoded(hash, password).unwrap_or(false)
 }
 
-pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String, HostError> {
+pub fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String, AuthError> {
     let key: Hmac<Sha512> =
         Hmac::new_varkey(key.as_bytes()).expect("HMAC can take key of any size");
     let now = Utc::now();
@@ -62,33 +72,27 @@ pub(crate) fn jwt_sign(key: &str, email: &str, workspace: &str) -> Result<String
         ..Default::default()
     };
 
-    claims.sign_with_key(&key).map_err(|_| HostError::AuthError)
+    claims.sign_with_key(&key).map_err(|_| AuthError)
 }
 
-pub(crate) fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, HostError> {
-    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).map_err(|_| HostError::AuthError)?;
+pub fn jwt_verify(key: &str, token: &str) -> Result<RegisteredClaims, AuthError> {
+    let key: Hmac<Sha512> = Hmac::new_varkey(key.as_bytes()).map_err(|_| AuthError)?;
     let claims: RegisteredClaims =
-        VerifyWithKey::verify_with_key(token, &key).map_err(|_| HostError::AuthError)?;
+        VerifyWithKey::verify_with_key(token, &key).map_err(|_| AuthError)?;
     let now = Utc::now();
     let expiration = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp(
-            claims.expiration.ok_or_else(|| HostError::AuthError)? as i64,
-            0,
-        ),
+        NaiveDateTime::from_timestamp(claims.expiration.ok_or_else(|| AuthError)? as i64, 0),
         Utc,
     );
     let not_before = DateTime::<Utc>::from_utc(
-        NaiveDateTime::from_timestamp(
-            claims.not_before.ok_or_else(|| HostError::AuthError)? as i64,
-            0,
-        ),
+        NaiveDateTime::from_timestamp(claims.not_before.ok_or_else(|| AuthError)? as i64, 0),
         Utc,
     );
 
     if not_before <= now && now <= expiration {
         Ok(claims)
     } else {
-        Err(HostError::AuthError)
+        Err(AuthError)
     }
 }
 
@@ -101,18 +105,16 @@ pub fn aes_encrypt<R: Rng>(rng: R, key: &SecVec<u8>, plaintext: &[u8]) -> String
     format!("aes256cbc${}${}", encoded_iv, encoded_ciphertext)
 }
 
-pub fn aes_decrypt(key: SecVec<u8>, ciphertext: &str) -> Result<Vec<u8>, HostError> {
+pub fn aes_decrypt(key: SecVec<u8>, ciphertext: &str) -> Result<Vec<u8>, AuthError> {
     let parts: Vec<&str> = ciphertext.split('$').take(3).collect();
     if parts.len() != 3 {
-        return Err(HostError::AuthError);
+        return Err(AuthError);
     }
     let (encoded_iv, encoded_ciphertext) = (parts[1], parts[2]);
-    let iv = decode(encoded_iv).map_err(|_| HostError::AuthError)?;
-    let ciphertext = decode(encoded_ciphertext).map_err(|_| HostError::AuthError)?;
+    let iv = decode(encoded_iv).map_err(|_| AuthError)?;
+    let ciphertext = decode(encoded_ciphertext).map_err(|_| AuthError)?;
     let cipher = Aes256Cbc::new_var(key.unsecure(), &iv).unwrap();
-    let decrypted_ciphertext = cipher
-        .decrypt_vec(&ciphertext)
-        .map_err(|_| HostError::AuthError)?;
+    let decrypted_ciphertext = cipher.decrypt_vec(&ciphertext).map_err(|_| AuthError)?;
     Ok(decrypted_ciphertext)
 }
 

@@ -1,3 +1,4 @@
+use ncube_crypto::gen_secret_key;
 use ncube_data::ConfigSetting;
 use rand::{self, rngs::StdRng, SeedableRng};
 use std::time::SystemTime;
@@ -8,7 +9,6 @@ use crate::actors::{
     },
     HostActor, Registry,
 };
-use crate::crypto::gen_secret_key;
 use crate::errors::HandlerError;
 
 pub async fn is_bootstrapped() -> Result<bool, HandlerError> {

@@ -1,3 +1,4 @@
+use ncube_crypto::jwt_verify;
 use ncube_data::ReqCtx;
 use ncube_errors::HostError;
 use serde::{Deserialize, Serialize};
@@ -7,7 +8,6 @@ use std::str::FromStr;
 use tracing::debug;
 use warp::{http::StatusCode, Filter};
 
-use crate::crypto::jwt_verify;
 use crate::handlers::config::show_secret_key;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -170,7 +170,9 @@ pub(crate) fn authorize_req() -> impl Filter<Extract = (ReqCtx,), Error = warp::
             // I added this code branch to have Rust infer the return type of
             // and_then.
             #[allow(unreachable_code)]
-            Err(warp::reject::custom(HostError::AuthError))
+            Err(warp::reject::custom(HostError::AuthError(
+                "Unreachable branch".into(),
+            )))
         },
     )
 }
@@ -182,7 +184,9 @@ pub(crate) fn restrict_to_local_req(
 
         match ctx {
             ReqCtx { is_local: true, .. } => futures::future::ok(ctx),
-            _ => futures::future::err(warp::reject::custom(HostError::AuthError)),
+            _ => futures::future::err(warp::reject::custom(HostError::AuthError(
+                "request is not local".into(),
+            ))),
         }
     })
 }
@@ -197,7 +201,9 @@ pub(crate) fn authenticate_remote_req(
                 is_local: false,
                 is_authorized: false,
                 ..
-            } => futures::future::err(warp::reject::custom(HostError::AuthError)),
+            } => futures::future::err(warp::reject::custom(HostError::AuthError(
+                "remote request did not authorize".into(),
+            ))),
             _ => futures::future::ok(ctx),
         }
     })
