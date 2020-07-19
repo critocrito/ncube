@@ -11,7 +11,8 @@
     "noImplicitThis": true,
     "noImplicitAny": true,
     "jsx": "react",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "typeRoots": ["node_modules/@types", "node_modules/web-ext-types"]
   },
   "include": [
     "src/ts/**/*",

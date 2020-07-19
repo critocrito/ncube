@@ -4,6 +4,7 @@
   "license": "GPL-3.0",
   "author": "Christo <christo@cryptodrunks.net>",
   "repository": "https://github.com/critocrito/ncube.git",
+  "version": "0.5.0",
   "scripts": {
     "compile": "yarn compile:prod",
     "compile:dev": "cross-env NODE_ENV=development webpack-dev-server --mode development --open chromium",
@@ -12,12 +13,18 @@
     "cosmos:export": "cosmos-export",
     "fix": "yarn lint --fix",
     "lint": "eslint --cache --ext .js,.jsx,.ts,.tsx src/ts test/ts webpack*.js test/test-setup.js",
-    "start": "concurrently --kill-others \"yarn cosmos\" \"yarn test:watch\" \"yarn type-check:watch\" \"yarn compile:dev\"",
+    "lint:web-ext": "web-ext lint -s target/web-ext",
+    "start": "concurrently --kill-others \"yarn cosmos\" \"yarn test:watch\" \"yarn type-check:watch\" \"yarn compile:dev\" \"yarn web-ext:watch\"",
     "test": "ava --verbose",
     "test:watch": "yarn test --watch",
     "type-check": "tsc --noEmit",
     "type-check:watch": "yarn type-check -w",
-    "verify": "yarn lint && yarn type-check && yarn test"
+    "verify": "yarn lint && yarn type-check && yarn test",
+    "web-ext": "web-ext run -s target/web-ext",
+    "web-ext:chromium": "yarn web-ext -t chromium",
+    "web-ext:dev": "webpack --mode development --config webpack.web-ext.js",
+    "web-ext:prod": "webpack --mode production --config webpack.web-ext.js",
+    "web-ext:watch": "yarn web-ext:dev -w"
   },
   "dependencies": {
     "@xstate/react": "^1.0.0-rc.4",
@@ -55,7 +62,9 @@
     "autoprefix": "^1.0.1",
     "ava": "^3.9.0",
     "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
     "concurrently": "^5.2.0",
+    "copy-webpack-plugin": "^6.0.3",
     "cross-env": "^7.0.2",
     "css-loader": "^3.6.0",
     "eslint": "^7.2.0",
@@ -93,9 +102,12 @@
     "typescript": "^3.9.5",
     "typescript-language-server": "^0.4.0",
     "url-loader": "^4.1.0",
+    "web-ext": "^4.3.0",
+    "web-ext-types": "^3.2.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.0"
+    "webpack-dev-server": "^3.11.0",
+    "webpack-extension-manifest-plugin": "^0.5.0"
   },
   "ava": {
     "require": [
@@ -154,7 +166,8 @@
     },
     "env": {
       "browser": true,
-      "es6": true
+      "es6": true,
+      "webextensions": true
     },
     "settings": {
       "react": {
@@ -223,8 +236,7 @@
         "error",
         {
           "devDependencies": [
-            "webpack.config.js",
-            "webpack.cosmos.js",
+            "webpack.*.js",
             "test/ts/**/*.ts",
             "test/test-setup.js",
             "scripts/**/*.js",

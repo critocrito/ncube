@@ -1,4 +1,4 @@
-.PHONY: all test ui workspace dist clean-dist clean-build clean-pkg-dmg pkg-bin pkg-deb pkg-deb-ncubed verify
+.PHONY: all test ui workspace web-ext dist clean-dist clean-build clean-pkgs pkg-bin pkg-deb pkg-deb-ncubed pkg-web-ext verify
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -9,6 +9,7 @@ dist_fonts_dir = $(dist_dir)/fonts
 dist_images_dir = $(dist_dir)/images
 css_dir = $(target_dir)/css
 webpack_dir = $(target_dir)/webpack
+webext_dir = $(target_dir)/web-ext
 workspace_dir = $(target_dir)/workspace
 workspace_archive = $(workspace_dir)/workspace.tar.gz
 pkgs_release_dir = pkgs
@@ -17,6 +18,9 @@ all: $(release_dir)/ncube
 
 $(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css:
 	yarn compile
+
+web-ext:
+	yarn web-ext:prod
 
 $(dist_dir): $(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css
 	cp -av $(webpack_dir) $(dist_dir)
@@ -56,9 +60,14 @@ clean-dist:
 clean-build:
 	rm -rf $(pkg_build_dir)
 
-clean:
-	rm -rf $(target_dir)
+clean-web-ext:
+	rm -rf $(webext_dir)
+
+clean-pkgs:
 	rm -rf $(pkgs_release_dir)
+
+clean: clean-pkgs
+	rm -rf $(target_dir)
 
 # TODO: If I don't provide a signing code the create-dmg command returns an
 # error. To make make not choke up on that I force a good return.
@@ -80,6 +89,10 @@ pkg-deb-ncubed: $(release_dir)/ncubed $(release_dir)/ncubectl
 	@mkdir -p $(pkgs_release_dir)
 	cargo deb -p ncubed
 	cp target/debian/ncubed*.deb $(pkgs_release_dir)
+
+pkg-web-ext: web-ext
+	@mkdir -p $(pkgs_release_dir)
+	node_modules/.bin/web-ext build -s $(webext_dir) -a $(pkgs_release_dir) --overwrite-dest
 
 verify:
 	yarn verify

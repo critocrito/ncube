@@ -6,7 +6,7 @@
 
 ![Ncube Screenshot](https://raw.githubusercontent.com/critocrito/ncube/master/resources/screenshots/ncube.png)
 
-[Installation](#installation) • [Documentation](#documentation) • [Development](#development)
+[Installation](#installation) • [Documentation](#documentation) • [Ncube Discovery](#ncube-discovery) • [Development](#development)
 
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/critocrito/ncube/Build%20Status?style=flat-square)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/critocrito/ncube?color=orange&style=flat-square)
@@ -106,6 +106,38 @@ fc4 -fsr doc/diagrams
 
 The account authorization for remote workspaces is described in [a dedicated
 document](doc/auth-workflow.pdf).
+
+## Ncube Discovery
+
+Ncube is accompanied by a browser extension for the [Firefox browser](https://www.mozilla.org/en-US/firefox/new) for a smoother investigation workflow. The browser extension allows to store URL's from the browser as sources directly in Ncube.
+
+TODO: Publish extension to AMO and provide a download link.
+
+The following instructions are to test and develop the browser extension locally. Make sure to install all required dependencies.
+
+```sh
+yarn install
+```
+
+To build the full extension and package it up simply run:
+
+```sh
+make pkg-web-ext
+```
+
+This will produce the package in the `pkgs` directory.
+
+To develop locally run compilation of the web extension in one terminal:
+
+```sh
+yarn web-ext:watch
+```
+
+In another terminal start a development version of Firefox that contains the browser extension:
+
+```sh
+yarn web-ext
+```
 
 ## Development
 
