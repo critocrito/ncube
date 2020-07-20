@@ -42,14 +42,15 @@ fi
 uncallable "clog" && except "clog-cli not found. Run cargo install clog-cli."
 
 make
+make verify
 make test
 
 clog -C CHANGELOG.md --setversion "$VERSION" -F
 
-perl -pi -e "s/^version = \".*?\"/version = \"$VERSION\"/" src/rs/ncube/Cargo.toml
-perl -pi -e "s/^version = \".*?\"/version = \"$VERSION\"/" src/rs/ncubed/Cargo.toml
-perl -pi -e "s/^version = \".*?\"/version = \"$VERSION\"/" src/rs/ncube-data/Cargo.toml
-perl -pi -e "s/^version = \".*?\"/version = \"$VERSION\"/" src/rs/ncubectl/Cargo.toml
+while read -r p;
+do
+  perl -pi -e "s/^version = \".*?\"/version = \"$VERSION\"/" "src/rs/$p/Cargo.toml";
+done < <(ls src/rs | sed -e 's/\(.*\)\//\1/g')
 
 # This must be run on a mac
 if is_mac; then
@@ -60,13 +61,14 @@ fi
 
 git add CHANGELOG.md
 git add resources/Info.plist
-git add src/rs/ncube-data/Cargo.toml
-git add src/rs/ncube/Cargo.toml
-git add src/rs/ncubectl/Cargo.toml
-git add src/rs/ncubed/Cargo.toml
+while read -r p;
+do
+  git add "src/rs/$p/Cargo.toml"
+done < <(ls src/rs | sed -e 's/\(.*\)\//\1/g')
 
 msg_info "Open the editor to compose the commit message."
 
+exit 1
 git commit -m "chore(release): release version $VERSION" -e
 LAST_MSG=$(git log -1 --pretty=%B | sed 's/chore(release): //g')
 git tag -a "$VERSION" -m "$LAST_MSG"
