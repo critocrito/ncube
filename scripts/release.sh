@@ -71,3 +71,5 @@ msg_info "Open the editor to compose the commit message."
 git commit -m "chore(release): release version $VERSION" -e
 LAST_MSG=$(git log -1 --pretty=%B | sed 's/chore(release): //g')
 git tag -a "$VERSION" -m "$LAST_MSG"
+
+echo "Run 'git push --follow-tags origin master' to publish the release."
