@@ -62,8 +62,8 @@ export const configSettingReq = Yup.object({
 });
 
 export const sourceReq = Yup.object({
-  type: sourceType.defined(),
-  term: sourceTerm.defined(),
+  type: sourceType.required(),
+  term: sourceTerm.required(),
   tags: sourceTags.defined(),
 });
 

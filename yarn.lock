@@ -1077,6 +1077,11 @@
     querystring "^0.2.0"
     strip-ansi "^3.0.0"
 
+"@sugarcube/source-types@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@sugarcube/source-types/-/source-types-0.1.4.tgz#4c40e52cc9ba137916402a55575b518a0b6d5adb"
+  integrity sha512-ZzckLA9d5zjTTavjZTXuGhoLhcYb3RMZ5j/FOB4RPK7OVldBF/ghZFp/9wpnBRFu/1+rF+SYvzWQlPTcAehB6A==
+
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@szmarczak/http-timer/-/http-timer-1.1.2.tgz#b1665e2c461a2cd92f4c1bbf50d5454de0d4b421"
@@ -11816,6 +11821,11 @@ wcwidth@^1.0.0, wcwidth@^1.0.1:
   integrity sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=
   dependencies:
     defaults "^1.0.3"
+
+web-ext-types@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/web-ext-types/-/web-ext-types-3.2.1.tgz#3edc0e3c2e8fe121d7d7e4ca0b7ee0c883cea832"
+  integrity sha512-oQZYDU3W8X867h8Jmt3129kRVKklz70db40Y6OzoTTuzOJpF/dB2KULJUf0txVPyUUXuyzV8GmT3nVvRHoG+Ew==
 
 web-ext@^4.3.0:
   version "4.3.0"
