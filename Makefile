@@ -99,6 +99,7 @@ verify:
 	cargo check
 
 test:
+	yarn test
 	cargo test
 
 ui: $(dist_dir)
