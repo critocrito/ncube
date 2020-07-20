@@ -1,3 +1,42 @@
+<a name="0.6.0"></a>
+## 0.6.0 (2020-07-20)
+
+
+#### Bug Fixes
+
+* **ncubed:**
+  *  handle empty responses for remote HTTP requests ([0d85bf3c](0d85bf3c))
+  *  switch http client to allow HTTP redirects and TLS ([455bb7f5](455bb7f5))
+  *  authenticate remote requests for stats, units and source tags ([659bcc03](659bcc03))
+  *  account creation and password verification ([bf490b16](bf490b16))
+* **ui:**
+  *  allow to cancel linking new workspaces ([a12d4b07](a12d4b07))
+  *  handle missing stats state in workspace screen ([1cd27e11](1cd27e11))
+  *  render URL decoded in the data table ([3854a682](3854a682))
+  *  use className as attribute name over class ([4cb302e5](4cb302e5))
+  *  center sidebar navigation buttons ([31b45b9f](31b45b9f))
+
+#### Features
+
+*   scaffold the Ncube discovery browser extension ([46866667](46866667))
+*   extend tables with a search function and enable data search ([42306df8](42306df8))
+* **ncubed:**
+  *  proxy remote data and sources database requests ([1dc4bdc7](1dc4bdc7))
+  *  create search indices, extract search into it's own store ([1a0c5535](1a0c5535))
+  *  paginated list of sources and expanded stats ([e53f52da](e53f52da))
+  *  list units of data with pagination ([eded89ee](eded89ee))
+  *  query stats about the data units ([b215de02](b215de02))
+* **ui:**
+  *  refactor source tag ui and use a multi select widget ([acdb2247](acdb2247))
+  *  paginated source and data tables ([57c4672b](57c4672b))
+  *  render data stats ([6671f3fd](6671f3fd))
+  *  query stats about sources ([dd08b97e](dd08b97e))
+  *  list and create tags for sources ([74249aa9](74249aa9))
+  *  data table with selection, filters, pagination and delete modal ([979d56bc](979d56bc))
+* **web-ext:**  add browser extension for source discovery and send them to Ncube ([ef4454bc](ef4454bc))
+
+
+
 <a name="0.5.0"></a>
 ## 0.5.0 (2020-06-11)
 
