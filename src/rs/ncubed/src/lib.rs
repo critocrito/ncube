@@ -1,5 +1,6 @@
 // #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
+#![type_length_limit = "1343848"]
 // #![cfg_attr(test, deny(warnings))]
 
 // I set all modules to pub in order to use them inside doc tests. This is not
