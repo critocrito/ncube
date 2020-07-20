@@ -1,6 +1,7 @@
+import {CreateSourceFormValues} from "./forms/create-source";
 import {CreateWorkspaceFormValues} from "./forms/create-workspace";
 import {LinkWorkspaceFormValues} from "./forms/link-workspace";
-import {createWorkspace} from "./http";
+import {createSource, createWorkspace} from "./http";
 
 export {listWorkspaces} from "./http";
 
@@ -19,4 +20,11 @@ export const saveWorkspace = async (
   throw new Error(
     "No valid workspace kind detected. Should be either 'remote' or 'local'.",
   );
+};
+
+export const saveSource = (
+  slug: string,
+  values: CreateSourceFormValues,
+): Promise<void> => {
+  return createSource(slug, values);
 };

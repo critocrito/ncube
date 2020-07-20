@@ -27,6 +27,7 @@
     "web-ext:watch": "yarn web-ext:dev -w"
   },
   "dependencies": {
+    "@sugarcube/source-types": "^0.1.4",
     "@xstate/react": "^1.0.0-rc.4",
     "classnames": "^2.2.6",
     "date-fns": "^2.14.0",

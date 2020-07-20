@@ -125,14 +125,21 @@ export type Unit = {
 };
 
 /*
- * The request types represent request objects to the HTTP API. They are
- * usually used in the `./http/*` functions. Additionally to types I run
- * validations for the requests. Yup allows to infer types based on the
- * validations.
+ * The request types represent request objects to the HTTP API. They are usually
+ * used in the `./http/*` functions. Additionally to types I run validations for
+ * the requests. Yup allows to infer types based on the validations.
+ *
+ * UPDATE: I ran into lots of troubles using the SourceReq type for the web
+ * extension. I redefined it as a vanialla Typescript type to make the type work.
+ * Seems the infering of types causes some trouble. I might want to avoid it.
  */
 
 export type ConfigSettingReq = Yup.InferType<typeof v.configSettingReq>;
-export type SourceReq = Yup.InferType<typeof v.sourceReq>;
+export type SourceReq = {
+  type: string;
+  term: string;
+  tags: SourceTag[];
+};
 
 /*
  * It is currently tricky (not possible?) to express discriminated union types

@@ -11,8 +11,9 @@ import Modal from "../common/modal";
 import QueryTag from "../common/query-tag";
 import SourceTag from "../common/source-tag";
 import {useAppCtx} from "../context";
-import CreateSourceForm, {CreateSourceFormValues} from "../forms/create-source";
-import {createSource, listSources, removeSource, searchSources} from "../http";
+import CreateSourceForm from "../forms/create-source";
+import {saveSource} from "../handlers";
+import {listSources, removeSource, searchSources} from "../http";
 import machine from "../machines/table";
 import Table from "../table";
 import ActionBar from "../table/action-bar";
@@ -35,13 +36,6 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
     default:
       return "url";
   }
-};
-
-const saveSource = (
-  slug: string,
-  values: CreateSourceFormValues,
-): Promise<void> => {
-  return createSource(slug, values);
 };
 
 const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {

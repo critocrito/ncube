@@ -23,7 +23,7 @@
 
   --color-youtube: #e52d27;
   --color-twitter: #08a0e9;
-  --color-url: #463764;
+  --color-http: #463764;
 
   /* Random Colors */
 
@@ -117,8 +117,8 @@
   background: var(--color-twitter);
 }
 
-.bg-url {
-  background: var(--color-url);
+.bg-http {
+  background: var(--color-http);
 }
 
 /* Borders */
