@@ -61,28 +61,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [bionic, focal, macos, bionic-pkg, focal-pkg]
+        build: [bionic, macos]
         include:
         - build: bionic
           os: ubuntu-18.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
-        - build: focal
-          os: ubuntu-20.04
           rust: nightly
           target: x86_64-unknown-linux-gnu
         - build: macos
           os: macos-latest
           rust: nightly
           target: x86_64-apple-darwin
-        - build: bionic-pkg
-          os: ubuntu-18.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
-        - build: focal-pkg
-          os: ubuntu-20.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
 
     steps:
     - name: Checkout repository
