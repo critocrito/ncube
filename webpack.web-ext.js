@@ -78,7 +78,6 @@ module.exports = {
       config: {
         base: baseManifest,
         extend: {
-          version: pkg.version,
           description: pkg.description,
           homepage_url: pkg.homepage,
         },

@@ -1,6 +1,8 @@
 module.exports = {
   name: "ncube-discovery",
 
+  version: "0.0.1",
+
   manifest_version: 2,
   icons: {
     "48": "icons/sd-48.png",
