@@ -130,20 +130,8 @@ jobs:
     - name: Strip release binary (linux and macos)
       run: strip "target/${{ matrix.target }}/release/ncube"
 
-    - name: Build binary release
-      if: matrix.build == 'linux' || matrix.build == 'macos'
-      shell: bash
-      run: |
-        staging="ncube-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
-        mkdir -p "$staging"/doc
-        cp {README.md,license.txt} "$staging/"
-        cp {CHANGELOG.md,doc/glossary.md} "$staging/doc/"
-        cp "target/${{ matrix.target }}/release/ncube" "$staging/"
-        tar czf "$staging.tar.gz" "$staging"
-        echo "::set-env name=ASSET::$staging.tar.gz"
-
     - name: Build installable DMG package
-      if: matrix.build == 'macos-pkg'
+      if: matrix.build == 'macos'
       shell: bash
       run: |
         make pkg-dmg
@@ -151,7 +139,7 @@ jobs:
         echo "::set-env name=ASSET::Ncube_${{ env.RELEASE_VERSION }}.dmg"
 
     - name: Build installable DEB package
-      if: matrix.build == 'linux-pkg'
+      if: matrix.build == 'bionic'
       shell: bash
       run: |
         cargo install cargo-deb
@@ -250,10 +238,10 @@ jobs:
         cargo build --bin ncubed --release ${{ env.TARGET_FLAGS }}
         cargo build --bin ncubectl --release ${{ env.TARGET_FLAGS }}
 
-    - name: Strip ncubed release binary (linux and macos)
+    - name: Strip ncubed release binary
       run: strip "target/${{ matrix.target }}/release/ncubed"
 
-    - name: Strip ncubectl release binary (linux and macos)
+    - name: Strip ncubectl release binary
       run: strip "target/${{ matrix.target }}/release/ncubectl"
 
     - name: Build binary release
