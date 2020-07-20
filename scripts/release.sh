@@ -68,7 +68,6 @@ done < <(ls src/rs | sed -e 's/\(.*\)\//\1/g')
 
 msg_info "Open the editor to compose the commit message."
 
-exit 1
 git commit -m "chore(release): release version $VERSION" -e
 LAST_MSG=$(git log -1 --pretty=%B | sed 's/chore(release): //g')
 git tag -a "$VERSION" -m "$LAST_MSG"
