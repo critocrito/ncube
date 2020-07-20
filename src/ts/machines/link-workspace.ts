@@ -67,6 +67,7 @@ export default createMachine<
     error: {
       on: {
         RETRY: "fileUpload",
+        CANCEL: "done",
       },
     },
 
