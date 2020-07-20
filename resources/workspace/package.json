@@ -2,8 +2,8 @@
   "private": true,
   "name": null,
   "dependencies": {
-    "@sugarcube/cli": "0.39.0",
-    "@sugarcube/core": "0.39.0",
-    "@sugarcube/plugin-sql": "0.39.0"
+    "@sugarcube/cli": "0.40.0",
+    "@sugarcube/core": "0.40.0",
+    "@sugarcube/plugin-sql": "0.40.0"
   }
 }
