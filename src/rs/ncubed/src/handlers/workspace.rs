@@ -93,7 +93,7 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
             let database = match workspace_req.database {
                 DatabaseRequest::Http => "http",
                 // Remote workspaces can only have HTTP databases.
-                DatabaseRequest::Sqlite => {
+                _ => {
                     return Err(HandlerError::Invalid(
                         "remote workspaces require a `http` database".into(),
                     ))

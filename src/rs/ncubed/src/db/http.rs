@@ -1,11 +1,9 @@
 //! When connecting to remote ncube installation all requests are done using
 //! HTTP. Internally the HTTP endpoint is treated like a database.
-use bytes::buf::BufExt as _;
 use chrono::{DateTime, Duration, Utc};
-use hyper::{client::HttpConnector, Body, Client, Method, Request, StatusCode};
 use ncube_data::{LoginRequest, LoginResponse, Workspace};
+use reqwest::{Client, StatusCode};
 use std::fmt::{self, Debug, Display, Formatter};
-use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 use thiserror::Error;
 use tokio::sync::RwLock;
@@ -28,31 +26,26 @@ impl Display for HttpConfigError {
 
 #[instrument]
 async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, StoreError> {
-    let payload = serde_json::to_string(&LoginRequest {
-        email: email.to_string(),
-        password: password.to_string(),
-    })
-    .unwrap()
-    .into_bytes();
-
-    let req = Request::post(url.as_str())
-        .header("content-type", "application/json")
-        .body(Body::from(payload))
-        .unwrap();
-
     let client = Client::new();
-    let res = client.request(req).await?;
-    let status = res.status();
-    let body = hyper::body::aggregate(res).await?;
+    let resp = client
+        .post(url.as_str())
+        .header("content-type", "application/json")
+        .json(&LoginRequest {
+            email: email.to_string(),
+            password: password.to_string(),
+        })
+        .send()
+        .await?;
+    let status = resp.status();
 
     if status == StatusCode::CREATED {
-        let data: SuccessResponse<LoginResponse> = serde_json::from_reader(body.reader())?;
+        let data: SuccessResponse<LoginResponse> = resp.json().await?;
         debug!("login success {:?}", data);
         let token = data.data.token;
         let created_at = Utc::now();
         Ok(HttpAuth { token, created_at })
     } else {
-        let data: ErrorResponse = serde_json::from_reader(body.reader())?;
+        let data: ErrorResponse = resp.json().await?;
         debug!("login failed {:?}", data);
         Err(StoreError::HttpFail(data))
     }
@@ -70,7 +63,7 @@ pub struct Database {
     pub password: String,
     pub workspace: Workspace,
     pub url: Url,
-    client: ClientWrapper,
+    client: reqwest::Client,
     auth: Arc<RwLock<Option<HttpAuth>>>,
 }
 
@@ -107,10 +100,10 @@ impl Database {
     /// # }
     /// ```
     pub fn new(endpoint: Url, workspace: &Workspace, email: &str, password: &str) -> Self {
-        let client = Client::new();
+        let client = reqwest::Client::new();
 
         Self {
-            client: ClientWrapper::new(client),
+            client,
             auth: Arc::new(RwLock::new(None)),
             email: email.to_string(),
             password: password.to_string(),
@@ -132,23 +125,31 @@ impl Database {
         Ok(())
     }
 
-    async fn execute<T>(&self, req: Request<Body>) -> Result<HttpResponse<T>, StoreError>
+    async fn execute<T>(&self, req: reqwest::RequestBuilder) -> Result<HttpResponse<T>, StoreError>
     where
         T: serde::de::DeserializeOwned + Debug,
     {
-        let res = self.client.request(req).await?;
-        let status = res.status();
-        let body = hyper::body::aggregate(res).await?;
+        self.ensure_login().await?;
+        let lock = self.auth.read().await;
+
+        let resp = match &*lock {
+            None => req,
+            Some(auth) => req.bearer_auth(&auth.token),
+        }
+        .send()
+        .await?;
+
+        let status = resp.status();
 
         if status.is_success() {
             if status == StatusCode::OK || status == StatusCode::CREATED {
-                let data: SuccessResponse<T> = serde_json::from_reader(body.reader())?;
+                let data: SuccessResponse<T> = resp.json().await?;
                 Ok(HttpResponse::Success(data))
             } else {
                 Ok(HttpResponse::Empty)
             }
         } else {
-            let data: ErrorResponse = serde_json::from_reader(body.reader())?;
+            let data: ErrorResponse = resp.json().await?;
 
             debug!("request failed: {:?}", data);
 
@@ -194,20 +195,9 @@ impl Database {
     where
         T: serde::de::DeserializeOwned + Debug,
     {
-        self.ensure_login().await?;
-        let lock = self.auth.read().await;
-        let req = Request::builder()
-            .method(Method::GET)
-            .uri(url.as_str())
-            .header("content-type", "application/json");
-        let req = match &*lock {
-            None => req,
-            Some(auth) => req.header("authorization", format!("Bearer {}", auth.token)),
-        };
-        let req = req.body(Default::default()).unwrap();
-
         debug!("HTTP GET ({:?})", url.as_str());
 
+        let req = self.client.get(url.as_str());
         let result = self.execute::<T>(req).await?;
 
         match result {
@@ -223,20 +213,9 @@ impl Database {
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
     {
-        self.ensure_login().await?;
-        let lock = self.auth.read().await;
-
-        let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
-
-        let req = Request::post(url.as_str()).header("content-type", "application/json");
-        let req = match &*lock {
-            None => req,
-            Some(auth) => req.header("authorization", format!("Bearer {}", auth.token)),
-        };
-        let req = req.body(Body::from(payload_json)).unwrap();
-
         debug!("HTTP POST ({:?}) -> {:?}", url.as_str(), payload);
 
+        let req = self.client.post(url.as_str()).json(&payload);
         let result = self.execute::<T>(req).await?;
 
         match result {
@@ -252,21 +231,9 @@ impl Database {
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
     {
-        self.ensure_login().await?;
-
-        let lock = self.auth.read().await;
-
-        let payload_json = serde_json::to_string(&payload).unwrap().into_bytes();
-
-        let req = Request::put(url.as_str()).header("content-type", "application/json");
-        let req = match &*lock {
-            None => req,
-            Some(auth) => req.header("authorization", format!("Bearer {}", auth.token)),
-        };
-        let req = req.body(Body::from(payload_json)).unwrap();
-
         debug!("HTTP PUT ({:?}) -> {:?}", url.as_str(), payload);
 
+        let req = self.client.put(url.as_str()).json(&payload);
         let result = self.execute::<T>(req).await?;
 
         match result {
@@ -278,47 +245,14 @@ impl Database {
 
     #[instrument]
     pub(crate) async fn delete(&self, url: Url) -> Result<(), StoreError> {
-        self.ensure_login().await?;
-        let lock = self.auth.read().await;
-
-        let req = Request::delete(url.as_str()).header("content-type", "application/json");
-        let req = match &*lock {
-            None => req,
-            Some(auth) => req.header("authorization", format!("Bearer {}", auth.token)),
-        };
-        let req = req.body(Default::default()).unwrap();
-
         debug!("HTTP DELETE ({:?})", url.as_str());
 
+        let req = self.client.delete(url.as_str());
         let result = self.execute::<()>(req).await?;
 
         match result {
             HttpResponse::Error(data) => Err(StoreError::HttpFail(data)),
             _ => Ok(()),
         }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct ClientWrapper {
-    client: Client<HttpConnector, Body>,
-}
-
-impl ClientWrapper {
-    pub(crate) fn new(client: Client<HttpConnector, Body>) -> Self {
-        Self { client }
-    }
-}
-
-impl Deref for ClientWrapper {
-    type Target = Client<HttpConnector, Body>;
-    fn deref(&self) -> &Client<HttpConnector, Body> {
-        &self.client
-    }
-}
-
-impl DerefMut for ClientWrapper {
-    fn deref_mut(&mut self) -> &mut Client<HttpConnector, Body> {
-        &mut self.client
     }
 }
