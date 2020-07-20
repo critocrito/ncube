@@ -4,7 +4,6 @@
   "license": "GPL-3.0",
   "author": "Christo <christo@cryptodrunks.net>",
   "repository": "https://github.com/critocrito/ncube.git",
-  "version": "0.5.0",
   "scripts": {
     "compile": "yarn compile:prod",
     "compile:dev": "cross-env NODE_ENV=development webpack-dev-server --mode development --open chromium",
