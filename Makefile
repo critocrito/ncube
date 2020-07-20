@@ -58,7 +58,7 @@ clean-dist:
 	rm -rf $(webext_dir)
 	rm -rf $(dist_dir)
 	rm -rf $(workspace_dir)
-	rm $(workspace_archive)
+	rm -f $(workspace_archive)
 
 clean-build:
 	rm -rf $(pkg_build_dir)
