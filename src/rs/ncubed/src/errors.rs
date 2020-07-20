@@ -15,7 +15,7 @@ pub enum StoreError {
     #[error(transparent)]
     SqliteConfig(#[from] crate::db::sqlite::SqliteConfigError),
     #[error(transparent)]
-    Http(#[from] hyper::error::Error),
+    Http(#[from] reqwest::Error),
     #[error(transparent)]
     Resp(#[from] serde_json::error::Error),
     #[error(transparent)]
