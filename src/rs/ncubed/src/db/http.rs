@@ -143,8 +143,10 @@ impl Database {
 
         if status.is_success() {
             if status == StatusCode::OK || status == StatusCode::CREATED {
-                let data: SuccessResponse<T> = resp.json().await?;
-                Ok(HttpResponse::Success(data))
+                match resp.json().await {
+                    Err(_) => Ok(HttpResponse::Empty),
+                    Ok(data) => Ok(HttpResponse::Success(data)),
+                }
             } else {
                 Ok(HttpResponse::Empty)
             }
