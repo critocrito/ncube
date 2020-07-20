@@ -1,3 +1,5 @@
+#![type_length_limit = "1343848"]
+
 use directories::ProjectDirs;
 use ncubed::{Application, ApplicationConfig};
 use std::fs::create_dir_all;
