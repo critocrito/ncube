@@ -1,4 +1,4 @@
-.PHONY: all test ui workspace web-ext dist clean-dist clean-build clean-pkgs pkg-bin pkg-deb pkg-deb-ncubed pkg-web-ext verify
+.PHONY: all test ui workspace web-ext clean-dist clean-build clean-pkgs pkg-bin pkg-deb pkg-deb-ncubed pkg-web-ext verify
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -29,15 +29,15 @@ $(workspace_archive):
 	@mkdir -p $(workspace_dir)
 	./scripts/build_workspace.sh $(workspace_dir) $(workspace_archive)
 
-$(release_dir)/ncube: dist
+$(release_dir)/ncube: $(dist_dir) $(workspace_archive)
 	@mkdir -p $(release_dir)
 	cargo build --bin ncube --release
 
-$(release_dir)/ncubed: dist
+$(release_dir)/ncubed: $(dist_dir) $(workspace_archive)
 	@mkdir -p $(release_dir)
 	cargo build --bin ncubed --release
 
-$(release_dir)/ncubectl: dist
+$(release_dir)/ncubectl: $(dist_dir) $(workspace_archive)
 	@mkdir -p $(release_dir)
 	cargo build --bin ncubectl --release
 
@@ -52,7 +52,10 @@ $(pkg_build_macos): $(release_dir)/ncube
 
 clean-dist:
 	rm -rf $(release_dir)/ncube
+	rm -rf $(release_dir)/ncubed
+	rm -rf $(release_dir)/ncubectl
 	rm -rf $(webpack_dir)
+	rm -rf $(webext_dir)
 	rm -rf $(dist_dir)
 	rm -rf $(workspace_dir)
 	rm $(workspace_archive)
@@ -94,16 +97,14 @@ pkg-web-ext: web-ext
 	@mkdir -p $(pkgs_release_dir)
 	node_modules/.bin/web-ext build -s $(webext_dir) -a $(pkgs_release_dir) --overwrite-dest
 
-verify:
+verify: $(dist_dir) $(workspace_archive)
 	yarn verify
 	cargo check
 
-test:
+test: $(dist_dir) $(workspace_archive)
 	yarn test
 	cargo test
 
 ui: $(dist_dir)
 
 workspace: $(workspace_archive)
-
-dist: ui workspace
