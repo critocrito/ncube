@@ -61,7 +61,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [linux, macos]
+        build: [bionic, focal, macos, bionic-pkg, focal-pkg]
         include:
         - build: bionic
           os: ubuntu-18.04
@@ -83,10 +83,6 @@ jobs:
           os: ubuntu-20.04
           rust: nightly
           target: x86_64-unknown-linux-gnu
-        - build: macos-pkg
-          os: macos-latest
-          rust: nightly
-          target: x86_64-apple-darwin
 
     steps:
     - name: Checkout repository
@@ -191,14 +187,22 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [linux]
+        build: [bionic, focal, bionic-pkg, focal-pkg]
         include:
-        - build: linux
+        - build: bionic
           os: ubuntu-18.04
           rust: nightly
           target: x86_64-unknown-linux-gnu
-        - build: linux-pkg
+        - build: focal
+          os: ubuntu-20.04
+          rust: nightly
+          target: x86_64-unknown-linux-gnu
+        - build: bionic-pkg
           os: ubuntu-18.04
+          rust: nightly
+          target: x86_64-unknown-linux-gnu
+        - build: focal-pkg
+          os: ubuntu-20.04
           rust: nightly
           target: x86_64-unknown-linux-gnu
 
@@ -217,10 +221,6 @@ jobs:
     - name: Install packages (Ubuntu)
       if: matrix.os == 'ubuntu-18.04'
       run: scripts/ci/ubuntu-install-packages
-
-    - uses: DeLaGuardo/setup-clojure@2.0
-      with:
-        tools-deps: '1.10.1.469'
 
     - uses: actions/setup-node@v1
       with:
