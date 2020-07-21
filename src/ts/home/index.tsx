@@ -1,6 +1,7 @@
 import {useMachine} from "@xstate/react";
 import React from "react";
 
+import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
 import BasicPanel from "../common/basic-panel";
 import Button from "../common/button";
 import Fatal from "../common/fatal";
@@ -37,6 +38,9 @@ const Home = ({onDone, workspaces}: HomeProps) => {
         <BasicPanel>
           <div>
             <div className="fl w-100 pa3">
+              <header className="mb5 mt4">
+                <img src={logoIcon} alt="Ncube logo." />
+              </header>
               <Overline label="Workspaces" />
               <ul className="list pl0 mt0 mb0">
                 {workspaces.map((workspace) => (
