@@ -24,7 +24,7 @@ const SourceTag = ({kind = "url", className}: SourceTagProps) => {
     }
     default: {
       label = "URL";
-      classes = c(baseClasses, "bg-url", className);
+      classes = c(baseClasses, "bg-http", className);
       break;
     }
   }
