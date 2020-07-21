@@ -265,7 +265,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "! git rev-parse --abbrev-ref HEAD | grep -q master || (make verify && lint-staged)"
+      "pre-commit": "! git rev-parse --abbrev-ref HEAD | grep -q master || (make verify test && lint-staged)"
     }
   },
   "lint-staged": {
