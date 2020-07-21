@@ -125,7 +125,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                 className="b--none bg-canvas"
                 onClick={() => appSend("SHOW_HOME")}
               >
-                <img src={logoIcon} alt="Ncube logo." />
+                <img height="50px" src={logoIcon} alt="Ncube logo." />
               </button>
               <img src={settingsIcon} alt="Go to settings." />
             </div>
