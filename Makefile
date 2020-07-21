@@ -1,4 +1,4 @@
-.PHONY: all test ui workspace web-ext clean-dist clean-build clean-pkgs pkg-bin pkg-deb pkg-deb-ncubed pkg-web-ext verify
+.PHONY: all test test-ui test-backend ui workspace web-ext clean-dist clean-build clean-pkgs pkg-bin pkg-deb pkg-deb-ncubed pkg-web-ext verify verify-ui verify-backend
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -97,14 +97,26 @@ pkg-web-ext: web-ext
 	@mkdir -p $(pkgs_release_dir)
 	node_modules/.bin/web-ext build -s $(webext_dir) -a $(pkgs_release_dir) --overwrite-dest
 
-verify: $(dist_dir) $(workspace_archive)
-	yarn verify
-	cargo check
+verify-ui:
+	yarn lint
+	yarn type-check
 
-test: $(dist_dir) $(workspace_archive)
+verify-backend: $(dist_dir) $(workspace_archive)
+	cargo check --all --all-features
+	cargo fmt --all -- --check
+
+verify: verify-ui verify-backend
+
+test-ui:
 	yarn test
-	cargo test
+
+test-backend: $(dist_dir) $(workspace_archive)
+	cargo test --all --all-features
+
+test: test-ui test-backend
 
 ui: $(dist_dir)
+
+backend: $(release_dir)/ncube $(release_dir)/ncubed $(release_dir)/ncubectl
 
 workspace: $(workspace_archive)

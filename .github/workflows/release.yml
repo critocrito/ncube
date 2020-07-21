@@ -61,10 +61,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [bionic, macos]
+        build: [bionic, focal, macos]
         include:
         - build: bionic
           os: ubuntu-18.04
+          rust: nightly
+          target: x86_64-unknown-linux-gnu
+        - build: focal
+          os: ubuntu-20.04
           rust: nightly
           target: x86_64-unknown-linux-gnu
         - build: macos
@@ -85,7 +89,7 @@ jobs:
         path: artifacts
 
     - name: Install packages (Ubuntu)
-      if: matrix.os == 'ubuntu-18.04'
+      if: matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
       run: scripts/ci/ubuntu-install-packages
 
     - uses: actions/setup-node@v1
@@ -123,8 +127,7 @@ jobs:
     - name: Build Ncube
       shell: bash
       run: |
-        make ui
-        make workspace
+        make ui workspace
         cargo build --bin ncube --release ${{ env.TARGET_FLAGS }}
 
     - name: Strip release binary (linux and macos)
@@ -139,7 +142,7 @@ jobs:
         echo "::set-env name=ASSET::Ncube_${{ env.RELEASE_VERSION }}.dmg"
 
     - name: Build installable DEB package
-      if: matrix.build == 'bionic'
+      if: matrix.build == 'bionic' || matrix.build == 'focal'
       shell: bash
       run: |
         cargo install cargo-deb
@@ -163,21 +166,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        build: [bionic, focal, bionic-pkg, focal-pkg]
+        build: [bionic, focal]
         include:
         - build: bionic
           os: ubuntu-18.04
           rust: nightly
           target: x86_64-unknown-linux-gnu
         - build: focal
-          os: ubuntu-20.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
-        - build: bionic-pkg
-          os: ubuntu-18.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
-        - build: focal-pkg
           os: ubuntu-20.04
           rust: nightly
           target: x86_64-unknown-linux-gnu
@@ -195,7 +190,6 @@ jobs:
         path: artifacts
 
     - name: Install packages (Ubuntu)
-      if: matrix.os == 'ubuntu-18.04'
       run: scripts/ci/ubuntu-install-packages
 
     - uses: actions/setup-node@v1
@@ -230,11 +224,10 @@ jobs:
         echo "release upload url is: ${{ env.RELEASE_UPLOAD_URL }}"
         echo "target flag is: ${{ env.TARGET_FLAGS }}"
 
-    - name: Build Ncube
+    - name: Build Ncubed
       shell: bash
       run: |
-        make ui
-        make workspace
+        make ui workspace
         cargo build --bin ncubed --release ${{ env.TARGET_FLAGS }}
         cargo build --bin ncubectl --release ${{ env.TARGET_FLAGS }}
 
@@ -243,18 +236,6 @@ jobs:
 
     - name: Strip ncubectl release binary
       run: strip "target/${{ matrix.target }}/release/ncubectl"
-
-    - name: Build binary release
-      shell: bash
-      run: |
-        staging="ncubed-${{ env.RELEASE_VERSION }}-${{ matrix.target }}"
-        mkdir -p "$staging"/doc
-        cp {README.md,license.txt} "$staging/"
-        cp {CHANGELOG.md,doc/glossary.md,doc/ncubectl.8*,doc/ncubed.1*} "$staging/doc/"
-        cp "target/${{ matrix.target }}/release/ncubed" "$staging/"
-        cp "target/${{ matrix.target }}/release/ncubectl" "$staging/"
-        tar czf "$staging.tar.gz" "$staging"
-        echo "::set-env name=ASSET::$staging.tar.gz"
 
     - name: Build installable DEB package
       shell: bash
