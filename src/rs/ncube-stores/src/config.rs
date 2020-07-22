@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use ncube_data::{ConfigSetting, NcubeConfig};
-use ncube_db::{errors::DatabaseError, sqlite, Database};
+use ncube_db::{errors::DatabaseError, migrations, sqlite, Database};
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 use std::fmt::Debug;
@@ -50,7 +50,7 @@ impl ConfigStore for ConfigStoreSqlite {
         // The actual sqlite connection is hidden inside a deadpool Object
         // inside a ClientWrapper. We deref those two levels to make refinery
         // happy.
-        embedded::migrations::runner().run(&mut **conn)?;
+        migrations::migrate_host(&mut **conn)?;
         Ok(())
     }
 

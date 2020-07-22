@@ -6,6 +6,7 @@ use tracing::{debug, instrument};
 
 pub mod errors;
 pub mod http;
+pub mod migrations;
 pub mod sqlite;
 
 pub use self::errors::DatabaseError;

@@ -9,7 +9,7 @@ use crate::{ActorError, Registry};
 
 #[derive(Debug)]
 enum TaskMessage {
-    SetupWorkspace(String),
+    SetupWorkspace(String, String),
 }
 
 pub struct TaskActor {
@@ -27,9 +27,25 @@ impl TaskActor {
         tokio::spawn(async move {
             while let Some(res) = rx.recv().await {
                 match res {
-                    TaskMessage::SetupWorkspace(location) => create_workspace(location)
-                        .await
-                        .expect("Failed to create workspace"),
+                    TaskMessage::SetupWorkspace(location, workspace) => {
+                        create_workspace(location)
+                            .await
+                            .expect("Failed to create workspace");
+
+                        // FIXME: Can I handle the workspace migrations cleaner?
+                        // Move the search indices into the migrations? Maybe a
+                        // specialized message to the host actor?
+                        // Generate the search indices and triggers for this workspace.
+                        let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+                        let database = database_actor
+                            .call(LookupDatabase { workspace })
+                            .await
+                            .unwrap()
+                            .unwrap();
+                        let search_store = search_store(database);
+                        search_store.unit_index().await.unwrap();
+                        search_store.source_index().await.unwrap();
+                    }
                 }
             }
         });
@@ -52,7 +68,7 @@ impl Handler<SetupWorkspace> for TaskActor {
         msg: SetupWorkspace,
     ) -> Result<(), ActorError> {
         self.tx
-            .send(TaskMessage::SetupWorkspace(msg.location))
+            .send(TaskMessage::SetupWorkspace(msg.location, msg.workspace))
             .await?;
         Ok(())
     }

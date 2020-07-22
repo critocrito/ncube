@@ -19,6 +19,7 @@ reqwest = { version = "0.10", features = ["json"] }
 url = "2.1.1"
 deadpool = "0.5.1"
 rusqlite = { version = "0.21.0", features = ["bundled", "serde_json", "chrono"] }
+refinery = { version = "0.2", features = ["rusqlite"]}
 refinery-migrations = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 

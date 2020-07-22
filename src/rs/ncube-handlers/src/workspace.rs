@@ -71,18 +71,23 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
                 )
                 .await?;
             let mut actor = TaskActor::from_registry().await.unwrap();
-            actor.call(SetupWorkspace { location }).await??;
-
-            // Generate the search indices and triggers for this workspace.
-            let mut database_actor = DatabaseActor::from_registry().await.unwrap();
-            let database = database_actor
-                .call(LookupDatabase {
+            actor
+                .call(SetupWorkspace {
+                    location,
                     workspace: workspace.clone(),
                 })
                 .await??;
-            let search_store = search_store(database);
-            search_store.unit_index().await?;
-            search_store.source_index().await?;
+
+            // // Generate the search indices and triggers for this workspace.
+            // let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+            // let database = database_actor
+            //     .call(LookupDatabase {
+            //         workspace: workspace.clone(),
+            //     })
+            //     .await??;
+            // let search_store = search_store(database);
+            // search_store.unit_index().await?;
+            // search_store.source_index().await?;
         }
         WorkspaceKindRequest::Remote {
             endpoint, account, ..
