@@ -12,9 +12,7 @@ use tokio::sync::RwLock;
 use tracing::{debug, instrument};
 use url::Url;
 
-use crate::actors::{host::RequirePool, HostActor, Registry};
-use crate::errors::{ActorError, StoreError};
-use crate::stores::account_store;
+use crate::errors::StoreError;
 
 #[derive(Error, Debug)]
 pub struct HttpConfigError;
@@ -111,19 +109,6 @@ impl Database {
             workspace: workspace.clone(),
             url: endpoint,
         }
-    }
-
-    pub async fn update_password(&mut self) -> Result<(), ActorError> {
-        let mut host_actor = HostActor::from_registry().await.unwrap();
-        let db = host_actor.call(RequirePool).await??;
-        let account_store = account_store(db);
-        let password = account_store
-            .show_password(&self.email, &self.workspace)
-            .await?;
-
-        self.password = password;
-
-        Ok(())
     }
 
     async fn execute<T>(&self, req: reqwest::RequestBuilder) -> Result<HttpResponse<T>, StoreError>

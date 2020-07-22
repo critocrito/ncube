@@ -65,6 +65,12 @@ pub struct LookupDatabase {
     pub workspace: String,
 }
 
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct ResetDatabase {
+    pub workspace: String,
+}
+
 #[async_trait]
 impl Handler<LookupDatabase> for DatabaseActor {
     async fn handle(
@@ -116,5 +122,42 @@ impl Handler<LookupDatabase> for DatabaseActor {
             .ok_or_else(|| ActorError::Store(StoreError::NotFound(connection_string)))?;
 
         Ok(cached_db)
+    }
+}
+
+#[async_trait]
+impl Handler<ResetDatabase> for DatabaseActor {
+    async fn handle(&mut self, _ctx: &Context<Self>, msg: ResetDatabase) -> Result<(), ActorError> {
+        let mut host_actor = HostActor::from_registry().await.unwrap();
+
+        let db = host_actor.call(RequirePool).await??;
+        let workspace_store = workspace_store(db.clone());
+        let workspace = workspace_store.show_by_slug(&msg.workspace).await?;
+
+        let connection_string = workspace.connection_string();
+
+        if !self.cache.has(&connection_string) {
+            debug!("Database `{}` not in cache.", connection_string);
+            return Ok(());
+        }
+
+        match workspace.database {
+            WorkspaceDatabase::Sqlite { .. } => Ok(()),
+            WorkspaceDatabase::Http { .. } => {
+                let account_store = account_store(db);
+                let Account { email, .. } = account_store.show_by_workspace(&workspace).await?;
+                let password = account_store.show_password(&email, &workspace).await?;
+                let endpoint = Url::parse(&connection_string).map_err(|_| {
+                    ActorError::Store(StoreError::HttpConfig(http::HttpConfigError))
+                })?;
+
+                let db = http::Database::new(endpoint, &workspace, &email, &password);
+
+                self.cache
+                    .reset(&connection_string, Database::Http(Box::new(db)));
+
+                Ok(())
+            }
+        }
     }
 }

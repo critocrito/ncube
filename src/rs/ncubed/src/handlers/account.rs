@@ -4,7 +4,7 @@ use ncube_data::{Account, JwtToken, WorkspaceKind};
 use tracing::{debug, error, info, instrument, warn};
 
 use crate::actors::{
-    db::LookupDatabase,
+    db::{LookupDatabase, ResetDatabase},
     host::{RequirePool, SecretKeySetting},
     DatabaseActor, HostActor, Registry,
 };
@@ -187,8 +187,12 @@ pub async fn update_password(
                 .update_hashed_password(&email, &new_hash, &workspace)
                 .await?;
 
-            // We make sure the update succeeded by forcing a login.
-            remote_db.force_login().await?;
+            // We make sure to replace the database in the cache to accept the new password.
+            db_actor
+                .call(ResetDatabase {
+                    workspace: workspace.slug.to_string(),
+                })
+                .await??;
 
             new_hash
         }

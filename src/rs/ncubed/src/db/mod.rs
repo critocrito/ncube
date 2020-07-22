@@ -15,25 +15,6 @@ pub enum Database {
 
 impl Database {
     #[instrument]
-    pub(crate) async fn force_login(&mut self) -> Result<(), HostError> {
-        match self {
-            Database::Http(inner_db) => {
-                inner_db.update_password().await.map_err(|e| {
-                    let msg = format!("updating password failed: {:?}", e.to_string());
-                    HostError::AuthError(msg)
-                })?;
-                inner_db.login().await.map_err(|e| {
-                    let msg = format!("login failed: {:?}", e.to_string());
-                    HostError::AuthError(msg)
-                })?;
-                Ok(())
-            }
-            _ => Ok(()),
-        }
-    }
-
-    #[allow(dead_code)]
-    #[instrument]
     pub(crate) async fn login(&mut self) -> Result<(), HostError> {
         match self {
             Database::Http(inner_db) => {
