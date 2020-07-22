@@ -1,7 +1,6 @@
+use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
 use thiserror::Error;
-
-pub use crate::db::{errors::DatabaseError, http, sqlite};
 
 #[derive(Error, Debug)]
 pub enum ActorError {

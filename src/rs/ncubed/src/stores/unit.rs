@@ -1,10 +1,9 @@
 use async_trait::async_trait;
 use ncube_data::{Download, Media, Source, Unit};
+use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::params;
 use serde_rusqlite::from_rows;
 use tracing::instrument;
-
-use crate::db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn unit_store(wrapped_db: Database) -> Box<dyn UnitStore + Send + Sync> {
     match wrapped_db {

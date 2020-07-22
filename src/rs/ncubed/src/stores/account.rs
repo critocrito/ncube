@@ -7,7 +7,7 @@ use secstr::SecVec;
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 use tracing::{debug, instrument};
 
-use crate::db::{errors::DatabaseError, http, sqlite, Database};
+use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send + Sync> {
     match wrapped_db {

@@ -1,10 +1,9 @@
 use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::Workspace;
+use ncube_db::{errors::DatabaseError, sqlite, Database};
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
-
-use crate::db::{errors::DatabaseError, sqlite, Database};
 
 pub(crate) fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
     match wrapped_db {

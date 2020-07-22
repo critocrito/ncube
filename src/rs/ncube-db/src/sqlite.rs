@@ -4,7 +4,7 @@
 //! # Example
 //!
 //! ```no_run
-//! use ncubed::db::sqlite;
+//! use ncube_db::sqlite;
 //! # #[tokio::main]
 //! # async fn main() {
 //! let connection_str = "sqlite://:memory:";
@@ -25,7 +25,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use tracing::{debug, instrument};
 
-use crate::db::errors::SqliteConfigError;
+use crate::errors::SqliteConfigError;
 
 struct UrlParser;
 
@@ -69,7 +69,7 @@ pub(crate) enum Source {
 /// parsed from that.
 ///
 /// ```no_run
-/// # use ncubed::db::sqlite;
+/// # use ncube_db::sqlite;
 /// let url = "sqlite://:memory:";
 /// let config = url.parse::<sqlite::Config>().unwrap();
 /// ```
@@ -125,7 +125,7 @@ impl Database {
     /// # Example
     ///
     /// ```no_run
-    /// # use ncubed::db::sqlite;
+    /// # use ncube_db::sqlite;
     /// # #[tokio::main]
     /// # async fn main () {
     /// let config = "sqlite://:memory:";

@@ -5,7 +5,7 @@ use rusqlite::{params, Error as RusqliteError, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
-use crate::db::{errors::DatabaseError, http, sqlite, Database};
+use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send + Sync> {
     match wrapped_db {

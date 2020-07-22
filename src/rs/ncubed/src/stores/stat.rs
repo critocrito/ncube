@@ -1,9 +1,8 @@
 use async_trait::async_trait;
 use ncube_data::Stat;
+use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::{params, NO_PARAMS};
 use tracing::instrument;
-
-use crate::db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Sync> {
     match wrapped_db {
