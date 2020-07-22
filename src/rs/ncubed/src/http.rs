@@ -1,93 +1,12 @@
 use ncube_crypto::jwt_verify;
 use ncube_data::ReqCtx;
 use ncube_errors::HostError;
-use serde::{Deserialize, Serialize};
-use std::fmt::Debug;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 use tracing::debug;
-use warp::{http::StatusCode, Filter};
+use warp::Filter;
 
 use crate::handlers::config::show_secret_key;
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase", tag = "status")]
-pub enum Status {
-    Success,
-    Error,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct SuccessResponse<T> {
-    #[serde(flatten)]
-    pub status: Status,
-    pub data: T,
-}
-
-impl<T> SuccessResponse<T>
-where
-    T: Debug,
-{
-    pub fn new(data: T) -> Self {
-        Self {
-            status: Status::Success,
-            data,
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ErrorResponse {
-    #[serde(flatten)]
-    pub status: Status,
-    pub code: u16,
-    pub errors: String,
-}
-
-impl ErrorResponse {
-    pub fn new(code: StatusCode, errors: &str) -> Self {
-        Self {
-            status: Status::Error,
-            code: code.as_u16(),
-            errors: errors.into(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub enum HttpResponse<T>
-where
-    T: Debug,
-{
-    Empty,
-    Success(SuccessResponse<T>),
-    Error(ErrorResponse),
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn http_error_response_envelope() {
-        let response = ErrorResponse::new(StatusCode::BAD_REQUEST, "I am an error!");
-
-        let expected = "{\"status\":\"error\",\"code\":400,\"errors\":\"I am an error!\"}";
-        let result = serde_json::to_string(&response).unwrap();
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    fn http_success_response_envelope() {
-        let response = SuccessResponse::new("I am data!");
-
-        let expected = "{\"status\":\"success\",\"data\":\"I am data!\"}";
-        let result = serde_json::to_string(&response).unwrap();
-
-        assert_eq!(result, expected);
-    }
-}
 
 fn is_loopback() -> warp::filters::BoxedFilter<(bool,)> {
     warp::header("x-forwarded-for")
