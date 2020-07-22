@@ -10,7 +10,6 @@ pub mod errors;
 pub mod handlers;
 pub mod http;
 pub mod routes;
-pub mod stores;
 
 use std::net::SocketAddr;
 use xactor::Actor;

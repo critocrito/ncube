@@ -2,14 +2,13 @@ use async_trait::async_trait;
 use chrono::Utc;
 use ncube_crypto as crypto;
 use ncube_data::{Account, UpdatePasswordRequest, Workspace};
+use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::{self, params, NO_PARAMS};
 use secstr::SecVec;
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 use tracing::{debug, instrument};
 
-use ncube_db::{errors::DatabaseError, http, sqlite, Database};
-
-pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send + Sync> {
+pub fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send + Sync> {
     match wrapped_db {
         Database::Sqlite(db) => Box::new(AccountStoreSqlite { db }),
         Database::Http(client) => Box::new(AccountStoreHttp { client }),
@@ -17,7 +16,7 @@ pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send
 }
 
 #[async_trait]
-pub(crate) trait AccountStore {
+pub trait AccountStore {
     async fn exists(&self, email: &str, workspace: &Workspace) -> Result<bool, DatabaseError>;
     async fn create(
         &self,

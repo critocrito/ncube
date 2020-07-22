@@ -5,7 +5,7 @@ use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
-pub(crate) fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> {
+pub fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> {
     match wrapped_db {
         Database::Sqlite(db) => Box::new(SearchStoreSqlite { db }),
         Database::Http(client) => Box::new(SearchStoreHttp { client }),
@@ -13,7 +13,7 @@ pub(crate) fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send +
 }
 
 #[async_trait]
-pub(crate) trait SearchStore {
+pub trait SearchStore {
     async fn unit_index(&self) -> Result<(), DatabaseError>;
     async fn source_index(&self) -> Result<(), DatabaseError>;
     async fn data(

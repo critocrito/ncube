@@ -1,0 +1,24 @@
+[package]
+name = "ncube-stores"
+version = "0.6.3"
+authors = ["Christo <christo@cryptodrunks.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-trait = "0.1"
+tracing = "0.1.16"
+tracing-futures = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_rusqlite = "0.23.0"
+rusqlite = { version = "0.21.0", features = ["bundled", "serde_json", "chrono"] }
+refinery = { version = "0.2", features = ["rusqlite"]}
+refinery-migrations = "0.2"
+chrono = { version = "0.4", features = ["serde"] }
+secstr = { version = "0.4.0", features = ["serde"] }
+rand = "0.7.3"
+
+ncube-data = { path = "../ncube-data" }
+ncube-db = { path = "../ncube-db" }
+ncube-crypto = { path = "../ncube-crypto" }

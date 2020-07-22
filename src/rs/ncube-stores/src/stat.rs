@@ -4,7 +4,7 @@ use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::{params, NO_PARAMS};
 use tracing::instrument;
 
-pub(crate) fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Sync> {
+pub fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Sync> {
     match wrapped_db {
         Database::Sqlite(db) => Box::new(StatStoreSqlite { db }),
         Database::Http(client) => Box::new(StatStoreHttp { client }),
@@ -12,7 +12,7 @@ pub(crate) fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Syn
 }
 
 #[async_trait]
-pub(crate) trait StatStore {
+pub trait StatStore {
     async fn sources_total(&self, query: Option<String>) -> Result<Stat, DatabaseError>;
     async fn sources_types(&self) -> Result<Stat, DatabaseError>;
     async fn data_total(&self, query: Option<String>) -> Result<Stat, DatabaseError>;

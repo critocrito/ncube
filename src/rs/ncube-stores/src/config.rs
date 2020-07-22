@@ -11,7 +11,7 @@ mod embedded {
     embed_migrations!("migrations");
 }
 
-pub(crate) fn config_store(wrapped_db: Database) -> impl ConfigStore {
+pub fn config_store(wrapped_db: Database) -> impl ConfigStore {
     match wrapped_db {
         Database::Sqlite(db) => ConfigStoreSqlite { db },
         Database::Http(_client) => todo!(),
@@ -19,7 +19,7 @@ pub(crate) fn config_store(wrapped_db: Database) -> impl ConfigStore {
 }
 
 #[async_trait]
-pub(crate) trait ConfigStore {
+pub trait ConfigStore {
     async fn init(&self) -> Result<(), DatabaseError>;
     async fn upgrade(&self) -> Result<(), DatabaseError>;
     async fn is_bootstrapped(&self) -> Result<bool, DatabaseError>;
