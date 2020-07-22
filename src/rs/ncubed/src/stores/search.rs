@@ -4,8 +4,7 @@ use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
-use crate::db::{http, sqlite, Database};
-use crate::errors::StoreError;
+use crate::db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> {
     match wrapped_db {
@@ -16,15 +15,20 @@ pub(crate) fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send +
 
 #[async_trait]
 pub(crate) trait SearchStore {
-    async fn unit_index(&self) -> Result<(), StoreError>;
-    async fn source_index(&self) -> Result<(), StoreError>;
-    async fn data(&self, query: &str, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError>;
+    async fn unit_index(&self) -> Result<(), DatabaseError>;
+    async fn source_index(&self) -> Result<(), DatabaseError>;
+    async fn data(
+        &self,
+        query: &str,
+        page: i32,
+        page_size: i32,
+    ) -> Result<Vec<Unit>, DatabaseError>;
     async fn sources(
         &self,
         query: &str,
         page: i32,
         page_size: i32,
-    ) -> Result<Vec<Source>, StoreError>;
+    ) -> Result<Vec<Source>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -35,7 +39,7 @@ pub struct SearchStoreSqlite {
 #[async_trait]
 impl SearchStore for SearchStoreSqlite {
     #[instrument]
-    async fn unit_index(&self) -> Result<(), StoreError> {
+    async fn unit_index(&self) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/search/unit_index.sql"))?;
         stmt.execute(NO_PARAMS)?;
@@ -43,7 +47,7 @@ impl SearchStore for SearchStoreSqlite {
         Ok(())
     }
 
-    async fn source_index(&self) -> Result<(), StoreError> {
+    async fn source_index(&self) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/search/source_index.sql"))?;
         stmt.execute(NO_PARAMS)?;
@@ -52,7 +56,12 @@ impl SearchStore for SearchStoreSqlite {
     }
 
     #[instrument]
-    async fn data(&self, query: &str, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError> {
+    async fn data(
+        &self,
+        query: &str,
+        page: i32,
+        page_size: i32,
+    ) -> Result<Vec<Unit>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/search/data.sql"))?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/unit/list-media.sql"))?;
@@ -98,7 +107,7 @@ impl SearchStore for SearchStoreSqlite {
         query: &str,
         page: i32,
         page_size: i32,
-    ) -> Result<Vec<Source>, StoreError> {
+    ) -> Result<Vec<Source>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/search/source.sql"))?;
         let mut stmt2 =
@@ -133,17 +142,22 @@ pub struct SearchStoreHttp {
 #[async_trait]
 impl SearchStore for SearchStoreHttp {
     #[instrument]
-    async fn unit_index(&self) -> Result<(), StoreError> {
+    async fn unit_index(&self) -> Result<(), DatabaseError> {
         unreachable!()
     }
 
     #[instrument]
-    async fn source_index(&self) -> Result<(), StoreError> {
+    async fn source_index(&self) -> Result<(), DatabaseError> {
         unreachable!()
     }
 
     #[instrument]
-    async fn data(&self, query: &str, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError> {
+    async fn data(
+        &self,
+        query: &str,
+        page: i32,
+        page_size: i32,
+    ) -> Result<Vec<Unit>, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/data/search",
@@ -173,7 +187,7 @@ impl SearchStore for SearchStoreHttp {
         query: &str,
         page: i32,
         page_size: i32,
-    ) -> Result<Vec<Source>, StoreError> {
+    ) -> Result<Vec<Source>, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/sources/search",

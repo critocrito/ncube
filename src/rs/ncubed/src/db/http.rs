@@ -5,26 +5,16 @@ use ncube_data::{
     ErrorResponse, HttpResponse, LoginRequest, LoginResponse, SuccessResponse, Workspace,
 };
 use reqwest::{Client, StatusCode};
-use std::fmt::{self, Debug, Display, Formatter};
+use std::fmt::{self, Debug, Formatter};
 use std::sync::Arc;
-use thiserror::Error;
 use tokio::sync::RwLock;
 use tracing::{debug, instrument};
 use url::Url;
 
-use crate::errors::StoreError;
-
-#[derive(Error, Debug)]
-pub struct HttpConfigError;
-
-impl Display for HttpConfigError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "HttpConfigError")
-    }
-}
+use crate::db::errors::DatabaseError;
 
 #[instrument]
-async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, StoreError> {
+async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, DatabaseError> {
     let client = Client::new();
     let resp = client
         .post(url.as_str())
@@ -46,7 +36,7 @@ async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, Store
     } else {
         let data: ErrorResponse = resp.json().await?;
         debug!("login failed {:?}", data);
-        Err(StoreError::HttpFail(data))
+        Err(DatabaseError::HttpFail(data))
     }
 }
 
@@ -111,7 +101,10 @@ impl Database {
         }
     }
 
-    async fn execute<T>(&self, req: reqwest::RequestBuilder) -> Result<HttpResponse<T>, StoreError>
+    async fn execute<T>(
+        &self,
+        req: reqwest::RequestBuilder,
+    ) -> Result<HttpResponse<T>, DatabaseError>
     where
         T: serde::de::DeserializeOwned + Debug,
     {
@@ -145,7 +138,7 @@ impl Database {
         }
     }
 
-    pub(crate) async fn ensure_login(&self) -> Result<(), StoreError> {
+    pub(crate) async fn ensure_login(&self) -> Result<(), DatabaseError> {
         {
             let lock = self.auth.read().await;
 
@@ -169,7 +162,7 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn login(&self) -> Result<(), StoreError> {
+    pub(crate) async fn login(&self) -> Result<(), DatabaseError> {
         let mut lock = self.auth.write().await;
         let mut url = self.url.clone();
         url.set_path(&format!("/api/workspaces/{}/account", self.workspace.slug));
@@ -179,7 +172,7 @@ impl Database {
     }
 
     #[instrument]
-    pub(crate) async fn get<T>(&self, url: Url) -> Result<Option<T>, StoreError>
+    pub(crate) async fn get<T>(&self, url: Url) -> Result<Option<T>, DatabaseError>
     where
         T: serde::de::DeserializeOwned + Debug,
     {
@@ -191,12 +184,12 @@ impl Database {
         match result {
             HttpResponse::Success(data) => Ok(Some(data.data)),
             HttpResponse::Empty => Ok(None),
-            HttpResponse::Error(data) => Err(StoreError::HttpFail(data)),
+            HttpResponse::Error(data) => Err(DatabaseError::HttpFail(data)),
         }
     }
 
     #[instrument]
-    pub(crate) async fn post<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, StoreError>
+    pub(crate) async fn post<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, DatabaseError>
     where
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
@@ -209,12 +202,12 @@ impl Database {
         match result {
             HttpResponse::Success(data) => Ok(Some(data.data)),
             HttpResponse::Empty => Ok(None),
-            HttpResponse::Error(data) => Err(StoreError::HttpFail(data)),
+            HttpResponse::Error(data) => Err(DatabaseError::HttpFail(data)),
         }
     }
 
     #[instrument]
-    pub(crate) async fn put<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, StoreError>
+    pub(crate) async fn put<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, DatabaseError>
     where
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
@@ -227,19 +220,19 @@ impl Database {
         match result {
             HttpResponse::Success(data) => Ok(Some(data.data)),
             HttpResponse::Empty => Ok(None),
-            HttpResponse::Error(data) => Err(StoreError::HttpFail(data)),
+            HttpResponse::Error(data) => Err(DatabaseError::HttpFail(data)),
         }
     }
 
     #[instrument]
-    pub(crate) async fn delete(&self, url: Url) -> Result<(), StoreError> {
+    pub(crate) async fn delete(&self, url: Url) -> Result<(), DatabaseError> {
         debug!("HTTP DELETE ({:?})", url.as_str());
 
         let req = self.client.delete(url.as_str());
         let result = self.execute::<()>(req).await?;
 
         match result {
-            HttpResponse::Error(data) => Err(StoreError::HttpFail(data)),
+            HttpResponse::Error(data) => Err(DatabaseError::HttpFail(data)),
             _ => Ok(()),
         }
     }

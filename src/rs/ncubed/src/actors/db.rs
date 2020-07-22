@@ -9,8 +9,8 @@ use crate::actors::{
     host::{HostActor, RequirePool},
     Registry,
 };
-use crate::db::{http, sqlite, Database, DatabaseCache};
-use crate::errors::{ActorError, StoreError};
+use crate::db::{errors::DatabaseError, http, sqlite, Database, DatabaseCache};
+use crate::errors::ActorError;
 use crate::stores::{account_store, workspace_store, WorkspaceStore};
 
 /// The database actor can be queried for database connections for workspaces.
@@ -97,16 +97,15 @@ impl Handler<LookupDatabase> for DatabaseActor {
         let db = match workspace.database {
             WorkspaceDatabase::Sqlite { .. } => {
                 let db = sqlite::Database::from_str(&connection_string, 5)
-                    .map_err(|e| ActorError::Store(StoreError::SqliteConfig(e)))?;
+                    .map_err(|e| ActorError::Database(DatabaseError::SqliteConfig(e)))?;
                 Database::Sqlite(Box::new(db))
             }
             WorkspaceDatabase::Http { .. } => {
                 let account_store = account_store(db);
                 let Account { email, .. } = account_store.show_by_workspace(&workspace).await?;
                 let password = account_store.show_password(&email, &workspace).await?;
-                let endpoint = Url::parse(&connection_string).map_err(|_| {
-                    ActorError::Store(StoreError::HttpConfig(http::HttpConfigError))
-                })?;
+                let endpoint = Url::parse(&connection_string)
+                    .map_err(|e| ActorError::Database(DatabaseError::HttpConfig(e.to_string())))?;
 
                 let db = http::Database::new(endpoint, &workspace, &email, &password);
 
@@ -119,7 +118,7 @@ impl Handler<LookupDatabase> for DatabaseActor {
         let cached_db = self
             .cache
             .get(&connection_string)
-            .ok_or_else(|| ActorError::Store(StoreError::NotFound(connection_string)))?;
+            .ok_or_else(|| ActorError::Database(DatabaseError::NotFound(connection_string)))?;
 
         Ok(cached_db)
     }
@@ -147,9 +146,8 @@ impl Handler<ResetDatabase> for DatabaseActor {
                 let account_store = account_store(db);
                 let Account { email, .. } = account_store.show_by_workspace(&workspace).await?;
                 let password = account_store.show_password(&email, &workspace).await?;
-                let endpoint = Url::parse(&connection_string).map_err(|_| {
-                    ActorError::Store(StoreError::HttpConfig(http::HttpConfigError))
-                })?;
+                let endpoint = Url::parse(&connection_string)
+                    .map_err(|e| ActorError::Database(DatabaseError::HttpConfig(e.to_string())))?;
 
                 let db = http::Database::new(endpoint, &workspace, &email, &password);
 

@@ -19,21 +19,13 @@
 //! connection string for file based databases if
 //! `sqlite://path/to/file.db`.
 use async_trait::async_trait;
-use std::fmt::{Debug, Display, Error, Formatter};
+use std::fmt::{Debug, Error, Formatter};
 use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
-use thiserror::Error;
 use tracing::{debug, instrument};
 
-#[derive(Error, Debug)]
-pub struct SqliteConfigError;
-
-impl Display for SqliteConfigError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "SqliteConfigError")
-    }
-}
+use crate::db::errors::SqliteConfigError;
 
 struct UrlParser;
 
