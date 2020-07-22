@@ -11,7 +11,7 @@ use tokio::sync::RwLock;
 use tracing::{debug, instrument};
 use url::Url;
 
-use crate::db::errors::DatabaseError;
+use crate::errors::DatabaseError;
 
 #[instrument]
 async fn login(url: &Url, email: &str, password: &str) -> Result<HttpAuth, DatabaseError> {
@@ -75,7 +75,7 @@ impl Database {
     ///
     /// ```no_run
     /// # use ncube_data::Workspace;
-    /// # use ncubed::db::http;
+    /// # use ncube_db::http;
     /// # use url::Url;
     /// #
     /// # #[tokio::main]
@@ -162,7 +162,7 @@ impl Database {
         Ok(())
     }
 
-    pub(crate) async fn login(&self) -> Result<(), DatabaseError> {
+    pub async fn login(&self) -> Result<(), DatabaseError> {
         let mut lock = self.auth.write().await;
         let mut url = self.url.clone();
         url.set_path(&format!("/api/workspaces/{}/account", self.workspace.slug));
@@ -172,7 +172,7 @@ impl Database {
     }
 
     #[instrument]
-    pub(crate) async fn get<T>(&self, url: Url) -> Result<Option<T>, DatabaseError>
+    pub async fn get<T>(&self, url: Url) -> Result<Option<T>, DatabaseError>
     where
         T: serde::de::DeserializeOwned + Debug,
     {
@@ -189,7 +189,7 @@ impl Database {
     }
 
     #[instrument]
-    pub(crate) async fn post<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, DatabaseError>
+    pub async fn post<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, DatabaseError>
     where
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
@@ -207,7 +207,7 @@ impl Database {
     }
 
     #[instrument]
-    pub(crate) async fn put<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, DatabaseError>
+    pub async fn put<T, S>(&self, url: Url, payload: S) -> Result<Option<T>, DatabaseError>
     where
         T: serde::de::DeserializeOwned + Debug,
         S: serde::Serialize + Debug,
@@ -225,7 +225,7 @@ impl Database {
     }
 
     #[instrument]
-    pub(crate) async fn delete(&self, url: Url) -> Result<(), DatabaseError> {
+    pub async fn delete(&self, url: Url) -> Result<(), DatabaseError> {
         debug!("HTTP DELETE ({:?})", url.as_str());
 
         let req = self.client.delete(url.as_str());

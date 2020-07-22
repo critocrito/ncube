@@ -1,4 +1,5 @@
 use ncube_data::{ErrorResponse, SuccessResponse};
+use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
 use std::convert::Infallible;
 use tracing::{error, info, instrument};
@@ -7,7 +8,6 @@ use warp::{
     Filter,
 };
 
-use crate::db::errors::DatabaseError;
 use crate::errors::HandlerError;
 
 #[instrument]

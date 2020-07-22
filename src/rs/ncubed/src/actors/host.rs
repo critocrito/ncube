@@ -1,12 +1,12 @@
 use async_trait::async_trait;
 use ncube_data::{ConfigSetting, NcubeConfig};
+use ncube_db::{errors::DatabaseError, sqlite, Database};
 use ncube_fs::expand_tilde;
 use std::path::PathBuf;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler};
 
 use crate::actors::Registry;
-use crate::db::{errors::DatabaseError, sqlite, Database};
 use crate::errors::ActorError;
 use crate::stores::{config_store, ConfigStore};
 

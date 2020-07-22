@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use ncube_data::{Account, WorkspaceDatabase};
+use ncube_db::{errors::DatabaseError, http, sqlite, Database, DatabaseCache};
 use std::result::Result;
 use tracing::debug;
 use url::Url;
@@ -9,7 +10,6 @@ use crate::actors::{
     host::{HostActor, RequirePool},
     Registry,
 };
-use crate::db::{errors::DatabaseError, http, sqlite, Database, DatabaseCache};
 use crate::errors::ActorError;
 use crate::stores::{account_store, workspace_store, WorkspaceStore};
 

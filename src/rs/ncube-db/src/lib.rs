@@ -16,7 +16,7 @@ pub enum Database {
 
 impl Database {
     #[instrument]
-    pub(crate) async fn login(&mut self) -> Result<(), HostError> {
+    pub async fn login(&mut self) -> Result<(), HostError> {
         match self {
             Database::Http(inner_db) => {
                 inner_db.ensure_login().await.map_err(|e| {
@@ -34,7 +34,7 @@ impl Database {
 /// # Example
 ///
 /// ```
-/// use ncubed::{db::{self, DatabaseCache}, db::sqlite};
+/// use ncube_db::{Database, DatabaseCache, sqlite};
 ///
 /// let cache = DatabaseCache::new();
 ///
@@ -43,7 +43,7 @@ impl Database {
 ///
 /// assert!(cache.get(url).is_none());
 ///
-/// cache.put(url, db::Database::Sqlite(Box::new(db)));
+/// cache.put(url, Database::Sqlite(Box::new(db)));
 ///
 /// let db1 = cache.get(url).unwrap();
 /// let db2 = cache.get(url).unwrap();
@@ -118,7 +118,6 @@ impl DatabaseCache {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::db::sqlite;
 
     #[test]
     fn database_cache_for_sqlite_database_types() {

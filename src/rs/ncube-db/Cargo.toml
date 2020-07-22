@@ -1,0 +1,26 @@
+[package]
+name = "ncube-db"
+version = "0.6.3"
+authors = ["Christo <christo@cryptodrunks.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "0.2", features = ["sync"] }
+async-trait = "0.1"
+thiserror = "1.0"
+tracing = "0.1.16"
+tracing-futures = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_rusqlite = "0.23.0"
+reqwest = { version = "0.10", features = ["json"] }
+url = "2.1.1"
+deadpool = "0.5.1"
+rusqlite = { version = "0.21.0", features = ["bundled", "serde_json", "chrono"] }
+refinery-migrations = "0.2"
+chrono = { version = "0.4", features = ["serde"] }
+
+ncube-data = { path = "../ncube-data" }
+ncube-errors = { path = "../ncube-errors" }

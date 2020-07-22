@@ -1,11 +1,10 @@
 use async_trait::async_trait;
 use ncube_data::{ConfigSetting, NcubeConfig};
+use ncube_db::{errors::DatabaseError, sqlite, Database};
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, from_rows};
 use std::fmt::Debug;
 use tracing::instrument;
-
-use crate::db::{errors::DatabaseError, sqlite, Database};
 
 mod embedded {
     use refinery::embed_migrations;
