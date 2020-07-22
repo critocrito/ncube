@@ -7,8 +7,7 @@ use secstr::SecVec;
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 use tracing::{debug, instrument};
 
-use crate::db::{http, sqlite, Database};
-use crate::errors::StoreError;
+use crate::db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send + Sync> {
     match wrapped_db {
@@ -19,31 +18,38 @@ pub(crate) fn account_store(wrapped_db: Database) -> Box<dyn AccountStore + Send
 
 #[async_trait]
 pub(crate) trait AccountStore {
-    async fn exists(&self, email: &str, workspace: &Workspace) -> Result<bool, StoreError>;
+    async fn exists(&self, email: &str, workspace: &Workspace) -> Result<bool, DatabaseError>;
     async fn create(
         &self,
         email: &str,
         otp: Option<String>,
         workspace: &Workspace,
-    ) -> Result<(), StoreError>;
-    async fn list(&self) -> Result<Vec<Account>, StoreError>;
-    async fn show_password(&self, email: &str, workspace: &Workspace)
-        -> Result<String, StoreError>;
-    async fn show_key(&self, email: &str, workspace: &Workspace) -> Result<SecVec<u8>, StoreError>;
+    ) -> Result<(), DatabaseError>;
+    async fn list(&self) -> Result<Vec<Account>, DatabaseError>;
+    async fn show_password(
+        &self,
+        email: &str,
+        workspace: &Workspace,
+    ) -> Result<String, DatabaseError>;
+    async fn show_key(
+        &self,
+        email: &str,
+        workspace: &Workspace,
+    ) -> Result<SecVec<u8>, DatabaseError>;
     async fn update_password(
         &self,
         email: &str,
         password: &str,
         workspace: &Workspace,
-    ) -> Result<String, StoreError>;
-    async fn show(&self, email: &str, workspace: &Workspace) -> Result<Account, StoreError>;
+    ) -> Result<String, DatabaseError>;
+    async fn show(&self, email: &str, workspace: &Workspace) -> Result<Account, DatabaseError>;
     async fn update_hashed_password(
         &self,
         email: &str,
         hash: &str,
         workspace: &Workspace,
-    ) -> Result<(), StoreError>;
-    async fn show_by_workspace(&self, workspace: &Workspace) -> Result<Account, StoreError>;
+    ) -> Result<(), DatabaseError>;
+    async fn show_by_workspace(&self, workspace: &Workspace) -> Result<Account, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -54,7 +60,7 @@ pub struct AccountStoreSqlite {
 #[async_trait]
 impl AccountStore for AccountStoreSqlite {
     #[instrument]
-    async fn exists(&self, email: &str, workspace: &Workspace) -> Result<bool, StoreError> {
+    async fn exists(&self, email: &str, workspace: &Workspace) -> Result<bool, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/exists.sql"))?;
 
@@ -72,7 +78,7 @@ impl AccountStore for AccountStoreSqlite {
         email: &str,
         otp: Option<String>,
         workspace: &Workspace,
-    ) -> Result<(), StoreError> {
+    ) -> Result<(), DatabaseError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/create.sql"))?;
@@ -113,7 +119,7 @@ impl AccountStore for AccountStoreSqlite {
     }
 
     #[instrument]
-    async fn list(&self) -> Result<Vec<Account>, StoreError> {
+    async fn list(&self) -> Result<Vec<Account>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/list.sql"))?;
 
@@ -132,26 +138,30 @@ impl AccountStore for AccountStoreSqlite {
         &self,
         email: &str,
         workspace: &Workspace,
-    ) -> Result<String, StoreError> {
+    ) -> Result<String, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/show_password.sql"))?;
 
         let hash: String = stmt
             .query_row(params![&email, workspace.id], |row| row.get(0))
-            .map_err(|_| StoreError::NotFound("couldn't retrieve password".into()))?;
+            .map_err(|_| DatabaseError::NotFound("couldn't retrieve password".into()))?;
 
         Ok(hash.to_string())
     }
 
     #[instrument]
-    async fn show_key(&self, email: &str, workspace: &Workspace) -> Result<SecVec<u8>, StoreError> {
+    async fn show_key(
+        &self,
+        email: &str,
+        workspace: &Workspace,
+    ) -> Result<SecVec<u8>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/show_key.sql"))?;
 
         let key = stmt
             .query_row(params![&email, workspace.id], |row| row.get(0))
             .ok()
-            .ok_or_else(|| StoreError::NotFound("couldn't retrieve symmetric key".into()))?;
+            .ok_or_else(|| DatabaseError::NotFound("couldn't retrieve symmetric key".into()))?;
 
         Ok(SecVec::new(key))
     }
@@ -162,7 +172,7 @@ impl AccountStore for AccountStoreSqlite {
         email: &str,
         password: &str,
         workspace: &Workspace,
-    ) -> Result<String, StoreError> {
+    ) -> Result<String, DatabaseError> {
         let now = Utc::now();
 
         let hash = crypto::hash(rand::thread_rng(), password.as_bytes());
@@ -188,7 +198,7 @@ impl AccountStore for AccountStoreSqlite {
     }
 
     #[instrument]
-    async fn show(&self, email: &str, workspace: &Workspace) -> Result<Account, StoreError> {
+    async fn show(&self, email: &str, workspace: &Workspace) -> Result<Account, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/show.sql"))?;
         let columns = columns_from_statement(&stmt);
@@ -203,7 +213,7 @@ impl AccountStore for AccountStoreSqlite {
 
         match accounts.first() {
             Some(account) => Ok(account.to_owned()),
-            _ => Err(StoreError::NotFound(format!(
+            _ => Err(DatabaseError::NotFound(format!(
                 "Account {}/{}",
                 email, workspace.id
             ))),
@@ -216,7 +226,7 @@ impl AccountStore for AccountStoreSqlite {
         email: &str,
         hash: &str,
         workspace: &Workspace,
-    ) -> Result<(), StoreError> {
+    ) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/update_hash.sql"))?;
 
@@ -226,7 +236,7 @@ impl AccountStore for AccountStoreSqlite {
     }
 
     #[instrument]
-    async fn show_by_workspace(&self, workspace: &Workspace) -> Result<Account, StoreError> {
+    async fn show_by_workspace(&self, workspace: &Workspace) -> Result<Account, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/account/show_by_workspace.sql"))?;
         let columns = columns_from_statement(&stmt);
@@ -241,7 +251,7 @@ impl AccountStore for AccountStoreSqlite {
 
         match accounts.first() {
             Some(account) => Ok(account.to_owned()),
-            _ => Err(StoreError::NotFound(format!(
+            _ => Err(DatabaseError::NotFound(format!(
                 "no account associated to workspace {}",
                 workspace.slug
             ))),
@@ -257,7 +267,7 @@ pub struct AccountStoreHttp {
 #[async_trait]
 impl AccountStore for AccountStoreHttp {
     #[instrument]
-    async fn exists(&self, _email: &str, _workspace: &Workspace) -> Result<bool, StoreError> {
+    async fn exists(&self, _email: &str, _workspace: &Workspace) -> Result<bool, DatabaseError> {
         unreachable!()
     }
 
@@ -267,12 +277,12 @@ impl AccountStore for AccountStoreHttp {
         _email: &str,
         _otp: Option<String>,
         _workspace: &Workspace,
-    ) -> Result<(), StoreError> {
+    ) -> Result<(), DatabaseError> {
         unreachable!()
     }
 
     #[instrument]
-    async fn list(&self) -> Result<Vec<Account>, StoreError> {
+    async fn list(&self) -> Result<Vec<Account>, DatabaseError> {
         unreachable!()
     }
 
@@ -281,7 +291,7 @@ impl AccountStore for AccountStoreHttp {
         &self,
         _email: &str,
         _workspace: &Workspace,
-    ) -> Result<String, StoreError> {
+    ) -> Result<String, DatabaseError> {
         unreachable!()
     }
 
@@ -290,7 +300,7 @@ impl AccountStore for AccountStoreHttp {
         &self,
         _email: &str,
         _workspace: &Workspace,
-    ) -> Result<SecVec<u8>, StoreError> {
+    ) -> Result<SecVec<u8>, DatabaseError> {
         unreachable!()
     }
 
@@ -300,7 +310,7 @@ impl AccountStore for AccountStoreHttp {
         email: &str,
         password: &str,
         _workspace: &Workspace,
-    ) -> Result<String, StoreError> {
+    ) -> Result<String, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/account",
@@ -319,7 +329,7 @@ impl AccountStore for AccountStoreHttp {
     }
 
     #[instrument]
-    async fn show(&self, _email: &str, _workspace: &Workspace) -> Result<Account, StoreError> {
+    async fn show(&self, _email: &str, _workspace: &Workspace) -> Result<Account, DatabaseError> {
         unreachable!()
     }
 
@@ -329,12 +339,12 @@ impl AccountStore for AccountStoreHttp {
         _email: &str,
         _hash: &str,
         _workspace: &Workspace,
-    ) -> Result<(), StoreError> {
+    ) -> Result<(), DatabaseError> {
         unreachable!();
     }
 
     #[instrument]
-    async fn show_by_workspace(&self, _workspace: &Workspace) -> Result<Account, StoreError> {
+    async fn show_by_workspace(&self, _workspace: &Workspace) -> Result<Account, DatabaseError> {
         unreachable!();
     }
 }

@@ -7,7 +7,8 @@ use warp::{
     Filter,
 };
 
-use crate::errors::{HandlerError, StoreError};
+use crate::db::errors::DatabaseError;
+use crate::errors::HandlerError;
 
 #[instrument]
 pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
@@ -32,7 +33,7 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
         error!("{:?}", reason);
         code = StatusCode::UNAUTHORIZED;
         message = "request did not authorize".to_string();
-    } else if let Some(StoreError::HttpFail(reason)) = err.find() {
+    } else if let Some(DatabaseError::HttpFail(reason)) = err.find() {
         error!("{:?}", reason);
         code = StatusCode::INTERNAL_SERVER_ERROR;
         message = "UNHANDLED_REJECTION".into();

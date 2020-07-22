@@ -5,8 +5,7 @@ use rusqlite::{params, Error as RusqliteError, NO_PARAMS};
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
-use crate::db::{http, sqlite, Database};
-use crate::errors::StoreError;
+use crate::db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send + Sync> {
     match wrapped_db {
@@ -17,13 +16,18 @@ pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send +
 
 #[async_trait]
 pub(crate) trait SourceStore {
-    async fn exists(&self, id: i32) -> Result<bool, StoreError>;
-    async fn show(&self, id: i32) -> Result<Option<Source>, StoreError>;
-    async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError>;
-    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, StoreError>;
-    async fn delete(&self, id: i32) -> Result<(), StoreError>;
-    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError>;
-    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, StoreError>;
+    async fn exists(&self, id: i32) -> Result<bool, DatabaseError>;
+    async fn show(&self, id: i32) -> Result<Option<Source>, DatabaseError>;
+    async fn create(
+        &self,
+        kind: &str,
+        term: &str,
+        tags: Vec<QueryTag>,
+    ) -> Result<(), DatabaseError>;
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, DatabaseError>;
+    async fn delete(&self, id: i32) -> Result<(), DatabaseError>;
+    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), DatabaseError>;
+    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -34,7 +38,7 @@ pub struct SourceStoreSqlite {
 #[async_trait]
 impl SourceStore for SourceStoreSqlite {
     #[instrument]
-    async fn exists(&self, id: i32) -> Result<bool, StoreError> {
+    async fn exists(&self, id: i32) -> Result<bool, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/exists.sql"))?;
 
@@ -47,7 +51,12 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError> {
+    async fn create(
+        &self,
+        kind: &str,
+        term: &str,
+        tags: Vec<QueryTag>,
+    ) -> Result<(), DatabaseError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
 
@@ -76,7 +85,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn show(&self, id: i32) -> Result<Option<Source>, StoreError> {
+    async fn show(&self, id: i32) -> Result<Option<Source>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/show-by-id.sql"))?;
         let mut stmt2 =
@@ -107,7 +116,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, StoreError> {
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/paginate.sql"))?;
         let mut stmt2 =
@@ -134,7 +143,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn delete(&self, id: i32) -> Result<(), StoreError> {
+    async fn delete(&self, id: i32) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt =
             conn.prepare_cached(include_str!("../sql/source/delete-tagged-query.sql"))?;
@@ -147,7 +156,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError> {
+    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), DatabaseError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/update.sql"))?;
@@ -158,7 +167,7 @@ impl SourceStore for SourceStoreSqlite {
     }
 
     #[instrument]
-    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, StoreError> {
+    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/source/list-source-tags.sql"))?;
 
@@ -179,7 +188,7 @@ pub struct SourceStoreHttp {
 
 #[async_trait]
 impl SourceStore for SourceStoreHttp {
-    async fn exists(&self, id: i32) -> Result<bool, StoreError> {
+    async fn exists(&self, id: i32) -> Result<bool, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/sources/{}",
@@ -192,7 +201,12 @@ impl SourceStore for SourceStoreHttp {
         }
     }
 
-    async fn create(&self, kind: &str, term: &str, tags: Vec<QueryTag>) -> Result<(), StoreError> {
+    async fn create(
+        &self,
+        kind: &str,
+        term: &str,
+        tags: Vec<QueryTag>,
+    ) -> Result<(), DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/sources",
@@ -211,7 +225,7 @@ impl SourceStore for SourceStoreHttp {
     }
 
     #[instrument]
-    async fn show(&self, id: i32) -> Result<Option<Source>, StoreError> {
+    async fn show(&self, id: i32) -> Result<Option<Source>, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/sources/{}",
@@ -224,7 +238,7 @@ impl SourceStore for SourceStoreHttp {
     }
 
     #[instrument]
-    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, StoreError> {
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Source>, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/sources",
@@ -240,7 +254,7 @@ impl SourceStore for SourceStoreHttp {
         Ok(data)
     }
 
-    async fn delete(&self, id: i32) -> Result<(), StoreError> {
+    async fn delete(&self, id: i32) -> Result<(), DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/sources/{}",
@@ -252,7 +266,7 @@ impl SourceStore for SourceStoreHttp {
         Ok(())
     }
 
-    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), StoreError> {
+    async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/sources/{}",
@@ -272,7 +286,7 @@ impl SourceStore for SourceStoreHttp {
         Ok(())
     }
 
-    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, StoreError> {
+    async fn list_source_tags(&self) -> Result<Vec<QueryTag>, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/source-tags",

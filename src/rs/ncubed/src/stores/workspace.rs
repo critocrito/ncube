@@ -4,8 +4,7 @@ use ncube_data::Workspace;
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 
-use crate::db::{sqlite, Database};
-use crate::errors::StoreError;
+use crate::db::{errors::DatabaseError, sqlite, Database};
 
 pub(crate) fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
     match wrapped_db {
@@ -16,7 +15,7 @@ pub(crate) fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
 
 #[async_trait]
 pub(crate) trait WorkspaceStore {
-    async fn exists(&self, slug: &str) -> Result<bool, StoreError>;
+    async fn exists(&self, slug: &str) -> Result<bool, DatabaseError>;
     #[allow(clippy::too_many_arguments)]
     async fn create(
         &self,
@@ -27,17 +26,17 @@ pub(crate) trait WorkspaceStore {
         location: &str,
         database: &str,
         database_path: &str,
-    ) -> Result<(), StoreError>;
-    async fn list(&self) -> Result<Vec<Workspace>, StoreError>;
-    async fn show_by_slug(&self, slug: &str) -> Result<Workspace, StoreError>;
-    async fn delete_by_slug(&self, slug: &str) -> Result<(), StoreError>;
+    ) -> Result<(), DatabaseError>;
+    async fn list(&self) -> Result<Vec<Workspace>, DatabaseError>;
+    async fn show_by_slug(&self, slug: &str) -> Result<Workspace, DatabaseError>;
+    async fn delete_by_slug(&self, slug: &str) -> Result<(), DatabaseError>;
     async fn update(
         &self,
         current_slug: &str,
         name: &str,
         slug: &str,
         description: &Option<String>,
-    ) -> Result<(), StoreError>;
+    ) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -47,7 +46,7 @@ pub struct WorkspaceStoreSqlite {
 
 #[async_trait]
 impl WorkspaceStore for WorkspaceStoreSqlite {
-    async fn exists(&self, slug: &str) -> Result<bool, StoreError> {
+    async fn exists(&self, slug: &str) -> Result<bool, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/exists.sql"))?;
 
@@ -69,7 +68,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         location: &str,
         database: &str,
         database_path: &str,
-    ) -> Result<(), StoreError> {
+    ) -> Result<(), DatabaseError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
 
@@ -95,7 +94,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         Ok(())
     }
 
-    async fn list(&self) -> Result<Vec<Workspace>, StoreError> {
+    async fn list(&self) -> Result<Vec<Workspace>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/list.sql"))?;
 
@@ -109,7 +108,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         Ok(workspaces)
     }
 
-    async fn show_by_slug(&self, slug: &str) -> Result<Workspace, StoreError> {
+    async fn show_by_slug(&self, slug: &str) -> Result<Workspace, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/show_by_slug.sql"))?;
         let columns = columns_from_statement(&stmt);
@@ -124,11 +123,11 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
 
         match workspaces.first() {
             Some(workspace) => Ok(workspace.to_owned()),
-            _ => Err(StoreError::NotFound(format!("Workspace/{}", slug))),
+            _ => Err(DatabaseError::NotFound(format!("Workspace/{}", slug))),
         }
     }
 
-    async fn delete_by_slug(&self, slug: &str) -> Result<(), StoreError> {
+    async fn delete_by_slug(&self, slug: &str) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/remove_by_slug.sql"))?;
         stmt.execute(params![&slug])?;
@@ -142,7 +141,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
         name: &str,
         slug: &str,
         description: &Option<String>,
-    ) -> Result<(), StoreError> {
+    ) -> Result<(), DatabaseError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/update.sql"))?;

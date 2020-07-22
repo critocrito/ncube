@@ -4,6 +4,7 @@ use std::fmt::Debug;
 use std::sync::{Mutex, RwLock};
 use tracing::{debug, instrument};
 
+pub mod errors;
 pub mod http;
 pub mod sqlite;
 

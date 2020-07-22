@@ -6,8 +6,8 @@ use std::result::Result;
 use xactor::{message, Actor, Context, Handler};
 
 use crate::actors::Registry;
-use crate::db::{sqlite, Database};
-use crate::errors::{ActorError, StoreError};
+use crate::db::{errors::DatabaseError, sqlite, Database};
+use crate::errors::ActorError;
 use crate::stores::{config_store, ConfigStore};
 
 pub(crate) struct HostActor {
@@ -28,7 +28,7 @@ impl Registry for HostActor {}
 impl HostActor {
     pub fn new(connection_str: &str) -> Result<Self, ActorError> {
         let db = sqlite::Database::from_str(&connection_str, 1)
-            .map_err(|e| ActorError::Store(StoreError::SqliteConfig(e)))?;
+            .map_err(|e| ActorError::Database(DatabaseError::SqliteConfig(e)))?;
 
         Ok(Self {
             db: Database::Sqlite(Box::new(db)),

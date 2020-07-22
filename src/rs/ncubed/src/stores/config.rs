@@ -5,8 +5,7 @@ use serde_rusqlite::{self, from_rows};
 use std::fmt::Debug;
 use tracing::instrument;
 
-use crate::db::{sqlite, Database};
-use crate::errors::StoreError;
+use crate::db::{errors::DatabaseError, sqlite, Database};
 
 mod embedded {
     use refinery::embed_migrations;
@@ -22,12 +21,12 @@ pub(crate) fn config_store(wrapped_db: Database) -> impl ConfigStore {
 
 #[async_trait]
 pub(crate) trait ConfigStore {
-    async fn init(&self) -> Result<(), StoreError>;
-    async fn upgrade(&self) -> Result<(), StoreError>;
-    async fn is_bootstrapped(&self) -> Result<bool, StoreError>;
-    async fn show(&self) -> Result<NcubeConfig, StoreError>;
-    async fn show_all(&self) -> Result<NcubeConfig, StoreError>;
-    async fn insert(&self, name: &str, value: &str) -> Result<(), StoreError>;
+    async fn init(&self) -> Result<(), DatabaseError>;
+    async fn upgrade(&self) -> Result<(), DatabaseError>;
+    async fn is_bootstrapped(&self) -> Result<bool, DatabaseError>;
+    async fn show(&self) -> Result<NcubeConfig, DatabaseError>;
+    async fn show_all(&self) -> Result<NcubeConfig, DatabaseError>;
+    async fn insert(&self, name: &str, value: &str) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -38,7 +37,7 @@ pub struct ConfigStoreSqlite {
 #[async_trait]
 impl ConfigStore for ConfigStoreSqlite {
     #[instrument]
-    async fn init(&self) -> Result<(), StoreError> {
+    async fn init(&self) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
         conn.pragma_update(None, "foreign_keys", &"ON")?;
         // FIXME: Should I enable this?
@@ -47,7 +46,7 @@ impl ConfigStore for ConfigStoreSqlite {
     }
 
     #[instrument]
-    async fn upgrade(&self) -> Result<(), StoreError> {
+    async fn upgrade(&self) -> Result<(), DatabaseError> {
         let mut conn = self.db.connection().await?;
         // The actual sqlite connection is hidden inside a deadpool Object
         // inside a ClientWrapper. We deref those two levels to make refinery
@@ -57,7 +56,7 @@ impl ConfigStore for ConfigStoreSqlite {
     }
 
     #[instrument]
-    async fn is_bootstrapped(&self) -> Result<bool, StoreError> {
+    async fn is_bootstrapped(&self) -> Result<bool, DatabaseError> {
         let conn = self.db.connection().await?;
         let result: i32 = conn.query_row(
             include_str!("../sql/config/is_bootstrapped.sql"),
@@ -73,7 +72,7 @@ impl ConfigStore for ConfigStoreSqlite {
     }
 
     #[instrument]
-    async fn show(&self) -> Result<NcubeConfig, StoreError> {
+    async fn show(&self) -> Result<NcubeConfig, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare(include_str!("../sql/config/show.sql"))?;
 
@@ -88,7 +87,7 @@ impl ConfigStore for ConfigStoreSqlite {
     }
 
     #[instrument]
-    async fn show_all(&self) -> Result<NcubeConfig, StoreError> {
+    async fn show_all(&self) -> Result<NcubeConfig, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare(include_str!("../sql/config/show_all.sql"))?;
 
@@ -103,7 +102,7 @@ impl ConfigStore for ConfigStoreSqlite {
     }
 
     #[instrument]
-    async fn insert(&self, name: &str, value: &str) -> Result<(), StoreError> {
+    async fn insert(&self, name: &str, value: &str) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
         let setting_id: i32 = conn.query_row(
             include_str!("../sql/config/setting_exists.sql"),

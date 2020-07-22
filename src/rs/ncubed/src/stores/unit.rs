@@ -4,8 +4,7 @@ use rusqlite::params;
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
-use crate::db::{http, sqlite, Database};
-use crate::errors::StoreError;
+use crate::db::{errors::DatabaseError, http, sqlite, Database};
 
 pub(crate) fn unit_store(wrapped_db: Database) -> Box<dyn UnitStore + Send + Sync> {
     match wrapped_db {
@@ -16,7 +15,7 @@ pub(crate) fn unit_store(wrapped_db: Database) -> Box<dyn UnitStore + Send + Syn
 
 #[async_trait]
 pub(crate) trait UnitStore {
-    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError>;
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Unit>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -27,7 +26,7 @@ pub struct UnitStoreSqlite {
 #[async_trait]
 impl UnitStore for UnitStoreSqlite {
     #[instrument]
-    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError> {
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Unit>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/unit/paginate.sql"))?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/unit/list-media.sql"))?;
@@ -74,7 +73,7 @@ pub struct UnitStoreHttp {
 #[async_trait]
 impl UnitStore for UnitStoreHttp {
     #[instrument]
-    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Unit>, StoreError> {
+    async fn list(&self, page: i32, page_size: i32) -> Result<Vec<Unit>, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/data",
