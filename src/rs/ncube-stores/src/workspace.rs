@@ -5,7 +5,7 @@ use ncube_db::{errors::DatabaseError, sqlite, Database};
 use rusqlite::{self, params, NO_PARAMS};
 use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 
-pub(crate) fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
+pub fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
     match wrapped_db {
         Database::Sqlite(db) => WorkspaceStoreSqlite { db },
         Database::Http(_client) => todo!(),
@@ -13,7 +13,7 @@ pub(crate) fn workspace_store(wrapped_db: Database) -> impl WorkspaceStore {
 }
 
 #[async_trait]
-pub(crate) trait WorkspaceStore {
+pub trait WorkspaceStore {
     async fn exists(&self, slug: &str) -> Result<bool, DatabaseError>;
     #[allow(clippy::too_many_arguments)]
     async fn create(

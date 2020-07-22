@@ -1,6 +1,7 @@
 use chrono::{DateTime, Duration, Utc};
 use ncube_crypto as crypto;
 use ncube_data::{Account, JwtToken, WorkspaceKind};
+use ncube_stores::{account_store, workspace_store, WorkspaceStore};
 use tracing::{debug, error, info, instrument, warn};
 
 use crate::actors::{
@@ -9,7 +10,6 @@ use crate::actors::{
     DatabaseActor, HostActor, Registry,
 };
 use crate::errors::HandlerError;
-use crate::stores::{account_store, workspace_store, WorkspaceStore};
 
 // This function sets the OTP max age policy. At this time this is set to 48
 // hours.

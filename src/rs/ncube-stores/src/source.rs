@@ -7,7 +7,7 @@ use tracing::instrument;
 
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 
-pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send + Sync> {
+pub fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send + Sync> {
     match wrapped_db {
         Database::Sqlite(db) => Box::new(SourceStoreSqlite { db }),
         Database::Http(client) => Box::new(SourceStoreHttp { client }),
@@ -15,7 +15,7 @@ pub(crate) fn source_store(wrapped_db: Database) -> Box<dyn SourceStore + Send +
 }
 
 #[async_trait]
-pub(crate) trait SourceStore {
+pub trait SourceStore {
     async fn exists(&self, id: i32) -> Result<bool, DatabaseError>;
     async fn show(&self, id: i32) -> Result<Option<Source>, DatabaseError>;
     async fn create(

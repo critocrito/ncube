@@ -2,13 +2,13 @@ use async_trait::async_trait;
 use ncube_data::{ConfigSetting, NcubeConfig};
 use ncube_db::{errors::DatabaseError, sqlite, Database};
 use ncube_fs::expand_tilde;
+use ncube_stores::{config_store, ConfigStore};
 use std::path::PathBuf;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler};
 
 use crate::actors::Registry;
 use crate::errors::ActorError;
-use crate::stores::{config_store, ConfigStore};
 
 pub(crate) struct HostActor {
     db: Database,
