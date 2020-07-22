@@ -124,6 +124,13 @@ impl DatabaseCache {
             }
         }
     }
+
+    #[instrument]
+    pub fn reset(&self, key: &str, db: Database) {
+        let trimmed = key.trim().to_string();
+        let mut cache = self.0.write().expect("RwLock poisoned");
+        cache.insert(trimmed, Mutex::new(db));
+    }
 }
 
 #[cfg(test)]
@@ -162,5 +169,25 @@ mod tests {
         cache.put(url, Database::Sqlite(Box::new(db)));
 
         assert_eq!(cache.has(url), true);
+    }
+
+    #[test]
+    fn database_cache_resets_the_cache() {
+        let url1 = "sqlite://test.db";
+        let url2 = "sqlite://test2.db";
+        let db1 = sqlite::Database::from_str(&url1, 1).unwrap();
+        let db2 = sqlite::Database::from_str(&url2, 2).unwrap();
+
+        let cache = DatabaseCache::new();
+
+        cache.put(url1, Database::Sqlite(Box::new(db1)));
+
+        let db3 = cache.get(url1).unwrap();
+
+        cache.reset(url1, Database::Sqlite(Box::new(db2)));
+
+        let db4 = cache.get(url1).unwrap();
+
+        assert_ne!(db3, db4);
     }
 }
