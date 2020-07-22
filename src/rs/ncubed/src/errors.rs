@@ -1,10 +1,8 @@
+use ncube_data::ErrorResponse;
 use ncube_errors::HostError;
 use thiserror::Error;
 
-pub use crate::{
-    db::{http, sqlite},
-    http::ErrorResponse,
-};
+pub use crate::db::{http, sqlite};
 
 #[derive(Error, Debug)]
 pub enum StoreError {

@@ -1,7 +1,9 @@
 //! When connecting to remote ncube installation all requests are done using
 //! HTTP. Internally the HTTP endpoint is treated like a database.
 use chrono::{DateTime, Duration, Utc};
-use ncube_data::{LoginRequest, LoginResponse, Workspace};
+use ncube_data::{
+    ErrorResponse, HttpResponse, LoginRequest, LoginResponse, SuccessResponse, Workspace,
+};
 use reqwest::{Client, StatusCode};
 use std::fmt::{self, Debug, Display, Formatter};
 use std::sync::Arc;
@@ -12,7 +14,6 @@ use url::Url;
 
 use crate::actors::{host::RequirePool, HostActor, Registry};
 use crate::errors::{ActorError, StoreError};
-use crate::http::{ErrorResponse, HttpResponse, SuccessResponse};
 use crate::stores::account_store;
 
 #[derive(Error, Debug)]

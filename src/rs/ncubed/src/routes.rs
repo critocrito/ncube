@@ -1,3 +1,4 @@
+use ncube_data::{ErrorResponse, SuccessResponse};
 use ncube_errors::HostError;
 use std::convert::Infallible;
 use tracing::{error, info, instrument};
@@ -7,7 +8,6 @@ use warp::{
 };
 
 use crate::errors::{HandlerError, StoreError};
-use crate::http::{ErrorResponse, SuccessResponse};
 
 #[instrument]
 pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
