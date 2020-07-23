@@ -9,7 +9,7 @@ use ncube_data::{Account, JwtToken, WorkspaceKind};
 use ncube_stores::{account_store, workspace_store, WorkspaceStore};
 use tracing::{debug, error, info, instrument, warn};
 
-use crate::errors::HandlerError;
+use crate::handlers::HandlerError;
 
 // This function sets the OTP max age policy. At this time this is set to 48
 // hours.

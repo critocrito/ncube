@@ -9,7 +9,7 @@ use ncube_data::ConfigSetting;
 use rand::{self, rngs::StdRng, SeedableRng};
 use std::time::SystemTime;
 
-use crate::errors::HandlerError;
+use crate::handlers::HandlerError;
 
 pub async fn is_bootstrapped() -> Result<bool, HandlerError> {
     let mut actor = HostActor::from_registry().await.unwrap();
