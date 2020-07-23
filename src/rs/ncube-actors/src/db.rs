@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use ncube_data::{Account, WorkspaceDatabase};
-use ncube_db::{errors::DatabaseError, http, sqlite, Database, DatabaseCache};
+use ncube_db::{errors::DatabaseError, http, migrations, sqlite, Database, DatabaseCache};
 use ncube_stores::{account_store, workspace_store, WorkspaceStore};
 use std::result::Result;
 use tracing::{debug, info};

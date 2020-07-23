@@ -6,11 +6,6 @@ use serde_rusqlite::{self, from_rows};
 use std::fmt::Debug;
 use tracing::instrument;
 
-mod embedded {
-    use refinery::embed_migrations;
-    embed_migrations!("migrations");
-}
-
 pub fn config_store(wrapped_db: Database) -> impl ConfigStore {
     match wrapped_db {
         Database::Sqlite(db) => ConfigStoreSqlite { db },

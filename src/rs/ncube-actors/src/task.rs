@@ -6,7 +6,10 @@ use tokio::sync::mpsc::{self, Sender};
 use tracing::info;
 use xactor::{message, Actor, Context, Handler};
 
-use crate::{ActorError, Registry};
+use crate::{
+    db::{DatabaseActor, MigrateWorkspace},
+    ActorError, Registry,
+};
 
 #[derive(Debug)]
 enum TaskMessage {
@@ -58,6 +61,7 @@ impl TaskActor {
 #[derive(Debug)]
 pub struct SetupWorkspace {
     pub location: String,
+    pub workspace: String,
 }
 
 #[async_trait]
