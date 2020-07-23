@@ -173,6 +173,19 @@ GET http://:api/api/workspaces/syrian-archive/data
 GET http://:api/api/workspaces/syrian-archive/data?page=2
 
 ###
+# Segments
+###
+
+# Create a new segment
+POST http://:api/api/workspaces/syrian-archive/segments
+:headers
+
+{
+  "query": "Aleppo AND rebels",
+  "title": "MF001A"
+}
+
+###
 # Workspace stats
 ###
 

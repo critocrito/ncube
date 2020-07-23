@@ -114,7 +114,8 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
                 .or(user::routes())
                 .or(stat::routes())
                 .or(unit::routes())
-                .or(source_tag::routes()),
+                .or(source_tag::routes())
+                .or(segment::routes()),
         )
         .with(cors)
 }
@@ -513,6 +514,36 @@ pub(crate) mod source_tag {
             .and(warp::path!("workspaces" / String / "source-tags"))
             .and(warp::get())
             .and_then(list)
+    }
+}
+
+pub(crate) mod segment {
+    use ncube_data::{ReqCtx, SegmentRequest};
+    use ncube_handlers::workspace as handlers;
+    use tracing::instrument;
+    use warp::Filter;
+
+    use crate::http::authenticate_remote_req;
+
+    #[instrument]
+    async fn create(
+        _ctx: ReqCtx,
+        workspace: String,
+        segment_req: SegmentRequest,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::create_segment(&workspace, &segment_req).await?;
+
+        Ok(warp::reply())
+    }
+
+    pub(crate) fn routes(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "segments"))
+            .and(warp::post())
+            .and(warp::body::json())
+            .and_then(create)
+            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
     }
 }
 

@@ -10,6 +10,7 @@
   - [Workspaces](#workspaces)
   - [Sources](#sources)
   - [Units](#units)
+  - [Segments](#segments)
   - [Stats](#stats)
 - [Entities](#entities)
   - [Config Setting](#config-setting-entity)
@@ -132,6 +133,10 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [List all units](http-api/data/list.md) `GET /workspaces/<workspace_id>/data`
 - [Search for units](http-api/data/search.md) `GET /workspaces/<workspace_id>/data/search`
 
+### Segments
+
+- [Create a segment](http-api/segment/create.md) `POST /workspaces/<workspace_id>/segments`
+
 ### Stats
 
 - [Total count sources](http-api/stat/total_sources.md) `GET /workspaces/<workspace_id>/stats/sources/total`
@@ -139,6 +144,7 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [Total count units](http-api/stat/total_units.md) `GET /workspaces/<workspace_id>/stats/data/total`
 - [Count of unit sources](http-api/stat/sources_units.md) `GET /workspaces/<workspace_id>/stats/data/sources`
 - [Count of videos](http-api/stat/videos_units.md) `GET /workspaces/<workspace_id>/stats/data/videos`
+- [Total count of units of a segment](http-api/stat/total_units_segment.md) `GET /workspaces/<workspace_id>/stats/segments/<segment_id>/units`
 
 ## Entities
 

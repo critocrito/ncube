@@ -5,11 +5,13 @@ use ncube_actors::{
     HostActor, Registry, TaskActor,
 };
 use ncube_data::{
-    AccountRequest, DatabaseRequest, Stat, Unit, Workspace, WorkspaceDatabase,
+    AccountRequest, DatabaseRequest, SegmentRequest, Stat, Unit, Workspace, WorkspaceDatabase,
     WorkspaceKindRequest, WorkspaceRequest,
 };
 use ncube_db::{migrations, sqlite, DatabaseError};
-use ncube_stores::{search_store, stat_store, unit_store, workspace_store, WorkspaceStore};
+use ncube_stores::{
+    search_store, segment_store, stat_store, unit_store, workspace_store, WorkspaceStore,
+};
 use tracing::{debug, error, instrument};
 
 use crate::{account, HandlerError};
@@ -427,4 +429,43 @@ pub async fn migrate(workspace: &str) -> Result<(), HandlerError> {
             connection_string
         ))),
     }
+}
+
+#[instrument]
+pub async fn create_segment(
+    workspace: &str,
+    segment_req: &SegmentRequest,
+) -> Result<(), HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let Ok(false) = workspace_store.exists(&workspace).await {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.to_string(),
+        })
+        .await??;
+
+    let segment_store = segment_store(database);
+
+    if let Ok(true) = segment_store.exists(&segment_req.slug()).await {
+        return Err(HandlerError::Invalid(format!(
+            "Segment `{}` already exists.",
+            segment_req.slug(),
+        )));
+    };
+
+    segment_store
+        .create(&segment_req.query, &segment_req.title, &segment_req.slug())
+        .await?;
+
+    Ok(())
 }

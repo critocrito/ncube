@@ -489,6 +489,28 @@ where
     Error(ErrorResponse),
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Segment {
+    pub id: i32,
+    pub slug: String,
+    pub title: String,
+    pub query: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SegmentRequest {
+    pub title: String,
+    pub query: String,
+}
+
+impl SegmentRequest {
+    pub fn slug(&self) -> String {
+        slugify!(&self.title)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

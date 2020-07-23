@@ -1,0 +1,1 @@
+SELECT EXISTS(SELECT id FROM segment WHERE slug = ?1);
