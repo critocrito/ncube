@@ -8,7 +8,15 @@ use warp::{
     Filter,
 };
 
-use crate::errors::HandlerError;
+use crate::handlers::HandlerError;
+
+impl warp::reject::Reject for HandlerError {}
+
+impl From<HandlerError> for warp::Rejection {
+    fn from(rejection: HandlerError) -> warp::Rejection {
+        warp::reject::custom(rejection)
+    }
+}
 
 #[instrument]
 pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
@@ -282,8 +290,7 @@ pub(crate) mod source {
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::errors::HandlerError;
-    use crate::handlers::{source as handlers, workspace as workspace_handlers};
+    use crate::handlers::{source as handlers, workspace as workspace_handlers, HandlerError};
     use crate::http::authenticate_remote_req;
 
     // The query parameters for list source.
@@ -646,8 +653,7 @@ pub(crate) mod unit {
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::errors::HandlerError;
-    use crate::handlers::workspace as handlers;
+    use crate::handlers::{workspace as handlers, HandlerError};
     use crate::http::authenticate_remote_req;
 
     // The query parameters for list data.

@@ -1,4 +1,3 @@
-use crate::errors::HandlerError;
 use ncube_actors::{
     db::{DatabaseActor, LookupDatabase},
     host::{HostActor, RequirePool},
@@ -7,6 +6,8 @@ use ncube_actors::{
 use ncube_data::{QueryTag, Source, SourceRequest};
 use ncube_stores::{search_store, source_store, workspace_store, WorkspaceStore};
 use tracing::{error, instrument};
+
+use crate::handlers::HandlerError;
 
 #[instrument]
 pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(), HandlerError> {
