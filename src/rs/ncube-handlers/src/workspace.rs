@@ -10,7 +10,7 @@ use ncube_data::{
 use ncube_stores::{search_store, stat_store, unit_store, workspace_store, WorkspaceStore};
 use tracing::{error, instrument};
 
-use crate::handlers::{account, HandlerError};
+use crate::{account, HandlerError};
 
 #[instrument]
 pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspace, HandlerError> {

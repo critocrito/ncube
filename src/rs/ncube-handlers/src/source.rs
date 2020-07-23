@@ -7,7 +7,7 @@ use ncube_data::{QueryTag, Source, SourceRequest};
 use ncube_stores::{search_store, source_store, workspace_store, WorkspaceStore};
 use tracing::{error, instrument};
 
-use crate::handlers::HandlerError;
+use crate::HandlerError;
 
 #[instrument]
 pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(), HandlerError> {

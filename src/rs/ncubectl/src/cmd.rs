@@ -1,6 +1,6 @@
 use ncube_crypto as crypto;
 use ncube_data::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
-use ncubed::handlers;
+use ncube_handlers as handlers;
 use prettytable::{cell, format::FormatBuilder, row, Table};
 use std::io::Write;
 
