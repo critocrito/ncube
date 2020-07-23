@@ -7,11 +7,10 @@ use tracing::debug;
 use url::Url;
 use xactor::{message, Actor, Context, Handler};
 
-use crate::actors::{
+use crate::{
     host::{HostActor, RequirePool},
-    Registry,
+    ActorError, Registry,
 };
-use crate::errors::ActorError;
 
 /// The database actor can be queried for database connections for workspaces.
 /// Connection pools are cached when requested first time and subsequently
@@ -20,8 +19,7 @@ use crate::errors::ActorError;
 /// # Example
 ///
 /// ```no_run
-/// use ncubed::actors::db::{LookupDatabase, DatabaseActor};
-/// use crate::ncubed::actors::Registry;
+/// use ncube_actors::{db::{LookupDatabase, DatabaseActor}, Registry};
 ///
 /// # #[tokio::main]
 /// # async fn main () {

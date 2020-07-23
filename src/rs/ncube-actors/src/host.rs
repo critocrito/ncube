@@ -7,10 +7,9 @@ use std::path::PathBuf;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler};
 
-use crate::actors::Registry;
-use crate::errors::ActorError;
+use crate::{ActorError, Registry};
 
-pub(crate) struct HostActor {
+pub struct HostActor {
     db: Database,
 }
 
@@ -66,7 +65,7 @@ impl HostActor {
 
 #[message(result = "Result<Database, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct RequirePool;
+pub struct RequirePool;
 
 #[async_trait]
 impl Handler<RequirePool> for HostActor {
@@ -83,7 +82,7 @@ impl Handler<RequirePool> for HostActor {
 
 #[message(result = "Result<PathBuf, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct WorkspaceRootSetting;
+pub struct WorkspaceRootSetting;
 
 #[async_trait]
 impl Handler<WorkspaceRootSetting> for HostActor {
@@ -105,7 +104,7 @@ impl Handler<WorkspaceRootSetting> for HostActor {
 
 #[message(result = "Result<ConfigSetting, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct SecretKeySetting;
+pub struct SecretKeySetting;
 
 #[async_trait]
 impl Handler<SecretKeySetting> for HostActor {
@@ -121,7 +120,7 @@ impl Handler<SecretKeySetting> for HostActor {
 
 #[message(result = "Result<ConfigSetting, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct EndpointSetting;
+pub struct EndpointSetting;
 
 #[async_trait]
 impl Handler<EndpointSetting> for HostActor {
@@ -137,7 +136,7 @@ impl Handler<EndpointSetting> for HostActor {
 
 #[message(result = "Result<bool, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct IsBootstrapped;
+pub struct IsBootstrapped;
 
 #[async_trait]
 impl Handler<IsBootstrapped> for HostActor {
@@ -154,13 +153,13 @@ impl Handler<IsBootstrapped> for HostActor {
 
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
-pub(crate) struct InsertSetting {
+pub struct InsertSetting {
     pub name: String,
     pub value: String,
 }
 
 impl InsertSetting {
-    pub(crate) fn new(name: String, value: String) -> Self {
+    pub fn new(name: String, value: String) -> Self {
         Self { name, value }
     }
 }
@@ -176,7 +175,7 @@ impl Handler<InsertSetting> for HostActor {
 
 #[message(result = "Result<NcubeConfig, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct Settings;
+pub struct Settings;
 
 #[async_trait]
 impl Handler<Settings> for HostActor {
@@ -193,7 +192,7 @@ impl Handler<Settings> for HostActor {
 
 #[message(result = "Result<NcubeConfig, ActorError>")]
 #[derive(Debug)]
-pub(crate) struct AllSettings;
+pub struct AllSettings;
 
 #[async_trait]
 impl Handler<AllSettings> for HostActor {
