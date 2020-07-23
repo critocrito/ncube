@@ -1,12 +1,11 @@
 use ncube_crypto::jwt_verify;
 use ncube_data::ReqCtx;
 use ncube_errors::HostError;
+use ncube_handlers::config::show_secret_key;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 use tracing::debug;
 use warp::Filter;
-
-use crate::handlers::config::show_secret_key;
 
 fn is_loopback() -> warp::filters::BoxedFilter<(bool,)> {
     warp::header("x-forwarded-for")

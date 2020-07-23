@@ -1,22 +1,13 @@
 use ncube_data::{ErrorResponse, SuccessResponse};
 use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
+use ncube_handlers::HandlerError;
 use std::convert::Infallible;
 use tracing::{error, info, instrument};
 use warp::{
     http::{Method, StatusCode},
     Filter,
 };
-
-use crate::handlers::HandlerError;
-
-impl warp::reject::Reject for HandlerError {}
-
-impl From<HandlerError> for warp::Rejection {
-    fn from(rejection: HandlerError) -> warp::Rejection {
-        warp::reject::custom(rejection)
-    }
-}
 
 #[instrument]
 pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
@@ -131,10 +122,10 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
 pub(crate) mod config {
     use super::SuccessResponse;
     use ncube_data::ReqCtx;
+    use ncube_handlers::config as handlers;
     use serde::Deserialize;
     use warp::Filter;
 
-    use crate::handlers::config as handlers;
     use crate::http::restrict_to_local_req;
 
     #[derive(Debug, Deserialize)]
@@ -200,9 +191,9 @@ pub(crate) mod config {
 pub(crate) mod workspace {
     use super::SuccessResponse;
     use ncube_data::{ReqCtx, WorkspaceRequest};
+    use ncube_handlers::workspace as handlers;
     use warp::Filter;
 
-    use crate::handlers::workspace as handlers;
     use crate::http::restrict_to_local_req;
 
     async fn create(
@@ -285,12 +276,12 @@ pub(crate) mod source {
     use super::SuccessResponse;
     use futures::try_join;
     use ncube_data::{ReqCtx, SearchResponse, SourceRequest};
+    use ncube_handlers::{source as handlers, workspace as workspace_handlers, HandlerError};
     use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::handlers::{source as handlers, workspace as workspace_handlers, HandlerError};
     use crate::http::authenticate_remote_req;
 
     // The query parameters for list source.
@@ -445,10 +436,10 @@ pub(crate) mod source {
 pub(crate) mod user {
     use super::SuccessResponse;
     use ncube_data::{LoginRequest, ReqCtx, UpdatePasswordRequest};
+    use ncube_handlers::account as handlers;
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::handlers::account as handlers;
     use crate::http::authenticate_remote_req;
 
     #[instrument]
@@ -498,10 +489,10 @@ pub(crate) mod user {
 pub(crate) mod source_tag {
     use super::SuccessResponse;
     use ncube_data::ReqCtx;
+    use ncube_handlers::source as handlers;
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::handlers::source as handlers;
     use crate::http::authenticate_remote_req;
 
     #[instrument]
@@ -528,12 +519,12 @@ pub(crate) mod source_tag {
 pub(crate) mod stat {
     use super::SuccessResponse;
     use ncube_data::ReqCtx;
+    use ncube_handlers::workspace as handlers;
     use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::handlers::workspace as handlers;
     use crate::http::authenticate_remote_req;
 
     // The query parameters for stats.
@@ -648,12 +639,12 @@ pub(crate) mod unit {
     use super::SuccessResponse;
     use futures::try_join;
     use ncube_data::{ReqCtx, SearchResponse};
+    use ncube_handlers::{workspace as handlers, HandlerError};
     use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
     use warp::Filter;
 
-    use crate::handlers::{workspace as handlers, HandlerError};
     use crate::http::authenticate_remote_req;
 
     // The query parameters for list data.
