@@ -40,7 +40,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
         </button>
       </div>
       <div className={c(!expanded ? "dn" : undefined)}>
-        <div className="w5 vh-100 flex flex-column br b--solitude">
+        <div className="w5 vh-100 flex flex-column br b--solitude bg-white">
           <div className="pa2 bg-sapphire h4">
             <select
               defaultValue={workspaceState.context.workspace.slug}
@@ -61,7 +61,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
               <ul className="list pl0">
                 <li>
                   <button
-                    className="flex items-center b--none bg-canvas"
+                    className="flex items-center b--none bg-white"
                     onClick={() => workspaceSend("SOURCE")}
                   >
                     <img
@@ -76,7 +76,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
 
                 <li className="mt3">
                   <button
-                    className="flex items-center b--none bg-canvas"
+                    className="flex items-center b--none bg-white"
                     onClick={() => workspaceSend("DATA")}
                   >
                     <img
@@ -91,7 +91,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
 
                 <li className="mt3">
                   <button
-                    className="flex items-center b--none bg-canvas"
+                    className="flex items-center b--none bg-white"
                     onClick={() => workspaceSend("PROCESS")}
                   >
                     <img
@@ -106,7 +106,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
 
                 <li className="mt3">
                   <button
-                    className="flex items-center b--none bg-canvas"
+                    className="flex items-center b--none bg-white"
                     onClick={() => workspaceSend("INVESTIGATION")}
                   >
                     <img
@@ -122,7 +122,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
             </div>
             <div className="pa2 h3 w5 bt b--solitude bw2 flex items-center justify-between">
               <button
-                className="b--none bg-canvas"
+                className="b--none bg-white"
                 onClick={() => appSend("SHOW_HOME")}
               >
                 <img height="50px" src={logoIcon} alt="Ncube logo." />
