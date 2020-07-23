@@ -86,7 +86,7 @@ Provide a new value for this setting. If this filed is omitted the setting is
 unset instead.
 .El
 .It Cm reset Ar modifier
-Reset a configuration setting.
+Reset a configuration setting specified by
 .Ar modifier :
 .Pp
 .Bl -tag -width XXXXXXXXXXXX -compact
@@ -98,6 +98,10 @@ happens during bootstrap. Server only installations of
 .Xr ncubed 1
 have to run this command once right after initial installation.
 .El
+.It Cm migrate Ar workspace
+Migrate the database of the workspace with slug 
+.Ar workspace .
+This command fails with an error if the database of the workspace doesn't support migrations. It is safe to run this command multiple times. Migrations that have been applied before are ignored on repeated calls.
 .It Cm delete Cm workspace Ar workspace Op Fl y
 Delete a workspace and all it's associated accounts. This only deletes the
 workspace in

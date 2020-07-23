@@ -17,6 +17,7 @@ const USAGE: &str = "ncubectl [-hV -d database -v]
     ncubectl get
     ncubectl set <setting> <value>
     ncubectl reset [secret]
+    ncubectl migrate <workspace>
     ncubectl delete workspace <workspace> [-y]
     ncubectl delete account <workspace> <email> [-y]
 ";
@@ -76,6 +77,7 @@ async fn main() {
         .subcommand(cli::get_cli())
         .subcommand(cli::set_cli())
         .subcommand(cli::reset_cli())
+        .subcommand(cli::migrate_cli())
         .subcommand(cli::connection_cli())
         .subcommand(cli::delete_cli())
         .get_matches();
@@ -157,6 +159,13 @@ async fn main() {
                 _ => fatal!("Unknown reset modifier."),
             }
         }
+
+        ("migrate", Some(state_matches)) => {
+            let workspace = state_matches.value_of("workspace").unwrap();
+
+            cmd::migrate(&workspace).await;
+        }
+
         ("delete", Some(delete_matches)) => match delete_matches.subcommand() {
             ("workspace", Some(delete_workspace_matches)) => {
                 let workspace = delete_workspace_matches.value_of("workspace").unwrap();

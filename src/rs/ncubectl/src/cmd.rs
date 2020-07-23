@@ -3,6 +3,7 @@ use ncube_data::{DatabaseRequest, WorkspaceKindRequest, WorkspaceRequest};
 use ncube_handlers as handlers;
 use prettytable::{cell, format::FormatBuilder, row, Table};
 use std::io::Write;
+use tracing::error;
 
 use crate::fatal;
 use crate::types::ConnectionOut;
@@ -112,6 +113,12 @@ pub(crate) async fn reset_secret() {
     handlers::config::insert_config_setting("secret_key", &key)
         .await
         .unwrap_or_else(|e| fatal!("failed to reset secret key: {}", e.to_string()));
+}
+
+pub(crate) async fn migrate(workspace: &str) {
+    if let Err(e) = handlers::workspace::migrate(&workspace).await {
+        error!("{}", e.to_string());
+    };
 }
 
 pub(crate) async fn get() {

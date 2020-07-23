@@ -93,6 +93,20 @@ pub(crate) fn reset_cli() -> App<'static> {
         )
 }
 
+pub(crate) fn migrate_cli() -> App<'static> {
+    App::new("migrate")
+        .setting(AppSettings::ArgRequiredElseHelp)
+        .setting(AppSettings::DisableVersion)
+        .about("Migrate a workspace to the latest version of Ncube.")
+        .arg(
+            Arg::with_name("workspace")
+                .value_name("workspace")
+                .required(true)
+                .about("The slug of the workspace this account is associated to.")
+                .takes_value(true),
+        )
+}
+
 pub(crate) fn connection_cli() -> App<'static> {
     App::new("connection")
         .setting(AppSettings::ArgRequiredElseHelp)

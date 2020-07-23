@@ -5,10 +5,12 @@ use ncube_actors::{
     HostActor, Registry, TaskActor,
 };
 use ncube_data::{
-    AccountRequest, DatabaseRequest, Stat, Unit, Workspace, WorkspaceKindRequest, WorkspaceRequest,
+    AccountRequest, DatabaseRequest, Stat, Unit, Workspace, WorkspaceDatabase,
+    WorkspaceKindRequest, WorkspaceRequest,
 };
+use ncube_db::{migrations, sqlite, DatabaseError};
 use ncube_stores::{search_store, stat_store, unit_store, workspace_store, WorkspaceStore};
-use tracing::{error, instrument};
+use tracing::{debug, error, instrument};
 
 use crate::{account, HandlerError};
 
@@ -396,4 +398,33 @@ pub async fn search_data(
     let data = search_store.data(&query, page, page_size).await?;
 
     Ok(data)
+}
+
+#[instrument]
+pub async fn migrate(workspace: &str) -> Result<(), HandlerError> {
+    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db);
+    let workspace = workspace_store.show_by_slug(&workspace).await?;
+
+    let connection_string = workspace.connection_string();
+
+    match workspace.database {
+        WorkspaceDatabase::Sqlite { .. } => {
+            debug!("Matched SQLite database at {:?}", connection_string);
+
+            let db = sqlite::Database::from_str(&connection_string, 1)
+                .map_err(|e| HandlerError::Database(DatabaseError::SqliteConfig(e)))?;
+            let mut conn = db
+                .connection()
+                .await
+                .map_err(|e| HandlerError::Database(DatabaseError::SqlitePool(e)))?;
+            migrations::migrate_workspace(&mut **conn)?;
+            Ok(())
+        }
+        _ => Err(HandlerError::Invalid(format!(
+            "The database as {:?} can't be migrated.",
+            connection_string
+        ))),
+    }
 }
