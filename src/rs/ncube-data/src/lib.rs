@@ -489,7 +489,7 @@ where
     Error(ErrorResponse),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Segment {
     pub id: i32,
     pub slug: String,

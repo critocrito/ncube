@@ -18,6 +18,7 @@
   - [Workspace](#workspace-entity)
   - [Source](#source-entity)
   - [Unit](#unit-entity)
+  - [Segment](#segment-entity)
   - [Stat](#stat-entity)
 
 ## Response Envelope
@@ -135,7 +136,8 @@ Ncube installation (originating from `127.0.0.1`) don't.
 
 ### Segments
 
-- [Create a segment](http-api/segment/create.md) `POST /workspaces/<workspace_id>/segments`
+- [Create a segment](http-api/segment/create.md) `POST /workspaces/<workspace>/segments`
+- [Show a segment](http-api/segment/show.md) `GET /workspaces/<workspace>/segments/<segment>`
 
 ### Stats
 
@@ -254,6 +256,18 @@ Ncube installation (originating from `127.0.0.1`) don't.
       "tags": []
     }
   ]
+}
+```
+
+### Segment Entity
+
+```json
+{
+  "query": "Aleppo AND Rebels",
+  "title": "MF001A",
+  "slug": "mf001a",
+  "created_at": "2020-06-22T09:20:51Z",
+  "updated_at": "2020-07-10T23:00:09.224Z"
 }
 ```
 

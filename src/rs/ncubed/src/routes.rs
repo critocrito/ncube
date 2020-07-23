@@ -518,7 +518,7 @@ pub(crate) mod source_tag {
 }
 
 pub(crate) mod segment {
-    use ncube_data::{ReqCtx, SegmentRequest};
+    use ncube_data::{ReqCtx, SegmentRequest, SuccessResponse};
     use ncube_handlers::workspace as handlers;
     use tracing::instrument;
     use warp::Filter;
@@ -536,6 +536,18 @@ pub(crate) mod segment {
         Ok(warp::reply())
     }
 
+    #[instrument]
+    async fn show(
+        _ctx: ReqCtx,
+        workspace: String,
+        segment: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let segment = handlers::show_segment(&workspace, &segment).await?;
+        let response = SuccessResponse::new(segment);
+
+        Ok(warp::reply::json(&response))
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         authenticate_remote_req()
@@ -544,6 +556,10 @@ pub(crate) mod segment {
             .and(warp::body::json())
             .and_then(create)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED))
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "segments" / String))
+                .and(warp::get())
+                .and_then(show))
     }
 }
 

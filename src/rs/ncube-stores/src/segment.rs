@@ -3,6 +3,8 @@ use chrono::Utc;
 use ncube_data::{Segment, SegmentRequest};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::params;
+use serde_rusqlite::{self, columns_from_statement, from_row_with_columns};
+use tracing::instrument;
 
 pub fn segment_store(wrapped_db: Database) -> Box<dyn SegmentStore + Send + Sync> {
     match wrapped_db {
@@ -15,6 +17,7 @@ pub fn segment_store(wrapped_db: Database) -> Box<dyn SegmentStore + Send + Sync
 pub trait SegmentStore {
     async fn exists(&self, slug: &str) -> Result<bool, DatabaseError>;
     async fn create(&self, query: &str, title: &str, slug: &str) -> Result<(), DatabaseError>;
+    async fn show(&self, slug: &str) -> Result<Option<Segment>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -24,6 +27,7 @@ pub struct SegmentStoreSqlite {
 
 #[async_trait]
 impl SegmentStore for SegmentStoreSqlite {
+    #[instrument]
     async fn exists(&self, slug: &str) -> Result<bool, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/segment/exists.sql"))?;
@@ -36,6 +40,7 @@ impl SegmentStore for SegmentStoreSqlite {
         }
     }
 
+    #[instrument]
     async fn create(&self, query: &str, title: &str, slug: &str) -> Result<(), DatabaseError> {
         let now = Utc::now();
         let conn = self.db.connection().await?;
@@ -52,6 +57,26 @@ impl SegmentStore for SegmentStoreSqlite {
 
         Ok(())
     }
+
+    #[instrument]
+    async fn show(&self, slug: &str) -> Result<Option<Segment>, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/segment/show.sql"))?;
+        let columns = columns_from_statement(&stmt);
+        let rows = stmt.query_and_then(params![&slug], |row| {
+            from_row_with_columns::<Segment>(row, &columns)
+        })?;
+
+        let mut segments: Vec<Segment> = vec![];
+        for row in rows {
+            segments.push(row?)
+        }
+
+        match segments.first() {
+            Some(segment) => Ok(Some(segment.to_owned())),
+            _ => Ok(None),
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -61,6 +86,7 @@ pub struct SegmentStoreHttp {
 
 #[async_trait]
 impl SegmentStore for SegmentStoreHttp {
+    #[instrument]
     async fn create(&self, query: &str, title: &str, _slug: &str) -> Result<(), DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
@@ -78,6 +104,7 @@ impl SegmentStore for SegmentStoreHttp {
         Ok(())
     }
 
+    #[instrument]
     async fn exists(&self, slug: &str) -> Result<bool, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
@@ -89,5 +116,18 @@ impl SegmentStore for SegmentStoreHttp {
             Ok(_) => Ok(true),
             _ => Ok(false),
         }
+    }
+
+    #[instrument]
+    async fn show(&self, slug: &str) -> Result<Option<Segment>, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/segments/{}",
+            self.client.workspace.slug, slug,
+        ));
+
+        let data: Option<Segment> = self.client.get::<Segment>(url).await?;
+
+        Ok(data)
     }
 }
