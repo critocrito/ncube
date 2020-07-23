@@ -5,16 +5,13 @@
 
 // I set all modules to pub in order to use them inside doc tests. This is not
 // intended to be a proper crate but rather a standalone application.
-pub mod actors;
 pub mod errors;
 pub mod handlers;
 pub mod http;
 pub mod routes;
 
+use ncube_actors::{Actor, DatabaseActor, HostActor, Registry, TaskActor};
 use std::net::SocketAddr;
-use xactor::Actor;
-
-use self::actors::{DatabaseActor, HostActor, Registry, TaskActor};
 
 #[derive(Debug, Clone)]
 pub struct ApplicationConfig {

@@ -1,19 +1,53 @@
 use async_trait::async_trait;
 use fnv::FnvHasher;
 use futures::lock::Mutex;
+use ncube_db::DatabaseError;
+use ncube_errors::HostError;
 use once_cell::sync::OnceCell;
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
-use xactor::{Actor, Addr};
+use thiserror::Error;
+
+pub use xactor::{Actor, Addr};
 
 pub mod db;
-pub(crate) mod host;
-pub(crate) mod task;
+pub mod host;
+pub mod task;
 
 pub use self::db::DatabaseActor;
-pub(crate) use self::host::HostActor;
-pub(crate) use self::task::TaskActor;
+pub use self::host::HostActor;
+pub use self::task::TaskActor;
+
+#[derive(Error, Debug)]
+pub enum ActorError {
+    #[error(transparent)]
+    Database(#[from] DatabaseError),
+
+    #[error("The host gave an error: {0}")]
+    Host(String),
+
+    #[error("The request to the actor was invalid: {0}")]
+    Invalid(String),
+}
+
+impl From<HostError> for ActorError {
+    fn from(err: HostError) -> Self {
+        ActorError::Host(err.to_string())
+    }
+}
+
+impl From<anyhow::Error> for ActorError {
+    fn from(err: anyhow::Error) -> Self {
+        ActorError::Host(err.to_string())
+    }
+}
+
+impl<T> From<tokio::sync::mpsc::error::SendError<T>> for ActorError {
+    fn from(err: tokio::sync::mpsc::error::SendError<T>) -> Self {
+        ActorError::Host(err.to_string())
+    }
+}
 
 type ActorRegistry = HashMap<TypeId, Box<dyn Any + Send>, BuildHasherDefault<FnvHasher>>;
 static REGISTRY: OnceCell<Mutex<ActorRegistry>> = OnceCell::new();
@@ -24,7 +58,7 @@ static REGISTRY: OnceCell<Mutex<ActorRegistry>> = OnceCell::new();
 ///
 /// ```no_run
 /// use xactor::Actor;
-/// use ncubed::actors::Registry;
+/// use ncube_actors::Registry;
 ///
 /// # #[tokio::main]
 /// # async fn main() {

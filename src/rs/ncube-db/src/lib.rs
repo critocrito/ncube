@@ -8,6 +8,8 @@ pub mod errors;
 pub mod http;
 pub mod sqlite;
 
+pub use self::errors::DatabaseError;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Database {
     Sqlite(Box<sqlite::Database>),

@@ -5,15 +5,14 @@ use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Sender};
 use xactor::{message, Actor, Context, Handler};
 
-use crate::actors::Registry;
-use crate::errors::ActorError;
+use crate::{ActorError, Registry};
 
 #[derive(Debug)]
 enum TaskMessage {
     SetupWorkspace(String),
 }
 
-pub(crate) struct TaskActor {
+pub struct TaskActor {
     tx: Sender<TaskMessage>,
 }
 
@@ -41,8 +40,8 @@ impl TaskActor {
 
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
-pub(crate) struct SetupWorkspace {
-    pub(crate) location: String,
+pub struct SetupWorkspace {
+    pub location: String,
 }
 
 #[async_trait]

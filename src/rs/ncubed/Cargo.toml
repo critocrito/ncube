@@ -8,7 +8,7 @@ description = "Data investigations for human rights."
 
 [dependencies]
 futures = "0.3.4"
-tokio = { version = "0.2", features = ["macros", "sync", "time", "rt-threaded", "process"] }
+tokio = { version = "0.2", features = ["macros", "rt-threaded"] }
 async-trait = "0.1"
 thiserror = "1.0"
 anyhow = "1.0"
@@ -16,13 +16,8 @@ tracing = "0.1.16"
 tracing-futures = "0.2"
 tracing-subscriber = "0.2.8"
 serde = { version = "1.0", features = ["derive"] }
-xactor = { git = "https://github.com/critocrito/xactor.git", branch = "tokio-runtime", default-features = false, features = ["runtime-tokio"] }
-once_cell = "1.3.1"
-fnv = "1.0.6"
-bytes = "0.5"
 rand = "0.7.3"
 warp = "0.2.2"
-url = "2.1.1"
 percent-encoding = "2.1.0"
 clap = "3.0.0-beta.1"
 directories = "2.0.2"
@@ -31,10 +26,9 @@ chrono = { version = "0.4", features = ["serde"] }
 
 ncube-data = { path = "../ncube-data" }
 ncube-errors = { path = "../ncube-errors" }
-ncube-fs = { path = "../ncube-fs" }
 ncube-db = { path = "../ncube-db" }
+ncube-actors = { path = "../ncube-actors" }
 ncube-stores = { path = "../ncube-stores" }
-ncube-tasks = { path = "../ncube-tasks" }
 ncube-crypto = { path = "../ncube-crypto" }
 
 [dev-dependencies]

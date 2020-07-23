@@ -1,0 +1,27 @@
+[package]
+name = "ncube-actors"
+version = "0.6.3"
+authors = ["Christo <christo@cryptodrunks.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures = "0.3.4"
+tokio = { version = "0.2", features = ["sync"] }
+async-trait = "0.1"
+thiserror = "1.0"
+anyhow = "1.0"
+tracing = "0.1.16"
+tracing-futures = "0.2"
+xactor = { git = "https://github.com/critocrito/xactor.git", branch = "tokio-runtime", default-features = false, features = ["runtime-tokio"] }
+once_cell = "1.3.1"
+fnv = "1.0.6"
+url = "2.1.1"
+
+ncube-data = { path = "../ncube-data" }
+ncube-db = { path = "../ncube-db" }
+ncube-stores = { path = "../ncube-stores" }
+ncube-fs = { path = "../ncube-fs" }
+ncube-tasks = { path = "../ncube-tasks" }
+ncube-errors = { path = "../ncube-errors" }

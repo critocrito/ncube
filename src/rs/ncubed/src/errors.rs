@@ -1,18 +1,7 @@
+use ncube_actors::ActorError;
 use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
 use thiserror::Error;
-
-#[derive(Error, Debug)]
-pub enum ActorError {
-    #[error(transparent)]
-    Database(#[from] DatabaseError),
-
-    #[error("The host gave an error: {0}")]
-    Host(String),
-
-    #[error("The request to the actor was invalid: {0}")]
-    Invalid(String),
-}
 
 #[derive(Error, Debug)]
 pub enum HandlerError {
@@ -33,24 +22,6 @@ pub enum HandlerError {
 
     #[error("{0}")]
     NotFound(String),
-}
-
-impl From<HostError> for ActorError {
-    fn from(err: HostError) -> Self {
-        ActorError::Host(err.to_string())
-    }
-}
-
-impl From<anyhow::Error> for ActorError {
-    fn from(err: anyhow::Error) -> Self {
-        ActorError::Host(err.to_string())
-    }
-}
-
-impl<T> From<tokio::sync::mpsc::error::SendError<T>> for ActorError {
-    fn from(err: tokio::sync::mpsc::error::SendError<T>) -> Self {
-        ActorError::Host(err.to_string())
-    }
 }
 
 impl From<ActorError> for HandlerError {
