@@ -2,8 +2,8 @@ use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::{Segment, SegmentRequest};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
-use rusqlite::params;
-use serde_rusqlite::{self, columns_from_statement, from_row_with_columns};
+use rusqlite::{params, NO_PARAMS};
+use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
 use tracing::instrument;
 
 pub fn segment_store(wrapped_db: Database) -> Box<dyn SegmentStore + Send + Sync> {
@@ -18,6 +18,7 @@ pub trait SegmentStore {
     async fn exists(&self, slug: &str) -> Result<bool, DatabaseError>;
     async fn create(&self, query: &str, title: &str, slug: &str) -> Result<(), DatabaseError>;
     async fn show(&self, slug: &str) -> Result<Option<Segment>, DatabaseError>;
+    async fn list(&self) -> Result<Vec<Segment>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -77,6 +78,19 @@ impl SegmentStore for SegmentStoreSqlite {
             _ => Ok(None),
         }
     }
+
+    #[instrument]
+    async fn list(&self) -> Result<Vec<Segment>, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/segment/list.sql"))?;
+
+        let mut segments: Vec<Segment> = vec![];
+        for row in from_rows::<Segment>(stmt.query(NO_PARAMS)?) {
+            segments.push(row?)
+        }
+
+        Ok(segments)
+    }
 }
 
 #[derive(Debug)]
@@ -126,7 +140,20 @@ impl SegmentStore for SegmentStoreHttp {
             self.client.workspace.slug, slug,
         ));
 
-        let data: Option<Segment> = self.client.get::<Segment>(url).await?;
+        let data: Option<Segment> = self.client.get(url).await?;
+
+        Ok(data)
+    }
+
+    #[instrument]
+    async fn list(&self) -> Result<Vec<Segment>, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/segments",
+            self.client.workspace.slug
+        ));
+
+        let data: Vec<Segment> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
 
         Ok(data)
     }

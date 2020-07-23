@@ -185,6 +185,9 @@ POST http://:api/api/workspaces/syrian-archive/segments
   "title": "MF001A"
 }
 
+# List all segments for a workspace.
+GET http://:api/api/workspaces/syrian-archive/segments
+
 # Show the details of a segment
 GET http://:api/api/workspaces/syrian-archive/segments/mf001a
 

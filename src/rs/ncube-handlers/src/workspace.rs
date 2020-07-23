@@ -509,3 +509,14 @@ pub async fn show_segment(workspace: &str, slug: &str) -> Result<Option<Segment>
 
     Ok(segment)
 }
+
+#[instrument]
+pub async fn list_segments(workspace: &str) -> Result<Vec<Segment>, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let segment_store = segment_store(database);
+    let segments = segment_store.list().await?;
+
+    Ok(segments)
+}
