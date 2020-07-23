@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use ncube_data::{Download, Media, QueryTag, SearchResponse, Source, Unit};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
-use rusqlite::{params, NO_PARAMS};
+use rusqlite::params;
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
@@ -14,8 +14,6 @@ pub fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> 
 
 #[async_trait]
 pub trait SearchStore {
-    async fn unit_index(&self) -> Result<(), DatabaseError>;
-    async fn source_index(&self) -> Result<(), DatabaseError>;
     async fn data(
         &self,
         query: &str,
@@ -37,23 +35,6 @@ pub struct SearchStoreSqlite {
 
 #[async_trait]
 impl SearchStore for SearchStoreSqlite {
-    #[instrument]
-    async fn unit_index(&self) -> Result<(), DatabaseError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/search/unit_index.sql"))?;
-        stmt.execute(NO_PARAMS)?;
-
-        Ok(())
-    }
-
-    async fn source_index(&self) -> Result<(), DatabaseError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/search/source_index.sql"))?;
-        stmt.execute(NO_PARAMS)?;
-
-        Ok(())
-    }
-
     #[instrument]
     async fn data(
         &self,
@@ -140,16 +121,6 @@ pub struct SearchStoreHttp {
 
 #[async_trait]
 impl SearchStore for SearchStoreHttp {
-    #[instrument]
-    async fn unit_index(&self) -> Result<(), DatabaseError> {
-        unreachable!()
-    }
-
-    #[instrument]
-    async fn source_index(&self) -> Result<(), DatabaseError> {
-        unreachable!()
-    }
-
     #[instrument]
     async fn data(
         &self,

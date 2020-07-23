@@ -3,6 +3,7 @@ use ncube_errors::HostError;
 use ncube_tasks::create_workspace;
 use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Sender};
+use tracing::info;
 use xactor::{message, Actor, Context, Handler};
 
 use crate::{ActorError, Registry};
@@ -26,25 +27,24 @@ impl TaskActor {
 
         tokio::spawn(async move {
             while let Some(res) = rx.recv().await {
+                info!("Received a new task.");
                 match res {
                     TaskMessage::SetupWorkspace(location, workspace) => {
+                        info!(
+                            "Received a request to setup a workspace: {:?}/{:?}.",
+                            location, workspace
+                        );
+
                         create_workspace(location)
                             .await
                             .expect("Failed to create workspace");
 
-                        // FIXME: Can I handle the workspace migrations cleaner?
-                        // Move the search indices into the migrations? Maybe a
-                        // specialized message to the host actor?
-                        // Generate the search indices and triggers for this workspace.
                         let mut database_actor = DatabaseActor::from_registry().await.unwrap();
-                        let database = database_actor
-                            .call(LookupDatabase { workspace })
+                        database_actor
+                            .call(MigrateWorkspace { workspace })
                             .await
                             .unwrap()
                             .unwrap();
-                        let search_store = search_store(database);
-                        search_store.unit_index().await.unwrap();
-                        search_store.source_index().await.unwrap();
                     }
                 }
             }

@@ -3,7 +3,7 @@ use ncube_data::{Account, WorkspaceDatabase};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database, DatabaseCache};
 use ncube_stores::{account_store, workspace_store, WorkspaceStore};
 use std::result::Result;
-use tracing::debug;
+use tracing::{debug, info};
 use url::Url;
 use xactor::{message, Actor, Context, Handler};
 
@@ -66,6 +66,12 @@ pub struct LookupDatabase {
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
 pub struct ResetDatabase {
+    pub workspace: String,
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct MigrateWorkspace {
     pub workspace: String,
 }
 
@@ -154,6 +160,38 @@ impl Handler<ResetDatabase> for DatabaseActor {
 
                 Ok(())
             }
+        }
+    }
+}
+
+#[async_trait]
+impl Handler<MigrateWorkspace> for DatabaseActor {
+    async fn handle(
+        &mut self,
+        _ctx: &Context<Self>,
+        msg: MigrateWorkspace,
+    ) -> Result<(), ActorError> {
+        let mut host_actor = HostActor::from_registry().await.unwrap();
+        let db = host_actor.call(RequirePool).await??;
+        let workspace_store = workspace_store(db);
+        let workspace = workspace_store.show_by_slug(&msg.workspace).await?;
+
+        let connection_string = workspace.connection_string();
+        info!("connection_string {:?}", connection_string);
+
+        match workspace.database {
+            WorkspaceDatabase::Sqlite { .. } => {
+                info!("matched the db");
+                let db = sqlite::Database::from_str(&connection_string, 1)
+                    .map_err(|e| ActorError::Database(DatabaseError::SqliteConfig(e)))?;
+                let mut conn = db
+                    .connection()
+                    .await
+                    .map_err(|e| DatabaseError::SqlitePool(e))?;
+                migrations::migrate_workspace(&mut **conn)?;
+                Ok(())
+            }
+            _ => Ok(()),
         }
     }
 }
