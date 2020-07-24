@@ -520,3 +520,14 @@ pub async fn list_segments(workspace: &str) -> Result<Vec<Segment>, HandlerError
 
     Ok(segments)
 }
+
+#[instrument]
+pub async fn remove_segment(workspace: &str, slug: &str) -> Result<(), HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let segment_store = segment_store(database);
+    segment_store.delete(&slug).await?;
+
+    Ok(())
+}

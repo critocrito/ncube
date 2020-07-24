@@ -556,6 +556,17 @@ pub(crate) mod segment {
         Ok(warp::reply::json(&response))
     }
 
+    #[instrument]
+    async fn remove(
+        _ctx: ReqCtx,
+        workspace: String,
+        segment: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::remove_segment(&workspace, &segment).await?;
+
+        Ok(warp::reply())
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         authenticate_remote_req()
@@ -572,6 +583,11 @@ pub(crate) mod segment {
                 .and(warp::path!("workspaces" / String / "segments" / String))
                 .and(warp::get())
                 .and_then(show))
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "segments" / String))
+                .and(warp::delete())
+                .and_then(remove)
+                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
     }
 }
 

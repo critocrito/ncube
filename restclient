@@ -191,6 +191,9 @@ GET http://:api/api/workspaces/syrian-archive/segments
 # Show the details of a segment
 GET http://:api/api/workspaces/syrian-archive/segments/mf001a
 
+# Delete a segment
+DELETE http://:api/api/workspaces/syrian-archive/segments/mf001a
+
 ###
 # Workspace stats
 ###

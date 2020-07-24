@@ -19,6 +19,7 @@ pub trait SegmentStore {
     async fn create(&self, query: &str, title: &str, slug: &str) -> Result<(), DatabaseError>;
     async fn show(&self, slug: &str) -> Result<Option<Segment>, DatabaseError>;
     async fn list(&self) -> Result<Vec<Segment>, DatabaseError>;
+    async fn delete(&self, slug: &str) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -91,6 +92,16 @@ impl SegmentStore for SegmentStoreSqlite {
 
         Ok(segments)
     }
+
+    #[instrument]
+    async fn delete(&self, slug: &str) -> Result<(), DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/segment/delete.sql"))?;
+
+        stmt.execute(params![&slug])?;
+
+        Ok(())
+    }
 }
 
 #[derive(Debug)]
@@ -156,5 +167,18 @@ impl SegmentStore for SegmentStoreHttp {
         let data: Vec<Segment> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
 
         Ok(data)
+    }
+
+    #[instrument]
+    async fn delete(&self, slug: &str) -> Result<(), DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/segments/{}",
+            self.client.workspace.slug, slug,
+        ));
+
+        self.client.delete(url).await?;
+
+        Ok(())
     }
 }
