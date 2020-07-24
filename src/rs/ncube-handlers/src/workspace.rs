@@ -500,14 +500,14 @@ pub async fn create_segment(
 }
 
 #[instrument]
-pub async fn show_segment(workspace: &str, slug: &str) -> Result<Option<Segment>, HandlerError> {
+pub async fn show_segment(workspace: &str, slug: &str) -> Result<Segment, HandlerError> {
     ensure_workspace(&workspace).await?;
 
     let database = workspace_database(&workspace).await?;
     let segment_store = segment_store(database);
     let segment = segment_store.show(&slug).await?;
 
-    Ok(segment)
+    segment.ok_or_else(|| HandlerError::NotFound(format!("Segment '{}' could not be found.", slug)))
 }
 
 #[instrument]
