@@ -140,6 +140,7 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [List all segments](http-api/segment/list.md) `GET /workspaces/<workspace>/segments`
 - [Show a segment](http-api/segment/show.md) `GET /workspaces/<workspace>/segments/<segment>`
 - [Remove a segment](http-api/segment/remove.md) `DELETE /workspaces/<workspace>/segments/<segment>`
+- [Update a segment](http-api/segment/update.md) `PUT /workspaces/<workspace>/segments/<segment>`
 
 ### Stats
 

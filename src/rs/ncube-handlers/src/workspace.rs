@@ -531,3 +531,28 @@ pub async fn remove_segment(workspace: &str, slug: &str) -> Result<(), HandlerEr
 
     Ok(())
 }
+
+#[instrument]
+pub async fn update_segment(
+    workspace: &str,
+    slug: &str,
+    segment_req: &SegmentRequest,
+) -> Result<(), HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let segment_store = segment_store(database);
+
+    if let Ok(false) = segment_store.exists(&slug).await {
+        return Err(HandlerError::NotFound(format!(
+            "Segment '{}' could not be found.",
+            slug
+        )));
+    }
+
+    segment_store
+        .update(&slug, &segment_req.query, &segment_req.title)
+        .await?;
+
+    Ok(())
+}

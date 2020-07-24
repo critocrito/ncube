@@ -557,6 +557,18 @@ pub(crate) mod segment {
     }
 
     #[instrument]
+    async fn update(
+        _ctx: ReqCtx,
+        workspace: String,
+        segment: String,
+        segment_req: SegmentRequest,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::update_segment(&workspace, &segment, &segment_req).await?;
+
+        Ok(warp::reply())
+    }
+
+    #[instrument]
     async fn remove(
         _ctx: ReqCtx,
         workspace: String,
@@ -583,6 +595,12 @@ pub(crate) mod segment {
                 .and(warp::path!("workspaces" / String / "segments" / String))
                 .and(warp::get())
                 .and_then(show))
+            .or(authenticate_remote_req()
+                .and(warp::path!("workspaces" / String / "segments" / String))
+                .and(warp::put())
+                .and(warp::body::json())
+                .and_then(update)
+                .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
             .or(authenticate_remote_req()
                 .and(warp::path!("workspaces" / String / "segments" / String))
                 .and(warp::delete())

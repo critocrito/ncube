@@ -20,6 +20,7 @@ pub trait SegmentStore {
     async fn show(&self, slug: &str) -> Result<Option<Segment>, DatabaseError>;
     async fn list(&self) -> Result<Vec<Segment>, DatabaseError>;
     async fn delete(&self, slug: &str) -> Result<(), DatabaseError>;
+    async fn update(&self, slug: &str, query: &str, title: &str) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -102,6 +103,28 @@ impl SegmentStore for SegmentStoreSqlite {
 
         Ok(())
     }
+
+    #[instrument]
+    async fn update(&self, slug: &str, query: &str, title: &str) -> Result<(), DatabaseError> {
+        let now = Utc::now();
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/segment/update.sql"))?;
+
+        let segment_req = SegmentRequest {
+            title: title.to_string(),
+            query: query.to_string(),
+        };
+
+        stmt.execute(params![
+            &segment_req.query,
+            &segment_req.title,
+            &segment_req.slug(),
+            &now.to_rfc3339(),
+            &slug
+        ])?;
+
+        Ok(())
+    }
 }
 
 #[derive(Debug)]
@@ -178,6 +201,24 @@ impl SegmentStore for SegmentStoreHttp {
         ));
 
         self.client.delete(url).await?;
+
+        Ok(())
+    }
+
+    #[instrument]
+    async fn update(&self, slug: &str, query: &str, title: &str) -> Result<(), DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/segments/{}",
+            self.client.workspace.slug, slug
+        ));
+
+        let payload = SegmentRequest {
+            title: title.to_string(),
+            query: query.to_string(),
+        };
+
+        self.client.put::<(), SegmentRequest>(url, payload).await?;
 
         Ok(())
     }

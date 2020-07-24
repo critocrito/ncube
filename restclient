@@ -194,6 +194,15 @@ GET http://:api/api/workspaces/syrian-archive/segments/mf001a
 # Delete a segment
 DELETE http://:api/api/workspaces/syrian-archive/segments/mf001a
 
+# Update an existing segment
+PUT http://:api/api/workspaces/syrian-archive/segments/mf001a
+:headers
+
+{
+  "query": "Aleppo OR rebels",
+  "title": "MF001C"
+}
+
 ###
 # Workspace stats
 ###
