@@ -77,7 +77,7 @@ const Table = <T extends {id: number}>({
 }: PropsWithChildren<TableProps<T>>) => {
   const controlledPageCount = Math.ceil(total / controlledPageSize);
 
-  const baseClass = "ba b--gray-25";
+  const baseClass = "br bb b--gray-25";
   const cellClass = c(baseClass, "text-medium");
 
   const {
