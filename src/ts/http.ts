@@ -1,6 +1,7 @@
 import {
   ConfigSettingReq,
   HostConfig,
+  Segment,
   Source,
   SourceReq,
   SourceTag,
@@ -249,6 +250,17 @@ export const searchUnits = async (
   url.searchParams.append("q", encodeURIComponent(query));
 
   const resp = await fetch(url.toString());
+
+  return dataResponse(resp);
+};
+
+/*
+ * Segments
+ */
+export const listSegments = async (workspace: string): Promise<Segment[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/segments`,
+  );
 
   return dataResponse(resp);
 };

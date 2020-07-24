@@ -124,6 +124,15 @@ export type Unit = {
   sources: Source[];
 };
 
+export type Segment = {
+  id: number;
+  slug: string;
+  title: string;
+  query: string;
+  created_at: Date;
+  updated_at: Date;
+};
+
 /*
  * The request types represent request objects to the HTTP API. They are usually
  * used in the `./http/*` functions. Additionally to types I run validations for

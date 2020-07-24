@@ -1,9 +1,10 @@
-import {createMachine} from "xstate";
+import {assign, createMachine} from "xstate";
 
-import {Workspace} from "../types";
+import {Segment, Workspace} from "../types";
 
 type DatabaseContext = {
   workspace: Workspace;
+  segments: Segment[];
   error?: string;
 };
 
@@ -14,7 +15,7 @@ type DatabaseEvent =
 
 type DatabaseState =
   | {
-      value: "home" | "exploration" | "list_data";
+      value: "segments" | "home" | "exploration";
       context: DatabaseContext;
     }
   | {
@@ -24,8 +25,24 @@ type DatabaseState =
 
 export default createMachine<DatabaseContext, DatabaseEvent, DatabaseState>({
   id: "database",
-  initial: "home",
+  initial: "segments",
   states: {
+    segments: {
+      invoke: {
+        src: "fetchSegments",
+
+        onDone: {
+          target: "home",
+          actions: assign({segments: (_, {data}) => data}),
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     home: {
       on: {
         SHOW_DATA: "exploration",

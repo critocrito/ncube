@@ -4,6 +4,7 @@ import React from "react";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
 import {useAppCtx} from "../context";
+import {listSegments} from "../http";
 import machine from "../machines/database";
 import {DataStats, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -17,8 +18,13 @@ interface DatabaseProps {
 
 const Database = ({workspace, stats}: DatabaseProps) => {
   const [state, send, service] = useMachine(machine, {
+    services: {
+      fetchSegments: (_ctx, _ev) => listSegments(workspace.slug),
+    },
+
     context: {
       workspace,
+      segments: [],
     },
   });
 
@@ -26,11 +32,11 @@ const Database = ({workspace, stats}: DatabaseProps) => {
 
   const [, appSend] = useAppCtx();
 
-  const {error} = state.context;
+  const {error, segments} = state.context;
   const {total} = stats;
 
   switch (true) {
-    case state.matches("list_data"):
+    case state.matches("segments"):
       return <div />;
 
     case state.matches("home"):
@@ -41,6 +47,15 @@ const Database = ({workspace, stats}: DatabaseProps) => {
             kind="data"
             stats={stats}
           />
+          <ul className="pl0 list">
+            {segments.map(({id, ...segment}) => {
+              return (
+                <li key={id}>
+                  {segment.title}/{segment.query}
+                </li>
+              );
+            })}
+          </ul>
         </div>
       );
 
