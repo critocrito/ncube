@@ -221,11 +221,15 @@
 }
 
 .text-small {
-  font-size: 0.64em;
+  font-size: 0.7em;
   color: var(--color-gray-75);
 }
 
 /* Butons */
+button:focus {
+  outline-color: #ffffff00;
+  cursor: pointer;
+}
 
 .btn {
   @insert .white .link .pa2 .ttu .br2 .tc .b .nowrap;
@@ -289,7 +293,7 @@ th {
 }
 
 td {
-  @insert .ba .b--sapphire .pa2;
+  @insert .br .bb .b--sapphire .pa2;
   position: relative;
 }
 
@@ -323,17 +327,19 @@ tr:hover .trash {
   position: relative;
 }
 .select > input {
-  height: 28px;
+  height: 35px;
   margin: 0;
   width: 100%;
   padding-right: 26px;
+  border-radius: 0px;
+  border: 1px solid #dfe2ec;
 }
 .select > button {
   position: absolute;
   right: 3px;
 }
 
-/* Other elements */
+/* Other elements  */
 .base-tag {
   @insert .pl3 .pr3 .br4 .text-medium .tc .b .ttu;
   height: 1.5rem;
@@ -346,6 +352,6 @@ tr:hover .trash {
 
 .short-tag {
   @insert .base-tag;
-  width: 5rem;
+  width: 3.5rem;
   color: white;
 }

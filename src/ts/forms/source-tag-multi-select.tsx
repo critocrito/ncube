@@ -325,12 +325,14 @@ const MultiSelect = ({onAdd, onRemove, className, data}: MultiSelectProps) => {
                         onClick(ev);
                       }}
                       className={c(
-                        "b--none flex",
+                        "b--none flex bg-white",
                         highlightedIndex === index ? "bg-fair-pink" : undefined,
                       )}
                     >
                       <QueryTag className="w-30 mr2" label={item.label} />
-                      <span className="w-70 gray-25">{item.description}</span>
+                      <span className="w-70 gray-25 pt1">
+                        {item.description}
+                      </span>
                     </button>
                   </li>
                 );
