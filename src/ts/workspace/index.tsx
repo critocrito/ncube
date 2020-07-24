@@ -13,6 +13,7 @@ import {
   statSourcesTypes,
 } from "../http";
 import machine from "../machines/workspace";
+import LoadingSpinner from "../common/loading-spinner";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Database from "./database";
@@ -76,7 +77,13 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
 
   switch (true) {
     case state.matches("stats"):
-      return <div />;
+      return (
+        <div className="vh-100 w-100 flex flex-column justify-around items-center">
+          <div>
+            <LoadingSpinner />
+          </div>
+        </div>
+      );
 
     case state.matches("overview"):
       return (

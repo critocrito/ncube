@@ -2,6 +2,7 @@ import c from "classnames";
 import React, {PropsWithChildren, useCallback} from "react";
 
 import {isNumber, paginate} from "../utils";
+import LoadingSpinner from "../common/loading-spinner";
 
 interface PaginationProps {
   pageIndex: number;
@@ -59,7 +60,15 @@ const Pagination = ({
 
   return (
     <div className="mt3 text-medium gray-25">
-      {pager} <span className="ml2 mr2" /> {loading ? "Loading" : counter}
+      {pager} <span className="ml2 mr2" />{" "}
+      {loading ? (
+        <span>
+          Loading
+          <LoadingSpinner className="ml3" />
+        </span>
+      ) : (
+        counter
+      )}
     </div>
   );
 };

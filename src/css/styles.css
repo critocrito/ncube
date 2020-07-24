@@ -355,3 +355,36 @@ tr:hover .trash {
   width: 3.5rem;
   color: white;
 }
+
+.loading {
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-radius: 100%;
+  float: left;
+  margin-right: 5px;
+}
+.loading-0 {
+  -webkit-animation: bounce 1s infinite;
+  -webkit-animation-delay: 0.1s;
+  background: var(--color-sapphire);
+}
+.loading-1 {
+  -webkit-animation: bounce 1s infinite;
+  -webkit-animation-delay: 0.3s;
+  background: var(--color-sapphire);
+}
+.loading-2 {
+  -webkit-animation: bounce 1s infinite ease;
+  -webkit-animation-delay: 0.5s;
+  background: var(--color-sapphire);
+}
+@-webkit-keyframes bounce {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 0;
+  }
+}
