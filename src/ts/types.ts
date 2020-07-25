@@ -134,6 +134,18 @@ export type Segment = {
   updated_at: string;
 };
 
+export type ProcessConfig = {
+  name: string;
+  kind: "secret";
+  value?: Record<string, string>;
+};
+
+export type Process = {
+  name: string;
+  description: string;
+  config: ProcessConfig[];
+};
+
 /*
  * The request types represent request objects to the HTTP API. They are usually
  * used in the `./http/*` functions. Additionally to types I run validations for
