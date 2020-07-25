@@ -1,8 +1,8 @@
 import c from "classnames";
 import React, {PropsWithChildren, useCallback} from "react";
 
-import {isNumber, paginate} from "../utils";
 import LoadingSpinner from "../common/loading-spinner";
+import {isNumber, paginate} from "../utils";
 
 interface PaginationProps {
   pageIndex: number;
