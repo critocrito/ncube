@@ -1,15 +1,14 @@
-import React, {KeyboardEvent, useState} from "react";
+import React, {KeyboardEvent} from "react";
 
 import iconSearch from "../../../resources/public/images/icon_search.svg";
 
 interface SearchBarProps {
-  initialQuery: string;
+  query: string;
   onSearch: (q: string) => void;
+  onChange: (q: string) => void;
 }
 
-const SearchBar = ({onSearch, initialQuery}: SearchBarProps) => {
-  const [query, setQuery] = useState(initialQuery);
-
+const SearchBar = ({onSearch, query, onChange}: SearchBarProps) => {
   const onEnter = (ev: KeyboardEvent<HTMLInputElement>) => {
     if (ev.key === "Enter") onSearch(query);
   };
@@ -21,7 +20,7 @@ const SearchBar = ({onSearch, initialQuery}: SearchBarProps) => {
         name="multi-select"
         type="text"
         value={query}
-        onChange={(ev) => setQuery(ev.target.value)}
+        onChange={(ev) => onChange(ev.target.value)}
         onKeyPress={onEnter}
       />
 

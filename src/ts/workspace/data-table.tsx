@@ -1,8 +1,9 @@
 import {useMachine} from "@xstate/react";
 import c from "classnames";
-import React, {useCallback, useEffect, useMemo} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Cell, Column} from "react-table";
 
+import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
 import Modal from "../common/modal";
@@ -10,7 +11,6 @@ import SourceTag from "../common/source-tag";
 import {listUnits, searchUnits} from "../http";
 import machine from "../machines/table";
 import Table from "../table";
-import ActionBar from "../table/action-bar";
 import {Segment, Unit, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import SearchBar from "./search-bar";
@@ -35,6 +35,9 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
 };
 
 const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
+  // We separate the query from the search query. When actually searching we use
+  // the searchQuery. The query context field contains the current query.
+  const [searchQuery, setSearchQuery] = useState(segment ? segment.query : "");
   const [state, send, service] = useMachine(machine, {
     services: {
       listItems: async (_ctx, {query, pageIndex, pageSize}) => {
@@ -47,7 +50,7 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
     },
 
     context: {
-      query: segment ? segment.query : "",
+      query: searchQuery,
       pageIndex: 0,
       pageSize: 20,
       results: [],
@@ -70,15 +73,16 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
 
   const fetchData = useCallback(
     async (index: number, size: number) => {
-      send("SEARCH", {query, pageIndex: index, pageSize: size});
+      if (searchQuery && searchQuery !== "")
+        send("SEARCH", {query: searchQuery, pageIndex: index, pageSize: size});
     },
-    [send, query],
+    [send, searchQuery],
   );
 
   // Force the initial fetch of data.
   useEffect(() => {
-    send("SEARCH", {query, pageIndex, pageSize});
-  }, [send, query, pageIndex, pageSize]);
+    send("SEARCH", {query: searchQuery, pageIndex, pageSize});
+  }, [send, searchQuery, pageIndex, pageSize]);
 
   const columns: Column<Unit>[] = useMemo(
     () => [
@@ -137,17 +141,21 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
         >
           <div className="w-50 mt2 mb2">
             <SearchBar
-              initialQuery={query}
-              onSearch={(q) =>
-                send("SEARCH", {query: q, pageIndex: 0, pageSize: 20})
-              }
+              query={query}
+              onChange={(q) => send("SET_QUERY", {query: q})}
+              onSearch={(q) => setSearchQuery(q)}
             />
           </div>
 
-          <ActionBar
-            selected={selected}
-            onProcessSelected={() => console.log(selected)}
-          />
+          <div className="flex items-center mb3 ml-auto">
+            <Button
+              onClick={() => console.log("save segment")}
+              size="large"
+              disabled={query === ""}
+            >
+              Save Segment
+            </Button>
+          </div>
 
           <Table<Unit>
             name="dataTable"
@@ -183,21 +191,21 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
               <div className="flex flex-column">
                 <div className="w-50 mt2 mb2">
                   <SearchBar
-                    initialQuery={query}
-                    onSearch={(q) =>
-                      send("SEARCH", {
-                        query: q,
-                        pageIndex: 0,
-                        pageSize: 20,
-                      })
-                    }
+                    query={query}
+                    onChange={(q) => send("SET_QUERY", {query: q})}
+                    onSearch={(q) => setSearchQuery(q)}
                   />
                 </div>
 
-                <ActionBar
-                  selected={selected}
-                  onProcessSelected={() => console.log(selected)}
-                />
+                <div className="flex items-center mb3 ml-auto">
+                  <Button
+                    onClick={() => console.log("save segment")}
+                    size="large"
+                    disabled={query === ""}
+                  >
+                    Save Segment
+                  </Button>
+                </div>
 
                 <Table<Unit>
                   name="dataTable"

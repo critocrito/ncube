@@ -16,6 +16,7 @@ export type TableEvent<T extends {id: number}> =
   | {type: "SHOW_TABLE"}
   | {type: "SHOW_DETAILS"; item: T}
   | {type: "SET_SELECTION"; selected: T[]}
+  | {type: "SET_QUERY"; query: string}
   | {type: "SEARCH"; query: string; pageIndex: number; pageSize: number}
   | {type: "CREATE"}
   | {type: "DELETE"; item: T}
@@ -103,6 +104,12 @@ export default createMachine<
           target: "table",
           internal: true,
           actions: assign({selected: (_ctx, {selected}) => selected}),
+        },
+
+        SET_QUERY: {
+          target: "table",
+          internal: true,
+          actions: assign({query: (_ctx, {query}) => query}),
         },
 
         DELETE: "delete",

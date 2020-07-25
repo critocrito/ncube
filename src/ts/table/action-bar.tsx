@@ -18,8 +18,8 @@ const ActionBar = <T extends {id: number}>({
   className,
 }: ActionBarProps<T>) => {
   const classes = c(
-    "flex justify-between items-center mb3",
-    onCreate ? undefined : "fr",
+    "flex items-center mb3",
+    onCreate ? "justify-between" : "ml-auto",
     className,
   );
   const countSelectedItems = selected.length;

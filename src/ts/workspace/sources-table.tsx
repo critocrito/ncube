@@ -1,6 +1,6 @@
 import {useMachine} from "@xstate/react";
 import c from "classnames";
-import React, {useCallback, useEffect, useMemo} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Cell, Column} from "react-table";
 
 import Button from "../common/button";
@@ -39,6 +39,10 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
 };
 
 const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
+  // We separate the query from the search query. When actually searching we use
+  // the searchQuery. The query context field contains the current query.
+  const [searchQuery] = useState("");
+
   const [state, send, service] = useMachine(machine, {
     services: {
       listItems: async ({query, pageIndex, pageSize}, _ev) => {
@@ -57,7 +61,7 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
     },
 
     context: {
-      query: "",
+      query: searchQuery,
       pageIndex: 0,
       pageSize: 20,
       results: [],
@@ -70,21 +74,13 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
 
   const [, appSend] = useAppCtx();
 
-  const {
-    error,
-    total,
-    results,
-    selected,
-    query,
-    pageIndex,
-    pageSize,
-  } = state.context;
+  const {error, total, results, selected, pageIndex, pageSize} = state.context;
 
   const fetchData = useCallback(
     (index: number, size: number) => {
-      send("SEARCH", {query, pageIndex: index, pageSize: size});
+      send("SEARCH", {query: searchQuery, pageIndex: index, pageSize: size});
     },
-    [send, query],
+    [send, searchQuery],
   );
 
   // Force the initial fetch of data.
