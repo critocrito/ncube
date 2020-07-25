@@ -11,13 +11,14 @@ import {listUnits, searchUnits} from "../http";
 import machine from "../machines/table";
 import Table from "../table";
 import ActionBar from "../table/action-bar";
-import {Unit, Workspace} from "../types";
+import {Segment, Unit, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import SearchBar from "./search-bar";
 
 interface DataTableProps {
   workspace: Workspace;
   totalStat: number;
+  segment?: Segment;
 }
 
 const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
@@ -33,7 +34,7 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
   }
 };
 
-const DataTable = ({workspace, totalStat}: DataTableProps) => {
+const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
       listItems: async (_ctx, {query, pageIndex, pageSize}) => {
@@ -46,7 +47,7 @@ const DataTable = ({workspace, totalStat}: DataTableProps) => {
     },
 
     context: {
-      query: "",
+      query: segment ? segment.query : "",
       pageIndex: 0,
       pageSize: 20,
       results: [],

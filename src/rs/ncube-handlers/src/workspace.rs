@@ -369,6 +369,17 @@ pub async fn stat_data_videos(workspace: &str) -> Result<Stat, HandlerError> {
 }
 
 #[instrument]
+pub async fn stat_data_segments(workspace: &str) -> Result<Stat, HandlerError> {
+    ensure_workspace(&workspace).await?;
+    let database = workspace_database(&workspace).await?;
+    let stat_store = stat_store(database);
+
+    let stats = stat_store.data_segments().await?;
+
+    Ok(stats)
+}
+
+#[instrument]
 pub async fn list_data(
     workspace: &str,
     page: i32,

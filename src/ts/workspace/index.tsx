@@ -1,11 +1,13 @@
 import {useMachine} from "@xstate/react";
-import React from "react";
+import React, {useState} from "react";
 
 import Error from "../common/error";
 import Fatal from "../common/fatal";
+import LoadingSpinner from "../common/loading-spinner";
 import Panel from "../common/panel";
 import {WorkspaceProvider} from "../context";
 import {
+  statDataSegments,
   statDataSources,
   statDataTotal,
   // statDataVideos,
@@ -13,7 +15,6 @@ import {
   statSourcesTypes,
 } from "../http";
 import machine from "../machines/workspace";
-import LoadingSpinner from "../common/loading-spinner";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Database from "./database";
@@ -26,12 +27,15 @@ interface WorkspaceProps {
 }
 
 const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
+  const [databaseHeader, setDatabaseHeader] = useState("Database");
+
   const [state, send, service] = useMachine(machine, {
     context: {
       workspace,
       dataStats: {
         total: 0,
         sources: 0,
+        segments: 0,
         // videos: 0,
       },
       sourceStats: {
@@ -45,12 +49,14 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
         const [
           dataTotal,
           dataSources,
+          dataSegments,
           // dataVideos,
           sourcesTotal,
           sourcesTypes,
         ] = await Promise.all([
           statDataTotal(workspace.slug),
           statDataSources(workspace.slug),
+          statDataSegments(workspace.slug),
           // statDataVideos(workspace.slug),
           statSourcesTotal(workspace.slug),
           statSourcesTypes(workspace.slug),
@@ -60,6 +66,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
           dataStats: {
             total: dataTotal,
             sources: dataSources,
+            segments: dataSegments,
             // videos: dataVideos,
           },
           sourceStats: {
@@ -135,10 +142,16 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
           <Panel
             workspaces={workspaces}
             workspace={workspace}
-            header="Database"
+            header={databaseHeader}
             description=""
           >
-            <Database stats={dataStats} workspace={workspace} />
+            <Database
+              stats={dataStats}
+              workspace={workspace}
+              onHeaderChange={(title) =>
+                setDatabaseHeader(title ? `Database: ${title}` : "Database")
+              }
+            />
           </Panel>
         </WorkspaceProvider>
       );

@@ -11,6 +11,7 @@ type DatabaseContext = {
 type DatabaseEvent =
   | {type: "SHOW_HOME"}
   | {type: "SHOW_DATA"}
+  | {type: "SHOW_SEGMENT"; segment: Segment}
   | {type: "RETRY"};
 
 type DatabaseState =
@@ -46,6 +47,7 @@ export default createMachine<DatabaseContext, DatabaseEvent, DatabaseState>({
     home: {
       on: {
         SHOW_DATA: "exploration",
+        SHOW_SEGMENT: "exploration",
       },
     },
 

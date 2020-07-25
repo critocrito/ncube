@@ -82,7 +82,7 @@ export type Stats<T extends string> = {
 };
 
 // export type DataStats = Stats<"total" | "sources" | "videos">;
-export type DataStats = Stats<"total" | "sources">;
+export type DataStats = Stats<"total" | "sources" | "segments">;
 export type SourceStats = Stats<"total" | "types">;
 
 export type MediaType = "video" | "image" | "url";
@@ -129,8 +129,9 @@ export type Segment = {
   slug: string;
   title: string;
   query: string;
-  created_at: Date;
-  updated_at: Date;
+  // FIXME: dates should be Date not string.
+  created_at: string;
+  updated_at: string;
 };
 
 /*

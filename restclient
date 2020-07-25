@@ -221,3 +221,6 @@ GET http://:api/api/workspaces/syrian-archive/stats/data/sources
 
 # Fetch count of videos in database
 GET http://:api/api/workspaces/syrian-archive/stats/data/videos
+
+# Fetch count of segments
+GET http://:api/api/workspaces/syrian-archive/stats/data/segments
