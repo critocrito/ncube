@@ -44,19 +44,22 @@ const Sidebar = ({workspaces}: SidebarProps) => {
           <div className="w5 vh-100 flex flex-column ">
             <div className="fixed top-0 w5">
               <div className="pa2 bg-sapphire h4">
-                <select
-                  defaultValue={workspaceState.context.workspace.slug}
-                  className="w-100 mt5 b white b--sapphire bg-sapphire"
-                  onChange={(ev) => {
-                    appSend("SHOW_WORKSPACE", {slug: ev.target.value});
-                    workspaceSend("OVERVIEW");
-                  }}
-                >
-                  {workspaces.map(({name, slug}) => (
-                    <option key={slug} value={slug} label={name} />
-                  ))}
-                </select>
+                <div className="mt5">
+                  <select
+                    defaultValue={workspaceState.context.workspace.slug}
+                    className="workspace-select w-100 b"
+                    onChange={(ev) => {
+                      appSend("SHOW_WORKSPACE", {slug: ev.target.value});
+                      workspaceSend("OVERVIEW");
+                    }}
+                  >
+                    {workspaces.map(({name, slug}) => (
+                      <option key={slug} value={slug} label={name} />
+                    ))}
+                  </select>
+                </div>
               </div>
+
               <div className="flex flex-column justify-between h-100">
                 <div className="pa2">
                   <ul className="list pl0 ">
