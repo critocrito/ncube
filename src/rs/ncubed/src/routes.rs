@@ -84,20 +84,6 @@ pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::
         .or(warp::path("app.js.map")
             .map(|| include_str!("../../../../target/dist/app.js.map"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/javascript")))
-        .or(warp::path("82b1a58ddf26951345dcec05fb4d7b5c.ttf")
-            .map(|| {
-                let file =
-                    include_bytes!("../../../../target/dist/82b1a58ddf26951345dcec05fb4d7b5c.ttf");
-                file.to_vec()
-            })
-            .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
-        .or(warp::path("e962f548522aa99bb8f9c3505bcf56a9.ttf")
-            .map(|| {
-                let file =
-                    include_bytes!("../../../../target/dist/e962f548522aa99bb8f9c3505bcf56a9.ttf");
-                file.to_vec()
-            })
-            .map(|reply| warp::reply::with_header(reply, "content-type", "font/ttf")))
 }
 
 pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
