@@ -391,6 +391,7 @@ tr:hover .trash {
 }
 
 /* Workspace Select */
+/* See: https://github.com/filamentgroup/select-css/blob/master/src/select-css.css */
 .workspace-select {
   display: block;
   font-size: 16px;
