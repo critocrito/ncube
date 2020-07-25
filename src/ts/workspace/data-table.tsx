@@ -6,9 +6,12 @@ import {Cell, Column} from "react-table";
 import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
+import FormHandler from "../common/form-handler";
 import Modal from "../common/modal";
 import SourceTag from "../common/source-tag";
-import {listUnits, searchUnits} from "../http";
+import CreateSegmentForm from "../forms/create-segment";
+import UpdateSegmentForm from "../forms/update-segment";
+import {createSegment, listUnits, searchUnits, updateSegment} from "../http";
 import machine from "../machines/table";
 import Table from "../table";
 import {Segment, Unit, Workspace} from "../types";
@@ -126,6 +129,52 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
     [send],
   );
 
+  const searchBar = (
+    <div className="w-50 mt2 mb2">
+      <SearchBar
+        query={query}
+        onChange={(q) => send("SET_QUERY", {query: q})}
+        onSearch={(q) => setSearchQuery(q)}
+      />
+    </div>
+  );
+
+  const segmentButton = (
+    <div className="flex items-center mb3 ml-auto">
+      {segment ? (
+        <Button
+          onClick={() => send("CREATE")}
+          size="large"
+          disabled={query === ""}
+        >
+          Update Segment
+        </Button>
+      ) : (
+        <Button
+          onClick={() => send("CREATE")}
+          size="large"
+          disabled={query === ""}
+        >
+          Save Segment
+        </Button>
+      )}
+    </div>
+  );
+
+  const table = (
+    <Table<Unit>
+      name="dataTable"
+      data={results as Unit[]}
+      selected={selected as Unit[]}
+      columns={columns}
+      fetchData={fetchData}
+      total={total}
+      controlledPageIndex={state.context.pageIndex}
+      controlledPageSize={state.context.pageSize}
+      onDetails={handleDetails}
+      onSelect={handleSelect}
+    />
+  );
   switch (true) {
     // eslint-disable-next-line no-fallthrough
     case state.matches("fetching"):
@@ -139,37 +188,11 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
             loading ? "o-40 no-hover" : undefined,
           )}
         >
-          <div className="w-50 mt2 mb2">
-            <SearchBar
-              query={query}
-              onChange={(q) => send("SET_QUERY", {query: q})}
-              onSearch={(q) => setSearchQuery(q)}
-            />
-          </div>
+          {searchBar}
 
-          <div className="flex items-center mb3 ml-auto">
-            <Button
-              onClick={() => console.log("save segment")}
-              size="large"
-              disabled={query === ""}
-            >
-              Save Segment
-            </Button>
-          </div>
+          {segmentButton}
 
-          <Table<Unit>
-            name="dataTable"
-            data={results as Unit[]}
-            selected={selected as Unit[]}
-            columns={columns}
-            fetchData={fetchData}
-            total={total}
-            controlledPageIndex={state.context.pageIndex}
-            controlledPageSize={state.context.pageSize}
-            onDetails={handleDetails}
-            onSelect={handleSelect}
-            loading={loading}
-          />
+          {table}
         </div>
       );
     }
@@ -189,36 +212,11 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
                 <div className="flex flex-column">{id}</div>
               </Modal>
               <div className="flex flex-column">
-                <div className="w-50 mt2 mb2">
-                  <SearchBar
-                    query={query}
-                    onChange={(q) => send("SET_QUERY", {query: q})}
-                    onSearch={(q) => setSearchQuery(q)}
-                  />
-                </div>
+                {searchBar}
 
-                <div className="flex items-center mb3 ml-auto">
-                  <Button
-                    onClick={() => console.log("save segment")}
-                    size="large"
-                    disabled={query === ""}
-                  >
-                    Save Segment
-                  </Button>
-                </div>
+                {segmentButton}
 
-                <Table<Unit>
-                  name="dataTable"
-                  data={results as Unit[]}
-                  selected={selected as Unit[]}
-                  columns={columns}
-                  fetchData={fetchData}
-                  total={total}
-                  controlledPageIndex={state.context.pageIndex}
-                  controlledPageSize={state.context.pageSize}
-                  onDetails={handleDetails}
-                  onSelect={handleSelect}
-                />
+                {table}
               </div>
             </div>
           );
@@ -232,6 +230,47 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
             />
           );
       }
+
+    case state.matches("create"):
+      return (
+        <div>
+          <Modal
+            onCancel={() => send("SHOW_TABLE")}
+            title="Confirm"
+            description="Please fill in any missing data."
+          >
+            <div className="flex flex-column">
+              <p>
+                {segment
+                  ? "Modify this segment"
+                  : "Add a new segment for your workspace."}
+              </p>
+
+              <FormHandler
+                initialValues={
+                  segment ? {query, title: segment.title} : {query}
+                }
+                onSave={(values) =>
+                  segment
+                    ? updateSegment(workspace.slug, segment.slug, values)
+                    : createSegment(workspace.slug, values)
+                }
+                onDone={() => send("SHOW_TABLE")}
+                Form={segment ? UpdateSegmentForm : CreateSegmentForm}
+                workspace={workspace}
+              />
+            </div>
+          </Modal>
+
+          <div className="flex flex-column">
+            {searchBar}
+
+            {segmentButton}
+
+            {table}
+          </div>
+        </div>
+      );
 
     case state.matches("error"):
       return (

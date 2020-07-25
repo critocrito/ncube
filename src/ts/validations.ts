@@ -99,3 +99,8 @@ export const remoteWorkspaceReq = Yup.object({
     ),
   }),
 });
+
+export const segmentReq = Yup.object({
+  title: Yup.string().defined(),
+  query: Yup.string().defined(),
+});

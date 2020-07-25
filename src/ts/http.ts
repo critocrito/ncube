@@ -2,6 +2,7 @@ import {
   ConfigSettingReq,
   HostConfig,
   Segment,
+  SegmentReq,
   Source,
   SourceReq,
   SourceTag,
@@ -263,6 +264,43 @@ export const listSegments = async (workspace: string): Promise<Segment[]> => {
   );
 
   return dataResponse(resp);
+};
+
+export const createSegment = async (
+  workspace: string,
+  body: SegmentReq,
+): Promise<void> => {
+  await v.segmentReq.isValid(body);
+
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/segments`,
+    {
+      body: JSON.stringify(body),
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
+};
+
+export const updateSegment = async (
+  workspace: string,
+  segment: string,
+  body: SegmentReq,
+): Promise<void> => {
+  await v.segmentReq.isValid(body);
+
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/segments/${segment}`,
+    {
+      body: JSON.stringify(body),
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
 };
 
 /*

@@ -151,6 +151,8 @@ export type SourceReq = {
   tags: SourceTag[];
 };
 
+export type SegmentReq = Yup.InferType<typeof v.segmentReq>;
+
 /*
  * It is currently tricky (not possible?) to express discriminated union types
  * with Yup. See: https://github.com/jquense/yup/issues/593
