@@ -18,9 +18,11 @@ import {currentUrl} from "./popup/utils";
   };
 
   ReactDOM.render(
-    <Layout sourceReq={sourceReq}>
-      <Popup sourceReq={sourceReq} />
-    </Layout>,
+    <div style={{width: "500px"}}>
+      <Layout>
+        <Popup sourceReq={sourceReq} />
+      </Layout>
+    </div>,
     domContainer,
   );
 })();

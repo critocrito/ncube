@@ -24,7 +24,7 @@ interface DataTableProps {
   segment?: Segment;
 }
 
-const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
+const mapToKind = (type: string): "youtube" | "twitter" | "http" => {
   switch (true) {
     case type.startsWith("youtube"):
       return "youtube";
@@ -33,7 +33,7 @@ const mapToKind = (type: string): "youtube" | "twitter" | "url" => {
       return "twitter";
 
     default:
-      return "url";
+      return "http";
   }
 };
 

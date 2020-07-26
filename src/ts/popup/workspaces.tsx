@@ -16,21 +16,23 @@ const Workspaces = ({workspaces, onNext}: WorkspacesProps) => {
 
   return (
     <div className="flex flex-column">
+      <p>Select workspace</p>
       <WorkspaceSelector
+        className="pa2 mt3 mb5 bg-white ba--solitude"
         selectedWorkspace={selectedWorkspace}
         workspaces={workspaces}
         onChange={(workspace: Workspace) => {
           setSelectedWorkspace(workspace);
         }}
       />
-      <div className="flex justify-around mt2">
-        <Button
-          size="large"
-          onClick={() => selectedWorkspace && onNext(selectedWorkspace)}
-        >
-          Select
-        </Button>
-      </div>
+
+      <Button
+        className="mt4"
+        size="large"
+        onClick={() => selectedWorkspace && onNext(selectedWorkspace)}
+      >
+        Select
+      </Button>
     </div>
   );
 };

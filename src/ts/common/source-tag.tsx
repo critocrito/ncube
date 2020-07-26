@@ -2,11 +2,11 @@ import c from "classnames";
 import React from "react";
 
 interface SourceTagProps {
-  kind?: "youtube" | "twitter" | "url";
+  kind?: "youtube" | "twitter" | "http";
   className?: string;
 }
 
-const SourceTag = ({kind = "url", className}: SourceTagProps) => {
+const SourceTag = ({kind = "http", className}: SourceTagProps) => {
   let label;
   let classes;
   const baseClasses = "short-tag flex flex-column justify-around";

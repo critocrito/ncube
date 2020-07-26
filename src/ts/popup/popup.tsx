@@ -45,8 +45,8 @@ const Popup = ({sourceReq}: PopupProps) => {
 
     case state.matches("success"):
       return (
-        <div>
-          <h3 className="f4 ttu mt0 mb1">Success!</h3>
+        <div className="mt4 pa4 bg-washed-green">
+          <span className="b success">Success</span>
         </div>
       );
 
