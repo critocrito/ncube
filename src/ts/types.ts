@@ -144,6 +144,7 @@ export type ProcessConfig = {
 };
 
 export type Process = {
+  id: number;
   name: string;
   description: string;
   config: ProcessConfig[];

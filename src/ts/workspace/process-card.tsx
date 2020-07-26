@@ -11,8 +11,8 @@ interface ProcessCardProps {
 
 const ProcessCard = ({process: {name, config}}: ProcessCardProps) => {
   const isSetup = config.reduce((memo, {value}) => {
-    if (memo && value) return true;
-    return false;
+    if (!memo) return memo;
+    return value !== undefined;
   }, true);
 
   const infoBox = isSetup ? (

@@ -4,6 +4,7 @@ import ProcessCard from "../../process/process-card";
 import {Process} from "../../types";
 
 const process1: Process = {
+  id: 1,
   name: "Youtube Video",
   description: "Preserve individual videos from Youtube.",
   config: [
@@ -19,6 +20,7 @@ const process1: Process = {
 };
 
 const process2: Process = {
+  id: 2,
   name: "Youtube Video",
   description: "Preserve individual videos from Youtube.",
   config: [

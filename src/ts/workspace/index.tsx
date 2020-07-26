@@ -15,6 +15,7 @@ import {
   statSourcesTypes,
 } from "../http";
 import machine from "../machines/workspace";
+import Process from "../process";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Database from "./database";
@@ -165,7 +166,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header="Processes"
             description=""
           >
-            <div />
+            <Process workspace={workspace} />
           </Panel>
         </WorkspaceProvider>
       );
