@@ -80,7 +80,7 @@ export default createMachine<WebExtContext, WebExtEvent, WebExtState>({
         SELECT_WORKSPACE: "source",
 
         CLOSE: {
-          internal: true,
+          target: "introduction",
           actions: ["closePopup"],
         },
       },
@@ -91,7 +91,7 @@ export default createMachine<WebExtContext, WebExtEvent, WebExtState>({
         STORE_SOURCE: "store_source",
 
         CLOSE: {
-          internal: true,
+          target: "introduction",
           actions: ["closePopup"],
         },
       },
