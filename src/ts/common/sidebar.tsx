@@ -9,6 +9,7 @@ import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
 import settingsIcon from "../../../resources/public/images/settings.svg";
 import {useAppCtx, useWorkspaceCtx} from "../context";
 import {Workspace} from "../types";
+import WorkspaceSelector from "./workspace-selector";
 
 interface SidebarProps {
   workspaces: Workspace[];
@@ -45,18 +46,15 @@ const Sidebar = ({workspaces}: SidebarProps) => {
             <div className="fixed top-0 w5">
               <div className="pa2 bg-sapphire h4">
                 <div className="mt5">
-                  <select
-                    defaultValue={workspaceState.context.workspace.slug}
-                    className="workspace-select w-100 b"
-                    onChange={(ev) => {
-                      appSend("SHOW_WORKSPACE", {slug: ev.target.value});
+                  <WorkspaceSelector
+                    workspaces={workspaces}
+                    selectedWorkspace={workspaceState.context.workspace}
+                    className="workspace-select w-100 b bg-sapphire ba b--sapphire white"
+                    onChange={(workspace) => {
+                      appSend("SHOW_WORKSPACE", {slug: workspace.slug});
                       workspaceSend("OVERVIEW");
                     }}
-                  >
-                    {workspaces.map(({name, slug}) => (
-                      <option key={slug} value={slug} label={name} />
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 

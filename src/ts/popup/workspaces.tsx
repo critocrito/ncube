@@ -18,7 +18,7 @@ const Workspaces = ({workspaces, onNext}: WorkspacesProps) => {
     <div className="flex flex-column">
       <p>Select workspace</p>
       <WorkspaceSelector
-        className="pa2 mt3 mb5 bg-white ba--solitude"
+        className="workspace-select pa2 mt3 mb5 bg-white ba b--solitude black"
         selectedWorkspace={selectedWorkspace}
         workspaces={workspaces}
         onChange={(workspace: Workspace) => {
