@@ -16,7 +16,7 @@ const Workspaces = ({workspaces, onNext}: WorkspacesProps) => {
 
   return (
     <div className="flex flex-column">
-      <p>Select workspace</p>
+      <p className="mb2">Select workspace</p>
       <WorkspaceSelector
         className="workspace-select pa2 mt3 mb5 bg-white ba b--solitude black"
         selectedWorkspace={selectedWorkspace}
@@ -27,7 +27,7 @@ const Workspaces = ({workspaces, onNext}: WorkspacesProps) => {
       />
 
       <Button
-        className="mt4"
+        className="mt5"
         size="large"
         onClick={() => selectedWorkspace && onNext(selectedWorkspace)}
       >

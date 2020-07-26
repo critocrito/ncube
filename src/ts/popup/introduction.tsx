@@ -29,14 +29,14 @@ const Introduction = ({onNext, sourceReq}: IntroductionProps) => {
 
   return (
     <div className="flex flex-column">
-      <p>Type of source detected</p>
+      <p className="mb2">Type of source detected</p>
       <div className="ba b--solitude pa3 flex items-center">
         <SourceTag kind={platform} />
         <span className="ml3">{sourceReq.type}</span>
       </div>
 
-      <p>Term</p>
-      <div>{sourceReq.term}</div>
+      <p className="mb1">Term</p>
+      <div className="underline">{sourceReq.term}</div>
 
       <Button className="mt4" size="large" onClick={onNext}>
         Preserve
