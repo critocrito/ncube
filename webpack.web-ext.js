@@ -10,7 +10,7 @@ const pkg = require("./package.json");
 
 module.exports = {
   entry: {
-    popup: "./src/ts/popup/popup.tsx",
+    popup: "./src/ts/discovery.tsx",
   },
 
   output: {

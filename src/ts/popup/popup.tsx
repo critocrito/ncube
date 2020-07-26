@@ -1,9 +1,5 @@
-import "../../css/styles.css";
-
-import {sourceType} from "@sugarcube/source-types";
 import {useMachine} from "@xstate/react";
 import React from "react";
-import ReactDOM from "react-dom";
 
 import Error from "../common/error";
 import Fatal from "../common/fatal";
@@ -12,9 +8,7 @@ import machine from "../machines/web-ext";
 import {SourceReq, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Introduction from "./introduction";
-import Layout from "./layout";
 import Source from "./source";
-import {currentUrl} from "./utils";
 import Workspaces from "./workspaces";
 
 interface PopupProps {
@@ -108,19 +102,4 @@ const Popup = ({sourceReq}: PopupProps) => {
   }
 };
 
-(async () => {
-  const domContainer = document.querySelector("#app");
-  const url = await currentUrl();
-  const sourceReq = {
-    type: sourceType(url) || "http_url",
-    term: url,
-    tags: [],
-  };
-
-  ReactDOM.render(
-    <Layout sourceReq={sourceReq}>
-      <Popup sourceReq={sourceReq} />
-    </Layout>,
-    domContainer,
-  );
-})();
+export default Popup;
