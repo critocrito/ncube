@@ -9,7 +9,10 @@ const process1: Process = {
   config: [
     {
       name: "Youtube API Key",
+      key: "youtube",
       kind: "secret",
+      description: "Youtube API credentials.",
+      template: {api_key: "Youtube API key"},
       value: undefined,
     },
   ],
@@ -21,8 +24,11 @@ const process2: Process = {
   config: [
     {
       name: "Youtube API Key",
+      key: "youtube",
       kind: "secret",
-      value: {a: "23", b: "42"},
+      description: "Youtube API credentials.",
+      template: {api_key: "Youtube API key"},
+      value: {api_key: "some key"},
     },
   ],
 };

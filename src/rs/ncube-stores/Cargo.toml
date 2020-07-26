@@ -11,6 +11,7 @@ async-trait = "0.1"
 tracing = "0.1.16"
 tracing-futures = "0.2"
 serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 serde_rusqlite = "0.23.0"
 rusqlite = { version = "0.21.0", features = ["bundled", "serde_json", "chrono"] }
 chrono = { version = "0.4", features = ["serde"] }

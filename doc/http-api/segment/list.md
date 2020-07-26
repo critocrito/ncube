@@ -28,5 +28,3 @@ The response contains a list of segments for a workspace.
   ]
 }
 ```
-
-

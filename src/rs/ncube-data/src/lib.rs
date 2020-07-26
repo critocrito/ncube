@@ -511,6 +511,74 @@ impl SegmentRequest {
     }
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum ProcessConfigKind {
+    Secret,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProcessConfig {
+    pub name: String,
+    pub key: String,
+    pub description: String,
+    #[serde(flatten)]
+    pub kind: ProcessConfigKind,
+    pub template: serde_json::Value,
+    pub value: Option<serde_json::Value>,
+}
+
+/// A workspace has several data processes and each process may have
+/// configuration dependencies that have to be fulfilled.
+///
+/// # Example
+///
+/// ```
+/// # use serde_json;
+/// # use std::collections::HashMap;
+/// # use ncube_data::{ProcessConfigKind, ProcessConfig, Process};
+///
+/// let template = serde_json::from_str(r#"{"api_key":"Youtube API key"}"#).unwrap();
+/// let template2 = serde_json::from_str(r#"{"api_key":"Youtube API key"}"#).unwrap();
+/// let secrets = serde_json::from_str(r#"{"api_key":"some key"}"#).unwrap();
+///
+/// let process = Process {
+///   id: 1,
+///   name: "Youtube Video".to_string(),
+///   description: "Fetch individual Youtube videos.".to_string(),
+///   config: vec![
+///     ProcessConfig {
+///       name: "Youtube API Key".to_string(),
+///       key: "youtube".to_string(),
+///       description: "Youtube API credentials.".to_string(),
+///       kind: ProcessConfigKind::Secret,
+///       value: Some(secrets),
+///       template,
+///     },
+///     ProcessConfig {
+///       name: "Other API Key".to_string(),
+///       key: "youtube".to_string(),
+///       description: "Youtube API credentials.".to_string(),
+///       kind: ProcessConfigKind::Secret,
+///       value: None,
+///       template: template2,
+///     }
+///   ]
+/// };
+///
+/// assert_eq!("{\"id\":1,\"name\":\"Youtube Video\",\"description\":\"Fetch individual Youtube videos.\",\"config\":[{\"name\":\"Youtube API Key\",\"key\":\"youtube\",\"description\":\"Youtube API credentials.\",\"kind\":\"secret\",\"template\":{\"api_key\":\"Youtube API key\"},\"value\":{\"api_key\":\"some key\"}},{\"name\":\"Other API Key\",\"key\":\"youtube\",\"description\":\"Youtube API credentials.\",\"kind\":\"secret\",\"template\":{\"api_key\":\"Youtube API key\"},\"value\":null}]}",
+///   serde_json::to_string(&process).unwrap()
+/// )
+/// ```
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Process {
+    pub id: i32,
+    pub name: String,
+    pub description: String,
+    #[serde(default)]
+    pub config: Vec<ProcessConfig>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -5,6 +5,7 @@ use thiserror::Error;
 
 pub mod account;
 pub mod config;
+pub mod host;
 pub mod source;
 pub mod workspace;
 

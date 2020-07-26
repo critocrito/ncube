@@ -101,7 +101,8 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
                 .or(stat::routes())
                 .or(unit::routes())
                 .or(source_tag::routes())
-                .or(segment::routes()),
+                .or(segment::routes())
+                .or(process::routes()),
         )
         .with(cors)
 }
@@ -812,5 +813,29 @@ pub(crate) mod unit {
                 .and(warp::get())
                 .and(warp::query::<ListOptions>())
                 .and_then(search))
+    }
+}
+
+pub(crate) mod process {
+    use super::SuccessResponse;
+    use ncube_data::ReqCtx;
+    use ncube_handlers::host as handlers;
+    use warp::Filter;
+
+    use crate::http::authenticate_remote_req;
+
+    async fn list(_ctx: ReqCtx, workspace: String) -> Result<impl warp::Reply, warp::Rejection> {
+        let processes = handlers::list_processes(&workspace).await?;
+        let response = SuccessResponse::new(processes);
+
+        Ok(warp::reply::json(&response))
+    }
+
+    pub(crate) fn routes(
+    ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+        authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "processes"))
+            .and(warp::get())
+            .and_then(list)
     }
 }

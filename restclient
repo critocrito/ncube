@@ -204,6 +204,13 @@ PUT http://:api/api/workspaces/syrian-archive/segments/mf001a
 }
 
 ###
+# Processes
+###
+
+# List all processes for a workspace
+GET http://:api/api/workspaces/syrian-archive/processes
+
+###
 # Workspace stats
 ###
 

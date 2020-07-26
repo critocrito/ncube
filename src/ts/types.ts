@@ -136,7 +136,10 @@ export type Segment = {
 
 export type ProcessConfig = {
   name: string;
+  key: string;
+  description: string;
   kind: "secret";
+  template: Record<string, string>;
   value?: Record<string, string>;
 };
 

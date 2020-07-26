@@ -11,6 +11,7 @@
   - [Sources](#sources)
   - [Units](#units)
   - [Segments](#segments)
+  - [Processes](#processes)
   - [Stats](#stats)
 - [Entities](#entities)
   - [Config Setting](#config-setting-entity)
@@ -19,6 +20,7 @@
   - [Source](#source-entity)
   - [Unit](#unit-entity)
   - [Segment](#segment-entity)
+  - [Process](#process-entity)
   - [Stat](#stat-entity)
 
 ## Response Envelope
@@ -141,6 +143,10 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [Show a segment](http-api/segment/show.md) `GET /workspaces/<workspace>/segments/<segment>`
 - [Remove a segment](http-api/segment/remove.md) `DELETE /workspaces/<workspace>/segments/<segment>`
 - [Update a segment](http-api/segment/update.md) `PUT /workspaces/<workspace>/segments/<segment>`
+
+### Processes
+
+- [List all processes](http-api/process/list.md) `GET /workspaces/<workspace>/processes`
 
 ### Stats
 
@@ -271,6 +277,27 @@ Ncube installation (originating from `127.0.0.1`) don't.
   "slug": "mf001a",
   "created_at": "2020-06-22T09:20:51Z",
   "updated_at": "2020-07-10T23:00:09.224Z"
+}
+```
+
+### Process Entity
+
+```json
+{
+  "name": "Youtube Video",
+  "description": "Fetch individual Youtube videos.",
+  "config": [
+    {
+      "name": "Youtube API Key",
+      "kind": "secret",
+      "value": {"api_key": "some key"}
+    },
+    {
+      "name": "Other API Key",
+      "kind": "secret",
+      "value": null
+    }
+  ]
 }
 ```
 
