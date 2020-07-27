@@ -111,6 +111,8 @@ document](doc/auth-workflow.pdf).
 
 Ncube is accompanied by a browser extension for the [Firefox browser](https://www.mozilla.org/en-US/firefox/new) for a smoother investigation workflow. The browser extension allows to store URL's from the browser as sources directly in Ncube.
 
+![Discovery Browser Extension Screenshot](https://raw.githubusercontent.com/critocrito/ncube/master/resources/screenshots/discovery.png)
+
 TODO: Publish extension to AMO and provide a download link.
 
 The following instructions are to test and develop the browser extension locally. Make sure to install all required dependencies.
