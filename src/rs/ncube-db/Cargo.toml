@@ -24,4 +24,5 @@ refinery-migrations = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 
 ncube-data = { path = "../ncube-data" }
+ncube-cache = { path = "../ncube-cache" }
 ncube-errors = { path = "../ncube-errors" }

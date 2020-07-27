@@ -1,8 +1,7 @@
+use ncube_cache::GuardedCache;
 use ncube_errors::HostError;
-use std::collections::HashMap;
 use std::fmt::Debug;
-use std::sync::{Mutex, RwLock};
-use tracing::{debug, instrument};
+use tracing::instrument;
 
 pub mod errors;
 pub mod http;
@@ -53,70 +52,7 @@ impl Database {
 ///
 /// assert_eq!(db1, db2);
 /// ```
-#[derive(Debug)]
-pub struct DatabaseCache(RwLock<HashMap<String, Mutex<Database>>>);
-
-impl Default for DatabaseCache {
-    fn default() -> Self {
-        Self(RwLock::new(HashMap::new()))
-    }
-}
-
-impl DatabaseCache {
-    pub fn new() -> Self
-    where
-        Self: Sized,
-    {
-        Self::default()
-    }
-
-    #[instrument]
-    pub fn get(&self, key: &str) -> Option<Database> {
-        let trimmed = key.trim().to_string();
-        let cache = self.0.read().expect("RwLock poisoned");
-        if let Some(elem) = cache.get(&trimmed) {
-            let elem = elem.lock().expect("Mutex poisoned");
-            let db = elem.clone();
-            debug!("database {} served from cache", key);
-            return Some(db);
-        }
-        debug!("database {} not in cache", key);
-        None
-    }
-
-    #[instrument]
-    pub fn put(&self, key: &str, db: Database) {
-        let trimmed = key.trim().to_string();
-        let mut cache = self.0.write().expect("RwLock poisoned");
-        cache.entry(trimmed).or_insert_with(|| {
-            debug!("new database {} inserted into cache", key);
-            Mutex::new(db)
-        });
-    }
-
-    #[instrument]
-    pub fn has(&self, key: &str) -> bool {
-        let trimmed = key.trim().to_string();
-        let cache = self.0.read().expect("RwLock poisoned");
-        match cache.get(&trimmed) {
-            Some(_) => {
-                debug!("database {} found in cache", key);
-                true
-            }
-            _ => {
-                debug!("database {} not found in cache", key);
-                false
-            }
-        }
-    }
-
-    #[instrument]
-    pub fn reset(&self, key: &str, db: Database) {
-        let trimmed = key.trim().to_string();
-        let mut cache = self.0.write().expect("RwLock poisoned");
-        cache.insert(trimmed, Mutex::new(db));
-    }
-}
+pub type DatabaseCache = GuardedCache<Database>;
 
 #[cfg(test)]
 mod tests {
