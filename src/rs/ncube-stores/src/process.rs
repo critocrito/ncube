@@ -96,10 +96,12 @@ pub struct ProcessStoreHttp {
 #[async_trait]
 impl ProcessStore for ProcessStoreHttp {
     #[instrument]
-    async fn list(&self, workspace: &str) -> Result<Vec<Process>, DatabaseError> {
+    async fn list(&self, _workspace: &str) -> Result<Vec<Process>, DatabaseError> {
         let mut url = self.client.url.clone();
-        // FIXME: This is the first time that I need to treat a local database as a workspace database.
-        url.set_path(&format!("/api/workspaces/{}/processes", workspace));
+        url.set_path(&format!(
+            "/api/workspaces/{}/processes",
+            self.client.workspace.slug
+        ));
 
         let data: Vec<Process> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
 
