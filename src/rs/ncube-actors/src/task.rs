@@ -1,23 +1,18 @@
 use async_trait::async_trait;
-use ncube_errors::HostError;
-use ncube_tasks::create_workspace;
+use ncube_tasks::{Task, TaskCache, TaskState};
 use std::fmt::Debug;
-use tokio::sync::mpsc::{self, Sender};
 use tracing::info;
-use xactor::{message, Actor, Context, Handler};
+use uuid::Uuid;
+use xactor::{message, Actor, Addr, Context, Handler};
 
 use crate::{
-    db::{DatabaseActor, MigrateWorkspace},
+    runner::{QueueTask, TaskRunner},
     ActorError, Registry,
 };
 
-#[derive(Debug)]
-enum TaskMessage {
-    SetupWorkspace(String, String),
-}
-
 pub struct TaskActor {
-    tx: Sender<TaskMessage>,
+    cache: TaskCache,
+    runner: Addr<TaskRunner>,
 }
 
 impl Actor for TaskActor {}
@@ -25,35 +20,50 @@ impl Actor for TaskActor {}
 impl Registry for TaskActor {}
 
 impl TaskActor {
-    pub fn new() -> Result<Self, HostError> {
-        let (tx, mut rx) = mpsc::channel(100);
+    pub async fn new() -> Self {
+        let runner = TaskRunner::new().start().await;
+        TaskActor {
+            runner,
+            cache: TaskCache::new(),
+        }
+    }
 
-        tokio::spawn(async move {
-            while let Some(res) = rx.recv().await {
-                info!("Received a new task.");
-                match res {
-                    TaskMessage::SetupWorkspace(location, workspace) => {
-                        info!(
-                            "Received a request to setup a workspace: {:?}/{:?}.",
-                            location, workspace
-                        );
+    async fn queue_task(&mut self, task: Task) -> Result<(), ActorError> {
+        let mut encoding_buffer = Uuid::encode_buffer();
+        let task_id = Uuid::new_v4()
+            .to_hyphenated()
+            .encode_lower(&mut encoding_buffer);
 
-                        create_workspace(location)
-                            .await
-                            .expect("Failed to create workspace");
+        self.cache.put(&task_id, task.clone());
+        self.runner
+            .call(QueueTask {
+                task_id: task_id.to_string(),
+                task,
+            })
+            .await??;
+        Ok(())
+    }
+}
 
-                        let mut database_actor = DatabaseActor::from_registry().await.unwrap();
-                        database_actor
-                            .call(MigrateWorkspace { workspace })
-                            .await
-                            .unwrap()
-                            .unwrap();
-                    }
-                }
-            }
-        });
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct UpdateTask {
+    pub task_id: String,
+    pub state: TaskState,
+}
 
-        Ok(TaskActor { tx })
+#[async_trait]
+impl Handler<UpdateTask> for TaskActor {
+    async fn handle(&mut self, _ctx: &Context<Self>, msg: UpdateTask) -> Result<(), ActorError> {
+        info!("Receiving a task update for {}", msg.task_id);
+        let mut task = self.cache.get(&msg.task_id).ok_or_else(|| {
+            ActorError::Invalid(format!("task with id {} not found", msg.task_id))
+        })?;
+
+        task.state = msg.state;
+        self.cache.reset(&msg.task_id, task);
+
+        Ok(())
     }
 }
 
@@ -71,9 +81,7 @@ impl Handler<SetupWorkspace> for TaskActor {
         _ctx: &Context<Self>,
         msg: SetupWorkspace,
     ) -> Result<(), ActorError> {
-        self.tx
-            .send(TaskMessage::SetupWorkspace(msg.location, msg.workspace))
-            .await?;
-        Ok(())
+        let task = Task::workspace(&msg.location, &msg.workspace);
+        self.queue_task(task).await
     }
 }

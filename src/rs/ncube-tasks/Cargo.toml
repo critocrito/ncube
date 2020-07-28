@@ -14,3 +14,4 @@ tracing-futures = "0.2"
 
 ncube-errors = { path = "../ncube-errors" }
 ncube-fs = { path = "../ncube-fs" }
+ncube-cache = { path = "../ncube-cache" }

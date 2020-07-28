@@ -1,9 +1,61 @@
+use ncube_cache::GuardedCache;
 use ncube_errors::HostError;
 use ncube_fs::{expand_tilde, mkdirp, unzip_workspace};
 use std::fmt::Debug;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tokio::process::Command;
 use tracing::{debug, info, instrument};
+
+#[derive(Debug, Clone)]
+pub enum TaskKind {
+    SetupWorkspace(String, String),
+}
+
+#[derive(Debug, Clone)]
+pub enum TaskState {
+    Queued,
+    Running,
+    Failed(String),
+    Done,
+}
+
+#[derive(Debug, Clone)]
+pub struct Task {
+    pub kind: TaskKind,
+    pub state: TaskState,
+}
+
+impl Task {
+    pub fn new(kind: TaskKind) -> Self {
+        Self {
+            kind,
+            state: TaskState::Queued,
+        }
+    }
+
+    pub fn workspace(location: &str, workspace: &str) -> Self {
+        Task::new(TaskKind::SetupWorkspace(
+            location.to_string(),
+            workspace.to_string(),
+        ))
+    }
+}
+
+pub type TaskCache = GuardedCache<Task>;
+
+#[instrument]
+fn env_path(workspace_path: &PathBuf) -> String {
+    vec![
+        "dist/nodejs/bin",
+        "dist/ffmpeg",
+        "dist/youtube-dl",
+        "node_modules/.bin:/usr/local/bin:/usr/bin:/bin",
+    ]
+    .iter()
+    .map(|s| format!("{}/{}", workspace_path.as_path().to_string_lossy(), s))
+    .collect::<Vec<String>>()
+    .join(":")
+}
 
 #[instrument]
 pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(), HostError> {
@@ -13,16 +65,7 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(),
     mkdirp(&expanded_path)?;
     unzip_workspace(&expanded_path)?;
 
-    let env_path = vec![
-        "dist/nodejs/bin",
-        "dist/ffmpeg",
-        "dist/youtube-dl",
-        "node_modules/.bin:/usr/local/bin:/usr/bin:/bin",
-    ]
-    .iter()
-    .map(|s| format!("{}/{}", expanded_path.as_path().to_string_lossy(), s))
-    .collect::<Vec<String>>()
-    .join(":");
+    let env_path = env_path(&expanded_path);
 
     debug!("PATH={}", env_path);
 
