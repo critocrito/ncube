@@ -2,6 +2,8 @@ import * as Yup from "yup";
 
 import * as v from "./validations";
 
+export type Platform = "youtube" | "twitter" | "http";
+
 export interface FormValues<T> {
   values: T;
   error: string;

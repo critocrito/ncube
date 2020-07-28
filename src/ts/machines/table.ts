@@ -132,6 +132,7 @@ export default createMachine<
     details: {
       on: {
         SHOW_TABLE: "table",
+        DELETE: "delete",
       },
     },
 

@@ -15,6 +15,7 @@ import CreateSourceForm from "../forms/create-source";
 import {saveSource} from "../handlers";
 import {listSources, removeSource, searchSources} from "../http";
 import machine from "../machines/table";
+import SourceDetails from "../source/details";
 import Table from "../table";
 import ActionBar from "../table/action-bar";
 import {Source, SourceTag as Tag, Workspace} from "../types";
@@ -199,16 +200,18 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
     case state.matches("details"):
       switch (state.event.type) {
         case "SHOW_DETAILS": {
-          const {id} = state.event.item;
-
+          const source = state.event.item as Source;
           return (
             <div>
               <Modal
                 onCancel={() => send("SHOW_TABLE")}
-                title="Confirm"
+                title="Source Detail"
                 description="Describing this modal"
               >
-                <div className="flex flex-column">{id}</div>
+                <SourceDetails
+                  onDelete={() => handleDelete(source)}
+                  source={source}
+                />
               </Modal>
               <div className="flex flex-column">
                 {actionBar}
