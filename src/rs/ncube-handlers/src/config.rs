@@ -12,7 +12,7 @@ use std::time::SystemTime;
 use crate::HandlerError;
 
 pub async fn is_bootstrapped() -> Result<bool, HandlerError> {
-    let mut actor = HostActor::from_registry().await.unwrap();
+    let actor = HostActor::from_registry().await.unwrap();
 
     let is_bootstrapped = actor.call(IsBootstrapped).await?;
 
@@ -20,7 +20,7 @@ pub async fn is_bootstrapped() -> Result<bool, HandlerError> {
 }
 
 pub async fn show_config() -> Result<Vec<ConfigSetting>, HandlerError> {
-    let mut actor = HostActor::from_registry().await.unwrap();
+    let actor = HostActor::from_registry().await.unwrap();
 
     if !is_bootstrapped().await? {
         return Err(HandlerError::Invalid(
@@ -35,7 +35,7 @@ pub async fn show_config() -> Result<Vec<ConfigSetting>, HandlerError> {
 }
 
 pub async fn show_config_all() -> Result<Vec<ConfigSetting>, HandlerError> {
-    let mut actor = HostActor::from_registry().await.unwrap();
+    let actor = HostActor::from_registry().await.unwrap();
 
     if !is_bootstrapped().await? {
         return Err(HandlerError::Invalid(
@@ -50,7 +50,7 @@ pub async fn show_config_all() -> Result<Vec<ConfigSetting>, HandlerError> {
 }
 
 pub async fn bootstrap(settings: Vec<(String, String)>) -> Result<(), HandlerError> {
-    let mut actor = HostActor::from_registry().await.unwrap();
+    let actor = HostActor::from_registry().await.unwrap();
 
     if is_bootstrapped().await? {
         return Err(HandlerError::NotAllowed(
@@ -88,7 +88,7 @@ pub async fn bootstrap(settings: Vec<(String, String)>) -> Result<(), HandlerErr
 }
 
 pub async fn insert_config_setting(name: &str, value: &str) -> Result<(), HandlerError> {
-    let mut actor = HostActor::from_registry().await.unwrap();
+    let actor = HostActor::from_registry().await.unwrap();
 
     if !is_bootstrapped().await? {
         return Err(HandlerError::Invalid(
@@ -104,7 +104,7 @@ pub async fn insert_config_setting(name: &str, value: &str) -> Result<(), Handle
 }
 
 pub async fn show_secret_key() -> Result<String, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
     let key = host_actor.call(SecretKeySetting).await??;
     Ok(key
         .value
@@ -112,7 +112,7 @@ pub async fn show_secret_key() -> Result<String, HandlerError> {
 }
 
 pub async fn endpoint() -> Result<String, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
     let endpoint = host_actor.call(EndpointSetting).await??;
     Ok(endpoint
         .value

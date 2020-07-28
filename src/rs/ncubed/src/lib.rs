@@ -44,11 +44,11 @@ impl Application {
     }
 
     async fn setup(&self) -> Result<(), ApplicationError> {
-        let host_actor = HostActor::new(&self.config.host_db)?.start().await;
+        let host_actor = HostActor::new(&self.config.host_db)?.start().await?;
         HostActor::register_once(host_actor).await;
-        let task_actor = TaskActor::new().await.start().await;
+        let task_actor = TaskActor::new().await.start().await?;
         TaskActor::register_once(task_actor).await;
-        let database_actor = DatabaseActor::new().start().await;
+        let database_actor = DatabaseActor::new().start().await?;
         DatabaseActor::register_once(database_actor).await;
 
         Ok(())

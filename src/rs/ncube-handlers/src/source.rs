@@ -11,7 +11,7 @@ use crate::HandlerError;
 
 #[instrument]
 pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(), HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -22,7 +22,7 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
         return Err(HandlerError::Invalid(msg));
     };
 
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
 
     let database = database_actor
         .call(LookupDatabase {
@@ -40,7 +40,7 @@ pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(),
 
 #[instrument]
 pub async fn show_source(workspace: &str, id: i32) -> Result<Option<Source>, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -53,7 +53,7 @@ pub async fn show_source(workspace: &str, id: i32) -> Result<Option<Source>, Han
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
 
     let mut database = database_actor
         .call(LookupDatabase {
@@ -75,7 +75,7 @@ pub async fn list_sources(
     page: i32,
     page_size: i32,
 ) -> Result<Vec<Source>, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -88,7 +88,7 @@ pub async fn list_sources(
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
 
     let mut database = database_actor
         .call(LookupDatabase {
@@ -111,7 +111,7 @@ pub async fn search_sources(
     page: i32,
     page_size: i32,
 ) -> Result<Vec<Source>, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -122,7 +122,7 @@ pub async fn search_sources(
         return Err(HandlerError::Invalid(msg));
     };
 
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
     let mut database = database_actor
         .call(LookupDatabase {
             workspace: workspace.to_string(),
@@ -139,7 +139,7 @@ pub async fn search_sources(
 
 #[instrument]
 pub async fn remove_source(workspace: &str, id: i32) -> Result<(), HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -150,7 +150,7 @@ pub async fn remove_source(workspace: &str, id: i32) -> Result<(), HandlerError>
         return Err(HandlerError::Invalid(msg));
     };
 
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
 
     let database = database_actor
         .call(LookupDatabase {
@@ -177,7 +177,7 @@ pub async fn update_source(
     id: i32,
     source: &SourceRequest,
 ) -> Result<(), HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -188,7 +188,7 @@ pub async fn update_source(
         return Err(HandlerError::Invalid(msg));
     };
 
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
 
     let database = database_actor
         .call(LookupDatabase {
@@ -211,7 +211,7 @@ pub async fn update_source(
 
 #[instrument]
 pub async fn list_source_tags(workspace: &str) -> Result<Vec<QueryTag>, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -224,7 +224,7 @@ pub async fn list_source_tags(workspace: &str) -> Result<Vec<QueryTag>, HandlerE
 
     let workspace = workspace_store.show_by_slug(&workspace).await?;
 
-    let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
 
     let mut database = database_actor
         .call(LookupDatabase {

@@ -82,7 +82,7 @@ impl Handler<LookupDatabase> for DatabaseActor {
         _ctx: &Context<Self>,
         msg: LookupDatabase,
     ) -> Result<Database, ActorError> {
-        let mut host_actor = HostActor::from_registry().await.unwrap();
+        let host_actor = HostActor::from_registry().await.unwrap();
 
         let db = host_actor.call(RequirePool).await??;
         let workspace_store = workspace_store(db.clone());
@@ -131,7 +131,7 @@ impl Handler<LookupDatabase> for DatabaseActor {
 #[async_trait]
 impl Handler<ResetDatabase> for DatabaseActor {
     async fn handle(&mut self, _ctx: &Context<Self>, msg: ResetDatabase) -> Result<(), ActorError> {
-        let mut host_actor = HostActor::from_registry().await.unwrap();
+        let host_actor = HostActor::from_registry().await.unwrap();
 
         let db = host_actor.call(RequirePool).await??;
         let workspace_store = workspace_store(db.clone());
@@ -171,7 +171,7 @@ impl Handler<MigrateWorkspace> for DatabaseActor {
         _ctx: &Context<Self>,
         msg: MigrateWorkspace,
     ) -> Result<(), ActorError> {
-        let mut host_actor = HostActor::from_registry().await.unwrap();
+        let host_actor = HostActor::from_registry().await.unwrap();
         let db = host_actor.call(RequirePool).await??;
         let workspace_store = workspace_store(db.clone());
         let workspace = workspace_store.show_by_slug(&msg.workspace).await?;

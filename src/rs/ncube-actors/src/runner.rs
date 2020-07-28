@@ -32,7 +32,7 @@ impl TaskRunner {
                             location, workspace
                         );
 
-                        let mut actor = TaskActor::from_registry().await.unwrap();
+                        let actor = TaskActor::from_registry().await.unwrap();
                         actor
                             .call(UpdateTask {
                                 task_id: task_id.clone(),
@@ -46,7 +46,7 @@ impl TaskRunner {
                             .await
                             .expect("Failed to create workspace");
 
-                        let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+                        let database_actor = DatabaseActor::from_registry().await.unwrap();
                         database_actor
                             .call(MigrateWorkspace { workspace })
                             .await

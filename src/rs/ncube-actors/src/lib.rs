@@ -69,7 +69,7 @@ static REGISTRY: OnceCell<Mutex<ActorRegistry>> = OnceCell::new();
 /// impl Actor for MyActor {}
 /// impl Registry for MyActor {}
 ///
-/// let act = MyActor.start().await;
+/// let act = MyActor.start().await.unwrap();
 /// MyActor::register_once(act).await;
 ///
 /// let act_again = MyActor::from_registry().await.unwrap();
@@ -117,7 +117,7 @@ mod tests {
         impl Actor for MyActor {};
         impl Registry for MyActor {};
 
-        let act = MyActor.start().await;
+        let act = MyActor.start().await.unwrap();
 
         MyActor::register_once(act).await;
 
@@ -135,8 +135,8 @@ mod tests {
         impl Actor for MyActor {};
         impl Registry for MyActor {};
 
-        let act = MyActor.start().await;
-        let act2 = MyActor.start().await;
+        let act = MyActor.start().await.unwrap();
+        let act2 = MyActor.start().await.unwrap();
 
         MyActor::register_once(act).await;
         MyActor::register_once(act2).await;

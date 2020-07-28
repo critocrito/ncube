@@ -18,11 +18,11 @@ pub async fn list_processes(workspace_slug: &str) -> Result<Vec<Process>, Handle
     // the remote workspace database.
     let db = match workspace.kind {
         WorkspaceKind::Local(_) => {
-            let mut host_actor = HostActor::from_registry().await.unwrap();
+            let host_actor = HostActor::from_registry().await.unwrap();
             host_actor.call(RequirePool).await??
         }
         WorkspaceKind::Remote(_) => {
-            let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+            let database_actor = DatabaseActor::from_registry().await.unwrap();
             database_actor
                 .call(LookupDatabase {
                     workspace: workspace.slug.to_string(),
@@ -49,11 +49,11 @@ pub async fn configure_process(
     // the remote workspace database.
     let db = match workspace.kind {
         WorkspaceKind::Local(_) => {
-            let mut host_actor = HostActor::from_registry().await.unwrap();
+            let host_actor = HostActor::from_registry().await.unwrap();
             host_actor.call(RequirePool).await??
         }
         WorkspaceKind::Remote(_) => {
-            let mut database_actor = DatabaseActor::from_registry().await.unwrap();
+            let database_actor = DatabaseActor::from_registry().await.unwrap();
             database_actor
                 .call(LookupDatabase {
                     workspace: workspace.slug.to_string(),

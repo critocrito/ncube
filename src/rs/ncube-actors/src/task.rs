@@ -21,7 +21,7 @@ impl Registry for TaskActor {}
 
 impl TaskActor {
     pub async fn new() -> Self {
-        let runner = TaskRunner::new().start().await;
+        let runner = TaskRunner::new().start().await.unwrap();
         TaskActor {
             runner,
             cache: TaskCache::new(),

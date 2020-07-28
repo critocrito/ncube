@@ -15,10 +15,11 @@ pub struct HostActor {
 
 #[async_trait]
 impl Actor for HostActor {
-    async fn started(&mut self, _ctx: &Context<Self>) {
+    async fn started(&mut self, _ctx: &mut Context<Self>) -> Result<(), anyhow::Error> {
         let store = config_store(self.db.clone());
         store.upgrade().await.unwrap();
         store.init().await.unwrap();
+        Ok(())
     }
 }
 

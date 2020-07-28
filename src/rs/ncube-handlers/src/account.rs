@@ -36,7 +36,7 @@ pub async fn create_account(
     email: &str,
     otp: Option<String>,
 ) -> Result<Account, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
@@ -57,7 +57,7 @@ pub async fn create_account(
 
 #[instrument]
 pub async fn list_accounts() -> Result<Vec<Account>, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let store = account_store(db);
@@ -73,7 +73,7 @@ pub async fn login_account(
     email: &str,
     password: &str,
 ) -> Result<bool, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
 
@@ -127,7 +127,7 @@ pub async fn update_password(
     password: &str,
     password_again: &str,
 ) -> Result<String, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
 
@@ -164,8 +164,8 @@ pub async fn update_password(
                 workspace.slug, email
             );
 
-            let mut db_actor = DatabaseActor::from_registry().await.unwrap();
-            let mut remote_db = db_actor
+            let database_actor = DatabaseActor::from_registry().await.unwrap();
+            let mut remote_db = database_actor
                 .call(LookupDatabase {
                     workspace: workspace.slug.to_string(),
                 })
@@ -188,7 +188,7 @@ pub async fn update_password(
                 .await?;
 
             // We make sure to replace the database in the cache to accept the new password.
-            db_actor
+            database_actor
                 .call(ResetDatabase {
                     workspace: workspace.slug.to_string(),
                 })
@@ -215,7 +215,7 @@ pub async fn issue_token(
         return Err(HandlerError::NotAllowed("login failed".into()));
     }
 
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
     let key = host_actor.call(SecretKeySetting).await??;
     let value = key
         .value
@@ -228,7 +228,7 @@ pub async fn issue_token(
 
 #[instrument]
 pub async fn show_account(workspace: &str, email: &str) -> Result<Account, HandlerError> {
-    let mut host_actor = HostActor::from_registry().await.unwrap();
+    let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
