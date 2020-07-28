@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use ncube_data::{Process, ProcessConfig, ProcessConfigKind};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::{params, NO_PARAMS};
+use serde_json::Value;
 use serde_rusqlite::from_rows;
 use tracing::instrument;
 
@@ -16,6 +17,12 @@ pub fn process_store(wrapped_db: Database) -> Box<dyn ProcessStore + Send + Sync
 pub trait ProcessStore {
     async fn list(&self, workspace: &str) -> Result<Vec<Process>, DatabaseError>;
     async fn bootstrap(&self, workspace: &str) -> Result<(), DatabaseError>;
+    async fn configure(
+        &self,
+        workspace: &str,
+        capability: &str,
+        value: &Value,
+    ) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -86,6 +93,26 @@ impl ProcessStore for ProcessStoreSqlite {
 
         Ok(())
     }
+
+    async fn configure(
+        &self,
+        workspace: &str,
+        capability: &str,
+        value: &Value,
+    ) -> Result<(), DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/process/show_capability.sql"))?;
+        let mut stmt2 = conn.prepare_cached(include_str!("../sql/process/insert_config.sql"))?;
+
+        let cap_iter = from_rows::<i32>(stmt.query(params![&workspace, &capability])?);
+
+        for cap in cap_iter {
+            let cap = cap?;
+            stmt2.execute(params![cap, &value])?;
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Debug)]
@@ -110,5 +137,14 @@ impl ProcessStore for ProcessStoreHttp {
 
     async fn bootstrap(&self, _workspace: &str) -> Result<(), DatabaseError> {
         unimplemented!();
+    }
+
+    async fn configure(
+        &self,
+        _workspace: &str,
+        _capability: &str,
+        _value: &Value,
+    ) -> Result<(), DatabaseError> {
+        unimplemented!()
     }
 }

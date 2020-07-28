@@ -1,8 +1,10 @@
-# Update a Segment
+# Configure a Process
 
-Modify an existing segment. When updating the title as well the resource location will change since the segment slug will be updated as well.
+Update the configuration for a process. Updating the configuration of one
+process updates the same capability for other processes of the same workspace as
+well.
 
-**URL** : `/workspaces/<workspace>/sources/<segment>`
+**URL** : `/workspaces/<workspace>/processes`
 
 **Method** : `PUT`
 
@@ -14,8 +16,8 @@ Modify an existing segment. When updating the title as well the resource locatio
 
 ```json
 {
-  "query": "Aleppo AND Rebels",
-  "title": "MF001A"
+  "name": "Youtube API key",
+  "value": {"api_key": "some key"}
 }
 ```
 

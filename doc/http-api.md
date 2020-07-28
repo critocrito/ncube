@@ -147,6 +147,7 @@ Ncube installation (originating from `127.0.0.1`) don't.
 ### Processes
 
 - [List all processes](http-api/process/list.md) `GET /workspaces/<workspace>/processes`
+- [Configure a process](http-api/process/configure.md) `PUT /workspaces/<workspace>/processes/<process>`
 
 ### Stats
 

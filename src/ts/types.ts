@@ -150,6 +150,10 @@ export type Process = {
   config: ProcessConfig[];
 };
 
+export type ProcessConfigReq = {
+  name: string;
+  value: Record<string, string>;
+};
 /*
  * The request types represent request objects to the HTTP API. They are usually
  * used in the `./http/*` functions. Additionally to types I run validations for

@@ -2,6 +2,7 @@ use ncube_actors::ActorError;
 use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
 use thiserror::Error;
+use tracing::error;
 
 pub mod account;
 pub mod config;

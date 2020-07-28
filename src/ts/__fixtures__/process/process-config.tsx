@@ -1,29 +1,26 @@
 import React from "react";
 
-import ProcessCard from "../../process/process-card";
+import ProcessConfig from "../../process/process-config";
 import {Process} from "../../types";
 
-const process1: Process = {
+const process: Process = {
   id: 1,
   name: "Youtube Video",
   description: "Preserve individual videos from Youtube.",
   config: [
     {
-      name: "Youtube API Key",
-      key: "youtube",
+      name: "Twitter API Keys",
+      key: "twitter",
       kind: "secret",
-      description: "Youtube API credentials.",
-      template: {api_key: "Youtube API key"},
+      description: "Twitter API Oauth credentials.",
+      template: {
+        access_token_key: "OAuth 1.0a Access Token",
+        access_token_secret: "OAuth 1.0a Access Secret",
+        consumer_key: "OAuth 1.0a Consumer Key",
+        consumer_secret: "OAuth 1.0a Consumer Secret",
+      },
       value: undefined,
     },
-  ],
-};
-
-const process2: Process = {
-  id: 2,
-  name: "Youtube Video",
-  description: "Preserve individual videos from Youtube.",
-  config: [
     {
       name: "Youtube API Key",
       key: "youtube",
@@ -37,7 +34,6 @@ const process2: Process = {
 
 export default (
   <div className="noto lh-copy pa2 flex flex-column bg-canvas">
-    <ProcessCard process={process1} onClick={() => {}} />
-    <ProcessCard process={process2} onClick={() => {}} />
+    <ProcessConfig onCancel={() => {}} onDone={() => {}} process={process} />
   </div>
 );

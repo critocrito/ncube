@@ -7,9 +7,10 @@ import {Process} from "../types";
 
 interface ProcessCardProps {
   process: Process;
+  onClick: () => void;
 }
 
-const ProcessCard = ({process: {name, config}}: ProcessCardProps) => {
+const ProcessCard = ({process: {name, config}, onClick}: ProcessCardProps) => {
   const isSetup = config.reduce((memo, {value}) => {
     if (memo && value) return true;
     return false;
@@ -32,7 +33,9 @@ const ProcessCard = ({process: {name, config}}: ProcessCardProps) => {
         />
         <span className="ml3">This process needs to be configured.</span>
       </div>
-      <Button kind="secondary">Set Up</Button>
+      <Button onClick={onClick} kind="secondary">
+        Set Up
+      </Button>
     </div>
   );
 

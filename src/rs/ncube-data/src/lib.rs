@@ -528,6 +528,12 @@ pub struct ProcessConfig {
     pub value: Option<serde_json::Value>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct ProcessConfigReq {
+    pub name: String,
+    pub value: serde_json::Value,
+}
+
 /// A workspace has several data processes and each process may have
 /// configuration dependencies that have to be fulfilled.
 ///

@@ -2,6 +2,7 @@ import {
   ConfigSettingReq,
   HostConfig,
   Process,
+  ProcessConfigReq,
   Segment,
   SegmentReq,
   Source,
@@ -314,6 +315,22 @@ export const listProcesses = async (workspace: string): Promise<Process[]> => {
   );
 
   return dataResponse(resp);
+};
+
+export const updateProcessConfig = async (
+  workspace: string,
+  config: ProcessConfigReq,
+): Promise<void> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/processes`,
+    {
+      body: JSON.stringify(config),
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
 };
 
 /*

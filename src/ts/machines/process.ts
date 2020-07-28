@@ -1,6 +1,6 @@
 import {assign, createMachine} from "xstate";
 
-import {Process, Workspace} from "../types";
+import {Process, ProcessConfigReq, Workspace} from "../types";
 
 type ProcessContext = {
   workspace: Workspace;
@@ -8,11 +8,15 @@ type ProcessContext = {
   error?: string;
 };
 
-type ProcessEvent = {type: "RETRY"};
+type ProcessEvent =
+  | {type: "SHOW_DETAILS"; process: Process}
+  | {type: "SAVE_CONFIG"; config: ProcessConfigReq}
+  | {type: "SHOW_HOME"}
+  | {type: "RETRY"};
 
 type ProcessState =
   | {
-      value: "processes" | "home";
+      value: "processes" | "configure" | "home" | "details";
       context: ProcessContext;
     }
   | {
@@ -40,8 +44,32 @@ export default createMachine<ProcessContext, ProcessEvent, ProcessState>({
       },
     },
 
+    configure: {
+      invoke: {
+        src: "storeProcessConfig",
+
+        onDone: {
+          target: "processes",
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     home: {
-      on: {},
+      on: {
+        SHOW_DETAILS: "details",
+      },
+    },
+
+    details: {
+      on: {
+        SHOW_HOME: "home",
+        SAVE_CONFIG: "configure",
+      },
     },
 
     error: {
