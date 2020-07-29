@@ -24,6 +24,7 @@ pub trait ProcessStore {
         value: &Value,
     ) -> Result<(), DatabaseError>;
     async fn run(&self, key: &str, kind: ProcessRunKind) -> Result<(), DatabaseError>;
+    async fn is_configured(&self, workspace: &str, process: &str) -> Result<bool, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -118,6 +119,22 @@ impl ProcessStore for ProcessStoreSqlite {
     async fn run(&self, _key: &str, _kind: ProcessRunKind) -> Result<(), DatabaseError> {
         unreachable!()
     }
+
+    #[instrument]
+    async fn is_configured(&self, workspace: &str, process: &str) -> Result<bool, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let result: i32 = conn.query_row(
+            include_str!("../sql/process/is_configured.sql"),
+            params![&workspace, &process],
+            |row| row.get(0),
+        )?;
+
+        if result == 0 {
+            Ok(false)
+        } else {
+            Ok(true)
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -141,7 +158,7 @@ impl ProcessStore for ProcessStoreHttp {
     }
 
     async fn bootstrap(&self, _workspace: &str) -> Result<(), DatabaseError> {
-        unimplemented!();
+        unreachable!();
     }
 
     async fn configure(
@@ -150,7 +167,7 @@ impl ProcessStore for ProcessStoreHttp {
         _capability: &str,
         _value: &Value,
     ) -> Result<(), DatabaseError> {
-        unimplemented!()
+        unreachable!()
     }
 
     async fn run(&self, key: &str, kind: ProcessRunKind) -> Result<(), DatabaseError> {
@@ -168,5 +185,9 @@ impl ProcessStore for ProcessStoreHttp {
         self.client.post::<(), ProcessRunReq>(url, payload).await?;
 
         Ok(())
+    }
+
+    async fn is_configured(&self, _workspace: &str, _process: &str) -> Result<bool, DatabaseError> {
+        unreachable!()
     }
 }

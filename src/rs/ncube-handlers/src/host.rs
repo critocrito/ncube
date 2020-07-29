@@ -103,20 +103,37 @@ pub async fn configure_process(
 pub async fn run_process(workspace: &str, request: &ProcessRunReq) -> Result<(), HandlerError> {
     let workspace = show_workspace(&workspace).await?;
 
+    let db = match workspace.kind {
+        WorkspaceKind::Local(_) => {
+            let host_actor = HostActor::from_registry().await.unwrap();
+            host_actor.call(RequirePool).await??
+        }
+        WorkspaceKind::Remote(_) => workspace_database(&workspace.slug).await?,
+    };
+    let process_store = process_store(db);
+
     match workspace.kind {
         WorkspaceKind::Local(_) => {
+            if let false = process_store
+                .is_configured(&workspace.slug, &request.key)
+                .await?
+            {
+                return Err(HandlerError::Invalid(format!(
+                    "Process {} requires configuration",
+                    &request.key
+                )));
+            }
+
             let actor = TaskActor::from_registry().await.unwrap();
             actor
                 .call(RunProcess {
                     workspace,
-                    key: request.key.to_string(),
+                    key: request.key.clone(),
                     kind: request.kind.clone(),
                 })
                 .await??;
         }
         WorkspaceKind::Remote(_) => {
-            let db = workspace_database(&workspace.slug).await?;
-            let process_store = process_store(db);
             process_store
                 .run(&request.key, request.kind.clone())
                 .await?;
