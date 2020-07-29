@@ -104,3 +104,10 @@ export const segmentReq = Yup.object({
   title: Yup.string().defined(),
   query: Yup.string().defined(),
 });
+
+export const processRunReq = Yup.object({
+  key: Yup.string().required(),
+  kind: Yup.string()
+    .oneOf(["all", "new", "selection"] as const)
+    .required(),
+});

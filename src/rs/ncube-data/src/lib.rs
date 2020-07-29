@@ -550,6 +550,7 @@ pub struct ProcessConfigReq {
 ///
 /// let process = Process {
 ///   id: 1,
+///   key: "youtube_video".into(),
 ///   name: "Youtube Video".to_string(),
 ///   description: "Fetch individual Youtube videos.".to_string(),
 ///   config: vec![
@@ -572,13 +573,14 @@ pub struct ProcessConfigReq {
 ///   ]
 /// };
 ///
-/// assert_eq!("{\"id\":1,\"name\":\"Youtube Video\",\"description\":\"Fetch individual Youtube videos.\",\"config\":[{\"name\":\"Youtube API Key\",\"key\":\"youtube\",\"description\":\"Youtube API credentials.\",\"kind\":\"secret\",\"template\":{\"api_key\":\"Youtube API key\"},\"value\":{\"api_key\":\"some key\"}},{\"name\":\"Other API Key\",\"key\":\"youtube\",\"description\":\"Youtube API credentials.\",\"kind\":\"secret\",\"template\":{\"api_key\":\"Youtube API key\"},\"value\":null}]}",
+/// assert_eq!("{\"id\":1,\"key\":\"youtube_video\",\"name\":\"Youtube Video\",\"description\":\"Fetch individual Youtube videos.\",\"config\":[{\"name\":\"Youtube API Key\",\"key\":\"youtube\",\"description\":\"Youtube API credentials.\",\"kind\":\"secret\",\"template\":{\"api_key\":\"Youtube API key\"},\"value\":{\"api_key\":\"some key\"}},{\"name\":\"Other API Key\",\"key\":\"youtube\",\"description\":\"Youtube API credentials.\",\"kind\":\"secret\",\"template\":{\"api_key\":\"Youtube API key\"},\"value\":null}]}",
 ///   serde_json::to_string(&process).unwrap()
 /// )
 /// ```
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Process {
     pub id: i32,
+    pub key: String,
     pub name: String,
     pub description: String,
     #[serde(default)]
@@ -602,7 +604,7 @@ impl Default for ProcessRunKind {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ProcessRunReq {
     pub key: String,
-    #[serde(default)]
+    #[serde(default, flatten)]
     pub kind: ProcessRunKind,
 }
 

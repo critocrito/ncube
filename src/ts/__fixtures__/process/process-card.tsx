@@ -5,6 +5,7 @@ import {Process} from "../../types";
 
 const process1: Process = {
   id: 1,
+  key: "youtube_video",
   name: "Youtube Video",
   description: "Preserve individual videos from Youtube.",
   config: [
@@ -21,6 +22,7 @@ const process1: Process = {
 
 const process2: Process = {
   id: 2,
+  key: "youtube_video",
   name: "Youtube Video",
   description: "Preserve individual videos from Youtube.",
   config: [
@@ -37,7 +39,7 @@ const process2: Process = {
 
 export default (
   <div className="noto lh-copy pa2 flex flex-column bg-canvas">
-    <ProcessCard process={process1} onClick={() => {}} />
-    <ProcessCard process={process2} onClick={() => {}} />
+    <ProcessCard process={process1} onClick={() => {}} onRun={() => {}} />
+    <ProcessCard process={process2} onClick={() => {}} onRun={() => {}} />
   </div>
 );

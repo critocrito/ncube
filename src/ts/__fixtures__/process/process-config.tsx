@@ -5,6 +5,7 @@ import {Process} from "../../types";
 
 const process: Process = {
   id: 1,
+  key: "youtube_video",
   name: "Youtube Video",
   description: "Preserve individual videos from Youtube.",
   config: [

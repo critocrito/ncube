@@ -8,9 +8,14 @@ import {Process} from "../types";
 interface ProcessCardProps {
   process: Process;
   onClick: () => void;
+  onRun: () => void;
 }
 
-const ProcessCard = ({process: {name, config}, onClick}: ProcessCardProps) => {
+const ProcessCard = ({
+  process: {name, config},
+  onClick,
+  onRun,
+}: ProcessCardProps) => {
   const isSetup = config.reduce((memo, {value}) => {
     if (memo && value) return true;
     return false;
@@ -69,9 +74,7 @@ const ProcessCard = ({process: {name, config}, onClick}: ProcessCardProps) => {
       </div>
 
       <div className="pr3 h-100 flex flex-column">
-        <Button disabled onClick={() => {}}>
-          Preserve
-        </Button>
+        <Button onClick={onRun}>Preserve</Button>
       </div>
     </section>
   );

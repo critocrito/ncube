@@ -3,6 +3,7 @@ import {
   HostConfig,
   Process,
   ProcessConfigReq,
+  ProcessRunReq,
   Segment,
   SegmentReq,
   Source,
@@ -326,6 +327,24 @@ export const updateProcessConfig = async (
     {
       body: JSON.stringify(config),
       method: "PUT",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
+};
+
+export const runProcess = async (
+  workspace: string,
+  body: ProcessRunReq,
+): Promise<void> => {
+  await v.processRunReq.isValid(body);
+
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/processes`,
+    {
+      body: JSON.stringify(body),
+      method: "POST",
       headers: {"Content-Type": "application/json"},
     },
   );

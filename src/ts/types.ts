@@ -147,6 +147,7 @@ export type ProcessConfig = {
 
 export type Process = {
   id: number;
+  key: string;
   name: string;
   description: string;
   config: ProcessConfig[];
@@ -156,6 +157,12 @@ export type ProcessConfigReq = {
   key: string;
   value: Record<string, string>;
 };
+
+export type ProcessRunReq = {
+  key: string;
+  kind: "all" | "new" | "selection";
+};
+
 /*
  * The request types represent request objects to the HTTP API. They are usually
  * used in the `./http/*` functions. Additionally to types I run validations for

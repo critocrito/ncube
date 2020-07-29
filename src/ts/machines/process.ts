@@ -10,13 +10,14 @@ type ProcessContext = {
 
 type ProcessEvent =
   | {type: "SHOW_DETAILS"; process: Process}
+  | {type: "RUN"; process: Process}
   | {type: "SAVE_CONFIG"; config: ProcessConfigReq}
   | {type: "SHOW_HOME"}
   | {type: "RETRY"};
 
 type ProcessState =
   | {
-      value: "processes" | "configure" | "home" | "details";
+      value: "processes" | "configure" | "run" | "home" | "details";
       context: ProcessContext;
     }
   | {
@@ -59,9 +60,25 @@ export default createMachine<ProcessContext, ProcessEvent, ProcessState>({
       },
     },
 
+    run: {
+      invoke: {
+        src: "runProcess",
+
+        onDone: {
+          target: "processes",
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     home: {
       on: {
         SHOW_DETAILS: "details",
+        RUN: "run",
       },
     },
 

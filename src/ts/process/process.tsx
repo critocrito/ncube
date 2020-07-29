@@ -5,7 +5,7 @@ import Error from "../common/error";
 import Fatal from "../common/fatal";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
-import {listProcesses, updateProcessConfig} from "../http";
+import {listProcesses, runProcess, updateProcessConfig} from "../http";
 import machine from "../machines/process";
 import {Process as ProcessType, ProcessConfigReq, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -23,6 +23,9 @@ const Process = ({workspace}: ProcessProps) => {
 
       storeProcessConfig: (_ctx, {config}) =>
         updateProcessConfig(workspace.slug, config),
+
+      runProcess: (_ctx, {process: {key}}) =>
+        runProcess(workspace.slug, {key, kind: "all"}),
     },
 
     context: {
@@ -46,6 +49,7 @@ const Process = ({workspace}: ProcessProps) => {
       return (
         <ProcessList
           onClick={(p: ProcessType) => send("SHOW_DETAILS", {process: p})}
+          onRun={(p: ProcessType) => send("RUN", {process: p})}
           processes={processes}
         />
       );
@@ -70,6 +74,7 @@ const Process = ({workspace}: ProcessProps) => {
               </Modal>
               <ProcessList
                 onClick={(p: ProcessType) => send("SHOW_DETAILS", {process: p})}
+                onRun={(p: ProcessType) => send("RUN", {process: p})}
                 processes={processes}
               />
             </div>
