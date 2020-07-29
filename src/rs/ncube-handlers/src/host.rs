@@ -64,7 +64,7 @@ pub async fn configure_process(
 
     let process_store = process_store(db);
     process_store
-        .configure(&workspace_slug, &request.name, &request.value)
+        .configure(&workspace_slug, &request.key, &request.value)
         .await?;
 
     Ok(())

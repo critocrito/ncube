@@ -153,7 +153,7 @@ export type Process = {
 };
 
 export type ProcessConfigReq = {
-  name: string;
+  key: string;
   value: Record<string, string>;
 };
 /*

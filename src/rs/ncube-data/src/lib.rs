@@ -530,7 +530,7 @@ pub struct ProcessConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct ProcessConfigReq {
-    pub name: String,
+    pub key: String,
     pub value: serde_json::Value,
 }
 
