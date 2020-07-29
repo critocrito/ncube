@@ -43,6 +43,7 @@ const Process = ({workspace}: ProcessProps) => {
   switch (true) {
     case state.matches("processes"):
     case state.matches("configure"):
+    case state.matches("run"):
       return <div />;
 
     case state.matches("home"):
