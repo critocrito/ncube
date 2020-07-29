@@ -5,13 +5,26 @@ interface ExpansionItemProps {
   onClick?: () => void;
   children?: React.ReactNode;
   className?: string;
+  disabled?: boolean;
 }
 
-const ExpansionItem = ({onClick, children, className}: ExpansionItemProps) => {
+const ExpansionItem = ({
+  onClick,
+  children,
+  className,
+  disabled = false,
+}: ExpansionItemProps) => {
   return (
     <li className="bt bb b--fair-pink pt2 pb2 pl1 pr1">
       {onClick ? (
-        <button className="b--transparent bg-canvas w-100" onClick={onClick}>
+        <button
+          className={c(
+            "b--transparent bg-white pa2 w-100",
+            disabled ? "o-40" : "pointer",
+          )}
+          onClick={onClick}
+          disabled={disabled}
+        >
           <div className="fl b sapphire">
             <div className={c(className)}> {children}</div>
           </div>
@@ -73,7 +86,7 @@ const ExpandButton = ({
         </button>
       </div>
       {expanded && children && (
-        <div className="w5 ba b--sapphire mt1 fr">
+        <div className="w5 bg-white ba b--sapphire mt1 fr z-999">
           <ul className="list pl0 mt0 mb0">{children(ExpansionItem)}</ul>
         </div>
       )}
