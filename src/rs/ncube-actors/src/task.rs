@@ -1,4 +1,5 @@
 use async_trait::async_trait;
+use ncube_data::{ProcessRunKind, Workspace};
 use ncube_tasks::{Task, TaskCache, TaskState};
 use std::fmt::Debug;
 use tracing::info;
@@ -82,6 +83,22 @@ impl Handler<SetupWorkspace> for TaskActor {
         msg: SetupWorkspace,
     ) -> Result<(), ActorError> {
         let task = Task::workspace(&msg.location, &msg.workspace);
+        self.queue_task(task).await
+    }
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct RunProcess {
+    pub workspace: Workspace,
+    pub key: String,
+    pub kind: ProcessRunKind,
+}
+
+#[async_trait]
+impl Handler<RunProcess> for TaskActor {
+    async fn handle(&mut self, _ctx: &Context<Self>, msg: RunProcess) -> Result<(), ActorError> {
+        let task = Task::data_process(&msg.workspace, &msg.key);
         self.queue_task(task).await
     }
 }

@@ -585,6 +585,27 @@ pub struct Process {
     pub config: Vec<ProcessConfig>,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum ProcessRunKind {
+    All,
+    Selection,
+    New,
+}
+
+impl Default for ProcessRunKind {
+    fn default() -> Self {
+        ProcessRunKind::All
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ProcessRunReq {
+    pub key: String,
+    #[serde(default)]
+    pub kind: ProcessRunKind,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

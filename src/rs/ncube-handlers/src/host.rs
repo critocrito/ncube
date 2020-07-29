@@ -1,9 +1,10 @@
 use ncube_actors::{
     db::{DatabaseActor, LookupDatabase},
     host::RequirePool,
+    task::{RunProcess, TaskActor},
     HostActor, Registry,
 };
-use ncube_data::{Process, ProcessConfigReq, WorkspaceKind};
+use ncube_data::{Process, ProcessConfigReq, ProcessRunReq, WorkspaceKind};
 use ncube_stores::process_store;
 use serde_json::Value;
 use std::fs::File;
@@ -11,7 +12,7 @@ use std::io::BufReader;
 use std::path::Path;
 use tracing::instrument;
 
-use crate::{workspace::show_workspace, HandlerError};
+use crate::{workspace::show_workspace, workspace_database, HandlerError};
 
 #[instrument]
 pub async fn list_processes(workspace_slug: &str) -> Result<Vec<Process>, HandlerError> {
@@ -94,6 +95,33 @@ pub async fn configure_process(
         serde_json::to_writer_pretty(file, &secrets)
             .map_err(|e| HandlerError::Invalid(e.to_string()))?;
     }
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn run_process(workspace: &str, request: &ProcessRunReq) -> Result<(), HandlerError> {
+    let workspace = show_workspace(&workspace).await?;
+
+    match workspace.kind {
+        WorkspaceKind::Local(_) => {
+            let actor = TaskActor::from_registry().await.unwrap();
+            actor
+                .call(RunProcess {
+                    workspace,
+                    key: request.key.to_string(),
+                    kind: request.kind.clone(),
+                })
+                .await??;
+        }
+        WorkspaceKind::Remote(_) => {
+            let db = workspace_database(&workspace.slug).await?;
+            let process_store = process_store(db);
+            process_store
+                .run(&request.key, request.kind.clone())
+                .await?;
+        }
+    };
 
     Ok(())
 }

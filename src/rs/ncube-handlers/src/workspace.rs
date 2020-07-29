@@ -8,42 +8,13 @@ use ncube_data::{
     AccountRequest, DatabaseRequest, Segment, SegmentRequest, Stat, Unit, Workspace,
     WorkspaceDatabase, WorkspaceKindRequest, WorkspaceRequest,
 };
-use ncube_db::{migrations, sqlite, Database, DatabaseError};
+use ncube_db::{migrations, sqlite, DatabaseError};
 use ncube_stores::{
     search_store, segment_store, stat_store, unit_store, workspace_store, WorkspaceStore,
 };
 use tracing::{debug, error, instrument};
 
-use crate::{account, HandlerError};
-
-#[instrument]
-pub async fn ensure_workspace(workspace: &str) -> Result<(), HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
-
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let false = workspace_store.exists(&workspace).await? {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    Ok(())
-}
-
-#[instrument]
-pub async fn workspace_database(workspace: &str) -> Result<Database, HandlerError> {
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
-    Ok(database)
-}
+use crate::{account, ensure_workspace, workspace_database, HandlerError};
 
 #[instrument]
 pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspace, HandlerError> {

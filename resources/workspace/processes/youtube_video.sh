@@ -16,6 +16,7 @@ doit() {
   "$(npm bin)"/sugarcube \
               -c "$PIPELINE_CFG" \
               -Q query_type:youtube_video \
+              -D ncube \
               -d
 }
 

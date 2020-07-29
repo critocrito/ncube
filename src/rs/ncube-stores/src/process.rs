@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_data::{Process, ProcessConfig, ProcessConfigKind};
+use ncube_data::{Process, ProcessConfig, ProcessConfigKind, ProcessRunKind, ProcessRunReq};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::{params, NO_PARAMS};
 use serde_json::Value;
@@ -23,6 +23,7 @@ pub trait ProcessStore {
         capability: &str,
         value: &Value,
     ) -> Result<(), DatabaseError>;
+    async fn run(&self, key: &str, kind: ProcessRunKind) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -113,6 +114,10 @@ impl ProcessStore for ProcessStoreSqlite {
 
         Ok(())
     }
+
+    async fn run(&self, _key: &str, _kind: ProcessRunKind) -> Result<(), DatabaseError> {
+        unreachable!()
+    }
 }
 
 #[derive(Debug)]
@@ -146,5 +151,22 @@ impl ProcessStore for ProcessStoreHttp {
         _value: &Value,
     ) -> Result<(), DatabaseError> {
         unimplemented!()
+    }
+
+    async fn run(&self, key: &str, kind: ProcessRunKind) -> Result<(), DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/processes",
+            self.client.workspace.slug
+        ));
+
+        let payload = ProcessRunReq {
+            key: key.to_string(),
+            kind,
+        };
+
+        self.client.post::<(), ProcessRunReq>(url, payload).await?;
+
+        Ok(())
     }
 }

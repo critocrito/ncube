@@ -818,7 +818,7 @@ pub(crate) mod unit {
 
 pub(crate) mod process {
     use super::SuccessResponse;
-    use ncube_data::{ProcessConfigReq, ReqCtx};
+    use ncube_data::{ProcessConfigReq, ProcessRunReq, ReqCtx};
     use ncube_handlers::host as handlers;
     use warp::Filter;
 
@@ -841,6 +841,16 @@ pub(crate) mod process {
         Ok(warp::reply())
     }
 
+    async fn run(
+        _ctx: ReqCtx,
+        workspace: String,
+        process_request: ProcessRunReq,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        handlers::run_process(&workspace, &process_request).await?;
+
+        Ok(warp::reply())
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         authenticate_remote_req()
@@ -852,5 +862,10 @@ pub(crate) mod process {
                 .and(warp::put())
                 .and(warp::body::json())
                 .and_then(configure))
+            .or(restrict_to_local_req()
+                .and(warp::path!("workspaces" / String / "processes"))
+                .and(warp::post())
+                .and(warp::body::json())
+                .and_then(run))
     }
 }

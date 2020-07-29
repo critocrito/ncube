@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_tasks::{create_workspace, Task, TaskKind, TaskState};
+use ncube_tasks::{create_workspace, run_data_process, Task, TaskKind, TaskState};
 use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tracing::info;
@@ -52,6 +52,36 @@ impl TaskRunner {
                             .await
                             .unwrap()
                             .unwrap();
+
+                        actor
+                            .call(UpdateTask {
+                                task_id,
+                                state: TaskState::Done,
+                            })
+                            .await
+                            .unwrap()
+                            .unwrap();
+                    }
+
+                    TaskKind::RunProcess(workspace, key) => {
+                        info!(
+                            "Received a request to run a process: {} -> {}.",
+                            workspace.slug, key
+                        );
+
+                        let actor = TaskActor::from_registry().await.unwrap();
+                        actor
+                            .call(UpdateTask {
+                                task_id: task_id.clone(),
+                                state: TaskState::Running,
+                            })
+                            .await
+                            .unwrap()
+                            .unwrap();
+
+                        run_data_process(workspace, &key)
+                            .await
+                            .expect("Failed to run process");
 
                         actor
                             .call(UpdateTask {

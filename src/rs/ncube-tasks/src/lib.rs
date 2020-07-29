@@ -1,4 +1,5 @@
 use ncube_cache::GuardedCache;
+use ncube_data::{Workspace, WorkspaceKind};
 use ncube_errors::HostError;
 use ncube_fs::{expand_tilde, mkdirp, unzip_workspace};
 use std::fmt::Debug;
@@ -9,6 +10,7 @@ use tracing::{debug, info, instrument};
 #[derive(Debug, Clone)]
 pub enum TaskKind {
     SetupWorkspace(String, String),
+    RunProcess(Workspace, String),
 }
 
 #[derive(Debug, Clone)]
@@ -38,6 +40,10 @@ impl Task {
             location.to_string(),
             workspace.to_string(),
         ))
+    }
+
+    pub fn data_process(workspace: &Workspace, key: &str) -> Self {
+        Task::new(TaskKind::RunProcess(workspace.clone(), key.to_string()))
     }
 }
 
@@ -93,4 +99,33 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(),
     info!("Migrated the Sqlite database.",);
 
     Ok(())
+}
+
+#[instrument]
+pub async fn run_data_process(workspace: Workspace, key: &str) -> Result<(), HostError> {
+    match workspace.kind {
+        WorkspaceKind::Local(location) => {
+            let expanded_path = expand_tilde(location)
+                .ok_or_else(|| HostError::General("Failed to expand path".into()))?;
+
+            let env_path = env_path(&expanded_path);
+
+            debug!("PATH={}", env_path);
+
+            let cmd = format!("processes/{}.sh", key);
+
+            Command::new(&cmd)
+                .current_dir(expanded_path.clone())
+                .env("PATH", &env_path)
+                .spawn()
+                .expect(format!("data process {} failed to start", &cmd).as_str())
+                .await
+                .expect(format!("data process {} failed to run", &cmd).as_str());
+
+            Ok(())
+        }
+        _ => Err(HostError::General(
+            "Only local workspaces can run this task".into(),
+        )),
+    }
 }

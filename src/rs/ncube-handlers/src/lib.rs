@@ -1,8 +1,13 @@
-use ncube_actors::ActorError;
-use ncube_db::errors::DatabaseError;
+use ncube_actors::{
+    db::{DatabaseActor, LookupDatabase},
+    host::RequirePool,
+    ActorError, HostActor, Registry,
+};
+use ncube_db::{Database, DatabaseError};
 use ncube_errors::HostError;
+use ncube_stores::{workspace_store, WorkspaceStore};
 use thiserror::Error;
-use tracing::error;
+use tracing::{error, instrument};
 
 pub mod account;
 pub mod config;
@@ -46,4 +51,33 @@ impl From<HandlerError> for warp::Rejection {
     fn from(rejection: HandlerError) -> warp::Rejection {
         warp::reject::custom(rejection)
     }
+}
+
+#[instrument]
+pub async fn ensure_workspace(workspace: &str) -> Result<(), HandlerError> {
+    let host_actor = HostActor::from_registry().await.unwrap();
+
+    let db = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(db.clone());
+
+    if let false = workspace_store.exists(&workspace).await? {
+        let msg = format!("Workspace `{}` doesn't exist.", workspace);
+        error!("{:?}", msg);
+        return Err(HandlerError::Invalid(msg));
+    };
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn workspace_database(workspace: &str) -> Result<Database, HandlerError> {
+    let database_actor = DatabaseActor::from_registry().await.unwrap();
+
+    let database = database_actor
+        .call(LookupDatabase {
+            workspace: workspace.to_string(),
+        })
+        .await??;
+
+    Ok(database)
 }
