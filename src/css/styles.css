@@ -226,11 +226,6 @@
 }
 
 /* Butons */
-button:focus {
-  outline-color: #ffffff00;
-  cursor: pointer;
-}
-
 .btn {
   @insert .white .link .pa2 .ttu .br2 .tc .b .nowrap;
   border-radius: 3px;
@@ -433,14 +428,6 @@ tr:hover .trash {
 /* Hover style */
 .workspace-select:hover {
   border-color: var(--color-solitude);
-}
-/* Focus style */
-.workspace-select:focus {
-  border-color: var(--color-solitude);
-  /* It'd be nice to use -webkit-focus-ring-color here but it doesn't work on box-shadow */
-  box-shadow: 0 0 1px 3px rgba(59, 153, 252, 0.7);
-  box-shadow: 0 0 0 3px -moz-mac-focusring;
-  outline: none;
 }
 
 /* Set options to normal weight */
