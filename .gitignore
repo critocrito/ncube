@@ -28,3 +28,8 @@ npm*.log
 
 # Eslint
 .eslintcache
+
+# Sugarcube Workspace
+resources/workspace/config/secrets.json
+resources/workspace/.sugarcube_cache.json
+resources/workspace/node_modules
