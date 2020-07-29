@@ -1,0 +1,6 @@
+{
+  "sql": {
+    "engine": "sqlite",
+    "database": "sugarcube.db"
+  }
+}

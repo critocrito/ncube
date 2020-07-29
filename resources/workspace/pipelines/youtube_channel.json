@@ -1,0 +1,5 @@
+{
+  "name": "Youtube Videos",
+  "extends": ["./configs/sql.json", "./configs/secrets.json"],
+  "plugins": ["sql_queries_import", "youtube_video", "sql_export"]
+}
