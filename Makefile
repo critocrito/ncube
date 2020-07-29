@@ -1,4 +1,6 @@
-.PHONY: all test test-ui test-backend ui workspace web-ext clean-dist clean-build clean-pkgs pkg-bin pkg-deb pkg-deb-ncubed pkg-web-ext verify verify-ui verify-backend
+.PHONY: all test test-ui test-backend ui workspace web-ext clean-dist clean-build \
+clean-pkgs pkg-bin pkg-deb pkg-deb-ncubed pkg-web-ext verify verify-ui \
+verify-backend deps server
 
 target_dir = target
 release_dir = $(target_dir)/release
@@ -16,10 +18,10 @@ pkgs_release_dir = pkgs
 
 all: $(release_dir)/ncube
 
-$(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css:
+$(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css: deps
 	yarn compile
 
-web-ext:
+web-ext: deps
 	yarn web-ext:prod
 
 $(dist_dir): $(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css
@@ -107,6 +109,9 @@ verify-backend: $(dist_dir) $(workspace_archive)
 
 verify: verify-ui verify-backend
 
+deps:
+	yarn install
+
 test-ui:
 	yarn test
 
@@ -115,8 +120,10 @@ test-backend: $(dist_dir) $(workspace_archive)
 
 test: test-ui test-backend
 
-ui: $(dist_dir)
+ui: deps $(dist_dir)
 
 backend: $(release_dir)/ncube $(release_dir)/ncubed $(release_dir)/ncubectl
 
 workspace: $(workspace_archive)
+
+server: $(release_dir)/ncubed $(release_dir)/ncubectl

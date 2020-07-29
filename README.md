@@ -48,45 +48,47 @@ The following prerequesites are required to build Ncube from source:
 - A recent version of [Rust](https://www.rust-lang.org/).
   [Rustup](https://rustup.rs/) is a great way to do so. The minimum supported
   version is 1.40.0+.
-- The UI is developed in ClojureScript and therefore requires Java and
-  [Clojure](https://clojure.org/guides/getting_started). Ncube is tested using
-  Clojure 1.10.1 and ClojureScript 1.10.597. Not that ClojureScript 1.10.753
-  does not work right now.
-- The CSS stylesheets are compiled using [PostCSS](https://postcss.org/) which requires NodeJS and  
-  `npm`/`yarn`. Run `yarn install` (or `npm install`) to fetch all dependencies.
+- [NodeJS](https://nodejs.org/en/) to build and bundle the UI. Version 12 of
+  NodeJS is tested, but it might work with other versions as well.
+- NodeJS comes with `npm` as a package manager. This project prefers to use
+  [`yarn`](https://classic.yarnpkg.com/en/). While it is possible to use `npm`
+  all the build scripts assume `yarn`.
+  [Installation](https://classic.yarnpkg.com/en/docs/install#mac-stable) is
+  quite simple.
+- Builds are orcehstrated using [`make`](https://www.gnu.org/software/make/).
+  macOS and most Linux distributions have `make` installed out of the box.
 
-```sh
-yarn install
-```
+Verify that all build dependencies are satisfied.
 
 ```sh
 $ cargo --version
 rustc 1.42.0 (b8cedc004 2020-03-09)
-
-$ java -version
-openjdk version "13.0.2" 2020-01-14
-
-$ clojure -e '(clojure-version)'
-"1.10.1"
 
 $ node --version
 v12.16.1
 
 $ yarn --version
 1.22.0
+
+$ make --version
+GNU Make 3.81
 ```
 
-Once all the dependencies are in place build Ncube:
+Once all the dependencies are in place you can choose one of the following build targets. The build target that you most likely want can be simply build by running `make`:
 
-```sh
-make
-```
+- `make` :: Build a standalone binary of the desktop version of Ncube. The binary can be found in `target/release/ncube`.
 
-The build produces a single binary and can be started like this:
+There are more specialized build targets as well:
 
-```sh
-./target/release/ncube
-```
+- `make server` :: Build the server version of Ncube. This produces two binaries `target/release/ncubed` and `target/release/ncubectl`.
+- `make pkg-dmg` :: Build a DMG installer package of the desktop version of Ncube for macOS. The package can be found in `pkgs`.
+- `make pkg-deb` :: Build a DEB package package of the desktop version of Ncube for Linux. The package can be found in `pkgs`.
+- `make pkg-deb-ncubed` :: Build a DEB package of the server version of Ncube for Linux. The package can be found in `pkgs`.
+- `make pkg-web-ext` :: Build a ZIP package of the Discovery Browser plugin. The package can be found in `pkgs`.
+
+If something goes wrong or you want to make a clean build from scratch clean the old builds first:
+
+- `make clean` :: Remove all previous build assets.
 
 ## Documentation
 
@@ -95,7 +97,10 @@ All documentation can be [found in the `doc`](doc) directory.
 The HTTP endpoints of `ncubed` are described in the [HTTP API
 documentation](doc/http-api.md).
 
-They are supported with a series of [diagrams](doc/diagrams/ncube). To
+The account authorization for remote workspaces is described in [a dedicated
+document](doc/auth-workflow.pdf).
+
+The high level architecture of Ncube is described with a series of [diagrams](doc/diagrams/ncube). To
 re-generate the architecture diagrams install
 [`fc4`](https://fundingcircle.github.io/fc4-framework/docs/get-started) and
 regenerate the images:
@@ -103,9 +108,6 @@ regenerate the images:
 ```sh
 fc4 -fsr doc/diagrams
 ```
-
-The account authorization for remote workspaces is described in [a dedicated
-document](doc/auth-workflow.pdf).
 
 ## Ncube Discovery
 
