@@ -1,10 +1,11 @@
 {
   "private": true,
-  "name": null,
   "dependencies": {
     "@sugarcube/cli": "0.40.0",
     "@sugarcube/core": "0.40.0",
+    "@sugarcube/plugin-media": "^0.40.0",
     "@sugarcube/plugin-sql": "0.40.0",
+    "@sugarcube/plugin-twitter": "0.40.0",
     "@sugarcube/plugin-youtube": "^0.40.0"
   }
 }

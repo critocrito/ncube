@@ -2,7 +2,7 @@
 
 . processes/subr.sh
 
-PIPELINE_CFG="./pipelines/youtube_video.json"
+PIPELINE_CFG="./pipelines/twitter_feed.json"
 PIPELINE_NAME=$(pipeline_name "$PIPELINE_CFG")
 LABEL=$(snake_case "$PIPELINE_NAME")
 DATE=$(date +%Y-%m-%d)
@@ -15,11 +15,11 @@ export NODE_OPTIONS=--max_old_space_size=4096
 doit() {
   "$(npm bin)"/sugarcube \
               -c "$PIPELINE_CFG" \
-              -Q query_type:youtube_video \
+              -Q query_type:twitter_user \
               -D ncube \
               -d
 }
 
-echo "Starting the incoming scrape of Youtube videos."
+echo "Starting the incoming scrape of Twitter user feeds."
 
 doit "$ID" 2>&1 | tee -a "$LOGFILE"

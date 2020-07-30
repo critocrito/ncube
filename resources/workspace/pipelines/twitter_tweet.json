@@ -1,5 +1,5 @@
 {
-  "name": "Youtube Videos",
+  "name": "Twitter Tweets",
   "extends": [
     "./configs/sql.json",
     "./configs/media.json",
@@ -7,9 +7,10 @@
   ],
   "plugins": [
     "sql_queries_import",
-    "youtube_video",
+    "twitter_tweets",
     "media_youtubedl",
     "media_fetch",
+    "media_screenshot",
     "sql_export"
   ]
 }

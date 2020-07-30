@@ -1,0 +1,6 @@
+{
+  "media": {
+    "youtubedl_parallel": 3,
+    "parallel": 3
+  }
+}

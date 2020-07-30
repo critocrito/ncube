@@ -20,6 +20,6 @@ doit() {
               -d
 }
 
-echo "Starting the incoming scrape of youtube channels."
+echo "Starting the incoming scrape of Youtube channels."
 
 doit "$ID" 2>&1 | tee -a "$LOGFILE"

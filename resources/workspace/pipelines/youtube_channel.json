@@ -1,5 +1,16 @@
 {
   "name": "Youtube Videos",
-  "extends": ["./configs/sql.json", "./configs/secrets.json"],
-  "plugins": ["sql_queries_import", "youtube_channel", "sql_export"]
+  "extends": [
+    "./configs/sql.json",
+    "./configs/media.json",
+    "./configs/secrets.json"
+  ],
+  "plugins": [
+    "sql_queries_import",
+    "youtube_channel",
+    "media_youtubedl",
+    "media_fetch",
+    "media_screenshot",
+    "sql_export"
+  ]
 }
