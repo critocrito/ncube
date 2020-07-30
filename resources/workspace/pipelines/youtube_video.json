@@ -10,6 +10,7 @@
     "youtube_video",
     "media_youtubedl",
     "media_fetch",
+    "media_screenshot",
     "sql_export"
   ]
 }

@@ -7,7 +7,7 @@
   ],
   "plugins": [
     "sql_queries_import",
-    "twitter_tweets",
+    "twitter_tweet",
     "media_youtubedl",
     "media_fetch",
     "media_screenshot",
