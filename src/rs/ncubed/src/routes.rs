@@ -753,13 +753,16 @@ pub(crate) mod stat {
 pub(crate) mod unit {
     use super::SuccessResponse;
     use futures::try_join;
-    use hyper::{Body, Response};
     use ncube_data::{ReqCtx, SearchResponse};
     use ncube_handlers::{workspace as handlers, HandlerError};
     use percent_encoding::percent_decode_str;
     use serde::Deserialize;
     use tracing::instrument;
-    use warp::Filter;
+    use warp::{
+        http::header,
+        hyper::{Body, Response},
+        Filter,
+    };
 
     use crate::http::authenticate_remote_req;
 
@@ -831,7 +834,15 @@ pub(crate) mod unit {
         let file_path = format!("{}/{}/{}", &unit_id, &kind, &file);
         let stream = handlers::show_download(&workspace, &file_path).await?;
         let s = Body::wrap_stream(stream);
-        let response = Response::new(s);
+        let mut response = Response::new(s);
+
+        if file_path.ends_with("mp4") {
+            response.headers_mut().insert(
+                header::CONTENT_TYPE,
+                header::HeaderValue::from_static("video/mp4"),
+            );
+        }
+
         Ok(response)
     }
 
