@@ -91,7 +91,7 @@ const ProcessCard = ({
 
             <tbody>
               <tr>
-                <td className="ba b--fair-pink tc sapphire">10 sources</td>
+                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
                 <td className="ba b--fair-pink tc sapphire">
                   {processesAll === 0 ? (
                     <>&mdash;</>
@@ -114,7 +114,9 @@ const ProcessCard = ({
                 <Item disabled onClick={onRun}>
                   Selected Sources
                 </Item>
-                <Item onClick={onRun}>New Sources</Item>
+                <Item disabled onClick={onRun}>
+                  New Sources
+                </Item>
                 <Item onClick={onRun}>All Sources</Item>
               </>
             );

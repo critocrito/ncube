@@ -753,6 +753,7 @@ pub(crate) mod stat {
 pub(crate) mod unit {
     use super::SuccessResponse;
     use futures::try_join;
+    use hyper::{Body, Response};
     use ncube_data::{ReqCtx, SearchResponse};
     use ncube_handlers::{workspace as handlers, HandlerError};
     use percent_encoding::percent_decode_str;
@@ -819,6 +820,21 @@ pub(crate) mod unit {
         Ok(warp::reply::json(&response))
     }
 
+    #[instrument]
+    async fn download(
+        _ctx: ReqCtx,
+        workspace: String,
+        unit_id: String,
+        kind: String,
+        file: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let file_path = format!("{}/{}/{}", &unit_id, &kind, &file);
+        let stream = handlers::show_download(&workspace, &file_path).await?;
+        let s = Body::wrap_stream(stream);
+        let response = Response::new(s);
+        Ok(response)
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         authenticate_remote_req()
@@ -831,6 +847,12 @@ pub(crate) mod unit {
                 .and(warp::get())
                 .and(warp::query::<ListOptions>())
                 .and_then(search))
+            .or(authenticate_remote_req()
+                .and(warp::path!(
+                    "workspaces" / String / "data" / String / String / String
+                ))
+                .and(warp::get())
+                .and_then(download))
     }
 }
 

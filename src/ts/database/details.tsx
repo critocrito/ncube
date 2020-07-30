@@ -5,6 +5,7 @@ import SourceTag from "../common/source-tag";
 import {Unit} from "../types";
 import DefinitionItem from "./definition-item";
 import MediaDefinition from "./media-definition";
+import MediaViewer from "./media-viewer";
 
 interface DataDetailsProps {
   unit: Unit;
@@ -34,7 +35,9 @@ const DataDetails = ({unit}: DataDetailsProps) => {
     <div className="flex flex-column">
       <h4 className="header4">ScrapedData</h4>
 
-      <div className="flex justify-between items-center">
+      <MediaViewer downloads={unit.downloads} />
+
+      <div className="flex justify-between items-center mt3">
         <span className="ttu w-10 b text-medium">Unit</span>
         <hr className="w-80" />
       </div>

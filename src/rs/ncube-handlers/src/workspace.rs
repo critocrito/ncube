@@ -1,3 +1,5 @@
+use bytes::{Bytes, BytesMut};
+use futures_util::{stream::Stream, TryFutureExt, TryStreamExt};
 use ncube_actors::{
     db::{DatabaseActor, LookupDatabase},
     host::{RequirePool, WorkspaceRootSetting},
@@ -6,12 +8,14 @@ use ncube_actors::{
 };
 use ncube_data::{
     AccountRequest, DatabaseRequest, Segment, SegmentRequest, Stat, Unit, Workspace,
-    WorkspaceDatabase, WorkspaceKindRequest, WorkspaceRequest,
+    WorkspaceDatabase, WorkspaceKind, WorkspaceKindRequest, WorkspaceRequest,
 };
 use ncube_db::{migrations, sqlite, DatabaseError};
 use ncube_stores::{
     search_store, segment_store, stat_store, unit_store, workspace_store, WorkspaceStore,
 };
+use tokio::fs::File;
+use tokio_util::codec::{BytesCodec, FramedRead};
 use tracing::{debug, error, instrument};
 
 use crate::{account, ensure_workspace, workspace_database, HandlerError};
@@ -537,4 +541,33 @@ pub async fn update_segment(
         .await?;
 
     Ok(())
+}
+
+#[instrument]
+pub async fn show_download(
+    workspace: &str,
+    file_path: &str,
+) -> Result<impl Stream<Item = Result<Bytes, std::io::Error>>, HandlerError> {
+    let workspace = show_workspace(&workspace).await?;
+
+    // When we list processes for a local workspace we need to use the local
+    // sqlite host database, but for remote workspaces we still have to query
+    // the remote workspace database.
+    match workspace.kind {
+        WorkspaceKind::Local(location) => {
+            let s = File::open(format!("{}/data/{}", &location, &file_path))
+                .map_ok(|file| FramedRead::new(file, BytesCodec::new()).map_ok(BytesMut::freeze))
+                .try_flatten_stream();
+            Ok(s)
+        }
+        WorkspaceKind::Remote(_) => {
+            // let database_actor = DatabaseActor::from_registry().await.unwrap();
+            // let db = database_actor
+            //     .call(LookupDatabase {
+            //         workspace: workspace.slug.to_string(),
+            //     })
+            //     .await??
+            todo!()
+        }
+    }
 }

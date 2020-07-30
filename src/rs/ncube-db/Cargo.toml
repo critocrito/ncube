@@ -7,7 +7,9 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "0.2", features = ["sync"] }
+futures = "0.3.5"
+futures-util = "0.3.5"
+tokio = { version = "0.2", features = ["stream", "sync"] }
 async-trait = "0.1"
 thiserror = "1.0"
 tracing = "0.1.16"
@@ -15,7 +17,8 @@ tracing-futures = "0.2"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 serde_rusqlite = "0.23.0"
-reqwest = { version = "0.10", features = ["json"] }
+reqwest = { version = "0.10", features = ["json", "stream"] }
+bytes = "0.5.6"
 url = "2.1.1"
 deadpool = "0.5.1"
 rusqlite = { version = "0.21.0", features = ["bundled", "serde_json", "chrono"] }

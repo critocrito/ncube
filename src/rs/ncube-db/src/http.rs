@@ -1,6 +1,8 @@
 //! When connecting to remote ncube installation all requests are done using
 //! HTTP. Internally the HTTP endpoint is treated like a database.
+use bytes::Bytes;
 use chrono::{DateTime, Duration, Utc};
+use futures::Stream;
 use ncube_data::{
     ErrorResponse, HttpResponse, LoginRequest, LoginResponse, SuccessResponse, Workspace,
 };
@@ -235,5 +237,26 @@ impl Database {
             HttpResponse::Error(data) => Err(DatabaseError::HttpFail(data)),
             _ => Ok(()),
         }
+    }
+
+    #[instrument]
+    pub async fn get_file(
+        &self,
+        url: Url,
+    ) -> Result<impl Stream<Item = reqwest::Result<Bytes>>, DatabaseError> {
+        debug!("HTTP GET BYTES ({:?})", url.as_str());
+
+        self.ensure_login().await?;
+        let lock = self.auth.read().await;
+
+        let req = self.client.get(url.as_str());
+
+        Ok(match &*lock {
+            None => req,
+            Some(auth) => req.bearer_auth(&auth.token),
+        }
+        .send()
+        .await?
+        .bytes_stream())
     }
 }
