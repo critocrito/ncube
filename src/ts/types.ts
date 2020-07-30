@@ -118,8 +118,8 @@ export type Unit = {
   title?: string;
   description?: string;
   language?: string;
-  created_at?: Date;
-  fetched_at: Date;
+  created_at?: string;
+  fetched_at: string;
   data?: Record<string, unknown>;
   media: Media[];
   downloads: Download[];

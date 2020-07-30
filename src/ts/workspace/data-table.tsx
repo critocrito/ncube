@@ -9,6 +9,7 @@ import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
 import Modal from "../common/modal";
 import SourceTag from "../common/source-tag";
+import DataDetails from "../database/details";
 import CreateSegmentForm from "../forms/create-segment";
 import UpdateSegmentForm from "../forms/update-segment";
 import {createSegment, listUnits, searchUnits, updateSegment} from "../http";
@@ -208,8 +209,6 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
     case state.matches("details"):
       switch (state.event.type) {
         case "SHOW_DETAILS": {
-          const {id} = state.event.item;
-
           return (
             <div>
               <Modal
@@ -217,7 +216,7 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
                 title="Confirm"
                 description="Describing this modal"
               >
-                <div className="flex flex-column">{id}</div>
+                <DataDetails unit={state.event.item as Unit} />
               </Modal>
               <div className="flex flex-column">
                 {searchBar}
