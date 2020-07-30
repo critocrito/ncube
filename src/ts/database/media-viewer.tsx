@@ -1,6 +1,6 @@
 import React from "react";
 
-import VideoPlayer from "../common/video-player";
+// import VideoPlayer from "../common/video-player";
 import {useWorkspaceCtx} from "../context";
 import {Download} from "../types";
 
@@ -26,7 +26,8 @@ const MediaViewer = ({downloads}: MediaViewerProps) => {
       case "image":
         return <img src={url} alt="Associated media download." />;
       case "video":
-        return <VideoPlayer src={url} />;
+        // return <VideoPlayer src={url} />;
+        return <div>There will be a video here.</div>;
       default:
         return <div />;
     }
