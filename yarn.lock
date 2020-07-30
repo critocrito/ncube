@@ -2958,7 +2958,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2.6:
+classnames@^2.2.5, classnames@^2.2.6:
   version "2.2.6"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.2.6.tgz#43935bffdd291f326dad0a205309b38d00f650ce"
   integrity sha512-JR/iSQOSt+LQIWwrwEzJ9uk0xfN3mTVYMwt1Ir5mUcSN6pU+V4zQFFaJsclJbPuAUQH+yfWef6tm7l1quW3C8Q==
@@ -9448,7 +9448,7 @@ promise-inflight@^1.0.1:
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
   integrity sha1-mEcocL8igTL8vdhoEputEsPAKeM=
 
-prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.8, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -9696,6 +9696,13 @@ react-dropzone@^11.0.1:
     file-selector "^0.1.12"
     prop-types "^15.7.2"
 
+react-easy-swipe@^0.0.18:
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/react-easy-swipe/-/react-easy-swipe-0.0.18.tgz#3f52a05dbe3f8817bb8db94e743f6d966bbe89aa"
+  integrity sha512-IddCZANbT0qVbGFEihfWOkZb/rFpeA3VV87SNOOqPzmSZ93G0nDSyHD28zuGhYJilwEP33MqYv/dwo+zaZha3Q==
+  dependencies:
+    prop-types "^15.5.8"
+
 react-element-to-jsx-string@^14.3.1:
   version "14.3.1"
   resolved "https://registry.yarnpkg.com/react-element-to-jsx-string/-/react-element-to-jsx-string-14.3.1.tgz#a08fa6e46eb76061aca7eabc2e70f433583cb203"
@@ -9718,6 +9725,15 @@ react-is@^16.12.0, react-is@^16.13.1, react-is@^16.7.0, react-is@^16.8.1:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
+
+react-responsive-carousel@^3.2.9:
+  version "3.2.9"
+  resolved "https://registry.yarnpkg.com/react-responsive-carousel/-/react-responsive-carousel-3.2.9.tgz#15ea4d2849bdce2fe3d9071976dd86479e6d6e62"
+  integrity sha512-oTLbI4VnZXmRDRHBa7EHFCydHi4ZraH5sZTMR/7pMnapCTdNzdwC3sXeJVduJYM29TEs9lGYgkKQPLB6GlEuUg==
+  dependencies:
+    classnames "^2.2.5"
+    prop-types "^15.5.8"
+    react-easy-swipe "^0.0.18"
 
 react-table@^7.2.1:
   version "7.2.1"
