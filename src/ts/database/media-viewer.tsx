@@ -1,5 +1,3 @@
-import "../../../node_modules/video-react/dist/video-react.css";
-
 import React from "react";
 
 import VideoPlayer from "../common/video-player";
