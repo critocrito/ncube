@@ -78,6 +78,7 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(),
     Command::new("npm")
         .current_dir(expanded_path.clone())
         .env("PATH", &env_path)
+        .env("SUGARCUBE_SKIP_APACHE_TIKA_DOWNLOAD", "true")
         .arg("i")
         .spawn()
         .expect("npm failed to start")
