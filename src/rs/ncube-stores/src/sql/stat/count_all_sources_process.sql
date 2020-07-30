@@ -1,0 +1,3 @@
+SELECT COUNT(ROWID)
+  FROM query
+ WHERE type = ?1;

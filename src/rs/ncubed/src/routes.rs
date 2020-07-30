@@ -689,6 +689,18 @@ pub(crate) mod stat {
         Ok(warp::reply::json(&response))
     }
 
+    #[instrument]
+    async fn processes_all(
+        _ctx: ReqCtx,
+        workspace: String,
+        process: String,
+    ) -> Result<impl warp::Reply, warp::Rejection> {
+        let stat = handlers::stat_process_all(&workspace, &process).await?;
+        let response = SuccessResponse::new(stat.value);
+
+        Ok(warp::reply::json(&response))
+    }
+
     pub(crate) fn routes(
     ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
         authenticate_remote_req()
@@ -729,6 +741,12 @@ pub(crate) mod stat {
                 ))
                 .and(warp::get())
                 .and_then(data_segments))
+            .or(authenticate_remote_req()
+                .and(warp::path!(
+                    "workspaces" / String / "stats" / "processes" / String / "all"
+                ))
+                .and(warp::get())
+                .and_then(processes_all))
     }
 }
 

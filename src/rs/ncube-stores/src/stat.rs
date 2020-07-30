@@ -19,6 +19,7 @@ pub trait StatStore {
     async fn data_sources(&self) -> Result<Stat, DatabaseError>;
     async fn data_videos(&self) -> Result<Stat, DatabaseError>;
     async fn data_segments(&self) -> Result<Stat, DatabaseError>;
+    async fn processes_all(&self, process: &str) -> Result<Stat, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -112,6 +113,30 @@ impl StatStore for StatStoreSqlite {
         Ok(Stat {
             name: "data_segments".into(),
             value: count,
+        })
+    }
+
+    #[instrument]
+    async fn processes_all(&self, process: &str) -> Result<Stat, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt =
+            conn.prepare_cached(include_str!("../sql/stat/count_all_sources_process.sql"))?;
+
+        // At first glance it appears as if process keys and source types are
+        // the same. But this isn't necessarly true.
+        let source_type = match process {
+            "youtube_video" => "youtube_video",
+            "youtube_channel" => "youtube_channel",
+            "twitter_tweet" => "twitter_tweet",
+            "twitter_feed" => "twitter_user",
+            _ => "http_url",
+        };
+
+        let value: i32 = stmt.query_row(params![&source_type], |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "processes_all".into(),
+            value,
         })
     }
 }
@@ -223,6 +248,22 @@ impl StatStore for StatStoreHttp {
 
         Ok(Stat {
             name: "data_segments".into(),
+            value,
+        })
+    }
+
+    #[instrument]
+    async fn processes_all(&self, process: &str) -> Result<Stat, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/data/segments",
+            self.client.workspace.slug
+        ));
+
+        let value: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "processes_all".into(),
             value,
         })
     }
