@@ -99,7 +99,7 @@ const ProcessCard = ({
                     `${processesAll} sources`
                   )}
                 </td>
-                <td className="ba b--fair-pink tc sapphire">23 sources</td>
+                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
               </tr>
             </tbody>
           </table>

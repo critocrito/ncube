@@ -15,7 +15,7 @@ import {createSegment, listUnits, searchUnits, updateSegment} from "../http";
 import machine from "../machines/table";
 import Table from "../table";
 import {Segment, Unit, Workspace} from "../types";
-import {useServiceLogger} from "../utils";
+import {truncate, useServiceLogger} from "../utils";
 import SearchBar from "./search-bar";
 
 interface DataTableProps {
@@ -90,14 +90,22 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
   const columns: Column<Unit>[] = useMemo(
     () => [
       {
-        Header: "ID",
-        accessor: "id",
+        Header: "Title",
+        accessor: "title",
+        Cell: ({value}: Cell) => (value ? truncate(value, 60) : ""),
+      },
+
+      {
+        Header: "Description",
+        accessor: "description",
+        Cell: ({value}: Cell) => (value ? truncate(value, 80) : ""),
       },
 
       {
         Header: "Url",
         accessor: "href",
-        Cell: ({value}: Cell) => (value ? decodeURI(String(value)) : ""),
+        Cell: ({value}: Cell) =>
+          value ? truncate(decodeURI(String(value)), 80) : "",
       },
 
       {
