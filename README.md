@@ -205,13 +205,6 @@ The tests can be run by executing the following command:
 make test
 ```
 
-This project provides [`devcards`](https://github.com/bhauman/devcards/) to
-display its design system. They can be inspected at
-`http://localhost:9500/figwheel-extra-main/devcards`.
-
-A standalone version of `devcards` is build when compiling the production
-distribution (`make/make build`). The output directory is `resources/dist`.
-
 ## License
 
 All code is copyrighted by _christo@cryptodrunks.net_ and licensed under the [GPL3](https://www.gnu.org/licenses/gpl-3.0.html).
