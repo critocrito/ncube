@@ -56,7 +56,7 @@ const AddForm = withFormik<AddSourceProps, AddSourceFormValues>({
           <div className="flex justify-between w-two-thirds">
             <input
               className={c(
-                "fb1 pa2 ba",
+                "fb1 pa2 ba w-50",
                 hasErrorLabel ? "b--error" : "b--solitude",
               )}
               name="label"
@@ -68,7 +68,7 @@ const AddForm = withFormik<AddSourceProps, AddSourceFormValues>({
 
             <input
               className={c(
-                "fb1 pa2 ba ml2",
+                "fb1 pa2 ba ml2 w-50",
                 hasErrorDescription ? "b--error" : "b--solitude",
               )}
               name="description"
@@ -98,12 +98,14 @@ const AddForm = withFormik<AddSourceProps, AddSourceFormValues>({
         <div className="flex justify-between ml2">
           <div className="flex justify-between w-two-thirds">
             <div className="w-50">
-              {hasErrorLabel && <div className="error">{errors.label}</div>}
+              {hasErrorLabel && (
+                <div className="error text-medium">{errors.label}</div>
+              )}
             </div>
 
             <div className="w-50 ml2">
               {hasErrorDescription && (
-                <div className="error">{errors.description}</div>
+                <div className="error text-medium">{errors.description}</div>
               )}
             </div>
           </div>
