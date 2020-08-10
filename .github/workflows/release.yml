@@ -138,8 +138,8 @@ jobs:
       shell: bash
       run: |
         make pkg-dmg
-        mv pkgs/Ncube_${{ env.RELEASE_VERSION }}.dmg .
-        echo "::set-env name=ASSET::Ncube_${{ env.RELEASE_VERSION }}.dmg"
+        mv pkgs/Ncube_${{ env.RELEASE_VERSION }}.dmg Ncube.dmg
+        echo "::set-env name=ASSET::Ncube.dmg"
 
     - name: Build installable DEB package
       if: matrix.build == 'bionic' || matrix.build == 'focal'
@@ -147,8 +147,8 @@ jobs:
       run: |
         cargo install cargo-deb
         make pkg-deb
-        mv pkgs/ncube_${{ env.RELEASE_VERSION }}_amd64.deb ncube_${{ env.RELEASE_VERSION }}_${{ matrix.os }}_amd64.deb
-        echo "::set-env name=ASSET::ncube_${{ env.RELEASE_VERSION }}_${{ matrix.os }}_amd64.deb"
+        mv pkgs/ncube_${{ env.RELEASE_VERSION }}_amd64.deb ncube_${{ matrix.os }}_amd64.deb
+        echo "::set-env name=ASSET::ncube_${{ matrix.os }}_amd64.deb"
 
     - name: Upload release archive
       uses: actions/upload-release-asset@v1.0.1
@@ -242,8 +242,8 @@ jobs:
       run: |
         cargo install cargo-deb
         make pkg-deb-ncubed
-        mv pkgs/ncubed_${{ env.RELEASE_VERSION }}_amd64.deb ncubed_${{ env.RELEASE_VERSION }}_${{ matrix.os }}_amd64.deb
-        echo "::set-env name=ASSET::ncubed_${{ env.RELEASE_VERSION }}_${{ matrix.os }}_amd64.deb"
+        mv pkgs/ncubed_${{ env.RELEASE_VERSION }}_amd64.deb ncubed_${{ matrix.os }}_amd64.deb
+        echo "::set-env name=ASSET::ncubed_${{ matrix.os }}_amd64.deb"
 
     - name: Upload release archive
       uses: actions/upload-release-asset@v1.0.1
