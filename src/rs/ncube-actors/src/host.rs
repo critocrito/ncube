@@ -72,7 +72,7 @@ pub struct RequirePool;
 impl Handler<RequirePool> for HostActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         _msg: RequirePool,
     ) -> Result<Database, ActorError> {
         let db = self.db.clone();
@@ -89,7 +89,7 @@ pub struct WorkspaceRootSetting;
 impl Handler<WorkspaceRootSetting> for HostActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         _msg: WorkspaceRootSetting,
     ) -> Result<PathBuf, ActorError> {
         let workspace_root = self.workspace_root().await?;
@@ -111,7 +111,7 @@ pub struct SecretKeySetting;
 impl Handler<SecretKeySetting> for HostActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         _msg: SecretKeySetting,
     ) -> Result<ConfigSetting, ActorError> {
         let secret_key = self.secret_key().await?;
@@ -127,7 +127,7 @@ pub struct EndpointSetting;
 impl Handler<EndpointSetting> for HostActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         _msg: EndpointSetting,
     ) -> Result<ConfigSetting, ActorError> {
         let secret_key = self.endpoint().await?;
@@ -143,7 +143,7 @@ pub struct IsBootstrapped;
 impl Handler<IsBootstrapped> for HostActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         _: IsBootstrapped,
     ) -> Result<bool, ActorError> {
         let store = config_store(self.db.clone());
@@ -167,7 +167,11 @@ impl InsertSetting {
 
 #[async_trait]
 impl Handler<InsertSetting> for HostActor {
-    async fn handle(&mut self, _ctx: &Context<Self>, msg: InsertSetting) -> Result<(), ActorError> {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: InsertSetting,
+    ) -> Result<(), ActorError> {
         let store = config_store(self.db.clone());
         store.insert(&msg.name, &msg.value).await?;
         Ok(())
@@ -182,7 +186,7 @@ pub struct Settings;
 impl Handler<Settings> for HostActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         _: Settings,
     ) -> Result<NcubeConfig, ActorError> {
         let store = config_store(self.db.clone());
@@ -199,7 +203,7 @@ pub struct AllSettings;
 impl Handler<AllSettings> for HostActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         _: AllSettings,
     ) -> Result<NcubeConfig, ActorError> {
         let store = config_store(self.db.clone());

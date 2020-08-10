@@ -79,7 +79,7 @@ pub struct MigrateWorkspace {
 impl Handler<LookupDatabase> for DatabaseActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         msg: LookupDatabase,
     ) -> Result<Database, ActorError> {
         let host_actor = HostActor::from_registry().await.unwrap();
@@ -130,7 +130,11 @@ impl Handler<LookupDatabase> for DatabaseActor {
 
 #[async_trait]
 impl Handler<ResetDatabase> for DatabaseActor {
-    async fn handle(&mut self, _ctx: &Context<Self>, msg: ResetDatabase) -> Result<(), ActorError> {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: ResetDatabase,
+    ) -> Result<(), ActorError> {
         let host_actor = HostActor::from_registry().await.unwrap();
 
         let db = host_actor.call(RequirePool).await??;
@@ -168,7 +172,7 @@ impl Handler<ResetDatabase> for DatabaseActor {
 impl Handler<MigrateWorkspace> for DatabaseActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         msg: MigrateWorkspace,
     ) -> Result<(), ActorError> {
         let host_actor = HostActor::from_registry().await.unwrap();

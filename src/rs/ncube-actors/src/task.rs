@@ -55,7 +55,11 @@ pub struct UpdateTask {
 
 #[async_trait]
 impl Handler<UpdateTask> for TaskActor {
-    async fn handle(&mut self, _ctx: &Context<Self>, msg: UpdateTask) -> Result<(), ActorError> {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: UpdateTask,
+    ) -> Result<(), ActorError> {
         info!("Receiving a task update for {}", msg.task_id);
         let mut task = self.cache.get(&msg.task_id).ok_or_else(|| {
             ActorError::Invalid(format!("task with id {} not found", msg.task_id))
@@ -79,7 +83,7 @@ pub struct SetupWorkspace {
 impl Handler<SetupWorkspace> for TaskActor {
     async fn handle(
         &mut self,
-        _ctx: &Context<Self>,
+        _ctx: &mut Context<Self>,
         msg: SetupWorkspace,
     ) -> Result<(), ActorError> {
         let task = Task::workspace(&msg.location, &msg.workspace);
@@ -97,7 +101,11 @@ pub struct RunProcess {
 
 #[async_trait]
 impl Handler<RunProcess> for TaskActor {
-    async fn handle(&mut self, _ctx: &Context<Self>, msg: RunProcess) -> Result<(), ActorError> {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: RunProcess,
+    ) -> Result<(), ActorError> {
         let task = Task::data_process(&msg.workspace, &msg.key);
         self.queue_task(task).await
     }

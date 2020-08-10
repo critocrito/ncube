@@ -109,7 +109,7 @@ pub struct QueueTask {
 
 #[async_trait]
 impl Handler<QueueTask> for TaskRunner {
-    async fn handle(&mut self, _ctx: &Context<Self>, msg: QueueTask) -> Result<(), ActorError> {
+    async fn handle(&mut self, _ctx: &mut Context<Self>, msg: QueueTask) -> Result<(), ActorError> {
         self.tx.send((msg.task_id, msg.task.kind)).await?;
         Ok(())
     }
