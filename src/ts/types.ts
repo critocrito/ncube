@@ -4,6 +4,13 @@ import * as v from "./validations";
 
 export type Platform = "youtube" | "twitter" | "http";
 
+export type SourceType =
+  | "youtube_video"
+  | "youtube_channel"
+  | "twitter_tweet"
+  | "twitter_user"
+  | "http_url";
+
 export interface FormValues<T> {
   values: T;
   error: string;

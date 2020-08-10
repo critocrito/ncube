@@ -1,4 +1,5 @@
 /* eslint react/no-array-index-key: off */
+import {sourceType} from "@sugarcube/source-types";
 import {FieldArray, Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
@@ -9,6 +10,7 @@ import {listSourceTags} from "../http";
 import {FormProps, SourceTag} from "../types";
 import {sourceTags} from "../validations";
 import SourceTagMultiSelect from "./source-tag-multi-select";
+import SourceTypeSelect from "./source-type-select";
 
 type CreateSourceFormProps<CreateSourceFormValues> = FormProps<
   CreateSourceFormValues
@@ -58,6 +60,7 @@ const CreateSourceForm = ({
     >
       {({isValid, isSubmitting, values}) => {
         const disableSubmit = !isValid || isSubmitting;
+        const selectedItem = sourceType(formValues.term);
 
         return (
           <Form>
@@ -67,7 +70,7 @@ const CreateSourceForm = ({
               placeholder="e.g. http://youtube.com/watch?v=abcdef"
             />
 
-            <Input label="Type" name="type" placeholder="e.g. youtube_video" />
+            <SourceTypeSelect initial={selectedItem} />
 
             <FieldArray
               name="tags"

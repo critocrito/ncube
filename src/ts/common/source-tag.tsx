@@ -1,15 +1,17 @@
 import c from "classnames";
 import React from "react";
 
+import {Platform} from "../types";
+
 interface SourceTagProps {
-  kind?: "youtube" | "twitter" | "http";
+  kind?: Platform;
   className?: string;
 }
 
 const SourceTag = ({kind = "http", className}: SourceTagProps) => {
   let label;
   let classes;
-  const baseClasses = "short-tag flex flex-column justify-around";
+  const baseClasses = "short-tag flex flex-column justify-around items-center";
 
   switch (kind) {
     case "youtube": {

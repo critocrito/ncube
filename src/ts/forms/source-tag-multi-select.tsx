@@ -191,7 +191,7 @@ const MultiSelect = ({onAdd, onRemove, className, data}: MultiSelectProps) => {
     <div className={c(className)}>
       {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
       <label htmlFor="multi-select" {...getLabelProps()}>
-        Choose some elements:
+        Choose or create source tags:
       </label>
       <div>
         <ul className="list pl0 mt2 mb2">

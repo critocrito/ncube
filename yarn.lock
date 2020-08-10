@@ -1084,10 +1084,10 @@
     querystring "^0.2.0"
     strip-ansi "^3.0.0"
 
-"@sugarcube/source-types@^0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@sugarcube/source-types/-/source-types-0.1.4.tgz#4c40e52cc9ba137916402a55575b518a0b6d5adb"
-  integrity sha512-ZzckLA9d5zjTTavjZTXuGhoLhcYb3RMZ5j/FOB4RPK7OVldBF/ghZFp/9wpnBRFu/1+rF+SYvzWQlPTcAehB6A==
+"@sugarcube/source-types@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@sugarcube/source-types/-/source-types-0.1.6.tgz#4e4e80ab7a91e5e90a1d54c667d18fe7bc853a3b"
+  integrity sha512-3g+taPd7fKEjHrR/J0PLfZGlmK+t3ZVqlfA1U+aHaJXZR67+9kCe6/zjAr/NYJaqxXFaMlwQqeQBZ0OZlWGqJw==
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
