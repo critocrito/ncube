@@ -8,7 +8,7 @@ module.exports = {
     "48": "icons/sd-48.png",
   },
 
-  permissions: ["tabs", "activeTab", "storage"],
+  permissions: ["activeTab"],
 
   browser_action: {
     browser_style: true,
