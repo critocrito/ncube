@@ -22,17 +22,19 @@ _This project is in an early stage and probably not working right now._
 
 ### Linux
 
-Currently there is only [a `deb` package for Ubuntu 18.04](https://github.com/critocrito/ncube/releases/latest). For any other Linux distribution build Ncube [from source](#from-source).
+The easiest way to install the desktop version of Ncube is to install one of the provided packages. Currently there are only `deb` packages for [Ubuntu 18.04](https://github.com/critocrito/ncube/releases/latest/download/ncube_ubuntu-18.04_amd64.deb) and [Ubuntu 20.04](https://github.com/critocrito/ncube/releases/latest/download/ncube_ubuntu-20.04_amd64.deb). For any other Linux distribution build Ncube [from source](#from-source).
 
 Install the provided `deb` package by either double-clicking it in the file browser or using a terminal:
 
 ```sh
-sudo dpkg -i ncube_<version>_amd64.deb
+sudo dpkg -i ncube_ubuntu-20.04_amd64.deb
 ```
+
+For Linux there are additional packages containing only the server component of Ncube. The server component packages start with `ncubed` in their name. There are only `deb` packages for [Ubuntu 18.04](https://github.com/critocrito/ncube/releases/latest/download/ncubed_ubuntu-18.04_amd64.deb) and [Ubuntu 20.04](https://github.com/critocrito/ncube/releases/latest/download/ncubed_ubuntu-20.04_amd64.deb). For any other Linux distribution build Ncube [from source](#from-source).
 
 ### macOS
 
-Ncube can be installed using the [DMG installer image](https://github.com/critocrito/ncube/releases/latest). You can install Ncube by double-clicking the `Ncube_<version>.dmg` file and dragging the application into your `Applications` folder. Newer versions of macOS might refuse to install the package since Ncube is not verified by Apple. To install Ncube follow the following steps:
+Ncube can be installed using the [DMG installer image](https://github.com/critocrito/ncube/releases/latest/download/Ncube.dmg). You can install Ncube by double-clicking the `Ncube.dmg` file and dragging the application into your `Applications` folder. Newer versions of macOS might refuse to install the package since Ncube is not verified by Apple. To install Ncube follow the following steps:
 
 1. Try to run Ncube.
 2. On your Mac, choose Apple menu > System Preferences, click Security & Privacy, then click General.
@@ -111,11 +113,17 @@ fc4 -fsr doc/diagrams
 
 ## Ncube Discovery
 
-Ncube is accompanied by a browser extension for the [Firefox browser](https://www.mozilla.org/en-US/firefox/new) for a smoother investigation workflow. The browser extension allows to store URL's from the browser as sources directly in Ncube.
+Ncube is accompanied by a browser extension for the [Firefox browser](https://www.mozilla.org/en-US/firefox/new) and for the [Google Chrome browser](https://www.google.com/chrome/) for a smoother investigation workflow. The browser extension allows to store URL from the browser as sources directly in Ncube.
 
 ![Discovery Browser Extension Screenshot](https://raw.githubusercontent.com/critocrito/ncube/master/resources/screenshots/discovery.png)
 
+### Installation
+
+The browser extension communicates with the Ncube application that has to run on your local computer. Before using the browser extension see above for ways to install the desktop version of Ncube. The discovery plugin only works while Ncube is running.
+
 TODO: Publish extension to AMO and provide a download link.
+
+### Development
 
 The following instructions are to test and develop the browser extension locally. Make sure to install all required dependencies.
 
@@ -142,6 +150,8 @@ In another terminal start a development version of Firefox that contains the bro
 ```sh
 yarn web-ext
 ```
+
+The source code of the browser extension and Ncube is shared. The entry point for the discovery source code can be found in [`src/ts/discovery.tsx`](src/ts/discovery.tsx).
 
 ## Development
 
