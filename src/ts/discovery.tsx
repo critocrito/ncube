@@ -23,16 +23,22 @@ window.addEventListener("keydown", handleFirstTab);
 (async () => {
   const domContainer = document.querySelector("#app");
   const url = await currentUrl();
-  const sourceReq = {
-    type: sourceType(url) || "http_url",
-    term: url,
-    tags: [],
-  };
+  const source = sourceType(url);
 
   ReactDOM.render(
     <div style={{width: "500px"}}>
       <Layout>
-        <Popup sourceReq={sourceReq} />
+        {source ? (
+          <Popup
+            sourceReq={{
+              type: source as string,
+              term: url,
+              tags: [],
+            }}
+          />
+        ) : (
+          <div>No valid URL</div>
+        )}
       </Layout>
     </div>,
     domContainer,
