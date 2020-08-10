@@ -16,7 +16,9 @@
 
 ---
 
-Ncube supports human rights defenders and investigative journalists to conduct data based investigations. It helps to develop compelling stories which expose the misuse of power and human rights abuses. It is a graphical desktop and cross-platform application that turns quantitative data into qualitative data. All the features of Ncube have one purpose: produce a set of verified data. Ncube's features around the preservation, exploration and verification of data all serve this single goal. [Read more about Ncube](https://sugarcubetools.net/ncube) in its introduction blog post. To get help about Ncube and data investigation methodologies, or to suggest new use cases and functionality, feel free to post on the [Sugarcube Tools community forum](https://users.sugarcubetools.net).
+Ncube supports human rights defenders and investigative journalists to conduct data based investigations. It helps to develop compelling stories which expose the misuse of power and human rights abuses. It is a graphical desktop and cross-platform application that turns quantitative data into qualitative data. All the features of Ncube have one purpose: produce a set of verified data. Ncube's features around the preservation, exploration and verification of data all serve this single goal.
+
+[Read more about Ncube](https://sugarcubetools.net/ncube) in its introduction blog post. To get help about Ncube and data investigation methodologies, or to suggest new use cases and functionality, feel free to post on the [Sugarcube Tools community forum](https://users.sugarcubetools.net).
 
 _This project is in an early stage. Some features are not implemented yet._
 
