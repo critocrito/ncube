@@ -10,3 +10,13 @@ export const currentUrl = async (): Promise<string> => {
   }
   return tabs[0].url;
 };
+
+export const isNcubeRunning = async (): Promise<boolean> => {
+  try {
+    await fetch("http://localhost:40666/api");
+  } catch {
+    return false;
+  }
+
+  return true;
+};
