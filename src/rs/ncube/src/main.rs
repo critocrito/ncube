@@ -2,11 +2,21 @@
 
 use directories::ProjectDirs;
 use ncubed::{Application, ApplicationConfig};
+use serde::Deserialize;
 use std::fs::create_dir_all;
 use std::thread;
 use tokio::runtime;
 use tracing::{info, Level};
 use web_view::*;
+
+/// The UI can communicate to the Rust host using message passing. The type of
+/// messages are encoded in the `Cmd` enum.
+#[derive(Deserialize)]
+#[serde(tag = "cmd", rename_all = "camelCase")]
+pub enum Cmd {
+    /// Open an external URL in the default browser.
+    Url { url: String },
+}
 
 fn main() {
     let project = ProjectDirs::from("net", "sugarcubetools", "Ncube").unwrap();
@@ -47,7 +57,15 @@ fn main() {
         .resizable(true)
         .debug(true)
         .user_data(())
-        .invoke_handler(|_webview, _arg| Ok(()))
+        .invoke_handler(|_webview, arg| {
+            use Cmd::*;
+
+            let _ = match serde_json::from_str(arg).unwrap() {
+                Url { url } => webbrowser::open(&url),
+            };
+
+            Ok(())
+        })
         .run()
         .unwrap();
 }

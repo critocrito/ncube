@@ -11,6 +11,7 @@ import {useAppCtx} from "../context";
 import CreateWorkspaceForm from "../forms/create-workspace";
 import {saveWorkspace} from "../handlers";
 import machine from "../machines/home";
+import rpc from "../rpc";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import LinkWorkspace from "./link-workspace";
@@ -39,7 +40,12 @@ const Home = ({onDone, workspaces}: HomeProps) => {
           <div>
             <div className="fl w-100 pa3">
               <header className="mb5 mt4">
-                <img src={logoIcon} alt="Ncube logo." />
+                <button
+                  className="b--transparent bg-transparent"
+                  onClick={() => rpc.openExternal("https://sugarcubetools.net")}
+                >
+                  <img src={logoIcon} alt="Ncube logo." />
+                </button>
               </header>
               <Overline label="Workspaces" />
               <ul className="list pl0 mt0 mb0">
