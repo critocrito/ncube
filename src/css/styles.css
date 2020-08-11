@@ -392,6 +392,18 @@ tr:hover .trash {
   }
 }
 
+.fade-in {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 1s ease;
+}
+
+.fade-out {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 1s, opacity 1s ease;
+}
+
 /* Workspace Select */
 /* See: https://github.com/filamentgroup/select-css/blob/master/src/select-css.css */
 .workspace-select {
