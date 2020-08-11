@@ -15,7 +15,7 @@ const SegmentList = ({segments, onExplore}: SegmentListProps) => {
         <div className="flex flex-column justify-around items-center bg-white br--top br3 w-20 ttu tc h2 sapphire b">
           <span>Segments</span>
         </div>
-        <div className="flex flex-column justify-around items-center bg-none br--top br3 w-20 ttu tc h2 sapphire b">
+        <div className="flex flex-column justify-around items-center br--top br3 w-20 ttu tc h2 sapphire b">
           <span>In Verification</span>
         </div>
       </div>
