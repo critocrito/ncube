@@ -1,6 +1,8 @@
 import c from "classnames";
 import React, {useState} from "react";
 
+import chevronLeftIcon from "../../../resources/public/images/icon_chevron_left.svg";
+import chevronRightIcon from "../../../resources/public/images/icon_chevron_right.svg";
 import dataIcon from "../../../resources/public/images/icon_data.svg";
 import investigationIcon from "../../../resources/public/images/icon_investigation.svg";
 import processIcon from "../../../resources/public/images/icon_process.svg";
@@ -22,7 +24,11 @@ const Sidebar = ({workspaces}: SidebarProps) => {
 
   const toggleExpanded = () => setExpanded(!expanded);
 
-  const buttonLabel = expanded ? "<" : ">";
+  const buttonLabel = expanded ? (
+    <img src={chevronLeftIcon} alt="close sidebar" className="h1 w1" />
+  ) : (
+    <img src={chevronRightIcon} alt="open sidebar" className="h1 w1" />
+  );
 
   return (
     <>
@@ -34,10 +40,10 @@ const Sidebar = ({workspaces}: SidebarProps) => {
         }}
       >
         <button
-          className="sapphire b h2 w2 br-100 shadow-1 b--none bg-canvas flex justify-around items-center"
+          className="sapphire b h2 w2 br-100 shadow-1 b--none bg-canvas flex flex-column justify-around items-center"
           onClick={toggleExpanded}
         >
-          <span>{buttonLabel}</span>
+          {buttonLabel}
         </button>
       </div>
       <div className="bg-white b--solitude">
