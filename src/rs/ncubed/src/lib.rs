@@ -3,12 +3,10 @@
 #![type_length_limit = "1343848"]
 // #![cfg_attr(test, deny(warnings))]
 
-pub mod http;
-pub mod routes;
-
 use ncube_actors::{Actor, ActorError, DatabaseActor, HostActor, Registry, TaskActor};
 use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
+use ncube_http_api::start_http_api;
 use std::net::SocketAddr;
 use thiserror::Error;
 
@@ -57,7 +55,7 @@ impl Application {
     /// Run `ncubed` as a daemon. This will start an HTTP server as well.
     pub async fn run(&self) -> Result<(), ApplicationError> {
         self.setup().await?;
-        warp::serve(routes::router()).run(self.config.listen).await;
+        start_http_api(self.config.listen).await?;
 
         Ok(())
     }

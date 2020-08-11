@@ -1,11 +1,54 @@
 use ncube_crypto::jwt_verify;
-use ncube_data::ReqCtx;
+use ncube_data::{ErrorResponse, ReqCtx};
+use ncube_db::DatabaseError;
 use ncube_errors::HostError;
-use ncube_handlers::config::show_secret_key;
+use ncube_handlers::{config::show_secret_key, HandlerError};
+use std::convert::Infallible;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
-use tracing::debug;
-use warp::Filter;
+use tracing::{debug, error};
+use warp::{http::StatusCode, Filter};
+
+pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
+    let code;
+    let message;
+
+    error!("{:?}", err);
+
+    if err.is_not_found() {
+        code = StatusCode::NOT_FOUND;
+        message = "NOT_FOUND".into();
+    } else if let Some(HandlerError::Invalid(reason)) = err.find() {
+        code = StatusCode::BAD_REQUEST;
+        message = reason.into();
+    } else if let Some(HandlerError::NotFound(reason)) = err.find() {
+        code = StatusCode::NOT_FOUND;
+        message = reason.into();
+    } else if let Some(HandlerError::NotAllowed(reason)) = err.find() {
+        code = StatusCode::FORBIDDEN;
+        message = reason.to_string();
+    } else if let Some(HostError::AuthError(reason)) = err.find() {
+        error!("{:?}", reason);
+        code = StatusCode::UNAUTHORIZED;
+        message = "request did not authorize".to_string();
+    } else if let Some(DatabaseError::HttpFail(reason)) = err.find() {
+        error!("{:?}", reason);
+        code = StatusCode::INTERNAL_SERVER_ERROR;
+        message = "UNHANDLED_REJECTION".into();
+    } else if let Some(rejection) = err.find::<warp::reject::MethodNotAllowed>() {
+        code = StatusCode::METHOD_NOT_ALLOWED;
+        message = rejection.to_string();
+    } else {
+        // We should have expected this... Just log and say its a 500
+        eprintln!("unhandled rejection: {:?}", err);
+        code = StatusCode::INTERNAL_SERVER_ERROR;
+        message = "UNHANDLED_REJECTION".into();
+    }
+
+    let json = warp::reply::json(&ErrorResponse::new(code, &message));
+
+    Ok(warp::reply::with_status(json, code))
+}
 
 fn is_loopback() -> warp::filters::BoxedFilter<(bool,)> {
     warp::header("x-forwarded-for")

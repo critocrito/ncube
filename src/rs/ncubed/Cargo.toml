@@ -7,26 +7,18 @@ license = "GPL-3.0"
 description = "Data investigations for human rights."
 
 [dependencies]
-futures = "0.3.5"
 tokio = { version = "0.2", features = ["macros", "rt-threaded"] }
-async-trait = "0.1"
 thiserror = "1.0"
 anyhow = "1.0"
 tracing = "0.1.16"
-tracing-futures = "0.2"
 tracing-subscriber = "0.2.8"
-serde = { version = "1.0", features = ["derive"] }
-warp = "0.2.2"
-percent-encoding = "2.1.0"
 clap = "3.0.0-beta.1"
 directories = "2.0.2"
 
-ncube-data = { path = "../ncube-data" }
 ncube-errors = { path = "../ncube-errors" }
 ncube-db = { path = "../ncube-db" }
 ncube-actors = { path = "../ncube-actors" }
-ncube-handlers = { path = "../ncube-handlers" }
-ncube-crypto = { path = "../ncube-crypto" }
+ncube-http-api = { path = "../ncube-http-api" }
 
 [dev-dependencies]
 tokio-test = "0.2"

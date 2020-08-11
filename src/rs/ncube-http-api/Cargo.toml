@@ -1,0 +1,21 @@
+[package]
+name = "ncube-http-api"
+version = "0.7.0"
+authors = ["Christo <christo@cryptodrunks.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+futures = "0.3.5"
+tracing = "0.1.16"
+tracing-futures = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+warp = "0.2.2"
+percent-encoding = "2.1.0"
+
+ncube-data = { path = "../ncube-data" }
+ncube-errors = { path = "../ncube-errors" }
+ncube-db = { path = "../ncube-db" }
+ncube-handlers = { path = "../ncube-handlers" }
+ncube-crypto = { path = "../ncube-crypto" }

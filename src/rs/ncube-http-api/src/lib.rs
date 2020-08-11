@@ -1,15 +1,10 @@
-use ncube_data::ErrorResponse;
-use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
-use ncube_handlers::HandlerError;
-use std::convert::Infallible;
-use tracing::{error, info, instrument};
-use warp::{
-    http::{Method, StatusCode},
-    Filter,
-};
+use std::net::SocketAddr;
+use tracing::{error, info};
+use warp::{http::Method, Filter};
 
 mod config;
+mod http;
 mod process;
 mod segment;
 mod source;
@@ -19,46 +14,9 @@ mod unit;
 mod user;
 mod workspace;
 
-#[instrument]
-pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
-    let code;
-    let message;
-
-    error!("{:?}", err);
-
-    if err.is_not_found() {
-        code = StatusCode::NOT_FOUND;
-        message = "NOT_FOUND".into();
-    } else if let Some(HandlerError::Invalid(reason)) = err.find() {
-        code = StatusCode::BAD_REQUEST;
-        message = reason.into();
-    } else if let Some(HandlerError::NotFound(reason)) = err.find() {
-        code = StatusCode::NOT_FOUND;
-        message = reason.into();
-    } else if let Some(HandlerError::NotAllowed(reason)) = err.find() {
-        code = StatusCode::FORBIDDEN;
-        message = reason.to_string();
-    } else if let Some(HostError::AuthError(reason)) = err.find() {
-        error!("{:?}", reason);
-        code = StatusCode::UNAUTHORIZED;
-        message = "request did not authorize".to_string();
-    } else if let Some(DatabaseError::HttpFail(reason)) = err.find() {
-        error!("{:?}", reason);
-        code = StatusCode::INTERNAL_SERVER_ERROR;
-        message = "UNHANDLED_REJECTION".into();
-    } else if let Some(rejection) = err.find::<warp::reject::MethodNotAllowed>() {
-        code = StatusCode::METHOD_NOT_ALLOWED;
-        message = rejection.to_string();
-    } else {
-        // We should have expected this... Just log and say its a 500
-        eprintln!("unhandled rejection: {:?}", err);
-        code = StatusCode::INTERNAL_SERVER_ERROR;
-        message = "UNHANDLED_REJECTION".into();
-    }
-
-    let json = warp::reply::json(&ErrorResponse::new(code, &message));
-
-    Ok(warp::reply::with_status(json, code))
+pub async fn start_http_api(listen: SocketAddr) -> Result<(), HostError> {
+    warp::serve(router()).run(listen).await;
+    Ok(())
 }
 
 pub(crate) fn router(
@@ -75,7 +33,7 @@ pub(crate) fn router(
         }
     });
 
-    assets().or(api()).recover(handle_rejection).with(log)
+    assets().or(api()).recover(http::handle_rejection).with(log)
 }
 
 pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
