@@ -608,6 +608,54 @@ pub struct ProcessRunReq {
     pub kind: ProcessRunKind,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MethodologyReq {
+    pub title: String,
+    pub description: Option<String>,
+    pub process: serde_json::Value,
+}
+
+impl MethodologyReq {
+    pub fn slug(&self) -> String {
+        slugify!(&self.title)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Methodology {
+    pub id: i32,
+    pub title: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub process: serde_json::Value,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct InvestigationReq {
+    pub title: String,
+    pub description: Option<String>,
+    pub methodology: String,
+}
+
+impl InvestigationReq {
+    pub fn slug(&self) -> String {
+        slugify!(&self.title)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Investigation {
+    pub id: i32,
+    pub title: String,
+    pub slug: String,
+    pub description: Option<String>,
+    pub methodology: String,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

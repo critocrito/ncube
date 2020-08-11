@@ -7,12 +7,14 @@ use ncube_actors::{
     HostActor, Registry, TaskActor,
 };
 use ncube_data::{
-    AccountRequest, DatabaseRequest, Segment, SegmentRequest, Stat, Unit, Workspace,
-    WorkspaceDatabase, WorkspaceKind, WorkspaceKindRequest, WorkspaceRequest,
+    AccountRequest, DatabaseRequest, Investigation, InvestigationReq, Methodology, MethodologyReq,
+    Segment, SegmentRequest, Stat, Unit, Workspace, WorkspaceDatabase, WorkspaceKind,
+    WorkspaceKindRequest, WorkspaceRequest,
 };
 use ncube_db::{migrations, sqlite, DatabaseError};
 use ncube_stores::{
-    search_store, segment_store, stat_store, unit_store, workspace_store, WorkspaceStore,
+    investigation_store, methodology_store, search_store, segment_store, stat_store, unit_store,
+    workspace_store, WorkspaceStore,
 };
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
@@ -570,4 +572,117 @@ pub async fn show_download(
             todo!()
         }
     }
+}
+
+#[instrument]
+pub async fn create_methodology(
+    workspace: &str,
+    methodology_req: &MethodologyReq,
+) -> Result<(), HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let methodology_store = methodology_store(database);
+
+    if let Ok(true) = methodology_store.exists(&methodology_req.slug()).await {
+        return Err(HandlerError::Invalid(format!(
+            "Methodology `{}` already exists.",
+            methodology_req.slug(),
+        )));
+    };
+
+    methodology_store
+        .create(
+            &methodology_req.title,
+            &methodology_req.description,
+            &methodology_req.process,
+            &methodology_req.slug(),
+        )
+        .await?;
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn show_methodology(workspace: &str, slug: &str) -> Result<Methodology, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let methodology_store = methodology_store(database);
+    let methodology = methodology_store.show(&slug).await?;
+
+    methodology.ok_or_else(|| {
+        HandlerError::NotFound(format!("Methodology '{}' could not be found.", slug))
+    })
+}
+
+#[instrument]
+pub async fn list_methodologies(workspace: &str) -> Result<Vec<Methodology>, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let methodology_store = methodology_store(database);
+    let methodologies = methodology_store.list().await?;
+
+    Ok(methodologies)
+}
+
+#[instrument]
+pub async fn create_investigation(
+    workspace: &str,
+    investigation_req: &InvestigationReq,
+) -> Result<(), HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let methodology_store = methodology_store(database.clone());
+    let investigation_store = investigation_store(database);
+
+    let methodology = methodology_store
+        .show(&investigation_req.methodology)
+        .await?
+        .ok_or_else(|| {
+            HandlerError::NotFound(format!(
+                "Methodology '{}' could not be found.",
+                investigation_req.methodology
+            ))
+        })?;
+
+    investigation_store
+        .create(
+            &investigation_req.title,
+            &investigation_req.description,
+            &methodology.slug,
+            &investigation_req.slug(),
+        )
+        .await?;
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn show_investigation(
+    workspace: &str,
+    slug: &str,
+) -> Result<Investigation, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let investigation_store = investigation_store(database);
+    let investigation = investigation_store.show(&slug).await?;
+
+    investigation.ok_or_else(|| {
+        HandlerError::NotFound(format!("Investigation '{}' could not be found.", slug))
+    })
+}
+
+#[instrument]
+pub async fn list_investigations(workspace: &str) -> Result<Vec<Investigation>, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let investigation_store = investigation_store(database);
+    let investigations = investigation_store.list().await?;
+
+    Ok(investigations)
 }

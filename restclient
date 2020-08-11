@@ -211,6 +211,46 @@ PUT http://:api/api/workspaces/syrian-archive/segments/mf001a
 GET http://:api/api/workspaces/syrian-archive/processes
 
 ###
+# Methodologies
+###
+
+# Create a new methodology
+POST http://:api/api/workspaces/syrian-archive/methodologies
+:headers
+
+{
+  "description": "I'm a methodology, consisting of process and annotations.",
+  "title": "Tutorial",
+  "process": {}
+}
+
+# List all methodologies for a workspace.
+GET http://:api/api/workspaces/syrian-archive/methodologies
+
+# Show the details of a methodology
+GET http://:api/api/workspaces/syrian-archive/methodologies/tutorial
+
+###
+# Investigations
+###
+
+# Create a new investigation
+POST http://:api/api/workspaces/syrian-archive/investigations
+:headers
+
+{
+  "title": "Hospital Attacks",
+  "description": null,
+  "methodology": "tutorial"
+}
+
+# List all investigations for a workspace.
+GET http://:api/api/workspaces/syrian-archive/investigations
+
+# Show the details of a methodology
+GET http://:api/api/workspaces/syrian-archive/investigations/hospital-attacks
+
+###
 # Workspace stats
 ###
 

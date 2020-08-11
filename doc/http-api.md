@@ -12,6 +12,8 @@
   - [Units](#units)
   - [Segments](#segments)
   - [Processes](#processes)
+  - [Methodologies](#methodologies)
+  - [Investigations](#investigations)
   - [Stats](#stats)
 - [Entities](#entities)
   - [Config Setting](#config-setting-entity)
@@ -21,6 +23,8 @@
   - [Unit](#unit-entity)
   - [Segment](#segment-entity)
   - [Process](#process-entity)
+  - [Investigation](#investigation-entity)
+  - [Methodology](#methodology-entity)
   - [Stat](#stat-entity)
 
 ## Response Envelope
@@ -149,6 +153,18 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [List all processes](http-api/process/list.md) `GET /workspaces/<workspace>/processes`
 - [Configure a process](http-api/process/configure.md) `PUT /workspaces/<workspace>/processes`
 - [Run a process](http-api/process/run.md) `POST /workspaces/<workspace>/processes`
+
+### Methodologies
+
+- [List all methodologies](http-api/methodology/list.md) `GET /workspaces/<workspace>/methodologies`
+- [Show a methodology](http-api/methodology/show.md) `GET /workspaces/<workspace>/methodologies/<methodology>`
+- [Create a methodology](http-api/methodology/create.md) `POST /workspaces/<workspace>/methodologies`
+
+### Investigations
+
+- [List all investigations](http-api/investigation/list.md) `GET /workspaces/<workspace>/investigations`
+- [Show an investigation](http-api/investigation/show.md) `GET /workspaces/<workspace>/investigations/<investigation>`
+- [Create an investigation](http-api/investigation/create.md) `POST /workspaces/<workspace>/investigations`
 
 ### Stats
 
@@ -300,6 +316,30 @@ Ncube installation (originating from `127.0.0.1`) don't.
       "value": null
     }
   ]
+}
+```
+
+### Methodology
+
+```json
+{
+  "id": 1,
+  "name": "Tutorial",
+  "slug": "tutorial",
+  "description": "Attacks against hospital attacks.",
+  "process": {}
+}
+```
+
+### Investigation Entity
+
+```json
+{
+  "id": 1,
+  "name": "Hospital Attacks",
+  "slug": "hospital-attacks",
+  "description": "Attacks against hospital attacks.",
+  "methodology": "tutorial-methodology"
 }
 ```
 

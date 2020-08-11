@@ -5,6 +5,8 @@ use warp::{http::Method, Filter};
 
 mod config;
 mod http;
+mod investigation;
+mod methodology;
 mod process;
 mod segment;
 mod source;
@@ -70,7 +72,9 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
                 .or(unit::routes())
                 .or(source_tag::routes())
                 .or(segment::routes())
-                .or(process::routes()),
+                .or(process::routes())
+                .or(investigation::routes())
+                .or(methodology::routes()),
         )
         .with(cors)
 }

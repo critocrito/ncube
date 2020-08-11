@@ -1,5 +1,7 @@
 mod account;
 mod config;
+mod investigation;
+mod methodology;
 mod process;
 mod search;
 mod segment;
@@ -10,6 +12,8 @@ mod workspace;
 
 pub use self::account::*;
 pub use self::config::*;
+pub use self::investigation::*;
+pub use self::methodology::*;
 pub use self::process::*;
 pub use self::search::*;
 pub use self::segment::*;
