@@ -4,6 +4,7 @@ import React from "react";
 import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
 import BasicPanel from "../common/basic-panel";
 import Button from "../common/button";
+import ExternalLink from "../common/external-link";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
 import Overline from "../common/overline";
@@ -11,7 +12,6 @@ import {useAppCtx} from "../context";
 import CreateWorkspaceForm from "../forms/create-workspace";
 import {saveWorkspace} from "../handlers";
 import machine from "../machines/home";
-import rpc from "../rpc";
 import {Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import LinkWorkspace from "./link-workspace";
@@ -40,12 +40,9 @@ const Home = ({onDone, workspaces}: HomeProps) => {
           <div>
             <div className="fl w-100 pa3">
               <header className="mb5 mt4">
-                <button
-                  className="b--transparent bg-transparent"
-                  onClick={() => rpc.openExternal("https://sugarcubetools.net")}
-                >
+                <ExternalLink url="https://sugarcubetools.net">
                   <img src={logoIcon} alt="Ncube logo." />
-                </button>
+                </ExternalLink>
               </header>
               <Overline label="Workspaces" />
               <ul className="list pl0 mt0 mb0">
