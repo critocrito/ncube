@@ -85,7 +85,7 @@ const Process = ({workspace}: ProcessProps) => {
         default:
           return (
             <Fatal
-              msg={`Sources table didn't match any valid state: ${state.value}`}
+              msg={`Process didn't match any valid state: ${state.value}`}
               reset={() => send("RETRY")}
             />
           );
