@@ -15,7 +15,7 @@ const Header = ({workspace}: HeaderProps) => {
     <div className="bb b--sapphire w-100 flex justify-between items-center pb2">
       <div className="b text-medium sapphire ttu w-30">
         <button
-          className="b--none bg-transparent pointer b sapphire ttu ma0 pa0"
+          className="b--none bg-transparent pointer b sapphire ttu ma0 pa0 dim"
           onClick={() => workspaceSend("OVERVIEW")}
         >
           {`Workspace: ${workspace.name}`}

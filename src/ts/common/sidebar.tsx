@@ -40,7 +40,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
         }}
       >
         <button
-          className="sapphire b h2 w2 br-100 shadow-1 b--none bg-canvas flex flex-column justify-around items-center pointer"
+          className="sapphire b h2 w2 br-100 shadow-1 b--none bg-canvas flex flex-column justify-around items-center pointer dim"
           onClick={toggleExpanded}
         >
           {buttonLabel}
@@ -69,7 +69,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                   <ul className="list pl0 ">
                     <li>
                       <button
-                        className="flex items-center b--none bg-white pointer"
+                        className="flex items-center b--none bg-white pointer dim"
                         onClick={() => workspaceSend("SOURCE")}
                       >
                         <img
@@ -84,7 +84,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
 
                     <li className="mt3">
                       <button
-                        className="flex items-center b--none bg-white pointer"
+                        className="flex items-center b--none bg-white pointer dim"
                         onClick={() => workspaceSend("DATA")}
                       >
                         <img
@@ -99,7 +99,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
 
                     <li className="mt3">
                       <button
-                        className="flex items-center b--none bg-white pointer"
+                        className="flex items-center b--none bg-white pointer dim"
                         onClick={() => workspaceSend("PROCESS")}
                       >
                         <img
@@ -114,7 +114,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
 
                     <li className="mt3">
                       <button
-                        className="flex items-center b--none bg-white pointer"
+                        className="flex items-center b--none bg-white pointer dim"
                         onClick={() => workspaceSend("INVESTIGATION")}
                       >
                         <img
@@ -130,7 +130,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                 </div>
                 <div className="pa2 h3 w5 bt b--solitude bw1 flex items-center justify-between fixed bottom-0">
                   <button
-                    className="b--none bg-white pointer"
+                    className="b--none bg-white pointer dim"
                     onClick={() => appSend("SHOW_HOME")}
                   >
                     <img height="45px" src={logoIcon} alt="Ncube logo." />
