@@ -1,6 +1,7 @@
 import {
   ConfigSettingReq,
   HostConfig,
+  Investigation,
   Process,
   ProcessConfigReq,
   ProcessRunReq,
@@ -350,6 +351,20 @@ export const runProcess = async (
   );
 
   return emptyResponse(resp);
+};
+
+/*
+ * Investigations
+ */
+
+export const listInvestigations = async (
+  workspace: string,
+): Promise<Investigation[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations`,
+  );
+
+  return dataResponse(resp);
 };
 
 /*

@@ -160,6 +160,28 @@ export type Process = {
   config: ProcessConfig[];
 };
 
+export type MethodologyProcess = Record<string, unknown>;
+
+export type Methodology = {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string;
+  process: MethodologyProcess;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Investigation = {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string;
+  methodology: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProcessConfigReq = {
   key: string;
   value: Record<string, string>;
@@ -220,3 +242,15 @@ export interface WorkspaceRemoteReq {
 // export type WorkspaceRemoteReq = Yup.InferType<typeof v.remoteWorkspaceReq>;
 
 export type WorkspaceReq = WorkspaceLocalReq | WorkspaceRemoteReq;
+
+export type InvestigationReq = {
+  title: string;
+  description?: string;
+  methodology: string;
+};
+
+export type Methodologyreq = {
+  title: string;
+  description?: string;
+  process: MethodologyProcess;
+};

@@ -14,6 +14,7 @@ import {
   statSourcesTotal,
   statSourcesTypes,
 } from "../http";
+import Investigation from "../investigation";
 import machine from "../machines/workspace";
 import Process from "../process";
 import {Workspace} from "../types";
@@ -180,7 +181,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header="Investigations"
             description=""
           >
-            <div />
+            <Investigation workspace={workspace} />
           </Panel>
         </WorkspaceProvider>
       );
