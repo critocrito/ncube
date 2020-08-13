@@ -35,7 +35,7 @@ The following is a complete example of a user defined methodology. It contains t
         "TO_INCOMING_DATA": "incoming_data",
         "TO_DISCARDED_DATA": "discarded_data"
       }
-    }
+    },
 
     "desk_research": {
       "on": {

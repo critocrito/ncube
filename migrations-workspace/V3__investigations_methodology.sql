@@ -18,3 +18,19 @@ CREATE TABLE IF NOT EXISTS investigation (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 CREATE INDEX IF NOT EXISTS investigation_methodology_idx ON investigation (methodology);
+
+insert into methodology (
+  title,
+  slug,
+  description,
+  process,
+  created_at,
+  updated_at
+) VALUES (
+  'Tutorial',
+  'tutorial',
+  'The methodology used in the Ncube tutorial at https://sugarcubetools.net/ncube/tutorial.',
+  '{"id":"tutorial","initial":"incoming_data","states":{"incoming_data":{"on":{"TO_DESK_RESEARCH":"desk_research","TO_DISCARDED_DATA":"discarded_data"}},"discarded_data":{"on":{"TO_INCOMING_DATA":"incoming_data"}},"verified_data":{"on":{"TO_INCOMING_DATA":"incoming_data","TO_DISCARDED_DATA":"discarded_data"}},"desk_research":{"on":{"TO_SIGN_OFF":"sign_off","TO_DISCARDED_DATA":"discarded_data"},"meta":{"annotations":[{"name":"location","description":"Longer description","kind":"string"},{"name":"narrative","description":null,"kind":"text","required":true}]}},"sign_off":{"on":{"TO_VERIFIED_DATA":"verified_data","TO_DESK_RESEARCH":"desk_research","TO_DISCARDED_DATA":"discarded_data"}}}}',
+  '2020-08-13T07:54:40.659291+00:00',
+  '2020-08-13T07:54:40.659291+00:00'
+);

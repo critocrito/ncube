@@ -63,7 +63,7 @@ export default createMachine<
 
     create: {
       on: {
-        SHOW_HOME: "home",
+        SHOW_HOME: "investigations",
       },
     },
 

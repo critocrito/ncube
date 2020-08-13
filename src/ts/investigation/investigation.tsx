@@ -4,9 +4,11 @@ import React from "react";
 import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
+import FormHandler from "../common/form-handler";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
-import {listInvestigations} from "../http";
+import CreateInvestigationForm from "../forms/create-investigation";
+import {createInvestigation, listInvestigations} from "../http";
 import machine from "../machines/investigation";
 import {Investigation as InvestigationType, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -33,8 +35,6 @@ const Investigation = ({workspace}: InvestigationProps) => {
   const [, appSend] = useAppCtx();
 
   const {error, investigations} = state.context;
-
-  console.log(investigations);
 
   switch (true) {
     case state.matches("investigations"):
@@ -85,7 +85,16 @@ const Investigation = ({workspace}: InvestigationProps) => {
             title="Create Investigation"
             description="Create new investigations."
           >
-            <div>Create</div>
+            <div className="flex flex-column">
+              <p>Add a new data source for your workspace.</p>
+
+              <FormHandler
+                onSave={(values) => createInvestigation(workspace.slug, values)}
+                onDone={() => send("SHOW_HOME")}
+                Form={CreateInvestigationForm}
+                workspace={workspace}
+              />
+            </div>
           </Modal>
           <div className="flex flex-column">
             <div className="flex mb3">

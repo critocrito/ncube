@@ -2,6 +2,8 @@ import {
   ConfigSettingReq,
   HostConfig,
   Investigation,
+  InvestigationReq,
+  Methodology,
   Process,
   ProcessConfigReq,
   ProcessRunReq,
@@ -365,6 +367,34 @@ export const listInvestigations = async (
   );
 
   return dataResponse(resp);
+};
+
+export const listMethodologies = async (
+  workspace: string,
+): Promise<Methodology[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/methodologies`,
+  );
+
+  return dataResponse(resp);
+};
+
+export const createInvestigation = async (
+  workspace: string,
+  body: InvestigationReq,
+): Promise<void> => {
+  await v.investigationReq.isValid(body);
+
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations`,
+    {
+      body: JSON.stringify(body),
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
 };
 
 /*

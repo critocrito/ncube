@@ -111,3 +111,9 @@ export const processRunReq = Yup.object({
     .oneOf(["all", "new", "selection"] as const)
     .required(),
 });
+
+export const investigationReq = Yup.object({
+  title: Yup.string().required(),
+  description: Yup.string(),
+  methodology: Yup.string().required(),
+});
