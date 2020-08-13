@@ -1,15 +1,19 @@
 import React from "react";
 
 import Button from "../common/button";
-import {Segment} from "../types";
+import Stat from "../common/stat";
+import {statSegmentsUnits} from "../http";
+import {Segment, Workspace} from "../types";
 
 interface SegmentItemProps {
+  workspace: Workspace;
   segment: Segment;
   onExplore: () => void;
 }
 
 const SegmentListItem = ({
-  segment: {query, title},
+  workspace,
+  segment: {query, title, slug},
   onExplore,
 }: SegmentItemProps) => {
   return (
@@ -37,7 +41,7 @@ const SegmentListItem = ({
 
             <thead>
               <tr>
-                <th className="ba b--fair-pink tc b sapphire">Queries</th>
+                <th className="ba b--fair-pink tc b sapphire">Query</th>
                 <th className="ba b--fair-pink tc b sapphire">Units</th>
                 <th className="ba b--fair-pink tc b sapphire">New</th>
               </tr>
@@ -46,9 +50,12 @@ const SegmentListItem = ({
             <tbody>
               <tr>
                 <td className="ba b--fair-pink tc sapphire">{query}</td>
-
-                <td className="ba b--fair-pink tc sapphire">667</td>
-                <td className="ba b--fair-pink tc sapphire">23</td>
+                <td className="ba b--fair-pink tc sapphire">
+                  <Stat
+                    fetchStat={() => statSegmentsUnits(workspace.slug, slug)}
+                  />
+                </td>
+                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
               </tr>
             </tbody>
           </table>

@@ -1,14 +1,15 @@
 import React from "react";
 
-import {Segment} from "../types";
+import {Segment, Workspace} from "../types";
 import SegmentListItem from "./segment-list-item";
 
 interface SegmentListProps {
+  workspace: Workspace;
   segments: Segment[];
   onExplore: (s: Segment) => void;
 }
 
-const SegmentList = ({segments, onExplore}: SegmentListProps) => {
+const SegmentList = ({segments, workspace, onExplore}: SegmentListProps) => {
   return (
     <div className="flex flex-column">
       <div className="flex">
@@ -25,6 +26,7 @@ const SegmentList = ({segments, onExplore}: SegmentListProps) => {
           return (
             <li key={segment.id} className="ml2 mr2 mt3 mb3">
               <SegmentListItem
+                workspace={workspace}
                 onExplore={() => onExplore(segment)}
                 segment={segment}
               />

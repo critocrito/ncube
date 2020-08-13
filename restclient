@@ -271,3 +271,6 @@ GET http://:api/api/workspaces/syrian-archive/stats/data/videos
 
 # Fetch count of segments
 GET http://:api/api/workspaces/syrian-archive/stats/data/segments
+
+# Fetch total units for a segment
+GET http://:api/api/workspaces/syrian-archive/stats/segments/mf001a/query

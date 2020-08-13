@@ -58,6 +58,7 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
 
           {segments.length > 0 && (
             <SegmentList
+              workspace={workspace}
               segments={segments}
               onExplore={(s) => send("SHOW_SEGMENT", {segment: s})}
             />
