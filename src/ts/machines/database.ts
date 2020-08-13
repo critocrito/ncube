@@ -12,11 +12,12 @@ type DatabaseEvent =
   | {type: "SHOW_HOME"}
   | {type: "SHOW_DATA"}
   | {type: "SHOW_SEGMENT"; segment: Segment}
+  | {type: "SEND_TO_VERIFY"; segment: Segment}
   | {type: "RETRY"};
 
 type DatabaseState =
   | {
-      value: "segments" | "home" | "exploration";
+      value: "segments" | "home" | "exploration" | "verify_segment";
       context: DatabaseContext;
     }
   | {
@@ -47,11 +48,18 @@ export default createMachine<DatabaseContext, DatabaseEvent, DatabaseState>({
     home: {
       on: {
         SHOW_DATA: "exploration",
+        SEND_TO_VERIFY: "verify_segment",
         SHOW_SEGMENT: "exploration",
       },
     },
 
     exploration: {
+      on: {
+        SHOW_HOME: "home",
+      },
+    },
+
+    verify_segment: {
       on: {
         SHOW_HOME: "home",
       },

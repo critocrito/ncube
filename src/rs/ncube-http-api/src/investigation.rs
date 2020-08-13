@@ -1,4 +1,4 @@
-use ncube_data::{InvestigationReq, ReqCtx, SuccessResponse};
+use ncube_data::{InvestigationReq, ReqCtx, SuccessResponse, VerifySegmentReq};
 use ncube_handlers::workspace as handlers;
 use tracing::instrument;
 use warp::Filter;
@@ -45,6 +45,22 @@ async fn remove(
     Ok(warp::reply())
 }
 
+#[instrument]
+async fn verify_segment(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+    verify_segment_req: VerifySegmentReq,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    // handlers::create_investigation(&workspace, &investigation_req).await?;
+    println!(
+        "{:?}, {:?}, {:?}",
+        workspace, investigation, verify_segment_req
+    );
+
+    Ok(warp::reply())
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!("workspaces" / String / "investigations"))
@@ -69,4 +85,12 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             .and(warp::delete())
             .and_then(remove)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "investigations" / String
+            ))
+            .and(warp::post())
+            .and(warp::body::json())
+            .and_then(verify_segment)
+            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED)))
 }

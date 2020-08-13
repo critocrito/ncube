@@ -117,3 +117,7 @@ export const investigationReq = Yup.object({
   description: Yup.string(),
   methodology: Yup.string().required(),
 });
+
+export const verifySegmentReq = Yup.object({
+  segment: Yup.string().required(),
+});

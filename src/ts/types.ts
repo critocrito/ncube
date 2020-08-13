@@ -254,3 +254,7 @@ export type Methodologyreq = {
   description?: string;
   process: MethodologyProcess;
 };
+
+export type VerifySegmentReq = {
+  segment: string;
+};

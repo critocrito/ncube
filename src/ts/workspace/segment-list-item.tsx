@@ -9,12 +9,14 @@ interface SegmentItemProps {
   workspace: Workspace;
   segment: Segment;
   onExplore: () => void;
+  onVerify: () => void;
 }
 
 const SegmentListItem = ({
   workspace,
   segment: {query, title, slug},
   onExplore,
+  onVerify,
 }: SegmentItemProps) => {
   return (
     <section className="w-100 flex h4 justify-between">
@@ -63,7 +65,7 @@ const SegmentListItem = ({
       </div>
 
       <div>
-        <Button disabled size="large">
+        <Button size="large" onClick={onVerify}>
           Verify
         </Button>
       </div>

@@ -656,6 +656,11 @@ pub struct Investigation {
     pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct VerifySegmentReq {
+    pub segment: String,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -13,6 +13,7 @@ import {
   SourceReq,
   SourceTag,
   Unit,
+  VerifySegmentReq,
   Workspace,
   WorkspaceReq,
 } from "./types";
@@ -387,6 +388,25 @@ export const createInvestigation = async (
 
   const resp = await fetch(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations`,
+    {
+      body: JSON.stringify(body),
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
+};
+
+export const verifySegment = async (
+  workspace: string,
+  investigation: string,
+  body: VerifySegmentReq,
+): Promise<void> => {
+  await v.verifySegmentReq.isValid(body);
+
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}`,
     {
       body: JSON.stringify(body),
       method: "POST",

@@ -25,6 +25,7 @@ pub trait InvestigationStore {
     ) -> Result<(), DatabaseError>;
     async fn show(&self, slug: &str) -> Result<Option<Investigation>, DatabaseError>;
     async fn list(&self) -> Result<Vec<Investigation>, DatabaseError>;
+    async fn verify_segment(&self) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -111,6 +112,11 @@ impl InvestigationStore for InvestigationStoreSqlite {
 
         Ok(investigations)
     }
+
+    #[instrument]
+    async fn verify_segment(&self) -> Result<(), DatabaseError> {
+        unimplemented!()
+    }
 }
 
 #[derive(Debug)]
@@ -184,5 +190,10 @@ impl InvestigationStore for InvestigationStoreHttp {
         let data: Vec<Investigation> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
 
         Ok(data)
+    }
+
+    #[instrument]
+    async fn verify_segment(&self) -> Result<(), DatabaseError> {
+        unimplemented!()
     }
 }

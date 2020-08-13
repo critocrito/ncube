@@ -9,6 +9,7 @@ const Wrapper = () => {
   return (
     <SegmentList
       onExplore={() => {}}
+      onVerify={() => {}}
       segments={segments}
       workspace={(workspace as unknown) as Workspace}
     />
