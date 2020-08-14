@@ -1,5 +1,5 @@
 use ncube_data::{ReqCtx, SuccessResponse};
-use ncube_handlers::workspace as handlers;
+use ncube_handlers::{stat as stat_handlers, workspace as handlers};
 use percent_encoding::percent_decode_str;
 use serde::Deserialize;
 use tracing::instrument;
@@ -111,6 +111,18 @@ async fn segments_units(
 }
 
 #[instrument]
+async fn investigations_segments(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let stat = stat_handlers::stat_investigation_segments(&workspace, &investigation).await?;
+    let response = SuccessResponse::new(stat.value);
+
+    Ok(warp::reply::json(&response))
+}
+
+#[instrument]
 async fn investigations_total(
     _ctx: ReqCtx,
     workspace: String,
@@ -178,4 +190,10 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             ))
             .and(warp::get())
             .and_then(investigations_total))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "stats" / "investigations" / String / "segments"
+            ))
+            .and(warp::get())
+            .and_then(investigations_segments))
 }

@@ -14,6 +14,7 @@ pub mod config;
 pub mod host;
 pub mod investigation;
 pub mod source;
+pub mod stat;
 pub mod workspace;
 
 #[derive(Error, Debug)]
