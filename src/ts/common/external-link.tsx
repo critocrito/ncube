@@ -12,7 +12,10 @@ interface ExternalLinkProps {
 const ExternalLink = ({url, children, className}: ExternalLinkProps) => {
   return (
     <button
-      className={c("b--transparent bg-transparent pointer", className)}
+      className={c(
+        "b--transparent bg-transparent pointer bittersweet underline pa0",
+        className,
+      )}
       onClick={() => rpc.openExternal(url)}
     >
       {children}

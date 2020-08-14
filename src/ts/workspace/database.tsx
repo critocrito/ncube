@@ -1,9 +1,11 @@
 import {useMachine} from "@xstate/react";
 import React, {useEffect} from "react";
 
+import SegmentsEmpty from "../../mdx/segments-empty.mdx";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
+import IntroText from "../common/intro-text";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
 import SendToVerificationForm from "../forms/send-to-verification";
@@ -61,13 +63,17 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
             stats={stats}
           />
 
-          {segments.length > 0 && (
+          {segments.length > 0 ? (
             <SegmentList
               workspace={workspace}
               segments={segments}
               onExplore={(s) => send("SHOW_SEGMENT", {segment: s})}
               onVerify={(s) => send("SEND_TO_VERIFY", {segment: s})}
             />
+          ) : (
+            <IntroText>
+              <SegmentsEmpty />
+            </IntroText>
           )}
         </div>
       );

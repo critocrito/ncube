@@ -1,8 +1,13 @@
 import {useMachine} from "@xstate/react";
 import React, {useState} from "react";
 
+import DataIntroduction from "../../mdx/data-intro.mdx";
+import InvestigationsIntroduction from "../../mdx/investigations-intro.mdx";
+import ProcessesIntroduction from "../../mdx/processes-intro.mdx";
+import SourcesIntroduction from "../../mdx/sources-intro.mdx";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
+import IntroText from "../common/intro-text";
 import LoadingSpinner from "../common/loading-spinner";
 import Panel from "../common/panel";
 import {WorkspaceProvider} from "../context";
@@ -103,7 +108,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header={workspace.name}
             description={workspace.description}
           >
-            <div>
+            <>
               <SectionCard
                 onClick={() => send("SOURCE")}
                 kind="source"
@@ -119,7 +124,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
                 onClick={() => send("INVESTIGATION")}
                 kind="investigation"
               />
-            </div>
+            </>
           </Panel>
         </WorkspaceProvider>
       );
@@ -133,7 +138,16 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header="Sources"
             description=""
           >
-            <SourcesTable workspace={workspace} totalStat={sourceStats.total} />
+            <>
+              <IntroText>
+                <SourcesIntroduction />
+              </IntroText>
+
+              <SourcesTable
+                workspace={workspace}
+                totalStat={sourceStats.total}
+              />
+            </>
           </Panel>
         </WorkspaceProvider>
       );
@@ -147,13 +161,19 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header={databaseHeader}
             description=""
           >
-            <Database
-              stats={dataStats}
-              workspace={workspace}
-              onHeaderChange={(title) =>
-                setDatabaseHeader(title ? `Database: ${title}` : "Database")
-              }
-            />
+            <>
+              <IntroText>
+                <DataIntroduction />
+              </IntroText>
+
+              <Database
+                stats={dataStats}
+                workspace={workspace}
+                onHeaderChange={(title) =>
+                  setDatabaseHeader(title ? `Database: ${title}` : "Database")
+                }
+              />
+            </>
           </Panel>
         </WorkspaceProvider>
       );
@@ -167,7 +187,13 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header="Processes"
             description=""
           >
-            <Process workspace={workspace} />
+            <>
+              <IntroText>
+                <ProcessesIntroduction />
+              </IntroText>
+
+              <Process workspace={workspace} />
+            </>
           </Panel>
         </WorkspaceProvider>
       );
@@ -181,7 +207,13 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
             header="Investigations"
             description=""
           >
-            <Investigation workspace={workspace} />
+            <>
+              <IntroText>
+                <InvestigationsIntroduction />
+              </IntroText>
+
+              <Investigation workspace={workspace} />
+            </>
           </Panel>
         </WorkspaceProvider>
       );

@@ -2,11 +2,14 @@ import {useMachine} from "@xstate/react";
 import React from "react";
 
 import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
+import WorkspacesEmpty from "../../mdx/workspaces-empty.mdx";
+import WorkspacesIntroduction from "../../mdx/workspaces-intro.mdx";
 import BasicPanel from "../common/basic-panel";
 import Button from "../common/button";
 import ExternalLink from "../common/external-link";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
+import IntroText from "../common/intro-text";
 import Overline from "../common/overline";
 import {useAppCtx} from "../context";
 import CreateWorkspaceForm from "../forms/create-workspace";
@@ -44,19 +47,31 @@ const Home = ({onDone, workspaces}: HomeProps) => {
                   <img src={logoIcon} alt="Ncube logo." />
                 </ExternalLink>
               </header>
-              <Overline label="Workspaces" />
+
+              <IntroText>
+                <WorkspacesIntroduction />
+              </IntroText>
+
+              <Overline className="pt4" label="Workspaces" />
+
               <ul className="list pl0 mt0 mb0">
-                {workspaces.map((workspace) => (
-                  <WorkspaceListItem
-                    key={`workspace-${workspace.id}`}
-                    workspace={workspace}
-                    handleOpen={() =>
-                      appSend("SHOW_WORKSPACE", {
-                        slug: workspace.slug,
-                      })
-                    }
-                  />
-                ))}
+                {workspaces.length > 0 ? (
+                  workspaces.map((workspace) => (
+                    <WorkspaceListItem
+                      key={`workspace-${workspace.id}`}
+                      workspace={workspace}
+                      handleOpen={() =>
+                        appSend("SHOW_WORKSPACE", {
+                          slug: workspace.slug,
+                        })
+                      }
+                    />
+                  ))
+                ) : (
+                  <IntroText>
+                    <WorkspacesEmpty />
+                  </IntroText>
+                )}
               </ul>
             </div>
 

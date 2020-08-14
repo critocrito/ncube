@@ -3,6 +3,7 @@ import c from "classnames";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Cell, Column} from "react-table";
 
+import SourcesEmpty from "../../mdx/sources-empty.mdx";
 import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
@@ -192,7 +193,7 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
         >
           {actionBar}
 
-          {table}
+          {results.length === 0 ? <SourcesEmpty /> : table}
         </div>
       );
     }
