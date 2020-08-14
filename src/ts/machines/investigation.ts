@@ -1,6 +1,6 @@
 import {assign, createMachine} from "xstate";
 
-import {Investigation, Workspace} from "../types";
+import {Investigation, Segment, Workspace} from "../types";
 
 type InvestigationContext = {
   workspace: Workspace;
@@ -10,13 +10,14 @@ type InvestigationContext = {
 
 type InvestigationEvent =
   | {type: "SHOW_DETAILS"; investigation: Investigation}
+  | {type: "VERIFY_SEGMENT"; segment: Segment}
   | {type: "CREATE_INVESTIGATION"}
   | {type: "SHOW_HOME"}
   | {type: "RETRY"};
 
 type InvestigationState =
   | {
-      value: "investigations" | "home" | "details" | "create";
+      value: "investigations" | "home" | "details" | "create" | "segment";
       context: InvestigationContext;
     }
   | {
@@ -58,11 +59,19 @@ export default createMachine<
     details: {
       on: {
         SHOW_HOME: "home",
+        VERIFY_SEGMENT: "segment",
       },
     },
 
     create: {
       on: {
+        SHOW_HOME: "investigations",
+      },
+    },
+
+    segment: {
+      on: {
+        SHOW_DETAILS: "details",
         SHOW_HOME: "investigations",
       },
     },

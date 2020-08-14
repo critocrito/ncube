@@ -1,5 +1,5 @@
 import {useMachine} from "@xstate/react";
-import React from "react";
+import React, {useEffect} from "react";
 
 import Button from "../common/button";
 import Error from "../common/error";
@@ -10,15 +10,17 @@ import {useAppCtx} from "../context";
 import CreateInvestigationForm from "../forms/create-investigation";
 import {createInvestigation, listInvestigations} from "../http";
 import machine from "../machines/investigation";
-import {Investigation as InvestigationType, Workspace} from "../types";
+import {Investigation as InvestigationType, Segment, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
+import InvestigationDetails from "./investigation-details";
 import InvestigationList from "./investigation-list";
 
 interface InvestigationProps {
   workspace: Workspace;
+  onHeaderChange: (s: string | undefined) => void;
 }
 
-const Investigation = ({workspace}: InvestigationProps) => {
+const Investigation = ({workspace, onHeaderChange}: InvestigationProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
       fetchInvestigations: (_ctx, _ev) => listInvestigations(workspace.slug),
@@ -35,6 +37,22 @@ const Investigation = ({workspace}: InvestigationProps) => {
   const [, appSend] = useAppCtx();
 
   const {error, investigations} = state.context;
+
+  const investigation =
+    state.event.type === "SHOW_DETAILS" ? state.event.investigation : undefined;
+
+  const segment =
+    state.event.type === "VERIFY_SEGMENT" ? state.event.segment : undefined;
+
+  useEffect(() => {
+    if (investigation !== undefined) {
+      onHeaderChange(investigation.title);
+    } else if (segment !== undefined) {
+      onHeaderChange(segment.title);
+    } else {
+      onHeaderChange(undefined);
+    }
+  }, [investigation, segment, onHeaderChange]);
 
   switch (true) {
     case state.matches("investigations"):
@@ -65,13 +83,19 @@ const Investigation = ({workspace}: InvestigationProps) => {
     case state.matches("details"):
       switch (state.event.type) {
         case "SHOW_DETAILS": {
-          return <span>Details</span>;
+          return (
+            <InvestigationDetails
+              workspace={workspace}
+              investigation={state.event.investigation}
+              onVerify={(s: Segment) => send("VERIFY_SEGMENT", {segment: s})}
+            />
+          );
         }
 
         default:
           return (
             <Fatal
-              msg={`Investigation didn't match any valid state: ${state.value}`}
+              msg={`Investigation details didn't match any valid state: ${state.value}`}
               reset={() => send("RETRY")}
             />
           );
@@ -117,6 +141,21 @@ const Investigation = ({workspace}: InvestigationProps) => {
         </div>
       );
     }
+
+    case state.matches("segment"):
+      switch (state.event.type) {
+        case "VERIFY_SEGMENT": {
+          return <div>Verification Kanban: {state.event.segment.title}</div>;
+        }
+
+        default:
+          return (
+            <Fatal
+              msg={`Investigation segment didn't match any valid state: ${state.value}`}
+              reset={() => send("RETRY")}
+            />
+          );
+      }
 
     case state.matches("error"):
       return (

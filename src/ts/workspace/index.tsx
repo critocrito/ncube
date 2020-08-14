@@ -35,6 +35,9 @@ interface WorkspaceProps {
 
 const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
   const [databaseHeader, setDatabaseHeader] = useState("Database");
+  const [investigationsHeader, setInvestigationsHeader] = useState(
+    "Investigations",
+  );
 
   const [state, send, service] = useMachine(machine, {
     context: {
@@ -204,7 +207,7 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
           <Panel
             workspaces={workspaces}
             workspace={workspace}
-            header="Investigations"
+            header={investigationsHeader}
             description=""
           >
             <>
@@ -212,7 +215,14 @@ const WorkspacePanel = ({workspaces, workspace}: WorkspaceProps) => {
                 <InvestigationsIntroduction />
               </IntroText>
 
-              <Investigation workspace={workspace} />
+              <Investigation
+                workspace={workspace}
+                onHeaderChange={(title) =>
+                  setInvestigationsHeader(
+                    title ? `Investigations: ${title}` : "Investigations",
+                  )
+                }
+              />
             </>
           </Panel>
         </WorkspaceProvider>

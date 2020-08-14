@@ -417,6 +417,17 @@ export const verifySegment = async (
   return emptyResponse(resp);
 };
 
+export const listInvestigationSegments = async (
+  workspace: string,
+  investigation: string,
+): Promise<Segment[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/segments`,
+  );
+
+  return dataResponse(resp);
+};
+
 /*
  * Workspace stats
  */
