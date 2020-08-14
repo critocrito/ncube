@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from "react";
 
 import Button from "../common/button";
+import Stat from "../common/stat";
 import {useWorkspaceCtx} from "../context";
-// import {statInvestigationsAll} from "../http";
+import {statInvestigationsSegments} from "../http";
 import {Investigation} from "../types";
 
 interface InvestigationCardProps {
@@ -11,7 +12,7 @@ interface InvestigationCardProps {
 }
 
 const InvestigationCard = ({
-  investigation: {title, id},
+  investigation: {title, id, slug: investigation_slug},
   onClick,
 }: InvestigationCardProps) => {
   const [investigationsAll, setInvestigationsAll] = useState(0);
@@ -65,7 +66,13 @@ const InvestigationCard = ({
                     `${investigationsAll} units`
                   )}
                 </td>
-                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
+                <td className="ba b--fair-pink tc sapphire">
+                  <Stat
+                    fetchStat={() =>
+                      statInvestigationsSegments(slug, investigation_slug)
+                    }
+                  />
+                </td>
                 <td className="ba b--fair-pink tc sapphire">&mdash;</td>
               </tr>
             </tbody>
