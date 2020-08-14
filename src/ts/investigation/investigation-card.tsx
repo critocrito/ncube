@@ -3,7 +3,11 @@ import React from "react";
 import Button from "../common/button";
 import Stat from "../common/stat";
 import {useWorkspaceCtx} from "../context";
-import {statInvestigationsData, statInvestigationsSegments} from "../http";
+import {
+  statInvestigationsData,
+  statInvestigationsSegments,
+  statInvestigationsVerified,
+} from "../http";
 import {Investigation} from "../types";
 
 interface InvestigationCardProps {
@@ -62,7 +66,13 @@ const InvestigationCard = ({
                     }
                   />
                 </td>
-                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
+                <td className="ba b--fair-pink tc sapphire">
+                  <Stat
+                    fetchStat={() =>
+                      statInvestigationsVerified(slug, investigation_slug)
+                    }
+                  />
+                </td>
               </tr>
             </tbody>
           </table>
