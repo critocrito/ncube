@@ -17,3 +17,16 @@ pub async fn stat_investigation_segments(
 
     Ok(stats)
 }
+
+pub async fn stat_investigation_data(
+    workspace: &str,
+    investigation: &str,
+) -> Result<Stat, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let stat_store = stat_store(database);
+    let stats = stat_store.investigation_data_total(&investigation).await?;
+
+    Ok(stats)
+}

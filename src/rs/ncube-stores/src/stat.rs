@@ -21,6 +21,7 @@ pub trait StatStore {
     async fn data_segments(&self) -> Result<Stat, DatabaseError>;
     async fn processes_all(&self, process: &str) -> Result<Stat, DatabaseError>;
     async fn investigations_total(&self) -> Result<Stat, DatabaseError>;
+    async fn investigation_data_total(&self, investigation: &str) -> Result<Stat, DatabaseError>;
     async fn investigation_segments_total(
         &self,
         investigation: &str,
@@ -154,6 +155,20 @@ impl StatStore for StatStoreSqlite {
 
         Ok(Stat {
             name: "investigations_total".into(),
+            value: count,
+        })
+    }
+
+    #[instrument]
+    async fn investigation_data_total(&self, investigation: &str) -> Result<Stat, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt =
+            conn.prepare_cached(include_str!("../sql/stat/count_investigation_data.sql"))?;
+
+        let count: i32 = stmt.query_row(params![&investigation], |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "investigation_data_total".into(),
             value: count,
         })
     }
@@ -315,6 +330,22 @@ impl StatStore for StatStoreHttp {
 
         Ok(Stat {
             name: "investigations_total".into(),
+            value,
+        })
+    }
+
+    #[instrument]
+    async fn investigation_data_total(&self, investigation: &str) -> Result<Stat, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/investigations/{}/data",
+            self.client.workspace.slug, investigation
+        ));
+
+        let value: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "investigation_data_total".into(),
             value,
         })
     }

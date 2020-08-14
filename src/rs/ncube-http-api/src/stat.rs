@@ -111,6 +111,18 @@ async fn segments_units(
 }
 
 #[instrument]
+async fn investigations_data(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let stat = stat_handlers::stat_investigation_data(&workspace, &investigation).await?;
+    let response = SuccessResponse::new(stat.value);
+
+    Ok(warp::reply::json(&response))
+}
+
+#[instrument]
 async fn investigations_segments(
     _ctx: ReqCtx,
     workspace: String,
@@ -190,6 +202,12 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             ))
             .and(warp::get())
             .and_then(investigations_total))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "stats" / "investigations" / String / "data"
+            ))
+            .and(warp::get())
+            .and_then(investigations_data))
         .or(authenticate_remote_req()
             .and(warp::path!(
                 "workspaces" / String / "stats" / "investigations" / String / "segments"
