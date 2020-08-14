@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 
 import Button from "../common/button";
 import Stat from "../common/stat";
 import {useWorkspaceCtx} from "../context";
-import {statInvestigationsSegments} from "../http";
+import {statInvestigationsData, statInvestigationsSegments} from "../http";
 import {Investigation} from "../types";
 
 interface InvestigationCardProps {
@@ -12,11 +12,9 @@ interface InvestigationCardProps {
 }
 
 const InvestigationCard = ({
-  investigation: {title, id, slug: investigation_slug},
+  investigation: {title, slug: investigation_slug},
   onClick,
 }: InvestigationCardProps) => {
-  const [investigationsAll, setInvestigationsAll] = useState(0);
-
   const [
     {
       context: {
@@ -24,15 +22,6 @@ const InvestigationCard = ({
       },
     },
   ] = useWorkspaceCtx();
-
-  useEffect(() => {
-    const f = async () => {
-      // const stat = await statInvestigationsAll(slug, key);
-      const stat = 23;
-      setInvestigationsAll(stat);
-    };
-    f();
-  }, [slug, id]);
 
   return (
     <section className="h4 bg-white pa3 shadow-4 flex items-center justify-between mb4">
@@ -60,11 +49,11 @@ const InvestigationCard = ({
             <tbody>
               <tr>
                 <td className="ba b--fair-pink tc sapphire">
-                  {investigationsAll === 0 ? (
-                    <>&mdash;</>
-                  ) : (
-                    `${investigationsAll} units`
-                  )}
+                  <Stat
+                    fetchStat={() =>
+                      statInvestigationsData(slug, investigation_slug)
+                    }
+                  />
                 </td>
                 <td className="ba b--fair-pink tc sapphire">
                   <Stat

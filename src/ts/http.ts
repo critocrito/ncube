@@ -500,6 +500,17 @@ export const statInvestigationsTotal = async (
   return dataResponse(resp);
 };
 
+export const statInvestigationsData = async (
+  workspace: string,
+  investigation: string,
+): Promise<number> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/investigations/${investigation}/data`,
+  );
+
+  return dataResponse(resp);
+};
+
 export const statInvestigationsSegments = async (
   workspace: string,
   investigation: string,
