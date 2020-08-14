@@ -33,10 +33,10 @@ const Stat = ({kind, fetchStat}: StatProps) => {
     label = "Data";
     icon = dataIcon;
   } else if (kind === "process") {
-    label = "Process";
+    label = "Processes";
     icon = processIcon;
   } else if (kind === "investigation") {
-    label = "Investigation";
+    label = "Investigations";
     icon = investigationIcon;
   }
 
