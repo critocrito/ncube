@@ -2,7 +2,11 @@ import React from "react";
 
 import Button from "../common/button";
 import WorkspaceTag from "../common/workspace-tag";
-import {statDataTotal, statSourcesTotal} from "../http";
+import {
+  statDataTotal,
+  statInvestigationsTotal,
+  statSourcesTotal,
+} from "../http";
 import {Workspace} from "../types";
 import Stat from "./stat";
 
@@ -34,10 +38,9 @@ const WorkspaceListItem = ({workspace, handleOpen}: WorkspaceListItemProps) => {
                 kind="data"
                 fetchStat={() => statDataTotal(workspace.slug)}
               />
-              <Stat kind="process" fetchStat={() => Promise.resolve(23)} />
               <Stat
                 kind="investigation"
-                fetchStat={() => Promise.resolve(23)}
+                fetchStat={() => statInvestigationsTotal(workspace.slug)}
               />
             </div>
           </div>
