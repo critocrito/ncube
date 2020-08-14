@@ -110,6 +110,17 @@ async fn segments_units(
     Ok(warp::reply::json(&response))
 }
 
+#[instrument]
+async fn investigations_total(
+    _ctx: ReqCtx,
+    workspace: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let stat = handlers::stat_investigations_total(&workspace).await?;
+    let response = SuccessResponse::new(stat.value);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!(
@@ -161,4 +172,10 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             ))
             .and(warp::get())
             .and_then(segments_units))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "stats" / "investigations" / "total"
+            ))
+            .and(warp::get())
+            .and_then(investigations_total))
 }

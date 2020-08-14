@@ -176,6 +176,7 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [Count of unit sources](http-api/stat/sources_units.md) `GET /workspaces/<workspace_id>/stats/data/sources`
 - [Count of videos](http-api/stat/videos_units.md) `GET /workspaces/<workspace_id>/stats/data/videos`
 - [Total count of units of a segment](http-api/stat/total_units_segment.md) `GET /workspaces/<workspace_id>/stats/segments/<segment_id>/units`
+- [Total countinvestigations](http-api/stat/total_investigations.md) `GET /workspaces/<workspace_id>/stats/investigations/total`
 
 ## Entities
 

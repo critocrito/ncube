@@ -368,6 +368,17 @@ pub async fn stat_segment_units(workspace: &str, segment: &str) -> Result<Stat, 
 }
 
 #[instrument]
+pub async fn stat_investigations_total(workspace: &str) -> Result<Stat, HandlerError> {
+    ensure_workspace(&workspace).await?;
+    let database = workspace_database(&workspace).await?;
+    let stat_store = stat_store(database);
+
+    let stats = stat_store.investigations_total().await?;
+
+    Ok(stats)
+}
+
+#[instrument]
 pub async fn list_data(
     workspace: &str,
     page: i32,
