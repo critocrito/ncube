@@ -12,6 +12,7 @@ use tracing::{error, instrument};
 pub mod account;
 pub mod config;
 pub mod host;
+pub mod investigation;
 pub mod source;
 pub mod workspace;
 

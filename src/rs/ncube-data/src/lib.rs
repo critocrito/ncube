@@ -628,6 +628,7 @@ pub struct Methodology {
     pub slug: String,
     pub description: Option<String>,
     pub process: serde_json::Value,
+    pub initial_state: serde_json::Value,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

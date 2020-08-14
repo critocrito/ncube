@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use ncube_data::{Download, Media, QueryTag, SearchResponse, Source, Unit};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::params;
-use serde_rusqlite::from_rows;
+use serde_rusqlite::{from_row, from_rows};
 use tracing::instrument;
 
 pub fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> {
@@ -26,6 +26,7 @@ pub trait SearchStore {
         page: i32,
         page_size: i32,
     ) -> Result<Vec<Source>, DatabaseError>;
+    async fn data_list(&self, query: &str) -> Result<Vec<i32>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -112,6 +113,20 @@ impl SearchStore for SearchStoreSqlite {
 
         Ok(sources)
     }
+
+    #[instrument]
+    async fn data_list(&self, query: &str) -> Result<Vec<i32>, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/search/data_list.sql"))?;
+
+        let mut units: Vec<i32> = vec![];
+
+        for row in stmt.query_and_then(params![&query], from_row::<i32>)? {
+            units.push(row?);
+        }
+
+        Ok(units)
+    }
 }
 
 #[derive(Debug)]
@@ -179,5 +194,9 @@ impl SearchStore for SearchStoreHttp {
                 });
 
         Ok(data.data)
+    }
+
+    async fn data_list(&self, _query: &str) -> Result<Vec<i32>, DatabaseError> {
+        unimplemented!()
     }
 }

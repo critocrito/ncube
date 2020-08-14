@@ -1,5 +1,5 @@
 use ncube_data::{InvestigationReq, ReqCtx, SuccessResponse, VerifySegmentReq};
-use ncube_handlers::workspace as handlers;
+use ncube_handlers::{investigation as investigation_handlers, workspace as handlers};
 use tracing::instrument;
 use warp::Filter;
 
@@ -52,11 +52,7 @@ async fn verify_segment(
     investigation: String,
     verify_segment_req: VerifySegmentReq,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    // handlers::create_investigation(&workspace, &investigation_req).await?;
-    println!(
-        "{:?}, {:?}, {:?}",
-        workspace, investigation, verify_segment_req
-    );
+    investigation_handlers::verify_segment(&workspace, &investigation, &verify_segment_req).await?;
 
     Ok(warp::reply())
 }

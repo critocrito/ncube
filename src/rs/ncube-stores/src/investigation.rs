@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use ncube_data::{Investigation, InvestigationReq};
+use ncube_data::{Investigation, InvestigationReq, VerifySegmentReq};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::{params, NO_PARAMS};
-use serde_rusqlite::{self, columns_from_statement, from_row_with_columns, from_rows};
+use serde_rusqlite::{self, columns_from_statement, from_row, from_row_with_columns, from_rows};
 use tracing::instrument;
 
 pub fn investigation_store(wrapped_db: Database) -> Box<dyn InvestigationStore + Send + Sync> {
@@ -25,7 +25,8 @@ pub trait InvestigationStore {
     ) -> Result<(), DatabaseError>;
     async fn show(&self, slug: &str) -> Result<Option<Investigation>, DatabaseError>;
     async fn list(&self) -> Result<Vec<Investigation>, DatabaseError>;
-    async fn verify_segment(&self) -> Result<(), DatabaseError>;
+    async fn verify_segment(&self, investigation: &str, segment: &str)
+        -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -79,7 +80,7 @@ impl InvestigationStore for InvestigationStoreSqlite {
         Ok(())
     }
 
-    // #[instrument]
+    #[instrument]
     async fn show(&self, slug: &str) -> Result<Option<Investigation>, DatabaseError> {
         let conn = self.db.connection().await?;
         let mut stmt = conn.prepare_cached(include_str!("../sql/investigation/show.sql"))?;
@@ -114,8 +115,51 @@ impl InvestigationStore for InvestigationStoreSqlite {
     }
 
     #[instrument]
-    async fn verify_segment(&self) -> Result<(), DatabaseError> {
-        unimplemented!()
+    async fn verify_segment(
+        &self,
+        investigation: &str,
+        segment: &str,
+    ) -> Result<(), DatabaseError> {
+        let now = Utc::now();
+        let conn = self.db.connection().await?;
+
+        let mut stmt = conn.prepare_cached(include_str!(
+            "../sql/investigation/verify_segment_investigation.sql"
+        ))?;
+        let mut stmt2 = conn.prepare_cached(include_str!(
+            "../sql/investigation/verify_segment_segment.sql"
+        ))?;
+        let mut stmt3 = conn.prepare_cached(include_str!("../sql/search/data_list.sql"))?;
+        let mut stmt4 =
+            conn.prepare_cached(include_str!("../sql/investigation/create_verification.sql"))?;
+
+        let (investigation_id, initial_state): (i32, String) = stmt
+            .query_row(params![&investigation], |row| {
+                Ok((row.get(0)?, row.get(1)?))
+            })?;
+        let (segment_id, query): (i32, String) =
+            stmt2.query_row(params![&segment], |row| Ok((row.get(0)?, row.get(1)?)))?;
+
+        let mut units: Vec<i32> = vec![];
+
+        for row in stmt3.query_and_then(params![&query], from_row::<i32>)? {
+            units.push(row?);
+        }
+
+        conn.execute_batch("BEGIN;")?;
+        for unit in units {
+            stmt4.execute(params![
+                investigation_id,
+                &segment_id,
+                &unit,
+                &initial_state,
+                &now.to_rfc3339(),
+                &now.to_rfc3339()
+            ])?;
+        }
+        conn.execute_batch("COMMIT;")?;
+
+        Ok(())
     }
 }
 
@@ -193,7 +237,25 @@ impl InvestigationStore for InvestigationStoreHttp {
     }
 
     #[instrument]
-    async fn verify_segment(&self) -> Result<(), DatabaseError> {
-        unimplemented!()
+    async fn verify_segment(
+        &self,
+        investigation: &str,
+        segment: &str,
+    ) -> Result<(), DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/investigations/{}",
+            self.client.workspace.slug, investigation
+        ));
+
+        let payload = VerifySegmentReq {
+            segment: segment.to_string(),
+        };
+
+        self.client
+            .post::<(), VerifySegmentReq>(url, payload)
+            .await?;
+
+        Ok(())
     }
 }
