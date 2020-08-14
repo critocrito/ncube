@@ -12,8 +12,13 @@ const Stat = ({fetchStat, suffix = ""}: StatProps) => {
   const [statValue, setStatValue] = useState(0);
 
   useEffect(() => {
+    // FIXME: Should I treat errors differently? Maybe show an X and not a
+    //        dash?
     const f = async () => {
-      const stat = await fetchStat();
+      let stat = 0;
+      try {
+        stat = await fetchStat();
+      } catch {} // eslint-disable-line no-empty
       setStatValue(stat);
       setFetchDone(true);
     };
