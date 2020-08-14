@@ -307,6 +307,10 @@ tr:hover {
   @insert .bg-canvas;
 }
 
+.card tr:hover {
+  @insert .bg-white;
+}
+
 .trash {
   cursor: pointer;
   display: none;

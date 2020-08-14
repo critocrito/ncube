@@ -45,19 +45,19 @@ const ProcessCard = ({
   const infoBox = isSetup ? (
     <div className="text-medium flex items-center">
       <img src={successIcon} alt="Process is configured." className="h1 w1" />
-      <span className="ml3">
+      <span className="ml2 tl">
         All requirements for this process are fulfilled.
       </span>
     </div>
   ) : (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between hover">
       <div className="text-medium flex items-center">
         <img
           src={failIcon}
           alt="Process requires configuration."
           className="h1 w1"
         />
-        <span className="ml3">This process needs to be configured.</span>
+        <span className="ml2 tl">This process needs to be configured.</span>
       </div>
       <Button onClick={onClick} kind="secondary">
         Set Up
@@ -67,43 +67,37 @@ const ProcessCard = ({
 
   return (
     <section className="h4 bg-white pa3 shadow-4 flex items-center justify-between mb4">
-      <div className="flex w-80 h-100">
-        <div className="w-40 h-100 flex flex-column justify-between pa2 bt bl bb b--fair-pink">
-          <h4 className="header4 mt0 mb0">{name}</h4>
-          {infoBox}
-        </div>
+      <div className="flex w-80">
+        <table className="w-100 collapse bn card">
+          <colgroup>
+            <col className="w-40" />
+            <col className="w-20" />
+            <col className="w-20" />
+            <col className="w-20" />
+          </colgroup>
 
-        <div className="w-60 h-100">
-          <table className="w-100 h-100 collapse bn no-hover">
-            <colgroup>
-              <col className="w-third" />
-              <col className="w-third" />
-              <col className="w-third" />
-            </colgroup>
+          <thead>
+            <tr>
+              <th className="ba b--fair-pink tc b sapphire tl">
+                <h4 className="header4 mt0 mb0 tl">{name}</h4>
+              </th>
+              <th className="ba b--fair-pink tc b sapphire">Selected</th>
+              <th className="ba b--fair-pink tc b sapphire">All</th>
+              <th className="ba b--fair-pink tc b sapphire">New</th>
+            </tr>
+          </thead>
 
-            <thead>
-              <tr>
-                <th className="ba b--fair-pink tc b sapphire">Selected</th>
-                <th className="ba b--fair-pink tc b sapphire">All</th>
-                <th className="ba b--fair-pink tc b sapphire">New</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr>
-                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
-                <td className="ba b--fair-pink tc sapphire">
-                  {processesAll === 0 ? (
-                    <>&mdash;</>
-                  ) : (
-                    `${processesAll} sources`
-                  )}
-                </td>
-                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <tbody>
+            <tr>
+              <td className="ba b--fair-pink tc sapphire tl">{infoBox}</td>
+              <td className="ba b--fair-pink tc sapphire">&mdash;</td>
+              <td className="ba b--fair-pink tc sapphire">
+                {processesAll === 0 ? <>&mdash;</> : `${processesAll} sources`}
+              </td>
+              <td className="ba b--fair-pink tc sapphire">&mdash;</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div className="pr3 h-100 flex flex-column">
