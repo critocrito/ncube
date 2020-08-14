@@ -2,25 +2,16 @@ import React from "react";
 
 import Button from "../common/button";
 import WorkspaceTag from "../common/workspace-tag";
+import {statDataTotal, statSourcesTotal} from "../http";
 import {Workspace} from "../types";
 import Stat from "./stat";
 
 interface WorkspaceListItemProps {
   workspace: Workspace;
-  stats: {
-    source: number;
-    data: number;
-    process: number;
-    investigation: number;
-  };
   handleOpen: () => void;
 }
 
-const WorkspaceListItem = ({
-  workspace,
-  handleOpen,
-  stats,
-}: WorkspaceListItemProps) => {
+const WorkspaceListItem = ({workspace, handleOpen}: WorkspaceListItemProps) => {
   const {id, kind, name} = workspace;
 
   return (
@@ -35,10 +26,19 @@ const WorkspaceListItem = ({
           </div>
           <div className="w-70 pb4 mr2">
             <div className="flex items-center justify-between">
-              <Stat kind="source" value={stats.source} />
-              <Stat kind="data" value={stats.data} />
-              <Stat kind="process" value={stats.process} />
-              <Stat kind="investigation" value={stats.investigation} />
+              <Stat
+                kind="source"
+                fetchStat={() => statSourcesTotal(workspace.slug)}
+              />
+              <Stat
+                kind="data"
+                fetchStat={() => statDataTotal(workspace.slug)}
+              />
+              <Stat kind="process" fetchStat={() => Promise.resolve(23)} />
+              <Stat
+                kind="investigation"
+                fetchStat={() => Promise.resolve(23)}
+              />
             </div>
           </div>
         </div>

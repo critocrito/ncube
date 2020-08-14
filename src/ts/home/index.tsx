@@ -50,12 +50,6 @@ const Home = ({onDone, workspaces}: HomeProps) => {
                   <WorkspaceListItem
                     key={`workspace-${workspace.id}`}
                     workspace={workspace}
-                    stats={{
-                      source: 123,
-                      data: 123,
-                      process: 42,
-                      investigation: 23,
-                    }}
                     handleOpen={() =>
                       appSend("SHOW_WORKSPACE", {
                         slug: workspace.slug,
