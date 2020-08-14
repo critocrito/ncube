@@ -57,6 +57,18 @@ async fn verify_segment(
     Ok(warp::reply())
 }
 
+#[instrument]
+async fn list_segments(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let segments = investigation_handlers::list_segments(&workspace, &investigation).await?;
+    let response = SuccessResponse::new(segments);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!("workspaces" / String / "investigations"))
@@ -89,4 +101,10 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             .and(warp::body::json())
             .and_then(verify_segment)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::CREATED)))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "investigations" / String / "segments"
+            ))
+            .and(warp::get())
+            .and_then(list_segments))
 }

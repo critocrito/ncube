@@ -1,4 +1,4 @@
-use ncube_data::VerifySegmentReq;
+use ncube_data::{Segment, VerifySegmentReq};
 use ncube_stores::investigation_store;
 use tracing::instrument;
 
@@ -15,9 +15,38 @@ pub async fn verify_segment(
     let database = workspace_database(&workspace).await?;
     let investigation_store = investigation_store(database.clone());
 
+    if let None = investigation_store.show(&investigation).await? {
+        return Err(HandlerError::NotFound(format!(
+            "Investigation '{}' could not be found.",
+            investigation
+        )));
+    };
+
     investigation_store
         .verify_segment(&investigation, &segment_req.segment)
         .await?;
 
     Ok(())
+}
+
+#[instrument]
+pub async fn list_segments(
+    workspace: &str,
+    investigation: &str,
+) -> Result<Vec<Segment>, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let investigation_store = investigation_store(database.clone());
+
+    if let None = investigation_store.show(&investigation).await? {
+        return Err(HandlerError::NotFound(format!(
+            "Investigation '{}' could not be found.",
+            investigation
+        )));
+    };
+
+    let segments = investigation_store.segments(&investigation).await?;
+
+    Ok(segments)
 }

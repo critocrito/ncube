@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use chrono::Utc;
-use ncube_data::{Investigation, InvestigationReq, VerifySegmentReq};
+use ncube_data::{Investigation, InvestigationReq, Segment, VerifySegmentReq};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
 use rusqlite::{params, NO_PARAMS};
 use serde_rusqlite::{self, columns_from_statement, from_row, from_row_with_columns, from_rows};
@@ -27,6 +27,7 @@ pub trait InvestigationStore {
     async fn list(&self) -> Result<Vec<Investigation>, DatabaseError>;
     async fn verify_segment(&self, investigation: &str, segment: &str)
         -> Result<(), DatabaseError>;
+    async fn segments(&self, investigation: &str) -> Result<Vec<Segment>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -161,6 +162,23 @@ impl InvestigationStore for InvestigationStoreSqlite {
 
         Ok(())
     }
+
+    #[instrument]
+    async fn segments(&self, investigation: &str) -> Result<Vec<Segment>, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/investigation/segments.sql"))?;
+        let columns = columns_from_statement(&stmt);
+        let rows = stmt.query_and_then(params![&investigation], |row| {
+            from_row_with_columns::<Segment>(row, &columns)
+        })?;
+
+        let mut segments: Vec<Segment> = vec![];
+        for row in rows {
+            segments.push(row?)
+        }
+
+        Ok(segments)
+    }
 }
 
 #[derive(Debug)]
@@ -257,5 +275,18 @@ impl InvestigationStore for InvestigationStoreHttp {
             .await?;
 
         Ok(())
+    }
+
+    #[instrument]
+    async fn segments(&self, investigation: &str) -> Result<Vec<Segment>, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/segments/{}",
+            self.client.workspace.slug, investigation,
+        ));
+
+        let data: Vec<Segment> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
+
+        Ok(data)
     }
 }
