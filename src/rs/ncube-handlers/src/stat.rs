@@ -45,3 +45,19 @@ pub async fn stat_investigation_verified(
 
     Ok(stats)
 }
+
+pub async fn stat_segment_verified(
+    workspace: &str,
+    investigation: &str,
+    segment: &str,
+) -> Result<Stat, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let stat_store = stat_store(database);
+    let stats = stat_store
+        .investigation_segment_verified(&investigation, &segment)
+        .await?;
+
+    Ok(stats)
+}

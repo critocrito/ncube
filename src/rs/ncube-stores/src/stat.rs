@@ -28,6 +28,11 @@ pub trait StatStore {
         &self,
         investigation: &str,
     ) -> Result<Stat, DatabaseError>;
+    async fn investigation_segment_verified(
+        &self,
+        investigation: &str,
+        segment: &str,
+    ) -> Result<Stat, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -205,6 +210,24 @@ impl StatStore for StatStoreSqlite {
 
         Ok(Stat {
             name: "investigation_segments_total".into(),
+            value: count,
+        })
+    }
+
+    async fn investigation_segment_verified(
+        &self,
+        investigation: &str,
+        segment: &str,
+    ) -> Result<Stat, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!(
+            "../sql/stat/count_investigation_segment_verified.sql"
+        ))?;
+
+        let count: i32 = stmt.query_row(params![&investigation, &segment], |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "investigation_segment_verified".into(),
             value: count,
         })
     }
@@ -403,6 +426,25 @@ impl StatStore for StatStoreHttp {
 
         Ok(Stat {
             name: "investigation_segments_total".into(),
+            value,
+        })
+    }
+
+    async fn investigation_segment_verified(
+        &self,
+        investigation: &str,
+        segment: &str,
+    ) -> Result<Stat, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/investigations/{}/segments/{}/verified",
+            self.client.workspace.slug, investigation, segment
+        ));
+
+        let value: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "investigation_segment_verified".into(),
             value,
         })
     }
