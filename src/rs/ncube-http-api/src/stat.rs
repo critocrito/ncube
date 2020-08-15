@@ -170,6 +170,19 @@ async fn segments_verified(
     Ok(warp::reply::json(&response))
 }
 
+#[instrument]
+async fn segments_progress(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+    segment: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let stat = stat_handlers::stat_segment_progress(&workspace, &investigation, &segment).await?;
+    let response = SuccessResponse::new(stat.value);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!(
@@ -258,4 +271,17 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             ))
             .and(warp::get())
             .and_then(segments_verified))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces"
+                    / String
+                    / "stats"
+                    / "investigations"
+                    / String
+                    / "segments"
+                    / String
+                    / "progress"
+            ))
+            .and(warp::get())
+            .and_then(segments_progress))
 }
