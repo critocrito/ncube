@@ -168,6 +168,7 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [Remove an investigation](http-api/investigation/remove.md) `DELETE /workspaces/<workspace>/investigations/<investigation>`
 - [Send segment to investigation](http-api/investigation/verify_segment.md) `POST /workspaces/<workspace>/investigations/<investigation>`
 - [List segments of an investigation](http-api/investigation/segments.md) `POST /workspaces/<workspace>/investigations/<investigation>/segments`
+- [List units for an investigation segment](http-api/investigations/list_units.md) `GET /workspaces/<workspace>/investigations/<investigation>/segments/<segment>`
 
 ### Stats
 

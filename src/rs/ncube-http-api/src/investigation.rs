@@ -1,9 +1,16 @@
 use ncube_data::{InvestigationReq, ReqCtx, SuccessResponse, VerifySegmentReq};
 use ncube_handlers::{investigation as investigation_handlers, workspace as handlers};
+use percent_encoding::percent_decode_str;
+use serde::Deserialize;
 use tracing::instrument;
 use warp::Filter;
 
 use crate::http::authenticate_remote_req;
+
+#[derive(Debug, Deserialize)]
+pub struct UnitsOptions {
+    pub state: Option<String>,
+}
 
 #[instrument]
 async fn create(
@@ -69,6 +76,25 @@ async fn list_segments(
     Ok(warp::reply::json(&response))
 }
 
+#[instrument]
+async fn list_units(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+    segment: String,
+    opts: UnitsOptions,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let state = opts
+        .state
+        .map(|value| percent_decode_str(&value).decode_utf8_lossy().to_string());
+
+    let segments =
+        investigation_handlers::list_units(&workspace, &investigation, &segment, state).await?;
+    let response = SuccessResponse::new(segments);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!("workspaces" / String / "investigations"))
@@ -107,4 +133,11 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             ))
             .and(warp::get())
             .and_then(list_segments))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "investigations" / String / "segments" / String
+            ))
+            .and(warp::query::<UnitsOptions>())
+            .and(warp::get())
+            .and_then(list_units))
 }

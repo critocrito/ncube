@@ -662,6 +662,16 @@ pub struct VerifySegmentReq {
     pub segment: String,
 }
 
+#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
+pub struct SegmentUnit {
+    pub id: i32,
+    pub source: String,
+    pub title: Option<String>,
+    pub videos: i32,
+    pub images: i32,
+    pub state: serde_json::Value,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

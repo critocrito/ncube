@@ -250,6 +250,15 @@ GET http://:api/api/workspaces/syrian-archive/investigations
 # Show the details of a methodology
 GET http://:api/api/workspaces/syrian-archive/investigations/hospital-attacks
 
+# Show all segments that are part of an investigation
+GET http://:api/api/workspaces/syrian-archive/investigations/hospital-attacks/segments
+
+# Show all units that are part of a segment
+GET http://:api/api/workspaces/syrian-archive/investigations/hospital-attacks/segments/mf001a
+
+# Show all units of a certain state that are part of a segment
+GET http://:api/api/workspaces/syrian-archive/investigations/hospital-attacks/segments/mf001a?state=incoming_data
+
 ###
 # Workspace stats
 ###
