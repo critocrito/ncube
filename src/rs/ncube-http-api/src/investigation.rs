@@ -95,6 +95,21 @@ async fn list_units(
     Ok(warp::reply::json(&response))
 }
 
+#[instrument]
+async fn update_state(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+    segment: String,
+    unit: i32,
+    state: serde_json::Value,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    investigation_handlers::update_unit_state(&workspace, &investigation, &segment, unit, &state)
+        .await?;
+
+    Ok(warp::reply())
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!("workspaces" / String / "investigations"))
@@ -140,4 +155,12 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             .and(warp::query::<UnitsOptions>())
             .and(warp::get())
             .and_then(list_units))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "investigations" / String / "segments" / String / i32
+            ))
+            .and(warp::put())
+            .and(warp::body::json())
+            .and_then(update_state)
+            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
 }

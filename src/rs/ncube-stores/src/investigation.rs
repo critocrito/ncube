@@ -39,6 +39,13 @@ pub trait InvestigationStore {
         segment: &str,
         state: &str,
     ) -> Result<Vec<SegmentUnit>, DatabaseError>;
+    async fn update_unit_state(
+        &self,
+        investigation: &str,
+        segment: &str,
+        unit: i32,
+        state: &serde_json::Value,
+    ) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -191,6 +198,7 @@ impl InvestigationStore for InvestigationStoreSqlite {
         Ok(segments)
     }
 
+    #[instrument]
     async fn units(
         &self,
         investigation: &str,
@@ -225,6 +233,7 @@ impl InvestigationStore for InvestigationStoreSqlite {
         Ok(units)
     }
 
+    #[instrument]
     async fn units_by_state(
         &self,
         investigation: &str,
@@ -259,6 +268,38 @@ impl InvestigationStore for InvestigationStoreSqlite {
         }
 
         Ok(units)
+    }
+
+    #[instrument]
+    async fn update_unit_state(
+        &self,
+        investigation: &str,
+        segment: &str,
+        unit: i32,
+        state: &serde_json::Value,
+    ) -> Result<(), DatabaseError> {
+        let conn = self.db.connection().await?;
+
+        let mut stmt = conn.prepare_cached(include_str!(
+            "../sql/investigation/verify_segment_investigation.sql"
+        ))?;
+        let mut stmt2 = conn.prepare_cached(include_str!(
+            "../sql/investigation/verify_segment_segment.sql"
+        ))?;
+
+        let mut stmt3 =
+            conn.prepare_cached(include_str!("../sql/investigation/update_state.sql"))?;
+
+        let (investigation_id, _initial_state): (i32, String) = stmt
+            .query_row(params![&investigation], |row| {
+                Ok((row.get(0)?, row.get(1)?))
+            })?;
+        let (segment_id, _query): (i32, String) =
+            stmt2.query_row(params![&segment], |row| Ok((row.get(0)?, row.get(1)?)))?;
+
+        stmt3.execute(params![&investigation_id, &segment_id, unit, &state])?;
+
+        Ok(())
     }
 }
 
@@ -404,5 +445,25 @@ impl InvestigationStore for InvestigationStoreHttp {
         let data: Vec<SegmentUnit> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
 
         Ok(data)
+    }
+
+    async fn update_unit_state(
+        &self,
+        investigation: &str,
+        segment: &str,
+        unit: i32,
+        state: &serde_json::Value,
+    ) -> Result<(), DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/investigations/{}/segments/{}/{}",
+            self.client.workspace.slug, investigation, segment, unit
+        ));
+
+        let payload = state.to_string();
+
+        self.client.put::<(), String>(url, payload).await?;
+
+        Ok(())
     }
 }

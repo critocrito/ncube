@@ -81,3 +81,32 @@ pub async fn list_units(
 
     Ok(units)
 }
+
+#[instrument]
+pub async fn update_unit_state(
+    workspace: &str,
+    investigation: &str,
+    segment: &str,
+    unit: i32,
+    state: &serde_json::Value,
+) -> Result<(), HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let investigation_store = investigation_store(database.clone());
+
+    if let None = investigation_store.show(&investigation).await? {
+        return Err(HandlerError::NotFound(format!(
+            "Investigation '{}' could not be found.",
+            investigation
+        )));
+    };
+
+    // The update just doesn't happen if the unit doesn't exist (fails the where
+    // clause).
+    investigation_store
+        .update_unit_state(&investigation, &segment, unit, &state)
+        .await?;
+
+    Ok(())
+}

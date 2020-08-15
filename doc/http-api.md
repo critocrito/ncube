@@ -169,6 +169,7 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [Send segment to investigation](http-api/investigation/verify_segment.md) `POST /workspaces/<workspace>/investigations/<investigation>`
 - [List segments of an investigation](http-api/investigation/segments.md) `POST /workspaces/<workspace>/investigations/<investigation>/segments`
 - [List units for an investigation segment](http-api/investigations/list_units.md) `GET /workspaces/<workspace>/investigations/<investigation>/segments/<segment>`
+- [Move a unit from one state to another](http-api/investigations/update_state_segment.md) `PUT /workspaces/<workspace>/investigations/<investigation>/segments/<segment>/<unit>`
 
 ### Stats
 
