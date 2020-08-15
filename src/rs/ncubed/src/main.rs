@@ -1,3 +1,4 @@
+#![type_length_limit = "1343848"]
 use clap::{crate_authors, crate_version, App, AppSettings, Arg};
 use directories::ProjectDirs;
 use ncubed::{Application, ApplicationConfig};
