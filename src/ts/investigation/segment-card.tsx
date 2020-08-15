@@ -3,7 +3,7 @@ import React from "react";
 import Button from "../common/button";
 import Stat from "../common/stat";
 import {useWorkspaceCtx} from "../context";
-import {statSegmentsVerified} from "../http";
+import {statSegmentsProgress, statSegmentsVerified} from "../http";
 import {Investigation, Segment} from "../types";
 
 interface SegmentCardProps {
@@ -36,7 +36,9 @@ const SegmentCard = ({investigation, segment, onClick}: SegmentCardProps) => {
             <tr>
               <th className="ba b--fair-pink tl b sapphire">{segment.title}</th>
               <th className="ba b--fair-pink tc b sapphire">New Data</th>
-              <th className="ba b--fair-pink tc b sapphire">Data In Process</th>
+              <th className="ba b--fair-pink tc b sapphire">
+                Data In Progress
+              </th>
               <th className="ba b--fair-pink tc b sapphire">Verified Data</th>
             </tr>
           </thead>
@@ -45,7 +47,13 @@ const SegmentCard = ({investigation, segment, onClick}: SegmentCardProps) => {
             <tr>
               <td className="ba b--fair-pink tl sapphire">&nbsp;</td>
               <td className="ba b--fair-pink tc sapphire">&mdash;</td>
-              <td className="ba b--fair-pink tc sapphire">&mdash;</td>
+              <td className="ba b--fair-pink tc sapphire">
+                <Stat
+                  fetchStat={() =>
+                    statSegmentsProgress(slug, investigation.slug, segment.slug)
+                  }
+                />
+              </td>
               <td className="ba b--fair-pink tc sapphire">
                 <Stat
                   fetchStat={() =>

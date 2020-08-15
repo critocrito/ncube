@@ -555,3 +555,15 @@ export const statSegmentsVerified = async (
 
   return dataResponse(resp);
 };
+
+export const statSegmentsProgress = async (
+  workspace: string,
+  investigation: string,
+  segment: string,
+): Promise<number> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/stats/investigations/${investigation}/segments/${segment}/progress`,
+  );
+
+  return dataResponse(resp);
+};
