@@ -16,7 +16,7 @@ interface InvestigationCardProps {
 }
 
 const InvestigationCard = ({
-  investigation: {title, slug: investigation_slug},
+  investigation: {title, slug: investigationSlug},
   onClick,
 }: InvestigationCardProps) => {
   const [
@@ -55,21 +55,21 @@ const InvestigationCard = ({
                 <td className="ba b--fair-pink tc sapphire">
                   <Stat
                     fetchStat={() =>
-                      statInvestigationsData(slug, investigation_slug)
+                      statInvestigationsData(slug, investigationSlug)
                     }
                   />
                 </td>
                 <td className="ba b--fair-pink tc sapphire">
                   <Stat
                     fetchStat={() =>
-                      statInvestigationsSegments(slug, investigation_slug)
+                      statInvestigationsSegments(slug, investigationSlug)
                     }
                   />
                 </td>
                 <td className="ba b--fair-pink tc sapphire">
                   <Stat
                     fetchStat={() =>
-                      statInvestigationsVerified(slug, investigation_slug)
+                      statInvestigationsVerified(slug, investigationSlug)
                     }
                   />
                 </td>

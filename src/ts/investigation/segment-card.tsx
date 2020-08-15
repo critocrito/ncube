@@ -1,14 +1,26 @@
 import React from "react";
 
 import Button from "../common/button";
-import {Segment} from "../types";
+import Stat from "../common/stat";
+import {useWorkspaceCtx} from "../context";
+import {statSegmentsVerified} from "../http";
+import {Investigation, Segment} from "../types";
 
 interface SegmentCardProps {
+  investigation: Investigation;
   segment: Segment;
   onClick: () => void;
 }
 
-const SegmentCard = ({segment, onClick}: SegmentCardProps) => {
+const SegmentCard = ({investigation, segment, onClick}: SegmentCardProps) => {
+  const [
+    {
+      context: {
+        workspace: {slug},
+      },
+    },
+  ] = useWorkspaceCtx();
+
   return (
     <div className="flex justify-between">
       <div className="w-80">
@@ -34,7 +46,13 @@ const SegmentCard = ({segment, onClick}: SegmentCardProps) => {
               <td className="ba b--fair-pink tl sapphire">&nbsp;</td>
               <td className="ba b--fair-pink tc sapphire">&mdash;</td>
               <td className="ba b--fair-pink tc sapphire">&mdash;</td>
-              <td className="ba b--fair-pink tc sapphire">&mdash;</td>
+              <td className="ba b--fair-pink tc sapphire">
+                <Stat
+                  fetchStat={() =>
+                    statSegmentsVerified(slug, investigation.slug, segment.slug)
+                  }
+                />
+              </td>
             </tr>
           </tbody>
         </table>

@@ -12,9 +12,10 @@ interface InvestigationDetailsProps {
 
 const InvestigationDetails = ({
   workspace: {slug: workspaceSlug},
-  investigation: {slug: investigationSlug},
+  investigation,
   onVerify,
 }: InvestigationDetailsProps) => {
+  const {slug: investigationSlug} = investigation;
   const [segments, setSegments] = useState<Segment[]>([]);
 
   useEffect(() => {
@@ -40,8 +41,9 @@ const InvestigationDetails = ({
       <div className="bg-white shadow-4">
         {segments.map((segment) => {
           return (
-            <div className="pv4 ph3 h4">
+            <div key={segment.id} className="pv4 ph3 h4">
               <SegmentCard
+                investigation={investigation}
                 segment={segment}
                 onClick={() => onVerify(segment)}
               />
