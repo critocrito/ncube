@@ -1,3 +1,4 @@
+import Humanize from "humanize-plus";
 import React, {useEffect, useState} from "react";
 
 import LoadingSpinner from "./loading-spinner";
@@ -27,7 +28,11 @@ const Stat = ({fetchStat, suffix = ""}: StatProps) => {
 
   if (!fetchDone) return <LoadingSpinner />;
 
-  return statValue === 0 ? <>&mdash;</> : <>{`${statValue} ${suffix}`}</>;
+  return statValue === 0 ? (
+    <>&mdash;</>
+  ) : (
+    <>{`${Humanize.compactInteger(statValue, 1)} ${suffix}`}</>
+  );
 };
 
 export default Stat;
