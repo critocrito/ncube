@@ -8,6 +8,7 @@ import FormHandler from "../common/form-handler";
 import IntroText from "../common/intro-text";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
+import DataCard from "../database/data-card";
 import SendToVerificationForm from "../forms/send-to-verification";
 import {listSegments, verifySegment} from "../http";
 import machine from "../machines/database";
@@ -57,11 +58,7 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
     case state.matches("home"):
       return (
         <div>
-          <SectionCard
-            onClick={() => send("SHOW_DATA")}
-            kind="data"
-            stats={stats}
-          />
+          <DataCard workspace={workspace} onClick={() => send("SHOW_DATA")} />
 
           {segments.length > 0 ? (
             <SegmentList
