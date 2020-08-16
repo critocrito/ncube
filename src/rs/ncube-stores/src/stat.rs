@@ -38,6 +38,8 @@ pub trait StatStore {
         investigation: &str,
         segment: &str,
     ) -> Result<Stat, DatabaseError>;
+    async fn verified_total(&self) -> Result<Stat, DatabaseError>;
+    async fn in_process_total(&self) -> Result<Stat, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -251,6 +253,30 @@ impl StatStore for StatStoreSqlite {
 
         Ok(Stat {
             name: "investigation_segment_progress".into(),
+            value: count,
+        })
+    }
+
+    async fn verified_total(&self) -> Result<Stat, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_verified.sql"))?;
+
+        let count: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "verified_total".into(),
+            value: count,
+        })
+    }
+
+    async fn in_process_total(&self) -> Result<Stat, DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_in_process.sql"))?;
+
+        let count: i32 = stmt.query_row(NO_PARAMS, |row| row.get(0))?;
+
+        Ok(Stat {
+            name: "in_process_total".into(),
             value: count,
         })
     }
@@ -487,6 +513,36 @@ impl StatStore for StatStoreHttp {
 
         Ok(Stat {
             name: "investigation_segment_verified".into(),
+            value,
+        })
+    }
+
+    async fn verified_total(&self) -> Result<Stat, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/verified",
+            self.client.workspace.slug
+        ));
+
+        let value: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "verified_total".into(),
+            value,
+        })
+    }
+
+    async fn in_process_total(&self) -> Result<Stat, DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/stats/in_process",
+            self.client.workspace.slug
+        ));
+
+        let value: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
+
+        Ok(Stat {
+            name: "in_process_total".into(),
             value,
         })
     }

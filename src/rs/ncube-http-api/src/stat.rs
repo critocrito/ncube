@@ -183,6 +183,28 @@ async fn segments_progress(
     Ok(warp::reply::json(&response))
 }
 
+#[instrument]
+async fn verified_total(
+    _ctx: ReqCtx,
+    workspace: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let stat = stat_handlers::stat_verified_total(&workspace).await?;
+    let response = SuccessResponse::new(stat.value);
+
+    Ok(warp::reply::json(&response))
+}
+
+#[instrument]
+async fn in_process_total(
+    _ctx: ReqCtx,
+    workspace: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let stat = stat_handlers::stat_in_process_total(&workspace).await?;
+    let response = SuccessResponse::new(stat.value);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!(
@@ -284,4 +306,12 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             ))
             .and(warp::get())
             .and_then(segments_progress))
+        .or(authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "stats" / "verified"))
+            .and(warp::get())
+            .and_then(verified_total))
+        .or(authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "stats" / "in-process"))
+            .and(warp::get())
+            .and_then(in_process_total))
 }

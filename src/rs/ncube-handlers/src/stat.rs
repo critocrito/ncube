@@ -77,3 +77,23 @@ pub async fn stat_segment_progress(
 
     Ok(stats)
 }
+
+pub async fn stat_verified_total(workspace: &str) -> Result<Stat, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let stat_store = stat_store(database);
+    let stats = stat_store.verified_total().await?;
+
+    Ok(stats)
+}
+
+pub async fn stat_in_process_total(workspace: &str) -> Result<Stat, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let stat_store = stat_store(database);
+    let stats = stat_store.in_process_total().await?;
+
+    Ok(stats)
+}
