@@ -1,14 +1,18 @@
+import {EventObject, State} from "xstate";
+
 import {
   ConfigSettingReq,
   HostConfig,
   Investigation,
   InvestigationReq,
   Methodology,
+  MethodologySchema,
   Process,
   ProcessConfigReq,
   ProcessRunReq,
   Segment,
   SegmentReq,
+  SegmentUnit,
   Source,
   SourceReq,
   SourceTag,
@@ -370,9 +374,13 @@ export const listInvestigations = async (
   return dataResponse(resp);
 };
 
-export const listMethodologies = async (
+export const listMethodologies = async <
+  TContext extends Record<string, unknown>,
+  TStateSchema extends MethodologySchema,
+  TEvent extends EventObject
+>(
   workspace: string,
-): Promise<Methodology[]> => {
+): Promise<Methodology<TContext, TStateSchema, TEvent>[]> => {
   const resp = await fetch(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/methodologies`,
   );
@@ -426,6 +434,104 @@ export const listInvestigationSegments = async (
   );
 
   return dataResponse(resp);
+};
+
+export const showMethodology = async <
+  TContext extends Record<string, unknown>,
+  TStateSchema extends MethodologySchema,
+  TEvent extends EventObject
+>(
+  workspace: string,
+  methodology: string,
+): Promise<Methodology<TContext, TStateSchema, TEvent>> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/methodologies/${methodology}`,
+  );
+
+  const {process, ...rest} = await dataResponse<
+    Methodology<TContext, TStateSchema, TEvent> & {
+      process: string;
+    }
+  >(resp);
+  return {
+    process: JSON.parse(process),
+    ...rest,
+  };
+  // return dataResponse(resp);
+};
+
+export const listSegmentUnits = async <
+  TContext extends Record<string, unknown>,
+  TEvent extends EventObject
+>(
+  workspace: string,
+  investigation: string,
+  segment: string,
+): Promise<SegmentUnit<TContext, TEvent>[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/segments/${segment}`,
+  );
+
+  return dataResponse(
+    resp,
+    (units: Array<SegmentUnit<TContext, TEvent> & {state: string}>) =>
+      units.map(({state, ...rest}) => ({
+        state: JSON.parse(state),
+        ...rest,
+      })),
+  );
+};
+
+export const listSegmentUnitsByState = async <
+  TContext extends Record<string, unknown>,
+  TEvent extends EventObject
+>(
+  workspace: string,
+  investigation: string,
+  segment: string,
+  state: string,
+): Promise<SegmentUnit<TContext, TEvent>[]> => {
+  const url = new URL(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/segments/${segment}`,
+  );
+
+  url.searchParams.append("state", state);
+
+  const resp = await fetch(url.toString());
+
+  return dataResponse(
+    resp,
+    (units: Array<SegmentUnit<TContext, TEvent> & {state: string}>) =>
+      units.map(({state: s, ...rest}) => ({
+        state: JSON.parse(s),
+        ...rest,
+      })),
+  );
+};
+
+export const updateUnitState = async <
+  TContext extends unknown,
+  TEvent extends EventObject
+>(
+  workspace: string,
+  investigation: string,
+  segment: string,
+  unit: number,
+  state: State<TContext, TEvent>,
+): Promise<void> => {
+  // FIXME: How do I validate the request?
+  // await v.investigationReq.isValid(body);
+
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/segments/${segment}/${unit}`,
+    {
+      body: JSON.stringify(state),
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
 };
 
 /*

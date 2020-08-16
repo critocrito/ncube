@@ -14,6 +14,7 @@ import {Investigation as InvestigationType, Segment, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import InvestigationDetails from "./investigation-details";
 import InvestigationList from "./investigation-list";
+import Verification from "./verification";
 
 interface InvestigationProps {
   workspace: Workspace;
@@ -80,26 +81,29 @@ const Investigation = ({workspace, onHeaderChange}: InvestigationProps) => {
         </div>
       );
 
-    case state.matches("details"):
-      switch (state.event.type) {
-        case "SHOW_DETAILS": {
-          return (
-            <InvestigationDetails
-              workspace={workspace}
-              investigation={state.event.investigation}
-              onVerify={(s: Segment) => send("VERIFY_SEGMENT", {segment: s})}
-            />
-          );
-        }
-
-        default:
-          return (
-            <Fatal
-              msg={`Investigation details didn't match any valid state: ${state.value}`}
-              reset={() => send("RETRY")}
-            />
-          );
+    case state.matches("details"): {
+      if (state.event.type === "SHOW_DETAILS") {
+        const {investigation: i} = state.event;
+        return (
+          <InvestigationDetails
+            workspace={workspace}
+            investigation={i}
+            onVerify={(s: Segment) =>
+              send("VERIFY_SEGMENT", {
+                segment: s,
+                investigation,
+              })
+            }
+          />
+        );
       }
+      return (
+        <Fatal
+          msg={`Investigation details didn't match any valid state: ${state.value}`}
+          reset={() => send("RETRY")}
+        />
+      );
+    }
 
     case state.matches("create"): {
       return (
@@ -145,7 +149,13 @@ const Investigation = ({workspace, onHeaderChange}: InvestigationProps) => {
     case state.matches("segment"):
       switch (state.event.type) {
         case "VERIFY_SEGMENT": {
-          return <div>Verification Kanban: {state.event.segment.title}</div>;
+          return (
+            <Verification
+              workspace={workspace}
+              segment={state.event.segment}
+              investigation={state.event.investigation}
+            />
+          );
         }
 
         default:

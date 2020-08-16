@@ -1,13 +1,14 @@
 /* eslint react/no-array-index-key: off */
 import {Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
+import {EventObject} from "xstate";
 import * as Yup from "yup";
 
 import Button from "../common/button";
 import Input from "../common/input";
 import Textarea from "../common/text-area";
 import {listMethodologies} from "../http";
-import {FormProps, Methodology} from "../types";
+import {FormProps, Methodology, MethodologySchema} from "../types";
 import MethodologySelect from "./methodology-select";
 
 type CreateInvestigationFormProps<CreateInvestigationFormValues> = FormProps<
@@ -32,19 +33,29 @@ export const validationSchema = Yup.object({
   methodology: Yup.string().required("This field is required."),
 });
 
-const CreateInvestigationForm = ({
+const CreateInvestigationForm = <
+  TContext extends Record<string, unknown>,
+  TStateSchema extends MethodologySchema,
+  TEvent extends EventObject
+>({
   initialValues = defaultValues,
   onCancel,
   onSubmit,
   workspace,
 }: CreateInvestigationFormProps<CreateInvestigationFormValues>) => {
-  const [methodologiesData, setMethodologiesData] = useState<Methodology[]>([]);
+  const [methodologiesData, setMethodologiesData] = useState<
+    Methodology<TContext, TStateSchema, TEvent>[]
+  >([]);
   const formValues = {...defaultValues, ...initialValues};
 
   useEffect(() => {
     const fetchData = async () => {
       if (!workspace) return;
-      const fetchedData = await listMethodologies(workspace.slug);
+      const fetchedData: Methodology<
+        TContext,
+        TStateSchema,
+        TEvent
+      >[] = await listMethodologies(workspace.slug);
       setMethodologiesData(fetchedData);
     };
     fetchData();

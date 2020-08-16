@@ -1,3 +1,4 @@
+import {EventObject, MachineConfig, State, StateSchema} from "xstate";
 import * as Yup from "yup";
 
 import * as v from "./validations";
@@ -160,14 +161,25 @@ export type Process = {
   config: ProcessConfig[];
 };
 
-export type MethodologyProcess = Record<string, unknown>;
+export interface MethodologySchema extends StateSchema {
+  states: {
+    incoming_data: Record<string, unknown>;
+    discarded_data: Record<string, unknown>;
+    verified_data: Record<string, unknown>;
+    [key: string]: StateSchema;
+  };
+}
 
-export type Methodology = {
+export type Methodology<
+  TContext extends unknown,
+  TStateSchema extends MethodologySchema,
+  TEvent extends EventObject
+> = {
   id: number;
   title: string;
   slug: string;
   description?: string;
-  process: MethodologyProcess;
+  process: MachineConfig<TContext, TStateSchema, TEvent>;
   created_at: string;
   updated_at: string;
 };
@@ -180,6 +192,18 @@ export type Investigation = {
   methodology: string;
   created_at: string;
   updated_at: string;
+};
+
+export type SegmentUnit<
+  TContext extends unknown,
+  TEvent extends EventObject
+> = {
+  id: number;
+  source: string;
+  title?: string;
+  videos: number;
+  images: number;
+  state: State<TContext, TEvent>;
 };
 
 export type ProcessConfigReq = {
@@ -249,12 +273,23 @@ export type InvestigationReq = {
   methodology: string;
 };
 
-export type Methodologyreq = {
+export type MethodologyReq<
+  TContext extends Record<string, unknown>,
+  TStateSchema extends MethodologySchema,
+  TEvent extends EventObject
+> = {
   title: string;
   description?: string;
-  process: MethodologyProcess;
+  process: MachineConfig<TContext, TStateSchema, TEvent>;
 };
 
 export type VerifySegmentReq = {
   segment: string;
+};
+
+export type SegmentUnitStateReq<
+  TContext extends unknown,
+  TEvent extends EventObject
+> = {
+  state: State<TContext, TEvent>;
 };

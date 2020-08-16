@@ -10,7 +10,7 @@ type InvestigationContext = {
 
 type InvestigationEvent =
   | {type: "SHOW_DETAILS"; investigation: Investigation}
-  | {type: "VERIFY_SEGMENT"; segment: Segment}
+  | {type: "VERIFY_SEGMENT"; segment: Segment; investigation: Investigation}
   | {type: "CREATE_INVESTIGATION"}
   | {type: "SHOW_HOME"}
   | {type: "RETRY"};
