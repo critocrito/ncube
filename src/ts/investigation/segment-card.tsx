@@ -34,7 +34,9 @@ const SegmentCard = ({investigation, segment, onClick}: SegmentCardProps) => {
 
           <thead>
             <tr>
-              <th className="ba b--fair-pink tl b sapphire">{segment.title}</th>
+              <th className="bl br bt b--fair-pink tl b sapphire">
+                {segment.title}
+              </th>
               <th className="ba b--fair-pink tc b sapphire">New Data</th>
               <th className="ba b--fair-pink tc b sapphire">
                 Data In Progress
@@ -45,7 +47,7 @@ const SegmentCard = ({investigation, segment, onClick}: SegmentCardProps) => {
 
           <tbody>
             <tr>
-              <td className="ba b--fair-pink tl sapphire">&nbsp;</td>
+              <td className="bl br bb b--fair-pink tl sapphire">&nbsp;</td>
               <td className="ba b--fair-pink tc sapphire">&mdash;</td>
               <td className="ba b--fair-pink tc sapphire">
                 <Stat

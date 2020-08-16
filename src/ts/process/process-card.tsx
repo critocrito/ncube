@@ -78,7 +78,7 @@ const ProcessCard = ({
 
           <thead>
             <tr>
-              <th className="ba b--fair-pink tc b sapphire tl">
+              <th className="bl br bt b--fair-pink tc b sapphire tl">
                 <h4 className="header4 mt0 mb0 tl">{name}</h4>
               </th>
               <th className="ba b--fair-pink tc b sapphire">Selected</th>
@@ -89,7 +89,9 @@ const ProcessCard = ({
 
           <tbody>
             <tr>
-              <td className="ba b--fair-pink tc sapphire tl">{infoBox}</td>
+              <td className="bl br bb b--fair-pink tc sapphire tl">
+                {infoBox}
+              </td>
               <td className="ba b--fair-pink tc sapphire">&mdash;</td>
               <td className="ba b--fair-pink tc sapphire">
                 {processesAll === 0 ? <>&mdash;</> : `${processesAll} sources`}
