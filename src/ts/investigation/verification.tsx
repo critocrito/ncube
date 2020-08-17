@@ -150,9 +150,10 @@ const Verification = <
       // there is something missing simply ignore it.
       if (!methodology) return;
 
-      const {draggableId, index} = event;
+      const {draggableId} = event;
       const sourceId = event?.source?.droppableId;
       const destinationId = event?.destination?.droppableId;
+      const index = event?.destination?.index;
 
       if (!sourceId || !destinationId) return;
 
