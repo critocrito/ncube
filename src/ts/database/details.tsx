@@ -1,6 +1,7 @@
 import {format, parseISO} from "date-fns";
 import React from "react";
 
+import QueryTagList from "../common/query-tag-list";
 import SourceTag from "../common/source-tag";
 import {Unit} from "../types";
 import DefinitionItem from "./definition-item";
@@ -72,6 +73,7 @@ const DataDetails = ({unit}: DataDetailsProps) => {
         <span className="ttu w-10 b text-medium">Tags</span>
         <hr className="w-80" />
       </div>
+      <QueryTagList tags={unit.tags} />
     </div>
   );
 };

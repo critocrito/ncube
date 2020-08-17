@@ -2,7 +2,7 @@ import React from "react";
 
 import Button from "../common/button";
 import CopyAndPaste from "../common/copy-and-paste";
-import QueryTag from "../common/query-tag";
+import QueryTagList from "../common/query-tag-list";
 import SourceTag from "../common/source-tag";
 import {Source} from "../types";
 
@@ -48,13 +48,7 @@ const SourceDetails = ({source, onDelete}: SourceDetailsProps) => {
       {source.tags.length > 0 && (
         <div>
           <p className="mb1">Tags</p>
-          <ul className="list pl0">
-            {source.tags.map(({label}) => (
-              <li key={label} className="mt2 mb2">
-                <QueryTag label={label} />
-              </li>
-            ))}
-          </ul>
+          <QueryTagList tags={source.tags} />
         </div>
       )}
 

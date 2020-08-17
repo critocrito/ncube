@@ -133,6 +133,7 @@ export type Unit = {
   media: Media[];
   downloads: Download[];
   sources: Source[];
+  tags: SourceTag[];
 };
 
 export type Segment = {
