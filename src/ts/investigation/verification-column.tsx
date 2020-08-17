@@ -1,33 +1,23 @@
-/* eslint react/jsx-props-no-spreading: off */
 import c from "classnames";
 import React from "react";
-import {Droppable} from "react-beautiful-dnd";
-import {EventObject} from "xstate";
 
-import {SegmentUnit} from "../types";
-import VerificationCard from "./verification-card";
-
-interface VerificationColumnProps<
-  TContext extends unknown,
-  TEvent extends EventObject
-> {
+interface VerificationColumnProps {
   name: string;
-  units: SegmentUnit<TContext, TEvent>[];
+  cntUnits: number;
+  children?: JSX.Element;
   isHighlighted?: boolean;
   isDroppable?: boolean;
   className?: string;
 }
 
-const VerificationColumn = <
-  TContext extends unknown,
-  TEvent extends EventObject
->({
+const VerificationColumn = ({
   name,
+  cntUnits,
+  children,
   className,
-  units,
   isHighlighted = false,
   isDroppable = true,
-}: VerificationColumnProps<TContext, TEvent>) => {
+}: VerificationColumnProps) => {
   const isRequiredColumn = [
     "incoming_data",
     "discarded_data",
@@ -49,24 +39,9 @@ const VerificationColumn = <
         <span className="text-medium b sapphire">{name}</span>
       </div>
 
-      <div className="pa2 mv2">ALL: {units.length}</div>
+      <div className="pa2 mv2">ALL: {cntUnits}</div>
 
-      <div className="pa2 h-100">
-        <Droppable droppableId={name}>
-          {(provided, _snapshot) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className="h-100"
-            >
-              {units.map((unit, index) => (
-                <VerificationCard key={unit.id} unit={unit} index={index} />
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
-      </div>
+      <div className="pa2 h-100">{children}</div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 /* eslint react/jsx-props-no-spreading: off */
 import c from "classnames";
 import React, {useCallback, useEffect, useState} from "react";
-import {DragDropContext} from "react-beautiful-dnd";
+import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import {EventObject, Machine} from "xstate";
 
 import {
@@ -17,6 +17,7 @@ import {
   SegmentUnit,
   Workspace,
 } from "../types";
+import VerificationCard from "./verification-card";
 import VerificationColumn from "./verification-column";
 
 interface VerificationProps {
@@ -49,9 +50,6 @@ const Verification = <
   const [units, setUnits] = useState<VerificationUnits<TContext, TEvent>>(
     new Map(),
   );
-  const [highlightedColumn, setHighlightedColumn] = useState<
-    string | undefined
-  >();
   const [allowedColumns, setAllowedColumns] = useState<string[]>([]);
 
   useEffect(() => {
@@ -134,16 +132,9 @@ const Verification = <
     [units, methodology],
   );
 
-  const onDragUpdate = useCallback((event) => {
-    const destinationId: string = event?.destination?.droppableId;
-
-    setHighlightedColumn(destinationId);
-  }, []);
-
   const onDragEnd = useCallback(
     (event) => {
       // We remove the column highlighting in any case.
-      setHighlightedColumn(undefined);
       setAllowedColumns([]);
 
       // Gather all required information and ensure it's all available. If
@@ -212,26 +203,58 @@ const Verification = <
         Verifying {investigationTitle}/{segmentTitle}
       </h2>
 
-      <DragDropContext
-        onDragStart={onDragStart}
-        onDragUpdate={onDragUpdate}
-        onDragEnd={onDragEnd}
-      >
+      <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="overflow-x-scroll">
           <div className="flex w-100 h-100">
             {[...units.keys()].map((name, i) => {
-              const isHighlighted = highlightedColumn === name;
               const isDroppable =
                 allowedColumns.length === 0 || allowedColumns.includes(name);
+              const data = units.get(name) || [];
+
               return (
-                <VerificationColumn
-                  key={name}
-                  className={c(i === 0 ? "mr3" : "mh3")}
-                  name={name}
-                  units={units.get(name) || []}
-                  isHighlighted={isHighlighted}
-                  isDroppable={isDroppable}
-                />
+                <Droppable droppableId={name}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className="h-100"
+                    >
+                      <VerificationColumn
+                        key={name}
+                        className={c("vh-80", i === 0 ? "mr3" : "mh3")}
+                        name={name}
+                        cntUnits={data.length}
+                        isHighlighted={snapshot.isDraggingOver}
+                        isDroppable={isDroppable}
+                      >
+                        <>
+                          {data.map((unit, index) => (
+                            <Draggable
+                              key={unit.id}
+                              draggableId={unit.id.toString()}
+                              index={index}
+                            >
+                              {(unitProvided, _snapshot) => (
+                                <div
+                                  onClick={() => {}}
+                                  onKeyPress={() => {}}
+                                  tabIndex={0}
+                                  role="button"
+                                  ref={unitProvided.innerRef}
+                                  {...unitProvided.draggableProps}
+                                  {...unitProvided.dragHandleProps}
+                                >
+                                  <VerificationCard unit={unit} />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                        </>
+                      </VerificationColumn>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
               );
             })}
           </div>
