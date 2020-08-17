@@ -8,6 +8,7 @@ import Error from "../common/error";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
 import Modal from "../common/modal";
+import QueryTag from "../common/query-tag";
 import SourceTag from "../common/source-tag";
 import DataDetails from "../database/details";
 import CreateSegmentForm from "../forms/create-segment";
@@ -15,7 +16,7 @@ import UpdateSegmentForm from "../forms/update-segment";
 import {createSegment, listUnits, searchUnits, updateSegment} from "../http";
 import machine from "../machines/table";
 import Table from "../table";
-import {Segment, Unit, Workspace} from "../types";
+import {Segment, SourceTag as Tag, Unit, Workspace} from "../types";
 import {truncate, useServiceLogger} from "../utils";
 import SearchBar from "./search-bar";
 
@@ -120,6 +121,27 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
           return (
             <div className="flex justify-around">
               <SourceTag kind={kind} />
+            </div>
+          );
+        },
+      },
+
+      {
+        Header: "Tags",
+        accessor: "tags",
+        minWidth: 40,
+        width: 40,
+        maxWidth: 40,
+        Cell: ({value}: Cell) => {
+          return (
+            <div className="flex justify-around">
+              {value.map((tag: Tag) => (
+                <QueryTag
+                  key={tag.label}
+                  label={tag.label}
+                  description={tag.description}
+                />
+              ))}
             </div>
           );
         },
