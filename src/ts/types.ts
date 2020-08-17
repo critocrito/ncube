@@ -42,6 +42,7 @@ export interface WorkspaceCommon {
   description?: string;
   created_at: Date;
   updated_at: Date;
+  is_created: boolean;
   database: "sqlite" | "http";
   database_path: string;
 }

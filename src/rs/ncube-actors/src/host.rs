@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use ncube_data::{ConfigSetting, NcubeConfig};
 use ncube_db::{errors::DatabaseError, sqlite, Database};
 use ncube_fs::expand_tilde;
-use ncube_stores::{config_store, ConfigStore};
+use ncube_stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
 use std::path::PathBuf;
 use std::result::Result;
 use xactor::{message, Actor, Context, Handler};
@@ -209,5 +209,24 @@ impl Handler<AllSettings> for HostActor {
         let store = config_store(self.db.clone());
         let config = store.show_all().await?;
         Ok(config)
+    }
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct EnableWorkspace {
+    pub workspace: String,
+}
+
+#[async_trait]
+impl Handler<EnableWorkspace> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: EnableWorkspace,
+    ) -> Result<(), ActorError> {
+        let store = workspace_store(self.db.clone());
+        store.enable(&msg.workspace).await?;
+        Ok(())
     }
 }

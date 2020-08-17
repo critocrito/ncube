@@ -8,7 +8,8 @@ SELECT
   w.created_at AS created_at,
   w.updated_at AS updated_at,
   wd.kind AS database,
-  wd.path AS database_path
+  wd.path AS database_path,
+  w.is_created AS is_created
 FROM workspace AS w
 LEFT JOIN workspace_database AS wd
      ON w.id = wd.workspace

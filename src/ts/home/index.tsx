@@ -99,14 +99,24 @@ const Home = ({onDone, workspaces}: HomeProps) => {
         >
           <FormHandler
             onSave={saveWorkspace}
-            onDone={() => appSend("RELOAD_WORKSPACES")}
+            onDone={() => {
+              appSend("RELOAD_WORKSPACES");
+              send("SHOW_HOME");
+            }}
             Form={CreateWorkspaceForm}
           />
         </BasicPanel>
       );
 
     case state.matches("link"):
-      return <LinkWorkspace onDone={() => appSend("RELOAD_WORKSPACES")} />;
+      return (
+        <LinkWorkspace
+          onDone={() => {
+            appSend("RELOAD_WORKSPACES");
+            send("SHOW_HOME");
+          }}
+        />
+      );
 
     default:
       return (

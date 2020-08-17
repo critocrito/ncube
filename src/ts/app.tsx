@@ -1,5 +1,5 @@
 import {useMachine} from "@xstate/react";
-import React from "react";
+import React, {useEffect} from "react";
 
 import Error from "./common/error";
 import Fatal from "./common/fatal";
@@ -27,13 +27,22 @@ const App = () => {
 
   const {workspace, workspaces} = state.context;
 
+  useEffect(() => {
+    const isCreating = workspaces.reduce((memo, {is_created: isCreated}) => {
+      if (memo) return memo;
+      return !isCreated;
+    }, false);
+
+    if (isCreating) {
+      setTimeout(() => send("RELOAD_WORKSPACES"), 10 * 1000);
+    }
+  }, [send, workspaces]);
+
   switch (true) {
     case state.matches("onboarding"):
       return <Onboarding onDone={() => send("SHOW_HOME")} />;
 
     case state.matches("list_workspaces"):
-      return <div />;
-
     case state.matches("home"):
       return (
         <AppProvider value={[state, send]}>

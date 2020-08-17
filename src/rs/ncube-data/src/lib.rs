@@ -101,13 +101,14 @@ impl Default for WorkspaceKind {
 ///   updated_at: Utc.ymd(2014, 11, 28).and_hms(12, 0, 9),
 ///   kind: WorkspaceKind::Local("~/path".into()),
 ///   database: WorkspaceDatabase::Sqlite { path: "path/to/file.db".into() },
+///   is_created: true,
 /// };
 /// assert_eq!(
-///   "{\"id\":1,\"name\":\"Syrian Archive\",\"slug\":\"syrian-archive\",\"description\":null,\"created_at\":\"2014-11-28T12:00:09Z\",\"updated_at\":\"2014-11-28T12:00:09Z\",\"kind\":\"local\",\"location\":\"~/path\",\"database\":\"sqlite\",\"database_path\":\"path/to/file.db\"}",
+///   "{\"id\":1,\"name\":\"Syrian Archive\",\"slug\":\"syrian-archive\",\"description\":null,\"created_at\":\"2014-11-28T12:00:09Z\",\"updated_at\":\"2014-11-28T12:00:09Z\",\"kind\":\"local\",\"location\":\"~/path\",\"database\":\"sqlite\",\"database_path\":\"path/to/file.db\",\"is_created\":true}",
 ///   serde_json::to_string(&local_workspace).unwrap()
 /// );
 ///
-/// let json_string = "{\"id\":1,\"name\":\"Syrian Archive\",\"slug\":\"syrian-archive\",\"description\":null,\"created_at\":\"2014-11-28T12:00:09Z\",\"updated_at\":\"2014-11-28T12:00:09Z\",\"kind\":\"remote\",\"location\":\"https://...\",\"database\":\"sqlite\",\"database_path\":\"path/to/file.db\"}";
+/// let json_string = "{\"id\":1,\"name\":\"Syrian Archive\",\"slug\":\"syrian-archive\",\"description\":null,\"created_at\":\"2014-11-28T12:00:09Z\",\"updated_at\":\"2014-11-28T12:00:09Z\",\"kind\":\"remote\",\"location\":\"https://...\",\"database\":\"sqlite\",\"database_path\":\"path/to/file.db\",\"is_created\":true}";
 /// let expected = Workspace {
 ///   id: 1,
 ///   name: "Syrian Archive".into(),
@@ -117,6 +118,7 @@ impl Default for WorkspaceKind {
 ///   updated_at: Utc.ymd(2014, 11, 28).and_hms(12, 0, 9),
 ///   kind: WorkspaceKind::Remote("https://...".into()),
 ///   database: WorkspaceDatabase::Sqlite { path: "path/to/file.db".into() },
+///   is_created: true,
 /// };
 /// assert_eq!(
 ///   expected,
@@ -135,6 +137,7 @@ pub struct Workspace {
     pub kind: WorkspaceKind,
     #[serde(flatten)]
     pub database: WorkspaceDatabase,
+    pub is_created: bool,
 }
 
 impl Default for Workspace {
@@ -149,6 +152,7 @@ impl Default for Workspace {
             updated_at: now,
             kind: WorkspaceKind::default(),
             database: WorkspaceDatabase::default(),
+            is_created: false,
         }
     }
 }
@@ -170,6 +174,7 @@ impl Workspace {
     ///   updated_at: Utc.ymd(2014, 11, 28).and_hms(12, 0, 9),
     ///   kind: WorkspaceKind::Local("~/path".into()),
     ///   database: WorkspaceDatabase::Sqlite { path: "path/to/file.db".into() },
+    ///   is_created: true,
     /// };
     /// let expected = "sqlite://path/to/file.db".to_string();
     /// assert_eq!(workspace.connection_string(), expected);

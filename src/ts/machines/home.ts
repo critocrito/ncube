@@ -6,6 +6,7 @@ interface HomeContext {}
 type HomeEvent =
   | {type: "CREATE_WORKSPACE"}
   | {type: "LINK_WORKSPACE"}
+  | {type: "SHOW_HOME"}
   | {type: "RETRY"};
 
 type HomeState = {
@@ -15,7 +16,9 @@ type HomeState = {
 
 export default createMachine<HomeContext, HomeEvent, HomeState>({
   id: "home",
-  context: {workspaces: []},
+  context: {
+    workspaces: [],
+  },
   initial: "home",
   states: {
     home: {
@@ -25,9 +28,17 @@ export default createMachine<HomeContext, HomeEvent, HomeState>({
       },
     },
 
-    create: {},
+    create: {
+      on: {
+        SHOW_HOME: "home",
+      },
+    },
 
-    link: {},
+    link: {
+      on: {
+        SHOW_HOME: "home",
+      },
+    },
 
     done: {
       entry: "done",

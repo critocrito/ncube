@@ -1,6 +1,7 @@
 import React from "react";
 
 import Button from "../common/button";
+import LoadingSpinner from "../common/loading-spinner";
 import WorkspaceTag from "../common/workspace-tag";
 import {
   statDataTotal,
@@ -16,7 +17,7 @@ interface WorkspaceListItemProps {
 }
 
 const WorkspaceListItem = ({workspace, handleOpen}: WorkspaceListItemProps) => {
-  const {id, kind, name} = workspace;
+  const {id, kind, name, is_created: isCreated} = workspace;
 
   return (
     <li key={id} className="bb">
@@ -29,26 +30,37 @@ const WorkspaceListItem = ({workspace, handleOpen}: WorkspaceListItemProps) => {
             <h3 className="header3 flex-nowrap w-100 ma0 pv4">{name}</h3>
           </div>
           <div className="w-70 pb4 mr2">
-            <div className="flex items-center justify-between">
-              <Stat
-                kind="source"
-                fetchStat={() => statSourcesTotal(workspace.slug)}
-              />
-              <Stat
-                kind="data"
-                fetchStat={() => statDataTotal(workspace.slug)}
-              />
-              <Stat
-                kind="investigation"
-                fetchStat={() => statInvestigationsTotal(workspace.slug)}
-              />
-            </div>
+            {isCreated ? (
+              <div className="flex items-center justify-between">
+                <Stat
+                  kind="source"
+                  fetchStat={() => statSourcesTotal(workspace.slug)}
+                />
+                <Stat
+                  kind="data"
+                  fetchStat={() => statDataTotal(workspace.slug)}
+                />
+                <Stat
+                  kind="investigation"
+                  fetchStat={() => statInvestigationsTotal(workspace.slug)}
+                />
+              </div>
+            ) : (
+              <div>
+                This workspace is being created in the background. Depending on
+                your computer and Internet speed this can take some time.
+              </div>
+            )}
           </div>
         </div>
 
-        <Button className="ml1" onClick={handleOpen}>
-          Open
-        </Button>
+        {isCreated ? (
+          <Button className="ml1" onClick={handleOpen}>
+            Open
+          </Button>
+        ) : (
+          <LoadingSpinner />
+        )}
       </div>
     </li>
   );

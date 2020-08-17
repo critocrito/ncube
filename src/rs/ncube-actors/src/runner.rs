@@ -7,6 +7,7 @@ use xactor::{message, Actor, Context, Handler};
 
 use crate::{
     db::{DatabaseActor, MigrateWorkspace},
+    host::{EnableWorkspace, HostActor},
     task::{TaskActor, UpdateTask},
     ActorError, Registry,
 };
@@ -48,7 +49,9 @@ impl TaskRunner {
 
                         let database_actor = DatabaseActor::from_registry().await.unwrap();
                         database_actor
-                            .call(MigrateWorkspace { workspace })
+                            .call(MigrateWorkspace {
+                                workspace: workspace.to_string(),
+                            })
                             .await
                             .unwrap()
                             .unwrap();
@@ -58,6 +61,13 @@ impl TaskRunner {
                                 task_id,
                                 state: TaskState::Done,
                             })
+                            .await
+                            .unwrap()
+                            .unwrap();
+
+                        let host_actor = HostActor::from_registry().await.unwrap();
+                        host_actor
+                            .call(EnableWorkspace { workspace })
                             .await
                             .unwrap()
                             .unwrap();

@@ -16,6 +16,7 @@ const workspaces: Workspace[] = [
     database_path: "~/Ncube/syrian-archive/sugarcube.db",
     created_at: parseISO("2020-06-19T11:00:09.856432Z"),
     updated_at: parseISO("2020-06-19T11:00:09.856432Z"),
+    is_created: true,
   },
   {
     id: 2,
@@ -28,6 +29,7 @@ const workspaces: Workspace[] = [
     database_path: "~/Ncube/yemen-archive/sugarcube.db",
     created_at: parseISO("2020-06-19T11:00:09.856432Z"),
     updated_at: parseISO("2020-06-19T11:00:09.856432Z"),
+    is_created: true,
   },
   {
     id: 2,
@@ -40,6 +42,7 @@ const workspaces: Workspace[] = [
     database_path: "~/Ncube/yemen-archive/sugarcube.db",
     created_at: parseISO("2020-06-19T11:00:09.856432Z"),
     updated_at: parseISO("2020-06-19T11:00:09.856432Z"),
+    is_created: true,
   },
 ];
 

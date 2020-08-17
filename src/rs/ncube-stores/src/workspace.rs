@@ -36,6 +36,7 @@ pub trait WorkspaceStore {
         slug: &str,
         description: &Option<String>,
     ) -> Result<(), DatabaseError>;
+    async fn enable(&self, slug: &str) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -82,6 +83,7 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
             &description,
             &kind,
             &location,
+            0,
             &now.to_rfc3339(),
             &now.to_rfc3339()
         ])?;
@@ -152,6 +154,15 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
             &now.to_rfc3339(),
             &current_slug,
         ])?;
+
+        Ok(())
+    }
+
+    async fn enable(&self, slug: &str) -> Result<(), DatabaseError> {
+        let conn = self.db.connection().await?;
+        let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/enable.sql"))?;
+
+        stmt.execute(params![&slug, 1])?;
 
         Ok(())
     }

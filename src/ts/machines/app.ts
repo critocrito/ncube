@@ -88,8 +88,8 @@ export default createMachine<AppContext, AppEvent, AppState>({
         SHOW_WORKSPACE: {
           target: "show_workspace",
         },
-        RELOAD_WORKSPACES: "list_workspaces",
         RESTART_APP: "onboarding",
+        RELOAD_WORKSPACES: "list_workspaces",
       },
     },
 
