@@ -347,6 +347,8 @@ pub struct Unit {
     pub downloads: Vec<Download>,
     #[serde(default)]
     pub sources: Vec<Source>,
+    #[serde(default)]
+    pub tags: Vec<QueryTag>,
 }
 
 #[derive(Debug, Deserialize)]
