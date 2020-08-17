@@ -1,4 +1,4 @@
-SELECT s.id AS id,
+SELECT DISTINCT s.id AS id,
        s.query AS query,
        s.title AS title,
        s.slug AS slug,
