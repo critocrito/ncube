@@ -41,7 +41,7 @@ const InvestigationDetails = ({
       <div className="bg-white shadow-4">
         {segments.map((segment) => {
           return (
-            <div key={segment.id} className="pv4 ph3 h4">
+            <div key={segment.id} className="pv4 ph3">
               <SegmentCard
                 investigation={investigation}
                 segment={segment}

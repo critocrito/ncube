@@ -28,7 +28,7 @@ const InvestigationCard = ({
   ] = useWorkspaceCtx();
 
   return (
-    <section className="h4 bg-white pa3 shadow-4 flex items-center justify-between mb4">
+    <section className="bg-white pa3 shadow-4 flex items-center justify-between mb4">
       <div className="flex w-80 h-100">
         <table className="w-100 h-100 collapse bn card">
           <colgroup>

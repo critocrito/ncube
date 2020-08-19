@@ -34,7 +34,7 @@ const DataDetails = ({unit}: DataDetailsProps) => {
 
   return (
     <div className="flex flex-column">
-      <h4 className="header4">ScrapedData</h4>
+      <h4 className="header4">Details</h4>
 
       <MediaViewer downloads={unit.downloads} />
 

@@ -19,7 +19,7 @@ const SegmentListItem = ({
   onVerify,
 }: SegmentItemProps) => {
   return (
-    <section className="w-100 flex h4 justify-between">
+    <section className="w-100 flex justify-between">
       <div className="flex w-80">
         <div className="w-30 flex flex-column justify-between bt bl bb b--fair-pink">
           <h3 className="header3 mt2 ml3">{title}</h3>

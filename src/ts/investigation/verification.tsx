@@ -37,12 +37,8 @@ const Verification = <
   TEvent extends EventObject
 >({
   workspace: {slug: workspaceSlug},
-  investigation: {
-    title: investigationTitle,
-    methodology: methodologySlug,
-    slug: investigationSlug,
-  },
-  segment: {title: segmentTitle, slug: segmentSlug},
+  investigation: {methodology: methodologySlug, slug: investigationSlug},
+  segment: {slug: segmentSlug},
 }: VerificationProps) => {
   const [methodology, setMethodology] = useState<
     Methodology<TContext, TStateSchema, TEvent>
@@ -199,10 +195,6 @@ const Verification = <
 
   return (
     <div>
-      <h2>
-        Verifying {investigationTitle}/{segmentTitle}
-      </h2>
-
       <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="overflow-x-scroll">
           <div className="flex w-100 h-100">
