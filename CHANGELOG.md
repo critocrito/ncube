@@ -1,3 +1,72 @@
+<a name="0.8.0"></a>
+## 0.8.0 (2020-08-19)
+
+
+#### Features
+
+* **ncube:**  open the project website when clicking on the home logo ([49383cb5](49383cb5))
+* **ncubed:**
+  *  extend search to limit results by tag and source ([02b1ad41](02b1ad41))
+  *  stats for workspace wide verified and in process data ([ea9941d9](ea9941d9))
+  *  fetch tags for data units ([654efc2f](654efc2f))
+  *  add stat endpoint for verification data in progress ([efc4afdb](efc4afdb))
+  *  add stat endpoint for verified data units of a segment ([d18d0fd5](d18d0fd5))
+  *  update the state of a unit in verification ([91655160](91655160))
+  *  list units for a segment that is part of an investigation ([900e9ce9](900e9ce9))
+  *  verified count stat for investigations ([06c8a38f](06c8a38f))
+  *  add stat of total data units for an investigation ([d987d68e](d987d68e))
+  *  add stat of total segments for an investigation ([04c7c957](04c7c957))
+  *  list segments for an investigation ([369a05ce](369a05ce))
+  *  send segments to verify ([3a1f63d2](3a1f63d2))
+  *  add total investigations stat ([19dd543b](19dd543b))
+  *  add endpoints for methodologies and investigations ([53e76651](53e76651))
+* **ui:**
+  *  show query tags in data table ([754d49b1](754d49b1))
+  *  render query tags for data units ([b29a7cfa](b29a7cfa))
+  *  check if workspaces are created before allowing to open them ([6005b01f](6005b01f))
+  *  humanize stat output ([f50e26e4](f50e26e4))
+  *  render verification as a kanban board ([4a902147](4a902147))
+  *  fetch data in progress for segment stat ([328582be](328582be))
+  *  fetch verified data for segment stat ([a609a6ed](a609a6ed))
+  *  fetch verified count stat for investigations ([bb4c4144](bb4c4144))
+  *  list segments for an investigation ([dbf9b1d4](dbf9b1d4))
+  *  scaffold interface copy using MDX ([8fa83474](8fa83474))
+  *  fetch data count stat for investigations ([6f370cd1](6f370cd1))
+  *  fetch segments count stat for investigations ([7e89b88d](7e89b88d))
+  *  add total investigations stat to home ([71ffd69c](71ffd69c))
+  *  fetch workspace data and sources stats on home screen ([5395f0f7](5395f0f7))
+  *  send segments to a verification ([80f1e761](80f1e761))
+  *  fetch units stat for segments ([79958f7a](79958f7a))
+  *  create investigations ([c533e94f](c533e94f))
+  *  go to workspace overview when clicking on breadcrumb ([4018274d](4018274d))
+  *  add external link component ([03bb844b](03bb844b))
+  *  list investigations ([092f49a3](092f49a3))
+  *  use chevron icons for sidebar button ([b998c5ee](b998c5ee))
+  *  add visual queue when copying to clipboard ([6d554b8f](6d554b8f))
+* **workspace:**  upgrade to sugarcube 0.42.0 ([06f1d80f](06f1d80f))
+
+#### Bug Fixes
+
+* **ncubed:**  avoid duplicate investigation segments ([4d3f0bd0](4d3f0bd0))
+* **ui:**
+  *  use the href attribute to call external links ([775be970](775be970))
+  *  prevent empty tags to be added to sources ([64bd43f4](64bd43f4))
+  *  reload search results after updating a segment ([99c2b37c](99c2b37c))
+  *  remove duplicate verification card when moving them around ([a1624307](a1624307))
+  *  align data card table ([0efd3887](0efd3887))
+  *  have consistent card table layout ([1ce3fc1e](1ce3fc1e))
+  *  smoothened the investigation card table ([559f486c](559f486c))
+  *  smoothened the investigation card table ([59ff8374](59ff8374))
+  *  ignore errors when fetching stats ([99fac9d3](99fac9d3))
+  *  clean table on process card ([f004e201](f004e201))
+  *  don't mix singular and plural in stat descriptions ([b50948aa](b50948aa))
+  *  dim sidebar and breadcrumbs links ([1c1b2e97](1c1b2e97))
+  *  show hand cursor when hovering sidebar buttons ([f532dd16](f532dd16))
+  *  correct a fatal error message for processes ([3d4b1efd](3d4b1efd))
+  *  removed none existing css class name ([45f1f02e](45f1f02e))
+
+
+
 <a name="0.7.0"></a>
 ## 0.7.0 (2020-08-10)
 
