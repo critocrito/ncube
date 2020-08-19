@@ -52,27 +52,29 @@ const Home = ({onDone, workspaces}: HomeProps) => {
                 <WorkspacesIntroduction />
               </IntroText>
 
-              <Overline className="pt4" label="Workspaces" />
+              {workspaces.length > 0 ? (
+                <>
+                  <Overline className="pt4" label="Workspaces" />
 
-              <ul className="list pl0 mt0 mb0">
-                {workspaces.length > 0 ? (
-                  workspaces.map((workspace) => (
-                    <WorkspaceListItem
-                      key={`workspace-${workspace.id}`}
-                      workspace={workspace}
-                      handleOpen={() =>
-                        appSend("SHOW_WORKSPACE", {
-                          slug: workspace.slug,
-                        })
-                      }
-                    />
-                  ))
-                ) : (
-                  <IntroText>
-                    <WorkspacesEmpty />
-                  </IntroText>
-                )}
-              </ul>
+                  <ul className="list pl0 mt0 mb0">
+                    {workspaces.map((workspace) => (
+                      <WorkspaceListItem
+                        key={`workspace-${workspace.id}`}
+                        workspace={workspace}
+                        handleOpen={() =>
+                          appSend("SHOW_WORKSPACE", {
+                            slug: workspace.slug,
+                          })
+                        }
+                      />
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <IntroText>
+                  <WorkspacesEmpty />
+                </IntroText>
+              )}
             </div>
 
             <div className="flex justify-between ml-auto w-40 mr2">
