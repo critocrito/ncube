@@ -2,9 +2,12 @@ use async_trait::async_trait;
 use chrono::Utc;
 use ncube_data::{Investigation, InvestigationReq, Segment, SegmentUnit, VerifySegmentReq};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
-use rusqlite::{params, NO_PARAMS};
+use ncube_search::parse_query;
+use rusqlite::{params, ToSql, NO_PARAMS};
 use serde_rusqlite::{self, columns_from_statement, from_row, from_row_with_columns, from_rows};
 use tracing::instrument;
+
+use crate::SearchQuerySqlite;
 
 pub fn investigation_store(wrapped_db: Database) -> Box<dyn InvestigationStore + Send + Sync> {
     match wrapped_db {
@@ -148,7 +151,7 @@ impl InvestigationStore for InvestigationStoreSqlite {
         let mut stmt2 = conn.prepare_cached(include_str!(
             "../sql/investigation/verify_segment_segment.sql"
         ))?;
-        let mut stmt3 = conn.prepare_cached(include_str!("../sql/search/data_list.sql"))?;
+
         let mut stmt4 =
             conn.prepare_cached(include_str!("../sql/investigation/create_verification.sql"))?;
 
@@ -159,9 +162,16 @@ impl InvestigationStore for InvestigationStoreSqlite {
         let (segment_id, query): (i32, String) =
             stmt2.query_row(params![&segment], |row| Ok((row.get(0)?, row.get(1)?)))?;
 
+        let tmpl = include_str!("../sql/search/data_list.sql");
+        let params: Vec<Box<dyn ToSql>> = vec![];
+        let query = parse_query(&query);
+        let sql = SearchQuerySqlite::from(&query);
+        let (data_sql, params) = sql.to_sql(tmpl, params);
+        let mut stmt3 = conn.prepare_cached(&data_sql)?;
+
         let mut units: Vec<i32> = vec![];
 
-        for row in stmt3.query_and_then(params![&query], from_row::<i32>)? {
+        for row in stmt3.query_and_then(params, from_row::<i32>)? {
             units.push(row?);
         }
 

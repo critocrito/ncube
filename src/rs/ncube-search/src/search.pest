@@ -1,0 +1,21 @@
+query = _{ SOI ~ (expr ~ expr*) ~ EOI }
+
+expr = _{ (limit | term ) }
+
+limit = { selector ~ source_div ~ term }
+selector = _{ tag | source }
+tag = { ^"tag" }
+source = { ^"source" }
+source_div = _{ ":" }
+
+term = @{ word | ("\"" ~ word ~ (WHITESPACE* ~ word)* ~ "\"") }
+
+word = @{ char+ }
+
+char = {
+     !("\"" | "\\" | WHITESPACE) ~ ANY
+     | "\\" ~ ("\"" | "\\" | "/" | "b" | "f" | "n" | "r" | "t")
+     | "\\" ~ ("u" ~ ASCII_HEX_DIGIT{4})
+}
+
+WHITESPACE = _{ " " | "\r" | "\t" | "\n" }

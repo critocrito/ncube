@@ -1,4 +1,6 @@
 SELECT count(u.ROWID)
-  FROM unit u
-  JOIN unit_fts ON u.id = unit_fts.id
- WHERE unit_fts MATCH ?1;
+  FROM unit_fts
+  LEFT JOIN unit u ON u.id = unit_fts.id
+  LEFT JOIN tagged_unit tu ON tu.unit = unit_fts.id
+  LEFT JOIN query_tag qt ON qt.id = tu.query_tag
+ WHERE {};

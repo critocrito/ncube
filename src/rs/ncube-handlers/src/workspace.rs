@@ -12,6 +12,7 @@ use ncube_data::{
     WorkspaceKindRequest, WorkspaceRequest,
 };
 use ncube_db::{migrations, sqlite, DatabaseError};
+use ncube_search::parse_query;
 use ncube_stores::{
     investigation_store, methodology_store, search_store, segment_store, stat_store, unit_store,
     workspace_store, WorkspaceStore,
@@ -275,7 +276,9 @@ pub async fn stat_data_total(workspace: &str, query: Option<String>) -> Result<S
 
     let stat_store = stat_store(database);
 
-    let stats = stat_store.data_total(query).await?;
+    let stats = stat_store
+        .data_total(query.map(|q| parse_query(&q)))
+        .await?;
 
     Ok(stats)
 }
@@ -362,7 +365,9 @@ pub async fn stat_segment_units(workspace: &str, segment: &str) -> Result<Stat, 
     let segment = show_segment(&workspace, &segment).await?;
     let database = workspace_database(&workspace).await?;
     let stat_store = stat_store(database);
-    let stats = stat_store.data_total(Some(segment.query)).await?;
+    let stats = stat_store
+        .data_total(Some(parse_query(&segment.query)))
+        .await?;
 
     Ok(stats)
 }
@@ -436,7 +441,8 @@ pub async fn search_data(
 
     let search_store = search_store(database);
 
-    let data = search_store.data(&query, page, page_size).await?;
+    let search_query = parse_query(&query);
+    let data = search_store.data(&search_query, page, page_size).await?;
 
     Ok(data)
 }

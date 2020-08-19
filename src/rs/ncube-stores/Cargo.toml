@@ -20,4 +20,5 @@ rand = "0.7.3"
 
 ncube-data = { path = "../ncube-data" }
 ncube-db = { path = "../ncube-db" }
+ncube-search = { path = "../ncube-search" }
 ncube-crypto = { path = "../ncube-crypto" }

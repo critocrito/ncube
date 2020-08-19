@@ -1,9 +1,12 @@
 use async_trait::async_trait;
 use ncube_data::{Download, Media, QueryTag, SearchResponse, Source, Unit};
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
-use rusqlite::params;
-use serde_rusqlite::{from_row, from_rows};
+use ncube_search::SearchQuery;
+use rusqlite::{params, ToSql};
+use serde_rusqlite::from_rows;
 use tracing::instrument;
+
+use crate::SearchQuerySqlite;
 
 pub fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> {
     match wrapped_db {
@@ -16,7 +19,7 @@ pub fn search_store(wrapped_db: Database) -> Box<dyn SearchStore + Send + Sync> 
 pub trait SearchStore {
     async fn data(
         &self,
-        query: &str,
+        query: &SearchQuery,
         page: i32,
         page_size: i32,
     ) -> Result<Vec<Unit>, DatabaseError>;
@@ -26,7 +29,6 @@ pub trait SearchStore {
         page: i32,
         page_size: i32,
     ) -> Result<Vec<Source>, DatabaseError>;
-    async fn data_list(&self, query: &str) -> Result<Vec<i32>, DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -39,26 +41,33 @@ impl SearchStore for SearchStoreSqlite {
     #[instrument]
     async fn data(
         &self,
-        query: &str,
+        query: &SearchQuery,
         page: i32,
         page_size: i32,
     ) -> Result<Vec<Unit>, DatabaseError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/search/data.sql"))?;
+
+        let tmpl = include_str!("../sql/search/data.sql");
+        let offset = page * page_size;
+        let params: Vec<Box<dyn ToSql>> = vec![Box::new(offset), Box::new(page_size)];
+
+        let sql = SearchQuerySqlite::from(query);
+        let (data_sql, params) = sql.to_sql(tmpl, params);
+
+        let mut stmt = conn.prepare_cached(&data_sql)?;
         let mut stmt2 = conn.prepare_cached(include_str!("../sql/unit/list-media.sql"))?;
         let mut stmt3 = conn.prepare_cached(include_str!("../sql/unit/list-downloads.sql"))?;
         let mut stmt4 = conn.prepare_cached(include_str!("../sql/unit/list-sources.sql"))?;
+        let mut stmt5 = conn.prepare_cached(include_str!("../sql/unit/list-tags.sql"))?;
 
-        let offset = page * page_size;
         let mut units: Vec<Unit> = vec![];
 
-        for unit in
-            from_rows::<Unit>(stmt.query(params![&query, offset as i32, page_size as i32])?)
-        {
+        for unit in from_rows::<Unit>(stmt.query(params)?) {
             let mut unit = unit?;
             let mut medias: Vec<Media> = vec![];
             let mut downloads: Vec<Download> = vec![];
             let mut sources: Vec<Source> = vec![];
+            let mut tags: Vec<QueryTag> = vec![];
 
             for media in from_rows::<Media>(stmt2.query(params![unit.id])?) {
                 medias.push(media?);
@@ -72,9 +81,14 @@ impl SearchStore for SearchStoreSqlite {
                 sources.push(source?);
             }
 
+            for tag in from_rows::<QueryTag>(stmt5.query(params![unit.id])?) {
+                tags.push(tag?);
+            }
+
             unit.media = medias;
             unit.downloads = downloads;
             unit.sources = sources;
+            unit.tags = tags;
 
             units.push(unit);
         }
@@ -113,20 +127,6 @@ impl SearchStore for SearchStoreSqlite {
 
         Ok(sources)
     }
-
-    #[instrument]
-    async fn data_list(&self, query: &str) -> Result<Vec<i32>, DatabaseError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/search/data_list.sql"))?;
-
-        let mut units: Vec<i32> = vec![];
-
-        for row in stmt.query_and_then(params![&query], from_row::<i32>)? {
-            units.push(row?);
-        }
-
-        Ok(units)
-    }
 }
 
 #[derive(Debug)]
@@ -139,7 +139,7 @@ impl SearchStore for SearchStoreHttp {
     #[instrument]
     async fn data(
         &self,
-        query: &str,
+        query: &SearchQuery,
         page: i32,
         page_size: i32,
     ) -> Result<Vec<Unit>, DatabaseError> {
@@ -150,7 +150,7 @@ impl SearchStore for SearchStoreHttp {
         ));
         url.query_pairs_mut()
             .clear()
-            .append_pair("q", &query)
+            .append_pair("q", &query.to_string())
             .append_pair("page", &page.to_string())
             .append_pair("size", &page_size.to_string());
 
@@ -194,9 +194,5 @@ impl SearchStore for SearchStoreHttp {
                 });
 
         Ok(data.data)
-    }
-
-    async fn data_list(&self, _query: &str) -> Result<Vec<i32>, DatabaseError> {
-        unimplemented!()
     }
 }

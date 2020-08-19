@@ -1,8 +1,11 @@
 use async_trait::async_trait;
 use ncube_data::Stat;
 use ncube_db::{errors::DatabaseError, http, sqlite, Database};
-use rusqlite::{params, NO_PARAMS};
+use ncube_search::SearchQuery;
+use rusqlite::{params, ToSql, NO_PARAMS};
 use tracing::instrument;
+
+use crate::SearchQuerySqlite;
 
 pub fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Sync> {
     match wrapped_db {
@@ -15,7 +18,7 @@ pub fn stat_store(wrapped_db: Database) -> Box<dyn StatStore + Send + Sync> {
 pub trait StatStore {
     async fn sources_total(&self, query: Option<String>) -> Result<Stat, DatabaseError>;
     async fn sources_types(&self) -> Result<Stat, DatabaseError>;
-    async fn data_total(&self, query: Option<String>) -> Result<Stat, DatabaseError>;
+    async fn data_total(&self, query: Option<SearchQuery>) -> Result<Stat, DatabaseError>;
     async fn data_sources(&self) -> Result<Stat, DatabaseError>;
     async fn data_videos(&self) -> Result<Stat, DatabaseError>;
     async fn data_segments(&self) -> Result<Stat, DatabaseError>;
@@ -81,14 +84,23 @@ impl StatStore for StatStoreSqlite {
     }
 
     #[instrument]
-    async fn data_total(&self, query: Option<String>) -> Result<Stat, DatabaseError> {
+    async fn data_total(&self, query: Option<SearchQuery>) -> Result<Stat, DatabaseError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_units.sql"))?;
-        let mut stmt2 = conn.prepare_cached(include_str!("../sql/stat/count_units_search.sql"))?;
 
         let count_sources: i32 = match query {
-            Some(q) => stmt2.query_row(params![&q], |row| row.get(0))?,
-            None => stmt.query_row(NO_PARAMS, |row| row.get(0))?,
+            Some(query) => {
+                let tmpl = include_str!("../sql/stat/count_units_search.sql");
+                let params: Vec<Box<dyn ToSql>> = vec![];
+
+                let sql = SearchQuerySqlite::from(&query);
+                let (data_sql, params) = sql.to_sql(tmpl, params);
+                let mut stmt = conn.prepare_cached(&data_sql)?;
+                stmt.query_row(params, |row| row.get(0))?
+            }
+            None => {
+                let mut stmt = conn.prepare_cached(include_str!("../sql/stat/count_units.sql"))?;
+                stmt.query_row(NO_PARAMS, |row| row.get(0))?
+            }
         };
 
         Ok(Stat {
@@ -326,7 +338,7 @@ impl StatStore for StatStoreHttp {
     }
 
     #[instrument]
-    async fn data_total(&self, query: Option<String>) -> Result<Stat, DatabaseError> {
+    async fn data_total(&self, query: Option<SearchQuery>) -> Result<Stat, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/stats/data/total",
@@ -334,7 +346,9 @@ impl StatStore for StatStoreHttp {
         ));
 
         if let Some(q) = query {
-            url.query_pairs_mut().clear().append_pair("q", &q);
+            url.query_pairs_mut()
+                .clear()
+                .append_pair("q", &q.to_string());
         }
 
         let data: i32 = self.client.get(url).await?.unwrap_or_else(|| 0);
@@ -394,7 +408,7 @@ impl StatStore for StatStoreHttp {
     }
 
     #[instrument]
-    async fn processes_all(&self, process: &str) -> Result<Stat, DatabaseError> {
+    async fn processes_all(&self, _process: &str) -> Result<Stat, DatabaseError> {
         let mut url = self.client.url.clone();
         url.set_path(&format!(
             "/api/workspaces/{}/stats/data/segments",
