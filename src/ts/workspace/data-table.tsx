@@ -45,7 +45,7 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
   const [searchQuery, setSearchQuery] = useState(segment ? segment.query : "");
   const [state, send, service] = useMachine(machine, {
     services: {
-      listItems: async (_ctx, {query, pageIndex, pageSize}) => {
+      listItems: async ({query}, {pageIndex, pageSize}) => {
         if (query === "") {
           const units = await listUnits(workspace.slug, pageIndex, pageSize);
           return {data: units, total: totalStat};
@@ -176,7 +176,7 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
         <Button
           onClick={() => send("CREATE")}
           size="large"
-          disabled={query === ""}
+          disabled={query === "" || results.length === 0}
         >
           Update Segment
         </Button>
@@ -184,7 +184,7 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
         <Button
           onClick={() => send("CREATE")}
           size="large"
-          disabled={query === ""}
+          disabled={query === "" || results.length === 0}
         >
           Save Segment
         </Button>
