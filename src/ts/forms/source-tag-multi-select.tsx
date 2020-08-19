@@ -45,11 +45,17 @@ const AddForm = withFormik<AddSourceProps, AddSourceFormValues>({
     handleSubmit,
     onAdd,
     isSubmitting,
+    isValid,
   }: AddSourceProps & FormikProps<AddSourceFormValues>) => {
     const hasErrorLabel = errors.label && touched.label;
     const hasErrorDescription = errors.description && touched.description;
-    const isDisabled = hasErrorLabel || hasErrorDescription || isSubmitting;
+    const isDisabled =
+      !isValid || hasErrorLabel || hasErrorDescription || isSubmitting;
 
+    // FIXME: When the form is untouched, I can create an empty tag. The
+    //        validation doesn't catch it unfortunately. I manually check
+    //        if the label value is set when clicking the button. It would
+    //        be nicer if the validation could handle that.
     return (
       <div className="flex flex-column">
         <div className="flex justify-between items-center ml2">
@@ -84,11 +90,13 @@ const AddForm = withFormik<AddSourceProps, AddSourceFormValues>({
             type="button"
             disabled={isDisabled}
             onClick={() => {
-              onAdd(
-                values.label,
-                values.description === "" ? undefined : values.description,
-              );
-              handleSubmit();
+              if (values?.label) {
+                onAdd(
+                  values.label,
+                  values.description === "" ? undefined : values.description,
+                );
+                handleSubmit();
+              }
             }}
           >
             Add
