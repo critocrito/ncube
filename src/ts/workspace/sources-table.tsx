@@ -185,9 +185,17 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
             loading ? "o-40 no-hover" : undefined,
           )}
         >
-          {actionBar}
-
-          {results.length === 0 ? <SourcesEmpty /> : table}
+          {results.length === 0 ? (
+            <>
+              <SourcesEmpty />
+              {actionBar}
+            </>
+          ) : (
+            <>
+              {actionBar}
+              {table}
+            </>
+          )}
         </div>
       );
     }
