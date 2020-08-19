@@ -4,19 +4,19 @@ import React from "react";
 import rpc from "../rpc";
 
 interface ExternalLinkProps {
-  url: string;
+  href: string;
   children: JSX.Element | string;
   className?: string;
 }
 
-const ExternalLink = ({url, children, className}: ExternalLinkProps) => {
+const ExternalLink = ({href, children, className}: ExternalLinkProps) => {
   return (
     <button
       className={c(
         "b--transparent bg-transparent pointer bittersweet underline pa0",
         className,
       )}
-      onClick={() => rpc.openExternal(url)}
+      onClick={() => rpc.openExternal(href)}
     >
       {children}
     </button>

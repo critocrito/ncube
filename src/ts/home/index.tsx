@@ -43,7 +43,7 @@ const Home = ({onDone, workspaces}: HomeProps) => {
           <div>
             <div className="fl w-100 pa3">
               <header className="mb5 mt4">
-                <ExternalLink url="https://sugarcubetools.net">
+                <ExternalLink href="https://sugarcubetools.net">
                   <img src={logoIcon} alt="Ncube logo." />
                 </ExternalLink>
               </header>
