@@ -154,13 +154,7 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
     send,
   ]);
 
-  const actionBar = (
-    <ActionBar
-      selected={selected}
-      onProcessSelected={() => console.log(selected)}
-      onCreate={handleCreate}
-    />
-  );
+  const actionBar = <ActionBar selected={selected} onCreate={handleCreate} />;
 
   const table = (
     <Table<Source>

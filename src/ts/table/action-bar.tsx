@@ -6,7 +6,7 @@ import Button from "../common/button";
 
 interface ActionBarProps<T extends {id: number}> {
   selected: T[];
-  onProcessSelected: () => void;
+  onProcessSelected?: () => void;
   onCreate?: () => void;
   className?: string;
 }
@@ -40,7 +40,7 @@ const ActionBar = <T extends {id: number}>({
     ""
   );
 
-  const selectButton = (
+  const selectButton = onProcessSelected ? (
     <div className="flex items-center">
       {countSelectedItems === 0 ? (
         ""
@@ -57,6 +57,8 @@ const ActionBar = <T extends {id: number}>({
         Send to process
       </Button>
     </div>
+  ) : (
+    ""
   );
 
   return (
