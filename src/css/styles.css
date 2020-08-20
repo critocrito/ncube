@@ -345,6 +345,23 @@ tr:hover .trash {
   right: 3px;
 }
 
+/* Search Bar Input */
+.search-bar {
+  position: relative;
+}
+.search-bar > input {
+  height: 40px;
+  margin: 0;
+  width: 100%;
+  padding-right: 26px;
+  border-radius: 0px;
+  border: 1px solid #dfe2ec;
+}
+.search-bar > button {
+  position: absolute;
+  right: 3px;
+}
+
 /* Other elements  */
 .base-tag {
   @insert .pl3 .pr3 .br4 .text-medium .tc .b .ttu;

@@ -1,0 +1,69 @@
+# Search Grammar
+
+The simplest for of search is to simply search for a term.
+
+```
+hospital
+```
+
+This query searches for any unit of data that matches the term `hospital`. Terms can be compounded.
+
+```
+hospital attack
+```
+
+The above search will look for data that matches either the words `hospital` _or_ `attack`.
+
+To search for full phrases enclose the phrase in quotes.
+
+```
+"hospital attack"
+```
+
+Additionaly to the term based search, units can be queried using keyword selectors.
+
+```
+source:youtube_video
+```
+
+The above selector limits the search scope to all units of type `youtube_video`.
+
+Another keyword selector allows to limit the search scope to units that contain a certain tag.
+
+```
+tag:aleppo
+```
+
+Tag labels are normalized to lower case. Tags that consist of more than one workd can be enclosed in quotes.
+
+```
+tag:"mf001a greg"
+```
+
+`mf001a greg` is the label of a single tag.
+
+The following are examples of valid search queries:
+
+- Search for all Youtube videos that match the term `rebel`:
+
+  ```
+  rebel source:youtube_video
+  ```
+
+- Search for Tweets:
+
+  ```
+  source:twitter_tweet
+  ```
+
+- Search for all Youtube videos that are assigned to Greg:
+
+  ```
+  source:youtube_video tag:greg
+  ```
+
+- Search for all Youtube videos that are assigned to Greg and match the term `rebel`:
+
+  ```
+  source:youtube_video tag:greg rebel
+  ```

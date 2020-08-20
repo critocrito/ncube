@@ -19,6 +19,7 @@ export type TableEvent<T extends {id: number}> =
   | {type: "SET_QUERY"; query: string}
   | {type: "SEARCH"; query: string; pageIndex: number; pageSize: number}
   | {type: "CREATE"}
+  | {type: "HELP"}
   | {type: "DELETE"; item: T}
   | {type: "CONFIRM_DELETE"; id: number}
   | {type: "CANCEL"}
@@ -31,6 +32,7 @@ export type TableState<T extends {id: number}> =
         | "deleting"
         | "table"
         | "details"
+        | "help"
         | "create"
         | "delete";
       context: TableContext<T>;
@@ -113,6 +115,14 @@ export default createMachine<
         },
 
         DELETE: "delete",
+
+        HELP: "help",
+      },
+    },
+
+    help: {
+      on: {
+        SHOW_TABLE: "table",
       },
     },
 

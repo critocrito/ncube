@@ -3,6 +3,7 @@ import c from "classnames";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {Cell, Column} from "react-table";
 
+import HelpText from "../../mdx/search-help.mdx";
 import Button from "../common/button";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
@@ -160,12 +161,15 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
     [send],
   );
 
+  const handleHelp = useCallback(() => send("HELP"), [send]);
+
   const searchBar = (
     <div className="w-50 mt2 mb2">
       <SearchBar
         query={query}
         onChange={(q) => send("SET_QUERY", {query: q})}
         onSearch={(q) => setSearchQuery(q)}
+        onHelp={handleHelp}
       />
     </div>
   );
@@ -206,6 +210,7 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
       onSelect={handleSelect}
     />
   );
+
   switch (true) {
     // eslint-disable-next-line no-fallthrough
     case state.matches("fetching"):
@@ -224,6 +229,28 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
           {segmentButton}
 
           {table}
+        </div>
+      );
+    }
+
+    case state.matches("help"): {
+      return (
+        <div>
+          <Modal
+            onCancel={() => send("SHOW_TABLE")}
+            title="Confirm"
+            description="Please fill in any missing data."
+          >
+            <HelpText />
+          </Modal>
+
+          <div className="flex flex-column">
+            {searchBar}
+
+            {segmentButton}
+
+            {table}
+          </div>
         </div>
       );
     }
