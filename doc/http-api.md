@@ -137,8 +137,9 @@ Ncube installation (originating from `127.0.0.1`) don't.
 
 ### Units
 
-- [List all units](http-api/data/list.md) `GET /workspaces/<workspace_id>/data`
-- [Search for units](http-api/data/search.md) `GET /workspaces/<workspace_id>/data/search`
+- [List all units](http-api/data/list.md) `GET /workspaces/<workspace>/data`
+- [Search for units](http-api/data/search.md) `GET /workspaces/<workspace>/data/search`
+- [Show a unit](http-api/data/show.md) `GET /workspaces/<workspace>/data/units/<unit>`
 
 ### Segments
 

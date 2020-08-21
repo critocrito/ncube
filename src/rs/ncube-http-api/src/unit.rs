@@ -1,6 +1,6 @@
 use futures::try_join;
 use ncube_data::{ReqCtx, SearchResponse, SuccessResponse};
-use ncube_handlers::{workspace as handlers, HandlerError};
+use ncube_handlers::{unit as unit_handlers, workspace as handlers, HandlerError};
 use percent_encoding::percent_decode_str;
 use serde::Deserialize;
 use tracing::instrument;
@@ -92,6 +92,18 @@ async fn download(
     Ok(response)
 }
 
+#[instrument]
+async fn show(
+    _ctx: ReqCtx,
+    workspace: String,
+    id: i32,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let data = unit_handlers::show_data_unit(&workspace, id).await?;
+    let response = SuccessResponse::new(data);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!("workspaces" / String / "data"))
@@ -103,6 +115,10 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             .and(warp::get())
             .and(warp::query::<ListOptions>())
             .and_then(search))
+        .or(authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "data" / "units" / i32))
+            .and(warp::get())
+            .and_then(show))
         .or(authenticate_remote_req()
             .and(warp::path!(
                 "workspaces" / String / "data" / String / String / String
