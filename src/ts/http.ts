@@ -266,6 +266,19 @@ export const searchUnits = async (
   return dataResponse(resp);
 };
 
+export const showUnit = async (
+  workspace: string,
+  id: number,
+): Promise<Unit> => {
+  const url = new URL(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/data/units/${id}`,
+  );
+
+  const resp = await fetch(url.toString());
+
+  return dataResponse(resp);
+};
+
 /*
  * Segments
  */

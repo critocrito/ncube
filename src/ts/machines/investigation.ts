@@ -10,6 +10,12 @@ type InvestigationContext = {
 
 type InvestigationEvent =
   | {type: "SHOW_DETAILS"; investigation: Investigation}
+  | {
+      type: "SHOW_UNIT";
+      segment: Segment;
+      investigation: Investigation;
+      unitId: number;
+    }
   | {type: "VERIFY_SEGMENT"; segment: Segment; investigation: Investigation}
   | {type: "CREATE_INVESTIGATION"}
   | {type: "SHOW_HOME"}
@@ -17,7 +23,13 @@ type InvestigationEvent =
 
 type InvestigationState =
   | {
-      value: "investigations" | "home" | "details" | "create" | "segment";
+      value:
+        | "investigations"
+        | "home"
+        | "details"
+        | "create"
+        | "segment"
+        | "unit";
       context: InvestigationContext;
     }
   | {
@@ -73,6 +85,13 @@ export default createMachine<
       on: {
         SHOW_DETAILS: "details",
         SHOW_HOME: "investigations",
+        SHOW_UNIT: "unit",
+      },
+    },
+
+    unit: {
+      on: {
+        VERIFY_SEGMENT: "segment",
       },
     },
 

@@ -1,3 +1,4 @@
+import c from "classnames";
 import React from "react";
 
 import closeIcon from "../../../resources/public/images/icon_close.svg";
@@ -7,16 +8,26 @@ interface ModalProps {
   description: string;
   children: JSX.Element;
   onCancel: () => void;
+  className?: string;
 }
 
-const Modal = ({title, description, onCancel, children}: ModalProps) => {
+const Modal = ({
+  title,
+  description,
+  onCancel,
+  children,
+  className,
+}: ModalProps) => {
   return (
     <>
       <div
         role="dialog"
         aria-labelledby={title}
         aria-describedby={description}
-        className="absolute mt-auto ml-auto h-40 w-50 bg-canvas z-9999"
+        className={c(
+          "absolute mt-auto ml-auto h-40 w-50 bg-canvas z-9999",
+          className,
+        )}
       >
         <div className="relative">
           <button

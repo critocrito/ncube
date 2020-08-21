@@ -20,10 +20,14 @@ import {
 import VerificationCard from "./verification-card";
 import VerificationColumn from "./verification-column";
 
-interface VerificationProps {
+interface VerificationProps<
+  TContext extends Record<string, unknown>,
+  TEvent extends EventObject
+> {
   workspace: Workspace;
   investigation: Investigation;
   segment: Segment;
+  onDetails: (unit: SegmentUnit<TContext, TEvent>) => void;
 }
 
 type VerificationUnits<
@@ -39,7 +43,8 @@ const Verification = <
   workspace: {slug: workspaceSlug},
   investigation: {methodology: methodologySlug, slug: investigationSlug},
   segment: {slug: segmentSlug},
-}: VerificationProps) => {
+  onDetails,
+}: VerificationProps<TContext, TEvent>) => {
   const [methodology, setMethodology] = useState<
     Methodology<TContext, TStateSchema, TEvent>
   >();
@@ -204,7 +209,7 @@ const Verification = <
               const data = units.get(name) || [];
 
               return (
-                <Droppable droppableId={name}>
+                <Droppable key={name} droppableId={name}>
                   {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
@@ -212,7 +217,6 @@ const Verification = <
                       className="h-100"
                     >
                       <VerificationColumn
-                        key={name}
                         className={c("vh-80", i === 0 ? "mr3" : "mh3")}
                         name={name}
                         cntUnits={data.length}
@@ -228,8 +232,8 @@ const Verification = <
                             >
                               {(unitProvided, _snapshot) => (
                                 <div
-                                  onClick={() => {}}
-                                  onKeyPress={() => {}}
+                                  onClick={() => onDetails(unit)}
+                                  onKeyPress={() => onDetails(unit)}
                                   tabIndex={0}
                                   role="button"
                                   ref={unitProvided.innerRef}

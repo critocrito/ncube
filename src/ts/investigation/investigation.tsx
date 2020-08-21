@@ -1,5 +1,6 @@
 import {useMachine} from "@xstate/react";
 import React, {useEffect} from "react";
+import {EventObject} from "xstate";
 
 import Button from "../common/button";
 import Error from "../common/error";
@@ -10,18 +11,30 @@ import {useAppCtx} from "../context";
 import CreateInvestigationForm from "../forms/create-investigation";
 import {createInvestigation, listInvestigations} from "../http";
 import machine from "../machines/investigation";
-import {Investigation as InvestigationType, Segment, Workspace} from "../types";
+import {
+  Investigation as InvestigationType,
+  Segment,
+  SegmentUnit,
+  Workspace,
+} from "../types";
 import {useServiceLogger} from "../utils";
 import InvestigationDetails from "./investigation-details";
 import InvestigationList from "./investigation-list";
 import Verification from "./verification";
+import VerificationDetails from "./verification-details";
 
 interface InvestigationProps {
   workspace: Workspace;
   onHeaderChange: (s: string | undefined) => void;
 }
 
-const Investigation = ({workspace, onHeaderChange}: InvestigationProps) => {
+const Investigation = <
+  TContext extends Record<string, unknown>,
+  TEvent extends EventObject
+>({
+  workspace,
+  onHeaderChange,
+}: InvestigationProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
       fetchInvestigations: (_ctx, _ev) => listInvestigations(workspace.slug),
@@ -149,12 +162,71 @@ const Investigation = ({workspace, onHeaderChange}: InvestigationProps) => {
     case state.matches("segment"):
       switch (state.event.type) {
         case "VERIFY_SEGMENT": {
+          const i = state.event.investigation;
+          const s = state.event.segment;
+
           return (
             <Verification
               workspace={workspace}
               segment={state.event.segment}
               investigation={state.event.investigation}
+              onDetails={(unit: SegmentUnit<TContext, TEvent>) =>
+                send("SHOW_UNIT", {
+                  investigation: i,
+                  segment: s,
+                  unitId: unit.id,
+                })
+              }
             />
+          );
+        }
+
+        default:
+          return (
+            <Fatal
+              msg={`Investigation segment didn't match any valid state: ${state.value}`}
+              reset={() => send("RETRY")}
+            />
+          );
+      }
+
+    case state.matches("unit"):
+      switch (state.event.type) {
+        case "SHOW_UNIT": {
+          const i = state.event.investigation;
+          const s = state.event.segment;
+
+          return (
+            <div>
+              <Modal
+                onCancel={() =>
+                  send("VERIFY_SEGMENT", {
+                    segment: s,
+                    investigation: i,
+                  })
+                }
+                title="Data annotations."
+                description="Annotate and verify units of data.."
+                className="w-80"
+              >
+                <VerificationDetails
+                  workspace={workspace}
+                  unitId={state.event.unitId}
+                />
+              </Modal>
+              <Verification
+                workspace={workspace}
+                segment={s}
+                investigation={i}
+                onDetails={(unit: SegmentUnit<TContext, TEvent>) =>
+                  send("SHOW_UNIT", {
+                    investigation: i,
+                    segment: s,
+                    unitId: unit.id,
+                  })
+                }
+              />
+            </div>
           );
         }
 
