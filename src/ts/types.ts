@@ -70,11 +70,6 @@ export interface ConnectionDetails {
   description?: string;
 }
 
-export interface Annotation {
-  kind: "tag";
-  term: string;
-}
-
 export interface SourceTag {
   label: string;
   description?: string;
@@ -206,6 +201,14 @@ export type SegmentUnit<
   videos: number;
   images: number;
   state: State<TContext, TEvent>;
+  verification: number;
+};
+
+export type Annotation = {
+  key: string;
+  name: string;
+  value: unknown;
+  note?: string;
 };
 
 export type AnnotationSchema = {
@@ -303,4 +306,11 @@ export type SegmentUnitStateReq<
   TEvent extends EventObject
 > = {
   state: State<TContext, TEvent>;
+};
+
+export type AnnotationReq = {
+  key: string;
+  value: unknown;
+  note?: string;
+  name: string;
 };

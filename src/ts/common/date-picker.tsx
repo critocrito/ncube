@@ -27,6 +27,7 @@ const DatePicker = ({label, ...props}: DatePickerProps) => {
       <D
         {...field}
         {...props}
+        className="ba b--solitude pa2"
         selected={(field.value && new Date(field.value)) || undefined}
         onChange={(val) => {
           setFieldValue(field.name, val);

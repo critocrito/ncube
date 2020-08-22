@@ -210,7 +210,11 @@ const Investigation = <
                 description="Annotate and verify units of data.."
                 className="w-80"
               >
-                <VerificationDetails workspace={workspace} unit={u} />
+                <VerificationDetails
+                  workspace={workspace}
+                  investigation={i}
+                  unit={u}
+                />
               </Modal>
               <Verification
                 workspace={workspace}

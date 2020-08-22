@@ -1,13 +1,16 @@
 import React from "react";
 
 import Annotation from "../../investigation/annotation";
-import {AnnotationSchema} from "../../types";
+import {Annotation as AnnotationType, AnnotationSchema} from "../../types";
 import data from "../annotations.json";
 
 const annotations: React.ReactElement[] = [];
 
 // FIXME: wrap and set state to print on screen
-const submitHandler = (values: Record<string, unknown>) => console.log(values);
+const submitHandler = (values: AnnotationType) => {
+  console.log(values);
+  return Promise.resolve();
+};
 
 data.forEach((annotation) => {
   annotations.push(

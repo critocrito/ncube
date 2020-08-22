@@ -192,48 +192,6 @@ impl Display for Workspace {
         write!(f, "{:?} ({:?})", self.name, self.kind)
     }
 }
-/// There are different types of annotations.
-///
-/// - tags : simple labels that can categorize data.
-///
-/// # Example
-///
-/// ```
-/// # use serde_json;
-/// # use ncube_data::AnnotationKind;
-/// let tag = AnnotationKind::Tag("xyz".into());
-/// assert_eq!("{\"type\":\"tag\",\"term\":\"xyz\"}", serde_json::to_string(&tag).unwrap());
-/// ```
-#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-#[serde(rename_all = "lowercase", tag = "type", content = "term")]
-pub enum AnnotationKind {
-    Tag(String),
-}
-
-/// Annotations are additional data that is layered over a source or unit of
-/// data.
-///
-/// # Example
-///
-/// ```
-/// # use serde_json;
-/// # use ncube_data::{Annotation, AnnotationKind};
-/// let annotation = Annotation {
-///   id: 1,
-///   kind: AnnotationKind::Tag("xyz".into()),
-/// };
-///
-/// assert_eq!(
-///   "{\"id\":1,\"type\":\"tag\",\"term\":\"xyz\"}",
-///   serde_json::to_string(&annotation).unwrap()
-/// );
-/// ```
-#[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-pub struct Annotation {
-    pub id: i32,
-    #[serde(flatten)]
-    pub kind: AnnotationKind,
-}
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 pub struct QueryTag {
@@ -677,6 +635,46 @@ pub struct SegmentUnit {
     pub videos: i32,
     pub images: i32,
     pub state: serde_json::Value,
+    pub verification: i32,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(tag = "kind", rename_all = "lowercase")]
+pub enum AnnotationKind {
+    String,
+    Text,
+    Datetime,
+    Boolean,
+    Selection,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AnnotationSchema {
+    pub key: String,
+    pub name: String,
+    #[serde(flatten)]
+    pub kind: AnnotationKind,
+    pub description: Option<String>,
+    pub required: Option<bool>,
+    pub selections: Option<Vec<String>>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Annotation {
+    pub key: String,
+    pub name: String,
+    pub value: serde_json::Value,
+    pub note: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct AnnotationReq {
+    pub key: String,
+    pub value: serde_json::Value,
+    pub note: Option<String>,
+    pub name: String,
 }
 
 #[cfg(test)]

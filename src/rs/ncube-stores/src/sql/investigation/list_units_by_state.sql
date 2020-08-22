@@ -3,7 +3,8 @@ SELECT u.id AS id,
        u.title AS title,
        (SELECT count(id) FROM download WHERE unit = u.id AND type = 'video') AS videos,
        (SELECT count(id) FROM download WHERE unit = u.id AND type = 'image') AS images,
-       v.state AS state
+       v.state AS state,
+       v.id AS verification
   FROM verification v
   JOIN unit u ON v.unit = u.id
   JOIN segment s ON v.segment = s.id

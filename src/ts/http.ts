@@ -1,6 +1,8 @@
 import {EventObject, State} from "xstate";
 
 import {
+  Annotation,
+  AnnotationReq,
   ConfigSettingReq,
   HostConfig,
   Investigation,
@@ -545,6 +547,46 @@ export const updateUnitState = async <
   );
 
   return emptyResponse(resp);
+};
+
+export const setAnnotation = async (
+  workspace: string,
+  investigation: string,
+  verification: number,
+  body: AnnotationReq,
+): Promise<void> => {
+  // FIXME: Add validation
+  // await v.investigationReq.isValid(body);
+
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/annotations/${verification}`,
+    {
+      body: JSON.stringify(body),
+      method: "PUT",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
+};
+
+export const listAnnotations = async (
+  workspace: string,
+  investigation: string,
+  verification: number,
+): Promise<Annotation[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/annotations/${verification}`,
+  );
+
+  return dataResponse(
+    resp,
+    (annotations: Array<Annotation & {value: string}>) =>
+      annotations.map(({value: val, ...rest}) => ({
+        value: JSON.parse(val),
+        ...rest,
+      })),
+  );
 };
 
 /*

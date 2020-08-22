@@ -1,5 +1,5 @@
-use ncube_data::{Segment, SegmentUnit, VerifySegmentReq};
-use ncube_stores::investigation_store;
+use ncube_data::{Annotation, AnnotationReq, Segment, SegmentUnit, VerifySegmentReq};
+use ncube_stores::{annotation_store, investigation_store};
 use tracing::instrument;
 
 use crate::{ensure_workspace, workspace_database, HandlerError};
@@ -109,4 +109,50 @@ pub async fn update_unit_state(
         .await?;
 
     Ok(())
+}
+
+#[instrument]
+pub async fn set_annotation(
+    workspace: &str,
+    investigation: &str,
+    verification: i32,
+    annotation_req: &AnnotationReq,
+) -> Result<(), HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    // FIXME: verify this verification exists for this workspace and investigation
+
+    let database = workspace_database(&workspace).await?;
+    let annotation_store = annotation_store(database.clone());
+
+    annotation_store
+        .create(
+            &annotation_req.key,
+            &annotation_req.value,
+            &annotation_req.name,
+            &annotation_req.note,
+            &investigation,
+            verification,
+        )
+        .await?;
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn list_annotations(
+    workspace: &str,
+    investigation: &str,
+    verification: i32,
+) -> Result<Vec<Annotation>, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    // FIXME: verify this verification exists for this workspace and investigation
+
+    let database = workspace_database(&workspace).await?;
+    let annotation_store = annotation_store(database.clone());
+
+    let annotations = annotation_store.list(&investigation, verification).await?;
+
+    Ok(annotations)
 }

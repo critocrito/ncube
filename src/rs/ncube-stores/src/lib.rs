@@ -2,6 +2,7 @@ use ncube_search::{Limit, SearchQuery};
 use rusqlite::ToSql;
 
 mod account;
+mod annotation;
 mod config;
 mod investigation;
 mod methodology;
@@ -14,6 +15,7 @@ mod unit;
 mod workspace;
 
 pub use self::account::*;
+pub use self::annotation::*;
 pub use self::config::*;
 pub use self::investigation::*;
 pub use self::methodology::*;

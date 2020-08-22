@@ -14,6 +14,7 @@
   - [Processes](#processes)
   - [Methodologies](#methodologies)
   - [Investigations](#investigations)
+  - [Annotations](#annotations)
   - [Stats](#stats)
 - [Entities](#entities)
   - [Config Setting](#config-setting-entity)
@@ -171,6 +172,11 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [List segments of an investigation](http-api/investigation/segments.md) `POST /workspaces/<workspace>/investigations/<investigation>/segments`
 - [List units for an investigation segment](http-api/investigations/list_units.md) `GET /workspaces/<workspace>/investigations/<investigation>/segments/<segment>`
 - [Move a unit from one state to another](http-api/investigations/update_state_segment.md) `PUT /workspaces/<workspace>/investigations/<investigation>/segments/<segment>/<unit>`
+
+### Annotations
+
+- [List annotations for a unit](http-api/annotation/list.md) `GET /workspaces/<workspace>/investigations/<investigation>/annotations/<verification>`
+- [Set an annotation for a unit](http-api/annotation/update.md) `PUT /workspaces/<workspace>/investigations/<investigation>/annotations`
 
 ### Stats
 

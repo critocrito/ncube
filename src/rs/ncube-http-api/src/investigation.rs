@@ -1,4 +1,4 @@
-use ncube_data::{InvestigationReq, ReqCtx, SuccessResponse, VerifySegmentReq};
+use ncube_data::{AnnotationReq, InvestigationReq, ReqCtx, SuccessResponse, VerifySegmentReq};
 use ncube_handlers::{investigation as investigation_handlers, workspace as handlers};
 use percent_encoding::percent_decode_str;
 use serde::Deserialize;
@@ -110,6 +110,40 @@ async fn update_state(
     Ok(warp::reply())
 }
 
+#[instrument]
+async fn create_annotation(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+    verification: i32,
+    annotation_req: AnnotationReq,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    investigation_handlers::set_annotation(
+        &workspace,
+        &investigation,
+        verification,
+        &annotation_req,
+    )
+    .await?;
+
+    Ok(warp::reply())
+}
+
+#[instrument]
+async fn list_annotations(
+    _ctx: ReqCtx,
+    workspace: String,
+    investigation: String,
+    verification: i32,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let annotations =
+        investigation_handlers::list_annotations(&workspace, &investigation, verification).await?;
+
+    let response = SuccessResponse::new(annotations);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!("workspaces" / String / "investigations"))
@@ -163,4 +197,18 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             .and(warp::body::json())
             .and_then(update_state)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "investigations" / String / "annotations" / i32
+            ))
+            .and(warp::put())
+            .and(warp::body::json())
+            .and_then(create_annotation)
+            .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "investigations" / String / "annotations" / i32
+            ))
+            .and(warp::get())
+            .and_then(list_annotations))
 }
