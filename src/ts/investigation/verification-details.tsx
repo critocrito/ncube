@@ -1,27 +1,40 @@
 import React, {useEffect, useState} from "react";
+import {EventObject} from "xstate";
 
 import DataDetails from "../database/details";
 import {showUnit} from "../http";
-import {Unit, Workspace} from "../types";
+import {AnnotationSchema, SegmentUnit, Unit, Workspace} from "../types";
+import Annotation from "./annotation";
 
-interface VerificationDetailsProps {
+interface VerificationDetailsProps<
+  TContext extends Record<string, unknown>,
+  TEvent extends EventObject
+> {
   workspace: Workspace;
-  unitId: number;
+  unit: SegmentUnit<TContext, TEvent>;
 }
 
-const VerificationDetails = ({
+const VerificationDetails = <
+  TContext extends Record<string, unknown>,
+  TEvent extends EventObject
+>({
   workspace: {slug},
-  unitId,
-}: VerificationDetailsProps) => {
+  unit: {state, id},
+}: VerificationDetailsProps<TContext, TEvent>) => {
   const [unit, setUnit] = useState<Unit | undefined>();
+
+  const annotations: AnnotationSchema[] = Object.keys(state.meta).reduce(
+    (memo, key) => memo.concat(state.meta[key].annotations ?? []),
+    [],
+  );
 
   useEffect(() => {
     const f = async () => {
-      const data = await showUnit(slug, unitId);
+      const data = await showUnit(slug, id);
       setUnit(data);
     };
     f();
-  }, [slug, unitId]);
+  }, [slug, id]);
 
   return (
     <div className="flex">
@@ -30,7 +43,17 @@ const VerificationDetails = ({
           <DataDetails unit={unit} />
         </div>
       )}
-      {unit && <div className="w-50">Annotations</div>}
+      {unit && (
+        <div className="w-50 flex flex-column">
+          {annotations.map((a) => (
+            <Annotation
+              key={a.key}
+              schema={a}
+              onSubmit={(values) => console.log(values)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

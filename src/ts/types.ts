@@ -208,6 +208,15 @@ export type SegmentUnit<
   state: State<TContext, TEvent>;
 };
 
+export type AnnotationSchema = {
+  key: string;
+  name: string;
+  description?: string;
+  kind: "string" | "text" | "datetime" | "boolean" | "selection";
+  required?: boolean;
+  selections?: string[];
+};
+
 export type ProcessConfigReq = {
   key: string;
   value: Record<string, string>;

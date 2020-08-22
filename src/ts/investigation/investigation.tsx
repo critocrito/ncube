@@ -174,7 +174,7 @@ const Investigation = <
                 send("SHOW_UNIT", {
                   investigation: i,
                   segment: s,
-                  unitId: unit.id,
+                  unit,
                 })
               }
             />
@@ -195,6 +195,7 @@ const Investigation = <
         case "SHOW_UNIT": {
           const i = state.event.investigation;
           const s = state.event.segment;
+          const u = state.event.unit;
 
           return (
             <div>
@@ -209,10 +210,7 @@ const Investigation = <
                 description="Annotate and verify units of data.."
                 className="w-80"
               >
-                <VerificationDetails
-                  workspace={workspace}
-                  unitId={state.event.unitId}
-                />
+                <VerificationDetails workspace={workspace} unit={u} />
               </Modal>
               <Verification
                 workspace={workspace}
@@ -222,7 +220,7 @@ const Investigation = <
                   send("SHOW_UNIT", {
                     investigation: i,
                     segment: s,
-                    unitId: unit.id,
+                    unit,
                   })
                 }
               />

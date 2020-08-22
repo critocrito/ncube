@@ -1,6 +1,6 @@
-import {assign, createMachine} from "xstate";
+import {assign, createMachine, EventObject} from "xstate";
 
-import {Investigation, Segment, Workspace} from "../types";
+import {Investigation, Segment, SegmentUnit, Workspace} from "../types";
 
 type InvestigationContext = {
   workspace: Workspace;
@@ -15,6 +15,7 @@ type InvestigationEvent =
       segment: Segment;
       investigation: Investigation;
       unitId: number;
+      unit: SegmentUnit<Record<string, unknown>, EventObject>;
     }
   | {type: "VERIFY_SEGMENT"; segment: Segment; investigation: Investigation}
   | {type: "CREATE_INVESTIGATION"}
