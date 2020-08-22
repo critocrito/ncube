@@ -25,7 +25,7 @@ const Modal = ({
         aria-labelledby={title}
         aria-describedby={description}
         className={c(
-          "absolute mt-auto ml-auto h-40 w-50 bg-canvas z-9999",
+          "absolute top-2 ml-auto h-40 w-50 bg-canvas z-9999",
           className,
         )}
       >

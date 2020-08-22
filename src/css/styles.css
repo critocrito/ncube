@@ -266,6 +266,12 @@
   width: 6rem;
 }
 
+.btn-small {
+  width: 5.5rem;
+  padding: 6px;
+  margin: 5px;
+}
+
 /* Global elements */
 
 body {

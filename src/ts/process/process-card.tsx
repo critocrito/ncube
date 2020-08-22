@@ -59,7 +59,7 @@ const ProcessCard = ({
         />
         <span className="ml2 tl">This process needs to be configured.</span>
       </div>
-      <Button onClick={onClick} kind="secondary">
+      <Button onClick={onClick} kind="secondary" size="small">
         Set Up
       </Button>
     </div>

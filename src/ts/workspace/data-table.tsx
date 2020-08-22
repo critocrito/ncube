@@ -114,9 +114,9 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
       {
         Header: "Source",
         accessor: "source",
-        minWidth: 60,
-        width: 60,
-        maxWidth: 60,
+        minWidth: 50,
+        width: 50,
+        maxWidth: 50,
         Cell: ({value}: Cell) => {
           const kind = mapToKind(value);
           return (
@@ -130,9 +130,9 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
       {
         Header: "Tags",
         accessor: "tags",
-        minWidth: 40,
-        width: 40,
-        maxWidth: 40,
+        minWidth: 110,
+        width: 110,
+        maxWidth: 110,
         Cell: ({value}: Cell) => {
           return (
             <div className="flex justify-around">
