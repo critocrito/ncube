@@ -21,12 +21,12 @@ const SegmentListItem = ({
   return (
     <section className="w-100 flex justify-between">
       <div className="flex w-80">
-        <div className="w-30 flex flex-column justify-between bt bl bb b--fair-pink">
-          <h3 className="header3 mt2 ml3">{title}</h3>
+        <div className="w-30 flex flex-column justify-between pb1 pl2 pt1 bt bl bb b--fair-pink">
+          <h4 className="header4 ml1 mt1 mb2">{title}</h4>
           <Button
             className="mb2 ml3"
             kind="secondary"
-            size="large"
+            size="small"
             onClick={onExplore}
           >
             Explore
@@ -64,8 +64,8 @@ const SegmentListItem = ({
         </div>
       </div>
 
-      <div>
-        <Button size="large" onClick={onVerify}>
+      <div className="pr3 h-100 flex flex-column">
+        <Button size="small" onClick={onVerify}>
           Verify
         </Button>
       </div>

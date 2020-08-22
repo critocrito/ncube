@@ -245,7 +245,7 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
                 description="Describing this modal"
               >
                 <div className="flex flex-column">
-                  <p>Add a new data source for your workspace.</p>
+                  <h3 className="sapphire">Add a new data source for your workspace.</h3>
 
                   <FormHandler
                     onSave={(values) => saveSource(workspace.slug, values)}

@@ -16,7 +16,7 @@ const Modal = ({title, description, onCancel, children}: ModalProps) => {
         role="dialog"
         aria-labelledby={title}
         aria-describedby={description}
-        className="absolute mt-auto ml-auto h-40 w-50 bg-canvas z-9999"
+        className="absolute top-2 ml-auto h-40 w-50 bg-canvas z-9999"
       >
         <div className="relative">
           <button

@@ -36,9 +36,9 @@ const selectHook = <T extends {id: number}>(hooks: Hooks<T>) => {
   hooks.visibleColumns.push((columns) => [
     {
       id: "selection",
-      minWidth: 5,
-      width: 5,
-      maxWidth: 5,
+      minWidth: 20,
+      width: 20,
+      maxWidth: 20,
 
       Header: ({getToggleAllRowsSelectedProps}: HeaderProps<T>) => (
         <div>

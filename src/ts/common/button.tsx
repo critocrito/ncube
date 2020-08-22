@@ -6,7 +6,7 @@ interface ButtonProps {
   className?: string;
   onClick?: () => void;
   kind?: "primary" | "secondary" | "caution";
-  size?: "normal" | "large";
+  size?: "normal" | "large" | "small";
   disabled?: boolean;
   type?: "submit" | "button" | "reset";
 }
@@ -20,6 +20,7 @@ const styles = {
 const sizes = {
   normal: "btn-regular",
   large: "btn-large",
+  small: "btn-small",
 };
 
 const Button = ({
