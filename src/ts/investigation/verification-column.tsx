@@ -1,9 +1,12 @@
 import c from "classnames";
 import React from "react";
 
+import iconDownload from "../../../resources/public/images/icon_download.svg";
+
 interface VerificationColumnProps {
   name: string;
   cntUnits: number;
+  onDownload?: () => Promise<void>;
   children?: JSX.Element;
   isHighlighted?: boolean;
   isDroppable?: boolean;
@@ -14,6 +17,7 @@ const VerificationColumn = ({
   name,
   cntUnits,
   children,
+  onDownload,
   className,
   isHighlighted = false,
   isDroppable = true,
@@ -39,7 +43,18 @@ const VerificationColumn = ({
         <span className="text-medium b sapphire">{name}</span>
       </div>
 
-      <div className="pa2 mv2">ALL: {cntUnits}</div>
+      <div className="pa2 mv2 flex items-center justify-between">
+        <div>ALL: {cntUnits}</div>
+        <button
+          className={c(
+            "pointer b--none bg-transparent",
+            cntUnits === 0 ? "no-hover o-50" : undefined,
+          )}
+          onClick={onDownload}
+        >
+          <img src={iconDownload} className="h2 w2" alt="download" />
+        </button>
+      </div>
 
       <div className="pa2 h-100">{children}</div>
     </div>

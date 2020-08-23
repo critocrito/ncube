@@ -249,6 +249,22 @@ export const listUnits = async (
   return dataResponse(resp);
 };
 
+export const listUnitsByIds = async (
+  workspace: string,
+  ids: number[],
+): Promise<Unit[]> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/data`,
+    {
+      body: JSON.stringify(ids),
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return dataResponse(resp);
+};
+
 export const searchUnits = async (
   workspace: string,
   query: string,

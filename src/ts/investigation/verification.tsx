@@ -1,11 +1,13 @@
 /* eslint react/jsx-props-no-spreading: off */
 import c from "classnames";
+import {csvFormat} from "d3-dsv";
 import React, {useCallback, useEffect, useState} from "react";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import {EventObject, Machine} from "xstate";
 
 import {
   listSegmentUnitsByState,
+  listUnitsByIds,
   showMethodology,
   updateUnitState,
 } from "../http";
@@ -222,6 +224,62 @@ const Verification = <
                         cntUnits={data.length}
                         isHighlighted={snapshot.isDraggingOver}
                         isDroppable={isDroppable}
+                        onDownload={async () => {
+                          // FIXME: I know this is messy code. I want to
+                          // revisit the CSV generation and push it into the
+                          // backend. I believe this will be much more efficient
+                          // than doing it in the UI. I also need to extend the CSV
+                          // download with downloads, tags and annotations.
+                          const ids = data.map(({id}) => id);
+                          const csvUnits = await listUnitsByIds(
+                            workspaceSlug,
+                            ids,
+                          );
+
+                          const filename = `${segmentSlug}-${name}.csv`;
+                          const csv = csvFormat(
+                            csvUnits.map(
+                              ({
+                                id,
+                                id_hash,
+                                source,
+                                unit_id,
+                                body,
+                                href,
+                                author,
+                                title,
+                                description,
+                                created_at,
+                                fetched_at,
+                              }) => ({
+                                id,
+                                id_hash,
+                                source,
+                                unit_id,
+                                body,
+                                href,
+                                author,
+                                title,
+                                description,
+                                created_at,
+                                fetched_at,
+                              }),
+                            ),
+                          );
+                          const blob = new Blob([csv], {type: "text/csv"});
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.href = url;
+                          a.download = filename || "download.csv";
+                          const clickHandler = () => {
+                            setTimeout(() => {
+                              URL.revokeObjectURL(url);
+                              a.removeEventListener("click", clickHandler);
+                            }, 150);
+                          };
+                          a.addEventListener("click", clickHandler, false);
+                          a.click();
+                        }}
                       >
                         <>
                           {data.map((unit, index) => (
