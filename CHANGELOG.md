@@ -1,3 +1,25 @@
+<a name="0.9.0"></a>
+## 0.9.0 (2020-08-23)
+
+
+#### Features
+
+* **ncubed:**
+  *  list units by ids ([fb7ad41f](fb7ad41f))
+  *  add HTTP endpoint to show a single data unit ([bf1d5934](bf1d5934))
+* **ui:**
+  *  download verification units as a CSV ([fdb394c6](fdb394c6))
+  *  edit annotations during investigations ([a553dc4b](a553dc4b))
+  *  define and render annotation templates ([49fa7dd0](49fa7dd0))
+  *  show unit details during verification ([cf4ed5f1](cf4ed5f1))
+  *  add a help screen for the search grammar ([5b136f8a](5b136f8a))
+
+#### Bug Fixes
+
+* **ui:**  replace source icon ([8700b4a2](8700b4a2))
+
+
+
 <a name="0.8.0"></a>
 ## 0.8.0 (2020-08-19)
 
