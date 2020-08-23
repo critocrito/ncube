@@ -42,7 +42,7 @@ const SourceTypeSelect = ({initial}: SourceTypeSelectProps) => {
   return (
     <div className="flex flex-column fb1 mt3 mb2">
       <div className="mb1" {...getLabelProps()}>
-        Detected source type:
+        Choose a source type:
       </div>
 
       <div
