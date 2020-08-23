@@ -12,7 +12,17 @@ struct SettingRequest {
 }
 
 async fn show(_ctx: ReqCtx) -> Result<impl warp::Reply, warp::Rejection> {
-    let config = handlers::show_config().await?;
+    // To bypass the bootstrap screen for now, we will initialize Ncube
+    // automatically with a default workspace root. This will also generate the
+    // secret key.
+    let config = match handlers::show_config().await {
+        Err(_) => {
+            handlers::bootstrap(vec![("workspace_root".to_string(), "~/Ncube".to_string())])
+                .await?;
+            handlers::show_config().await?
+        }
+        Ok(cfg) => cfg,
+    };
     let response = SuccessResponse::new(config);
 
     Ok(warp::reply::json(&response))
