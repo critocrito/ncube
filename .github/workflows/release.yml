@@ -105,7 +105,7 @@ jobs:
         target: ${{ matrix.target }}
 
     - name: Install Node dependencies
-      run: yarn set network-timeout 300000 && yarn install
+      run: yarn config set network-timeout 300000 && yarn install
 
     - name: Set release upload URL and release version
       shell: bash
