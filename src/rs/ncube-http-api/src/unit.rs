@@ -104,12 +104,29 @@ async fn show(
     Ok(warp::reply::json(&response))
 }
 
+#[instrument]
+async fn data_by_ids(
+    _ctx: ReqCtx,
+    workspace: String,
+    body: Vec<i32>,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let data = unit_handlers::list_data_ids(&workspace, body).await?;
+    let response = SuccessResponse::new(data);
+
+    Ok(warp::reply::json(&response))
+}
+
 pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     authenticate_remote_req()
         .and(warp::path!("workspaces" / String / "data"))
         .and(warp::get())
         .and(warp::query::<ListOptions>())
         .and_then(data)
+        .or(authenticate_remote_req()
+            .and(warp::path!("workspaces" / String / "data"))
+            .and(warp::post())
+            .and(warp::body::json())
+            .and_then(data_by_ids))
         .or(authenticate_remote_req()
             .and(warp::path!("workspaces" / String / "data" / "search"))
             .and(warp::get())

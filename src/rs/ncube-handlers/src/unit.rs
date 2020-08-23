@@ -14,3 +14,15 @@ pub async fn show_data_unit(workspace: &str, id: i32) -> Result<Option<Unit>, Ha
 
     Ok(unit)
 }
+
+#[instrument]
+pub async fn list_data_ids(workspace: &str, ids: Vec<i32>) -> Result<Vec<Unit>, HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+    let unit_store = unit_store(database);
+
+    let data = unit_store.list_ids(ids).await?;
+
+    Ok(data)
+}
