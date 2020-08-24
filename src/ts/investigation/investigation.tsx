@@ -127,7 +127,7 @@ const Investigation = <
             description="Create new investigations."
           >
             <div className="flex flex-column">
-              <h3>Add a new data source for your workspace.</h3>
+              <h3>Add a new investigation to your workspace.</h3>
 
               <FormHandler
                 onSave={(values) => createInvestigation(workspace.slug, values)}
