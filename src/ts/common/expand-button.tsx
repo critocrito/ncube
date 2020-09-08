@@ -48,7 +48,7 @@ interface ExpandButtonProps {
 const styles = {
   primary: "btn-bittersweet",
   secondary: "btn-sapphire",
-  caution: "btn-black",
+  caution: "btn-link",
 };
 
 const sizes = {

@@ -254,8 +254,8 @@
   @insert .bg-bittersweet .b--bittersweet;
 }
 
-.btn-black {
-  @insert .bg-black .b--black;
+.btn-link {
+  @insert .bg-transparent .b--none .sapphire;
 }
 
 .btn-large {
