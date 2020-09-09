@@ -56,10 +56,9 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                     workspaces={workspaces}
                     selectedWorkspace={workspaceState.context.workspace}
                     className="workspace-select w-100 b bg-sapphire ba b--sapphire white pointer"
-                    onChange={(workspace) => {
-                      appSend("SHOW_WORKSPACE", {slug: workspace.slug});
-                      workspaceSend("OVERVIEW");
-                    }}
+                    onChange={(workspace) =>
+                      appSend("SHOW_WORKSPACE", {workspace})
+                    }
                   />
                 </div>
               </div>
@@ -131,7 +130,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                 <div className="pa2 h3 w5 bt b--solitude bw1 flex items-center justify-between fixed bottom-0">
                   <button
                     className="b--none bg-white pointer dim"
-                    onClick={() => appSend("SHOW_HOME")}
+                    onClick={() => appSend("SHOW_DASHBOARD")}
                   >
                     <img height="45px" src={logoIcon} alt="Ncube logo." />
                   </button>

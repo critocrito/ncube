@@ -3,7 +3,7 @@ use futures_util::{stream::Stream, TryFutureExt, TryStreamExt};
 use ncube_actors::{
     db::{DatabaseActor, LookupDatabase},
     host::{RequirePool, WorkspaceRootSetting},
-    task::SetupWorkspace,
+    task::{RemoveLocation, SetupWorkspace},
     HostActor, Registry, TaskActor,
 };
 use ncube_data::{
@@ -152,11 +152,22 @@ pub async fn list_workspaces() -> Result<Vec<Workspace>, HandlerError> {
 }
 
 #[instrument]
-pub async fn remove_workspace(slug: &str) -> Result<(), HandlerError> {
+pub async fn remove_workspace(slug: &str, remove_location: bool) -> Result<(), HandlerError> {
     let host_actor = HostActor::from_registry().await.unwrap();
 
     let db = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(db.clone());
+
+    let workspace = workspace_store.show_by_slug(&slug).await?;
+
+    // I can't chain if let with the second predicate, hence the nesting.
+    // https://github.com/rust-lang/rust/issues/53667
+    if let WorkspaceKind::Local(location) = workspace.kind {
+        if remove_location {
+            let actor = TaskActor::from_registry().await.unwrap();
+            actor.call(RemoveLocation { location }).await??;
+        }
+    }
 
     workspace_store.delete_by_slug(&slug).await?;
 

@@ -130,8 +130,18 @@ impl WorkspaceStore for WorkspaceStoreSqlite {
 
     async fn delete_by_slug(&self, slug: &str) -> Result<(), DatabaseError> {
         let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/workspace/remove_by_slug.sql"))?;
+        let mut stmt =
+            conn.prepare_cached(include_str!("../sql/workspace/remove_database_by_slug.sql"))?;
+        let mut stmt2 = conn.prepare_cached(include_str!(
+            "../sql/workspace/remove_capability_by_slug.sql"
+        ))?;
+        let mut stmt3 = conn.prepare_cached(include_str!("../sql/workspace/remove_by_slug.sql"))?;
+
+        conn.execute_batch("BEGIN;")?;
         stmt.execute(params![&slug])?;
+        stmt2.execute(params![&slug])?;
+        stmt3.execute(params![&slug])?;
+        conn.execute_batch("COMMIT;")?;
 
         Ok(())
     }

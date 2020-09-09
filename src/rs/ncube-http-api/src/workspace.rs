@@ -1,8 +1,15 @@
 use ncube_data::{ReqCtx, SuccessResponse, WorkspaceRequest};
 use ncube_handlers::workspace as handlers;
+use serde::Deserialize;
 use warp::Filter;
 
 use crate::http::restrict_to_local_req;
+
+// The query parameters for delete workspace.
+#[derive(Debug, Deserialize)]
+pub struct DeleteOptions {
+    pub remove_location: Option<bool>,
+}
 
 async fn create(
     _ctx: ReqCtx,
@@ -28,8 +35,17 @@ async fn list(_ctx: ReqCtx) -> Result<impl warp::Reply, warp::Rejection> {
     Ok(warp::reply::json(&response))
 }
 
-async fn delete(_ctx: ReqCtx, slug: String) -> Result<impl warp::Reply, warp::Rejection> {
-    handlers::remove_workspace(&slug).await?;
+async fn delete(
+    _ctx: ReqCtx,
+    slug: String,
+    opts: DeleteOptions,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let remove_location = match opts.remove_location {
+        Some(true) => true,
+        _ => false,
+    };
+
+    handlers::remove_workspace(&slug, remove_location).await?;
 
     Ok(warp::reply())
 }
@@ -67,6 +83,7 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             .and(restrict_to_local_req())
             .and(warp::path!("workspaces" / String))
             .and(warp::delete())
+            .and(warp::query::<DeleteOptions>())
             .and_then(delete)
             .map(|reply| warp::reply::with_status(reply, warp::http::StatusCode::NO_CONTENT)))
         .or(warp::any()

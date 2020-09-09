@@ -93,6 +93,24 @@ impl Handler<SetupWorkspace> for TaskActor {
 
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
+pub struct RemoveLocation {
+    pub location: String,
+}
+
+#[async_trait]
+impl Handler<RemoveLocation> for TaskActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: RemoveLocation,
+    ) -> Result<(), ActorError> {
+        let task = Task::remove_location(&msg.location);
+        self.queue_task(task).await
+    }
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
 pub struct RunProcess {
     pub workspace: Workspace,
     pub key: String,

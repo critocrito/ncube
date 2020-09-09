@@ -2,6 +2,7 @@ use ncube_cache::GuardedCache;
 use ncube_data::{Workspace, WorkspaceKind};
 use ncube_errors::HostError;
 use ncube_fs::{expand_tilde, mkdirp, unzip_workspace};
+use remove_dir_all::remove_dir_all;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 use tokio::process::Command;
@@ -10,6 +11,7 @@ use tracing::{debug, info, instrument};
 #[derive(Debug, Clone)]
 pub enum TaskKind {
     SetupWorkspace(String, String),
+    RemoveLocation(String),
     RunProcess(Workspace, String),
 }
 
@@ -40,6 +42,10 @@ impl Task {
             location.to_string(),
             workspace.to_string(),
         ))
+    }
+
+    pub fn remove_location(location: &str) -> Self {
+        Task::new(TaskKind::RemoveLocation(location.to_string()))
     }
 
     pub fn data_process(workspace: &Workspace, key: &str) -> Self {
@@ -98,6 +104,17 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(),
         .expect("npm failed to run");
 
     info!("Migrated the Sqlite database.",);
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn remove_location<P: AsRef<Path> + Debug>(location: P) -> Result<(), HostError> {
+    let expanded_path =
+        expand_tilde(location).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
+
+    info!("Removing workspace directory {:?}", expanded_path);
+    remove_dir_all(&expanded_path)?;
 
     Ok(())
 }

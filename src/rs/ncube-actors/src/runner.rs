@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_tasks::{create_workspace, run_data_process, Task, TaskKind, TaskState};
+use ncube_tasks::{create_workspace, remove_location, run_data_process, Task, TaskKind, TaskState};
 use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tracing::info;
@@ -68,6 +68,33 @@ impl TaskRunner {
                         let host_actor = HostActor::from_registry().await.unwrap();
                         host_actor
                             .call(EnableWorkspace { workspace })
+                            .await
+                            .unwrap()
+                            .unwrap();
+                    }
+
+                    TaskKind::RemoveLocation(location) => {
+                        info!("Received a request to remove a location: {:?}.", location,);
+
+                        let actor = TaskActor::from_registry().await.unwrap();
+                        actor
+                            .call(UpdateTask {
+                                task_id: task_id.clone(),
+                                state: TaskState::Running,
+                            })
+                            .await
+                            .unwrap()
+                            .unwrap();
+
+                        remove_location(location)
+                            .await
+                            .expect("Failed to remove a location");
+
+                        actor
+                            .call(UpdateTask {
+                                task_id,
+                                state: TaskState::Done,
+                            })
                             .await
                             .unwrap()
                             .unwrap();

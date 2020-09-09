@@ -4,13 +4,21 @@ import {Workspace} from "../types";
 
 export interface AppContext {
   workspaces: Workspace[];
-  workspace?: Workspace;
   error?: string;
 }
 
 export type AppEvent =
-  | {type: "SHOW_HOME"}
-  | {type: "SHOW_WORKSPACE"; slug: string}
+  | {type: "SHOW_DASHBOARD"}
+  | {type: "SHOW_WORKSPACE"; workspace: Workspace}
+  | {type: "done.invoke.fetchWorkspace"; data: Workspace}
+  | {type: "CREATE_WORKSPACE"}
+  | {type: "LINK_WORKSPACE"}
+  | {type: "DELETE_WORKSPACE"; workspace: Workspace}
+  | {
+      type: "REALLY_DELETE_WORKSPACE";
+      workspace: Workspace;
+      removeLocation: boolean;
+    }
   | {type: "RELOAD_WORKSPACES"}
   | {type: "RESTART_APP"}
   | {type: "RETRY"};
@@ -21,8 +29,12 @@ export type AppState =
         | "onboarding"
         | "list_workspaces"
         | "show_workspace"
+        | "delete_workspace"
         | "workspace"
-        | "home";
+        | "dashboard"
+        | "create"
+        | "link"
+        | "confirm_delete";
       context: AppContext;
     }
   | {
@@ -39,7 +51,6 @@ export default createMachine<AppContext, AppEvent, AppState>({
 
   context: {
     workspaces: [],
-    workspace: undefined,
   },
 
   initial: "onboarding",
@@ -47,7 +58,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
   states: {
     onboarding: {
       on: {
-        SHOW_HOME: "list_workspaces",
+        SHOW_DASHBOARD: "list_workspaces",
       },
     },
 
@@ -56,7 +67,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
         src: "listWorkspaces",
 
         onDone: {
-          target: "home",
+          target: "dashboard",
           actions: assign({workspaces: (_ctx, {data}) => data}),
         },
 
@@ -73,7 +84,6 @@ export default createMachine<AppContext, AppEvent, AppState>({
 
         onDone: {
           target: "workspace",
-          actions: assign({workspace: (_ctx, {data}) => data}),
         },
 
         onError: {
@@ -83,23 +93,62 @@ export default createMachine<AppContext, AppEvent, AppState>({
       },
     },
 
-    home: {
-      on: {
-        SHOW_WORKSPACE: {
-          target: "show_workspace",
+    delete_workspace: {
+      invoke: {
+        src: "deleteWorkspace",
+
+        onDone: {
+          target: "dashboard",
+          actions: assign({
+            workspaces: ({workspaces}, {data}) =>
+              workspaces.filter(({slug}) => slug !== data.slug),
+          }),
         },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
+    dashboard: {
+      on: {
+        SHOW_WORKSPACE: "show_workspace",
         RESTART_APP: "onboarding",
         RELOAD_WORKSPACES: "list_workspaces",
+        CREATE_WORKSPACE: "create",
+        LINK_WORKSPACE: "link",
+        DELETE_WORKSPACE: "confirm_delete",
+      },
+    },
+
+    create: {
+      on: {
+        SHOW_DASHBOARD: "dashboard",
+        RELOAD_WORKSPACES: "list_workspaces",
+      },
+    },
+
+    link: {
+      on: {
+        SHOW_DASHBOARD: "dashboard",
+        RELOAD_WORKSPACES: "list_workspaces",
+      },
+    },
+
+    confirm_delete: {
+      on: {
+        SHOW_DASHBOARD: "dashboard",
+        REALLY_DELETE_WORKSPACE: "delete_workspace",
       },
     },
 
     workspace: {
       on: {
-        SHOW_WORKSPACE: {
-          target: "show_workspace",
-        },
+        SHOW_WORKSPACE: "show_workspace",
         RESTART_APP: "onboarding",
-        SHOW_HOME: "home",
+        SHOW_DASHBOARD: "dashboard",
       },
     },
 

@@ -7,7 +7,9 @@ import styles from "./select-styles";
 interface SelectProps {
   label: string;
   name: string;
+  description?: string;
   placeholder?: string;
+  isClearable?: boolean;
 }
 
 const YES: Option = {value: "yes", label: "Yes"};
@@ -15,7 +17,12 @@ const NO: Option = {value: "no", label: "No"};
 
 const options: Option[] = [YES, NO];
 
-const BooleanSelect = ({label, ...props}: SelectProps) => {
+const BooleanSelect = ({
+  label,
+  description,
+  isClearable = true,
+  ...props
+}: SelectProps) => {
   const {setFieldValue} = useFormikContext();
   const [field, meta] = useField(props);
 
@@ -33,9 +40,11 @@ const BooleanSelect = ({label, ...props}: SelectProps) => {
 
   return (
     <div className="flex flex-column fb1 mt3 mb2">
-      <label htmlFor={name} className="mb1">
+      <label htmlFor={name} className="mb1 b sapphire">
         {label}
       </label>
+
+      {description && <span className="text-medium mb2">{description}</span>}
 
       <S
         styles={styles}
@@ -56,7 +65,7 @@ const BooleanSelect = ({label, ...props}: SelectProps) => {
           setFieldValue(field.name, val);
         }}
         onBlur={onBlur}
-        isClearable
+        isClearable={isClearable}
       />
 
       {hasError ? <div className="error">{meta.error}</div> : undefined}

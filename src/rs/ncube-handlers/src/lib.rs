@@ -21,6 +21,9 @@ pub mod workspace;
 #[derive(Error, Debug)]
 pub enum HandlerError {
     #[error(transparent)]
+    Io(#[from] std::io::Error),
+
+    #[error(transparent)]
     Database(#[from] DatabaseError),
 
     #[error(transparent)]

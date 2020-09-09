@@ -14,13 +14,18 @@ import Stat from "./stat";
 interface WorkspaceListItemProps {
   workspace: Workspace;
   handleOpen: () => void;
+  handleRemove: () => void;
 }
 
-const WorkspaceListItem = ({workspace, handleOpen}: WorkspaceListItemProps) => {
-  const {id, kind, name, is_created: isCreated} = workspace;
+const WorkspaceListItem = ({
+  workspace,
+  handleOpen,
+  handleRemove,
+}: WorkspaceListItemProps) => {
+  const {kind, name, is_created: isCreated} = workspace;
 
   return (
-    <li key={id} className="bb">
+    <li className="bb">
       <div className="flex items-center justify-between w-100">
         <div className="flex flex-wrap w-80">
           <div className=" w-100 flex justify-between items-center">
@@ -55,9 +60,16 @@ const WorkspaceListItem = ({workspace, handleOpen}: WorkspaceListItemProps) => {
         </div>
 
         {isCreated ? (
-          <Button className="ml1" onClick={handleOpen}>
-            Open
-          </Button>
+          <div className="flex">
+            {kind === "local" && (
+              <Button className="ml1" kind="caution" onClick={handleRemove}>
+                Remove
+              </Button>
+            )}
+            <Button className="ml1" onClick={handleOpen}>
+              Open
+            </Button>
+          </div>
         ) : (
           <LoadingSpinner />
         )}

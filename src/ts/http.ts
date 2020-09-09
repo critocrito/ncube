@@ -148,6 +148,22 @@ export const showWorkspace = async (slug: string): Promise<Workspace> => {
   return dataResponse(resp);
 };
 
+export const deleteWorkspace = async (
+  slug: string,
+  removeLocation = false,
+): Promise<void> => {
+  const url = new URL(`http://127.0.0.1:40666/api/workspaces/${slug}`);
+
+  if (removeLocation) url.searchParams.append("remove_location", "true");
+
+  const resp = await fetch(url.toString(), {
+    method: "DELETE",
+    headers: {"Content-Type": "application/json"},
+  });
+
+  return emptyResponse(resp);
+};
+
 /*
  * Sources
  */
