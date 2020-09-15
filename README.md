@@ -193,6 +193,11 @@ All code is copyrighted by _christo@cryptodrunks.net_ and licensed under the [GP
 Ncube was developed with the support of:
 
 <p align="justify">
-  <img src="https://raw.githubusercontent.com/critocrito/ncube/logos/resources/logos/BMBF.jpg" width="26%" />
-  <img src="https://raw.githubusercontent.com/critocrito/ncube/logos/resources/logos/PrototypeFund-P-Logo.png" width="13%" />
+  <a href="https://www.bmbf.de" alt="Bundesministerium für Bildung und Forschung">
+    <img src="https://raw.githubusercontent.com/critocrito/ncube/logos/resources/logos/BMBF.jpg" width="26%" />
+  </a>
+
+  <a href="https://prototypefund.de" alt="Prototype Fund">
+    <img src="https://raw.githubusercontent.com/critocrito/ncube/logos/resources/logos/PrototypeFund-P-Logo.png" width="13%" />
+  </a>
 </p>
