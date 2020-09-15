@@ -361,6 +361,21 @@ export const updateSegment = async (
   return emptyResponse(resp);
 };
 
+export const deleteSegment = async (
+  workspace: string,
+  segment: string,
+): Promise<void> => {
+  const resp = await fetch(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/segments/${segment}`,
+    {
+      method: "DELETE",
+      headers: {"Content-Type": "application/json"},
+    },
+  );
+
+  return emptyResponse(resp);
+};
+
 /*
  * Processes
  */

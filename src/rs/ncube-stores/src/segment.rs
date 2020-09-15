@@ -96,10 +96,23 @@ impl SegmentStore for SegmentStoreSqlite {
 
     #[instrument]
     async fn delete(&self, slug: &str) -> Result<(), DatabaseError> {
-        let conn = self.db.connection().await?;
-        let mut stmt = conn.prepare_cached(include_str!("../sql/segment/delete.sql"))?;
+        if let Some(segment) = self.show(&slug).await? {
+            let conn = self.db.connection().await?;
+            let mut stmt =
+                conn.prepare_cached(include_str!("../sql/annotation/delete-by-segment.sql"))?;
+            let mut stmt2 = conn.prepare_cached(include_str!(
+                "../sql/investigation/remove-verifications.sql"
+            ))?;
+            let mut stmt3 = conn.prepare_cached(include_str!("../sql/segment/delete.sql"))?;
 
-        stmt.execute(params![&slug])?;
+            conn.execute_batch("BEGIN;")?;
+
+            stmt.execute(params![&segment.id])?;
+            stmt2.execute(params![&segment.id])?;
+            stmt3.execute(params![&slug])?;
+
+            conn.execute_batch("COMMIT;")?;
+        }
 
         Ok(())
     }

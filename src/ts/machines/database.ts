@@ -13,11 +13,19 @@ type DatabaseEvent =
   | {type: "SHOW_DATA"}
   | {type: "SHOW_SEGMENT"; segment: Segment}
   | {type: "SEND_TO_VERIFY"; segment: Segment}
+  | {type: "DELETE_SEGMENT"; segment: Segment}
+  | {type: "REALLY_DELETE_SEGMENT"; segment: Segment}
   | {type: "RETRY"};
 
 type DatabaseState =
   | {
-      value: "segments" | "home" | "exploration" | "verify_segment";
+      value:
+        | "segments"
+        | "home"
+        | "exploration"
+        | "verify_segment"
+        | "delete_segment"
+        | "confirm_delete_segment";
       context: DatabaseContext;
     }
   | {
@@ -45,11 +53,31 @@ export default createMachine<DatabaseContext, DatabaseEvent, DatabaseState>({
       },
     },
 
+    delete_segment: {
+      invoke: {
+        src: "deleteSegment",
+
+        onDone: {
+          target: "home",
+          actions: assign({
+            segments: ({segments}, {data}) =>
+              segments.filter(({slug}) => slug !== data.slug),
+          }),
+        },
+
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     home: {
       on: {
         SHOW_DATA: "exploration",
         SEND_TO_VERIFY: "verify_segment",
         SHOW_SEGMENT: "exploration",
+        DELETE_SEGMENT: "confirm_delete_segment",
       },
     },
 
@@ -62,6 +90,13 @@ export default createMachine<DatabaseContext, DatabaseEvent, DatabaseState>({
     verify_segment: {
       on: {
         SHOW_HOME: "home",
+      },
+    },
+
+    confirm_delete_segment: {
+      on: {
+        SHOW_HOME: "home",
+        REALLY_DELETE_SEGMENT: "delete_segment",
       },
     },
 

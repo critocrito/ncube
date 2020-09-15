@@ -10,6 +10,7 @@ interface SegmentItemProps {
   segment: Segment;
   onExplore: () => void;
   onVerify: () => void;
+  onRemove: () => void;
 }
 
 const SegmentListItem = ({
@@ -17,6 +18,7 @@ const SegmentListItem = ({
   segment: {query, title, slug},
   onExplore,
   onVerify,
+  onRemove,
 }: SegmentItemProps) => {
   return (
     <section className="w-100 flex justify-between">
@@ -67,6 +69,10 @@ const SegmentListItem = ({
       <div className="pr3 h-100 flex flex-column">
         <Button size="small" onClick={onVerify}>
           Verify
+        </Button>
+
+        <Button className="mt1" kind="caution" onClick={onRemove}>
+          Remove
         </Button>
       </div>
     </section>

@@ -8,9 +8,10 @@ import FormHandler from "../common/form-handler";
 import IntroText from "../common/intro-text";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
+import ConfirmDeleteSegment from "../database/confirm-delete-segment";
 import DataCard from "../database/data-card";
 import SendToVerificationForm from "../forms/send-to-verification";
-import {listSegments, verifySegment} from "../http";
+import {deleteSegment, listSegments, verifySegment} from "../http";
 import machine from "../machines/database";
 import {DataStats, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
@@ -28,6 +29,11 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
   const [state, send, service] = useMachine(machine, {
     services: {
       fetchSegments: (_ctx, _ev) => listSegments(workspace.slug),
+
+      deleteSegment: async (_ctx, {segment}) => {
+        await deleteSegment(workspace.slug, segment.slug);
+        return segment;
+      },
     },
 
     context: {
@@ -55,6 +61,7 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
     case state.matches("segments"):
       return <div />;
 
+    case state.matches("delete_segment"):
     case state.matches("home"):
       return (
         <div>
@@ -66,6 +73,7 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
               segments={segments}
               onExplore={(s) => send("SHOW_SEGMENT", {segment: s})}
               onVerify={(s) => send("SEND_TO_VERIFY", {segment: s})}
+              onRemove={(s) => send("DELETE_SEGMENT", {segment: s})}
             />
           ) : (
             <IntroText>
@@ -74,6 +82,59 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
           )}
         </div>
       );
+
+    case state.matches("confirm_delete_segment"): {
+      if (state.event.type === "DELETE_SEGMENT") {
+        const {segment: eventSegment} = state.event;
+
+        return (
+          <div className="fl w-100 pa3">
+            <Modal
+              onCancel={() => send("SHOW_HOME")}
+              title="Delete Segment"
+              description="Delete segment."
+            >
+              <ConfirmDeleteSegment
+                segment={eventSegment}
+                onCancel={() => send("SHOW_HOME")}
+                onDelete={() =>
+                  send("REALLY_DELETE_SEGMENT", {
+                    segment: eventSegment,
+                  })
+                }
+              />
+            </Modal>
+
+            <div>
+              <DataCard
+                workspace={workspace}
+                onClick={() => send("SHOW_DATA")}
+              />
+
+              {segments.length > 0 ? (
+                <SegmentList
+                  workspace={workspace}
+                  segments={segments}
+                  onExplore={(s) => send("SHOW_SEGMENT", {segment: s})}
+                  onVerify={(s) => send("SEND_TO_VERIFY", {segment: s})}
+                  onRemove={(s) => send("DELETE_SEGMENT", {segment: s})}
+                />
+              ) : (
+                <IntroText>
+                  <SegmentsEmpty />
+                </IntroText>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <Fatal
+          msg={`${machine.id} machine didn't match any valid state: ${state.value}`}
+        />
+      );
+    }
 
     case state.matches("exploration"):
       return (
@@ -124,6 +185,7 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
                     segments={segments}
                     onExplore={(s) => send("SHOW_SEGMENT", {segment: s})}
                     onVerify={(s) => send("SEND_TO_VERIFY", {segment: s})}
+                    onRemove={(s) => send("DELETE_SEGMENT", {segment: s})}
                   />
                 )}
               </div>

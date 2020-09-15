@@ -8,6 +8,7 @@ interface SegmentListProps {
   segments: Segment[];
   onExplore: (s: Segment) => void;
   onVerify: (s: Segment) => void;
+  onRemove: (s: Segment) => void;
 }
 
 const SegmentList = ({
@@ -15,6 +16,7 @@ const SegmentList = ({
   workspace,
   onExplore,
   onVerify,
+  onRemove,
 }: SegmentListProps) => {
   return (
     <div className="flex flex-column">
@@ -35,6 +37,7 @@ const SegmentList = ({
                 workspace={workspace}
                 onExplore={() => onExplore(segment)}
                 onVerify={() => onVerify(segment)}
+                onRemove={() => onRemove(segment)}
                 segment={segment}
               />
             </li>
