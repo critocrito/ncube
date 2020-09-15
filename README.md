@@ -187,3 +187,12 @@ make test
 ## License
 
 All code is copyrighted by _christo@cryptodrunks.net_ and licensed under the [GPL3](https://www.gnu.org/licenses/gpl-3.0.html).
+
+## Support
+
+Ncube was developed with the support of:
+
+<p align="justify">
+  <img src="https://raw.githubusercontent.com/critocrito/ncube/master/resources/logos/BMBF.jpg" width="26%" />
+  <img src="https://raw.githubusercontent.com/critocrito/ncube/master/resources/logos/PrototypeFund-P-Logo.png" width="26%" />
+</p>
