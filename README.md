@@ -194,5 +194,5 @@ Ncube was developed with the support of:
 
 <p align="justify">
   <img src="https://raw.githubusercontent.com/critocrito/ncube/logos/resources/logos/BMBF.jpg" width="26%" />
-  <img src="https://raw.githubusercontent.com/critocrito/ncube/logos/resources/logos/PrototypeFund-P-Logo.png" width="26%" />
+  <img src="https://raw.githubusercontent.com/critocrito/ncube/logos/resources/logos/PrototypeFund-P-Logo.png" width="13%" />
 </p>
