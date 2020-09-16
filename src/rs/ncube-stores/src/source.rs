@@ -75,8 +75,9 @@ impl SourceStore for SourceStoreSqlite {
         let query_id: i32 = stmt2.query_row(params![&kind, &term], |row| row.get(0))?;
 
         for tag in tags {
-            stmt3.execute(params![&tag.label, &tag.description])?;
-            let query_tag_id: i32 = stmt4.query_row(params![&tag.label], |row| row.get(0))?;
+            let label = tag.normalized_label();
+            stmt3.execute(params![&label, &tag.description])?;
+            let query_tag_id: i32 = stmt4.query_row(params![&label], |row| row.get(0))?;
             stmt5.execute(params![query_id, query_tag_id])?;
         }
 

@@ -9,6 +9,11 @@ use std::default::Default;
 use std::fmt::Debug;
 use std::fmt::{self, Display};
 
+/// Normalize a string. This means to strip any whitespace and lowercase the string.
+pub fn normalize_str(label: &str) -> String {
+    label.trim().to_lowercase()
+}
+
 #[derive(Debug)]
 pub struct Ncube;
 
@@ -197,6 +202,12 @@ impl Display for Workspace {
 pub struct QueryTag {
     pub label: String,
     pub description: Option<String>,
+}
+
+impl QueryTag {
+    pub fn normalized_label(&self) -> String {
+        normalize_str(&self.label)
+    }
 }
 
 /// A source represents a place where data can be fetched from. It is combined

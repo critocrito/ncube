@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate pest_derive;
 
+use ncube_data::normalize_str;
 use pest::Parser;
 use std::clone::Clone;
 use std::default::Default;
@@ -94,7 +95,7 @@ pub fn parse_query(input: &str) -> SearchQuery {
                 let term = inner_rules.next().unwrap().as_str();
 
                 let limit = match selector {
-                    Rule::tag => Limit::new_tag(term),
+                    Rule::tag => Limit::new_tag(&normalize_str(term)),
                     Rule::source => Limit::new_source(term),
                     _ => unreachable!(),
                 };
