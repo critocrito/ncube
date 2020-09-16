@@ -1,5 +1,5 @@
 use ncube_cache::GuardedCache;
-use ncube_data::{Workspace, WorkspaceKind};
+use ncube_data::{Task, Workspace, WorkspaceKind};
 use ncube_errors::HostError;
 use ncube_fs::{expand_tilde, mkdirp, unzip_workspace};
 use remove_dir_all::remove_dir_all;
@@ -7,51 +7,6 @@ use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 use tokio::process::Command;
 use tracing::{debug, info, instrument};
-
-#[derive(Debug, Clone)]
-pub enum TaskKind {
-    SetupWorkspace(String, String),
-    RemoveLocation(String),
-    RunProcess(Workspace, String),
-}
-
-#[derive(Debug, Clone)]
-pub enum TaskState {
-    Queued,
-    Running,
-    Failed(String),
-    Done,
-}
-
-#[derive(Debug, Clone)]
-pub struct Task {
-    pub kind: TaskKind,
-    pub state: TaskState,
-}
-
-impl Task {
-    pub fn new(kind: TaskKind) -> Self {
-        Self {
-            kind,
-            state: TaskState::Queued,
-        }
-    }
-
-    pub fn workspace(location: &str, workspace: &str) -> Self {
-        Task::new(TaskKind::SetupWorkspace(
-            location.to_string(),
-            workspace.to_string(),
-        ))
-    }
-
-    pub fn remove_location(location: &str) -> Self {
-        Task::new(TaskKind::RemoveLocation(location.to_string()))
-    }
-
-    pub fn data_process(workspace: &Workspace, key: &str) -> Self {
-        Task::new(TaskKind::RunProcess(workspace.clone(), key.to_string()))
-    }
-}
 
 pub type TaskCache = GuardedCache<Task>;
 

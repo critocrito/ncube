@@ -3,11 +3,15 @@
 
 use chrono::prelude::{DateTime, Utc};
 use http::StatusCode;
-use serde::{Deserialize, Serialize};
+use serde::{
+    ser::{SerializeStruct, Serializer},
+    Deserialize, Serialize,
+};
 use slugify::slugify;
 use std::default::Default;
 use std::fmt::Debug;
 use std::fmt::{self, Display};
+use uuid::Uuid;
 
 /// Normalize a string. This means to strip any whitespace and lowercase the string.
 pub fn normalize_str(label: &str) -> String {
@@ -582,6 +586,96 @@ pub struct ProcessRunReq {
     pub key: String,
     #[serde(default, flatten)]
     pub kind: ProcessRunKind,
+}
+
+#[derive(Debug, Clone)]
+pub enum TaskKind {
+    SetupWorkspace(String, String),
+    RemoveLocation(String),
+    RunProcess(Workspace, String),
+}
+
+impl Serialize for TaskKind {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match self {
+            TaskKind::SetupWorkspace(a, b) => {
+                let mut state = serializer.serialize_struct("task", 3)?;
+                state.serialize_field("location", &a)?;
+                state.serialize_field("workspace", &b)?;
+                state.serialize_field("kind", "setup_workspace")?;
+                state.end()
+            }
+            TaskKind::RemoveLocation(a) => {
+                let mut state = serializer.serialize_struct("task", 2)?;
+                state.serialize_field("location", &a)?;
+                state.serialize_field("kind", "remove_location")?;
+                state.end()
+            }
+            TaskKind::RunProcess(a, b) => {
+                let mut state = serializer.serialize_struct("task", 3)?;
+                state.serialize_field("workspace", &a.slug)?;
+                state.serialize_field("key", &b)?;
+                state.serialize_field("kind", "run_process")?;
+                state.end()
+            }
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Clone)]
+#[serde(tag = "state", rename_all = "lowercase", content = "message")]
+pub enum TaskState {
+    Queued,
+    Running,
+    Failed(String),
+    Done,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct Task {
+    pub id: Uuid,
+    #[serde(flatten)]
+    pub kind: TaskKind,
+    #[serde(flatten)]
+    pub state: TaskState,
+}
+
+impl Task {
+    pub fn new(kind: TaskKind) -> Self {
+        let id = Uuid::new_v4();
+
+        Self {
+            kind,
+            id,
+            state: TaskState::Queued,
+        }
+    }
+
+    pub fn workspace(location: &str, workspace: &str) -> Self {
+        Task::new(TaskKind::SetupWorkspace(
+            location.to_string(),
+            workspace.to_string(),
+        ))
+    }
+
+    pub fn remove_location(location: &str) -> Self {
+        Task::new(TaskKind::RemoveLocation(location.to_string()))
+    }
+
+    pub fn data_process(workspace: &Workspace, key: &str) -> Self {
+        Task::new(TaskKind::RunProcess(workspace.clone(), key.to_string()))
+    }
+
+    pub fn task_id(&self) -> String {
+        let mut encoding_buffer = Uuid::encode_buffer();
+        self.id
+            .to_hyphenated()
+            .encode_lower(&mut encoding_buffer)
+            .to_string()
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

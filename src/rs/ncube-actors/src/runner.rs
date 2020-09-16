@@ -1,5 +1,6 @@
 use async_trait::async_trait;
-use ncube_tasks::{create_workspace, remove_location, run_data_process, Task, TaskKind, TaskState};
+use ncube_data::{Task, TaskKind, TaskState};
+use ncube_tasks::{create_workspace, remove_location, run_data_process};
 use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tracing::info;
@@ -140,14 +141,13 @@ impl TaskRunner {
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
 pub struct QueueTask {
-    pub task_id: String,
     pub task: Task,
 }
 
 #[async_trait]
 impl Handler<QueueTask> for TaskRunner {
     async fn handle(&mut self, _ctx: &mut Context<Self>, msg: QueueTask) -> Result<(), ActorError> {
-        self.tx.send((msg.task_id, msg.task.kind)).await?;
+        self.tx.send((msg.task.task_id(), msg.task.kind)).await?;
         Ok(())
     }
 }

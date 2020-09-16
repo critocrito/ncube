@@ -1,9 +1,8 @@
 use async_trait::async_trait;
-use ncube_data::{ProcessRunKind, Workspace};
-use ncube_tasks::{Task, TaskCache, TaskState};
+use ncube_data::{ProcessRunKind, Task, TaskState, Workspace};
+use ncube_tasks::TaskCache;
 use std::fmt::Debug;
 use tracing::info;
-use uuid::Uuid;
 use xactor::{message, Actor, Addr, Context, Handler};
 
 use crate::{
@@ -30,18 +29,8 @@ impl TaskActor {
     }
 
     async fn queue_task(&mut self, task: Task) -> Result<(), ActorError> {
-        let mut encoding_buffer = Uuid::encode_buffer();
-        let task_id = Uuid::new_v4()
-            .to_hyphenated()
-            .encode_lower(&mut encoding_buffer);
-
-        self.cache.put(&task_id, task.clone());
-        self.runner
-            .call(QueueTask {
-                task_id: task_id.to_string(),
-                task,
-            })
-            .await??;
+        self.cache.put(&task.task_id(), task.clone());
+        self.runner.call(QueueTask { task }).await??;
         Ok(())
     }
 }
