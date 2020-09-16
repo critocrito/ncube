@@ -28,6 +28,7 @@ pub trait SourceStore {
     async fn delete(&self, id: i32) -> Result<(), DatabaseError>;
     async fn update(&self, id: i32, kind: &str, term: &str) -> Result<(), DatabaseError>;
     async fn list_source_tags(&self) -> Result<Vec<QueryTag>, DatabaseError>;
+    async fn remove_source_tag(&self, tag: &str) -> Result<(), DatabaseError>;
 }
 
 #[derive(Debug)]
@@ -179,6 +180,28 @@ impl SourceStore for SourceStoreSqlite {
 
         Ok(source_tags)
     }
+
+    #[instrument]
+    async fn remove_source_tag(&self, tag: &str) -> Result<(), DatabaseError> {
+        let conn = self.db.connection().await?;
+
+        let mut stmt = conn.prepare_cached(include_str!("../sql/source/show-query-tag.sql"))?;
+        let mut stmt2 =
+            conn.prepare_cached(include_str!("../sql/source/delete-tagged-query-by-tag.sql"))?;
+        let mut stmt3 =
+            conn.prepare_cached(include_str!("../sql/source/delete-tagged-unit-by-tag.sql"))?;
+
+        let source_tag_id: i32 = stmt.query_row(params![&tag], |row| row.get(0))?;
+
+        conn.execute_batch("BEGIN;")?;
+
+        stmt2.execute(params![&source_tag_id])?;
+        stmt3.execute(params![&source_tag_id])?;
+
+        conn.execute_batch("COMMIT;")?;
+
+        Ok(())
+    }
 }
 
 #[derive(Debug)]
@@ -296,5 +319,18 @@ impl SourceStore for SourceStoreHttp {
         let data: Vec<QueryTag> = self.client.get(url).await?.unwrap_or_else(|| vec![]);
 
         Ok(data)
+    }
+
+    #[instrument]
+    async fn remove_source_tag(&self, tag: &str) -> Result<(), DatabaseError> {
+        let mut url = self.client.url.clone();
+        url.set_path(&format!(
+            "/api/workspaces/{}/source-tags/{}",
+            self.client.workspace.slug, tag
+        ));
+
+        self.client.delete(url).await?;
+
+        Ok(())
     }
 }

@@ -134,7 +134,11 @@ Ncube installation (originating from `127.0.0.1`) don't.
 - [Update a sources](http-api/source/update.md) `PUT /workspaces/<workspace_id>/sources/<source_id>`
 - [Remove a sources](http-api/source/remove.md) `DELETE /workspaces/<workspace_id>/sources/<source_id>`
 - [Search for sources](http-api/source/search.md) `GET /workspaces/<workspace_id>/sources/search`
-- [List all source tags](http-api/source/tags.md) `GET /workspaces/<workspace_id>/source-tags`
+
+### Source Tags
+
+- [List all source tags](http-api/source-tag/list.md) `GET /workspaces/<workspace_id>/source-tags`
+- [Remove a source tag](http-api/source-tag/remove.md) `GET /workspaces/<workspace_id>/source-tags/<source-tag>`
 
 ### Units
 

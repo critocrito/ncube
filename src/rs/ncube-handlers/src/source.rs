@@ -7,7 +7,7 @@ use ncube_data::{QueryTag, Source, SourceRequest};
 use ncube_stores::{search_store, source_store, workspace_store, WorkspaceStore};
 use tracing::{error, instrument};
 
-use crate::HandlerError;
+use crate::{ensure_workspace, workspace_database, HandlerError};
 
 #[instrument]
 pub async fn create_source(workspace: &str, source: SourceRequest) -> Result<(), HandlerError> {
@@ -238,4 +238,16 @@ pub async fn list_source_tags(workspace: &str) -> Result<Vec<QueryTag>, HandlerE
     let sources = store.list_source_tags().await?;
 
     Ok(sources)
+}
+
+#[instrument]
+pub async fn remove_source_tag(workspace: &str, tag: &str) -> Result<(), HandlerError> {
+    ensure_workspace(&workspace).await?;
+
+    let database = workspace_database(&workspace).await?;
+
+    let store = source_store(database);
+    store.remove_source_tag(&tag).await?;
+
+    Ok(())
 }
