@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_data::{ProcessRunKind, Task, TaskState, Workspace};
+use ncube_data::{ProcessRunKind, Task, TaskKind, TaskState, Workspace};
 use ncube_tasks::TaskCache;
 use std::fmt::Debug;
 use tracing::info;
@@ -75,7 +75,10 @@ impl Handler<SetupWorkspace> for TaskActor {
         _ctx: &mut Context<Self>,
         msg: SetupWorkspace,
     ) -> Result<(), ActorError> {
-        let task = Task::workspace(&msg.location, &msg.workspace);
+        let task = Task::new(TaskKind::SetupWorkspace {
+            location: msg.location,
+            workspace: msg.workspace,
+        });
         self.queue_task(task).await
     }
 }
@@ -93,7 +96,9 @@ impl Handler<RemoveLocation> for TaskActor {
         _ctx: &mut Context<Self>,
         msg: RemoveLocation,
     ) -> Result<(), ActorError> {
-        let task = Task::remove_location(&msg.location);
+        let task = Task::new(TaskKind::RemoveLocation {
+            location: msg.location,
+        });
         self.queue_task(task).await
     }
 }
@@ -102,7 +107,7 @@ impl Handler<RemoveLocation> for TaskActor {
 #[derive(Debug)]
 pub struct RunProcess {
     pub workspace: Workspace,
-    pub key: String,
+    pub process_name: String,
     pub kind: ProcessRunKind,
 }
 
@@ -113,7 +118,10 @@ impl Handler<RunProcess> for TaskActor {
         _ctx: &mut Context<Self>,
         msg: RunProcess,
     ) -> Result<(), ActorError> {
-        let task = Task::data_process(&msg.workspace, &msg.key);
+        let task = Task::new(TaskKind::RunProcess {
+            workspace: msg.workspace,
+            process_name: msg.process_name,
+        });
         self.queue_task(task).await
     }
 }

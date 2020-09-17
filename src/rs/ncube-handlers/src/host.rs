@@ -128,7 +128,7 @@ pub async fn run_process(workspace: &str, request: &ProcessRunReq) -> Result<(),
             actor
                 .call(RunProcess {
                     workspace,
-                    key: request.key.clone(),
+                    process_name: request.key.clone(),
                     kind: request.kind.clone(),
                 })
                 .await??;

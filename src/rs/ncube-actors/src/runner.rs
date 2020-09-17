@@ -28,7 +28,10 @@ impl TaskRunner {
             while let Some((task_id, task)) = rx.recv().await {
                 info!("Received a new task {:?} with id {}.", task, task_id);
                 match task {
-                    TaskKind::SetupWorkspace(location, workspace) => {
+                    TaskKind::SetupWorkspace {
+                        location,
+                        workspace,
+                    } => {
                         info!(
                             "Received a request to setup a workspace: {:?}/{:?}.",
                             location, workspace
@@ -74,7 +77,7 @@ impl TaskRunner {
                             .unwrap();
                     }
 
-                    TaskKind::RemoveLocation(location) => {
+                    TaskKind::RemoveLocation { location } => {
                         info!("Received a request to remove a location: {:?}.", location,);
 
                         let actor = TaskActor::from_registry().await.unwrap();
@@ -101,10 +104,13 @@ impl TaskRunner {
                             .unwrap();
                     }
 
-                    TaskKind::RunProcess(workspace, key) => {
+                    TaskKind::RunProcess {
+                        workspace,
+                        process_name,
+                    } => {
                         info!(
                             "Received a request to run a process: {} -> {}.",
-                            workspace.slug, key
+                            workspace.slug, process_name
                         );
 
                         let actor = TaskActor::from_registry().await.unwrap();
@@ -117,7 +123,7 @@ impl TaskRunner {
                             .unwrap()
                             .unwrap();
 
-                        run_data_process(workspace, &key)
+                        run_data_process(workspace, &process_name)
                             .await
                             .expect("Failed to run process");
 

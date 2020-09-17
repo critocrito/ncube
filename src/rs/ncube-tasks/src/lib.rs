@@ -75,7 +75,7 @@ pub async fn remove_location<P: AsRef<Path> + Debug>(location: P) -> Result<(), 
 }
 
 #[instrument]
-pub async fn run_data_process(workspace: Workspace, key: &str) -> Result<(), HostError> {
+pub async fn run_data_process(workspace: Workspace, process_name: &str) -> Result<(), HostError> {
     match workspace.kind {
         WorkspaceKind::Local(location) => {
             let expanded_path = expand_tilde(location)
@@ -85,7 +85,7 @@ pub async fn run_data_process(workspace: Workspace, key: &str) -> Result<(), Hos
 
             debug!("PATH={}", env_path);
 
-            let cmd = format!("processes/{}.sh", key);
+            let cmd = format!("processes/{}.sh", process_name);
 
             Command::new(&cmd)
                 .current_dir(expanded_path.clone())

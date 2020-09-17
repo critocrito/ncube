@@ -3,10 +3,7 @@
 
 use chrono::prelude::{DateTime, Utc};
 use http::StatusCode;
-use serde::{
-    ser::{SerializeStruct, Serializer},
-    Deserialize, Serialize,
-};
+use serde::{Deserialize, Serialize};
 use slugify::slugify;
 use std::default::Default;
 use std::fmt::Debug;
@@ -588,41 +585,19 @@ pub struct ProcessRunReq {
     pub kind: ProcessRunKind,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Serialize, Clone)]
 pub enum TaskKind {
-    SetupWorkspace(String, String),
-    RemoveLocation(String),
-    RunProcess(Workspace, String),
-}
-
-impl Serialize for TaskKind {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        match self {
-            TaskKind::SetupWorkspace(a, b) => {
-                let mut state = serializer.serialize_struct("task", 3)?;
-                state.serialize_field("location", &a)?;
-                state.serialize_field("workspace", &b)?;
-                state.serialize_field("kind", "setup_workspace")?;
-                state.end()
-            }
-            TaskKind::RemoveLocation(a) => {
-                let mut state = serializer.serialize_struct("task", 2)?;
-                state.serialize_field("location", &a)?;
-                state.serialize_field("kind", "remove_location")?;
-                state.end()
-            }
-            TaskKind::RunProcess(a, b) => {
-                let mut state = serializer.serialize_struct("task", 3)?;
-                state.serialize_field("workspace", &a.slug)?;
-                state.serialize_field("key", &b)?;
-                state.serialize_field("kind", "run_process")?;
-                state.end()
-            }
-        }
-    }
+    SetupWorkspace {
+        location: String,
+        workspace: String,
+    },
+    RemoveLocation {
+        location: String,
+    },
+    RunProcess {
+        workspace: Workspace,
+        process_name: String,
+    },
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -652,21 +627,6 @@ impl Task {
             id,
             state: TaskState::Queued,
         }
-    }
-
-    pub fn workspace(location: &str, workspace: &str) -> Self {
-        Task::new(TaskKind::SetupWorkspace(
-            location.to_string(),
-            workspace.to_string(),
-        ))
-    }
-
-    pub fn remove_location(location: &str) -> Self {
-        Task::new(TaskKind::RemoveLocation(location.to_string()))
-    }
-
-    pub fn data_process(workspace: &Workspace, key: &str) -> Self {
-        Task::new(TaskKind::RunProcess(workspace.clone(), key.to_string()))
     }
 
     pub fn task_id(&self) -> String {
