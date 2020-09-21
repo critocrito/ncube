@@ -1,15 +1,15 @@
 use chrono::{DateTime, Duration, Utc};
 use ncube_actors::{
     db::{LookupDatabase, ResetDatabase},
-    host::{RequirePool, SecretKeySetting},
+    host::SecretKeySetting,
     DatabaseActor, HostActor, Registry,
 };
 use ncube_crypto as crypto;
 use ncube_data::{Account, JwtToken, WorkspaceKind};
-use ncube_stores::{account_store, workspace_store, WorkspaceStore};
+use ncube_stores::account_store;
 use tracing::{debug, error, info, instrument, warn};
 
-use crate::HandlerError;
+use crate::{host_database, lookup_workspace, HandlerError};
 
 // This function sets the OTP max age policy. At this time this is set to 48
 // hours.
@@ -36,12 +36,10 @@ pub async fn create_account(
     email: &str,
     otp: Option<String>,
 ) -> Result<Account, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    let workspace = lookup_workspace(workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-    let account_store = account_store(db);
-    let workspace = workspace_store.show_by_slug(&workspace).await?;
+    let database = host_database().await?;
+    let account_store = account_store(database);
 
     if account_store.exists(&email, &workspace).await? {
         return Err(HandlerError::Invalid(
@@ -57,10 +55,8 @@ pub async fn create_account(
 
 #[instrument]
 pub async fn list_accounts() -> Result<Vec<Account>, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
-
-    let db = host_actor.call(RequirePool).await??;
-    let store = account_store(db);
+    let database = host_database().await?;
+    let store = account_store(database);
 
     let accounts = store.list().await?;
 
@@ -73,14 +69,11 @@ pub async fn login_account(
     email: &str,
     password: &str,
 ) -> Result<bool, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    let workspace = lookup_workspace(workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
+    let database = host_database().await?;
+    let account_store = account_store(database);
 
-    let workspace_store = workspace_store(db.clone());
-    let account_store = account_store(db);
-
-    let workspace = workspace_store.show_by_slug(&workspace).await?;
     let account = account_store.show(&email, &workspace).await?;
 
     // The account must have a still valid OTP password in case it is an active
@@ -127,14 +120,11 @@ pub async fn update_password(
     password: &str,
     password_again: &str,
 ) -> Result<String, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    let workspace = lookup_workspace(workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
+    let database = host_database().await?;
+    let store = account_store(database);
 
-    let workspace_store = workspace_store(db.clone());
-    let store = account_store(db);
-
-    let workspace = workspace_store.show_by_slug(&workspace).await?;
     let account = store.show(&email, &workspace).await?;
 
     // The account must have a still valid OTP password in case it is an active
@@ -228,13 +218,11 @@ pub async fn issue_token(
 
 #[instrument]
 pub async fn show_account(workspace: &str, email: &str) -> Result<Account, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    let workspace = lookup_workspace(workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-    let account_store = account_store(db);
+    let database = host_database().await?;
+    let account_store = account_store(database);
 
-    let workspace = workspace_store.show_by_slug(&workspace).await?;
     let account = account_store.show(&email, &workspace).await?;
 
     Ok(account)

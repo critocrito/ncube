@@ -1,7 +1,6 @@
 use bytes::{Bytes, BytesMut};
 use futures_util::{stream::Stream, TryFutureExt, TryStreamExt};
 use ncube_actors::{
-    db::{DatabaseActor, LookupDatabase},
     host::{RequirePool, WorkspaceRootSetting},
     task::{RemoveLocation, SetupWorkspace},
     HostActor, Registry, TaskActor,
@@ -19,9 +18,9 @@ use ncube_stores::{
 };
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
-use tracing::{debug, error, instrument};
+use tracing::{debug, instrument};
 
-use crate::{account, ensure_workspace, workspace_database, HandlerError};
+use crate::{account, ensure_workspace, lookup_workspace, workspace_database, HandlerError};
 
 #[instrument]
 pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspace, HandlerError> {
@@ -128,13 +127,8 @@ pub async fn create_workspace(workspace_req: WorkspaceRequest) -> Result<Workspa
 }
 
 #[instrument]
-pub async fn show_workspace(slug: &str) -> Result<Workspace, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
-
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    let workspace = workspace_store.show_by_slug(&slug).await?;
+pub async fn show_workspace(workspace: &str) -> Result<Workspace, HandlerError> {
+    let workspace = lookup_workspace(workspace).await?;
 
     Ok(workspace)
 }
@@ -143,8 +137,8 @@ pub async fn show_workspace(slug: &str) -> Result<Workspace, HandlerError> {
 pub async fn list_workspaces() -> Result<Vec<Workspace>, HandlerError> {
     let host_actor = HostActor::from_registry().await.unwrap();
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
+    let database = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(database.clone());
 
     let workspaces = workspace_store.list().await?;
 
@@ -152,13 +146,10 @@ pub async fn list_workspaces() -> Result<Vec<Workspace>, HandlerError> {
 }
 
 #[instrument]
-pub async fn remove_workspace(slug: &str, remove_location: bool) -> Result<(), HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
-
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    let workspace = workspace_store.show_by_slug(&slug).await?;
+pub async fn remove_workspace(workspace: &str, remove_location: bool) -> Result<(), HandlerError> {
+    let workspace = lookup_workspace(workspace).await?;
+    let database = workspace_database(&workspace.slug).await?;
+    let workspace_store = workspace_store(database.clone());
 
     // I can't chain if let with the second predicate, hence the nesting.
     // https://github.com/rust-lang/rust/issues/53667
@@ -169,29 +160,20 @@ pub async fn remove_workspace(slug: &str, remove_location: bool) -> Result<(), H
         }
     }
 
-    workspace_store.delete_by_slug(&slug).await?;
+    workspace_store.delete_by_slug(&workspace.slug).await?;
 
     Ok(())
 }
 
 #[instrument]
 pub async fn update_workspace(
-    cur_workspace: &str,
+    workspace_slug: &str,
     workspace_req: WorkspaceRequest,
 ) -> Result<(), HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace_slug).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&cur_workspace).await {
-        let msg = format!("Workspace `{}` already exists.", cur_workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::NotFound(format!(
-            "Workspace/{}",
-            cur_workspace
-        )));
-    };
+    let database = workspace_database(&workspace_slug).await?;
+    let workspace_store = workspace_store(database.clone());
 
     let workspace = workspace_req.slug();
     let WorkspaceRequest {
@@ -201,7 +183,7 @@ pub async fn update_workspace(
     match workspace_req.kind {
         WorkspaceKindRequest::Local => {
             workspace_store
-                .update(&cur_workspace.to_string(), &name, &workspace, &description)
+                .update(&workspace_slug.to_string(), &name, &workspace, &description)
                 .await?
         }
         WorkspaceKindRequest::Remote { .. } => unimplemented!(),
@@ -214,24 +196,9 @@ pub async fn stat_sources_total(
     workspace: &str,
     query: Option<String>,
 ) -> Result<Stat, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let stat_store = stat_store(database);
 
     let stats = stat_store.sources_total(query).await?;
@@ -241,24 +208,9 @@ pub async fn stat_sources_total(
 
 #[instrument]
 pub async fn stat_sources_types(workspace: &str) -> Result<Stat, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let stat_store = stat_store(database);
 
     let stats = stat_store.sources_types().await?;
@@ -267,24 +219,9 @@ pub async fn stat_sources_types(workspace: &str) -> Result<Stat, HandlerError> {
 }
 
 pub async fn stat_data_total(workspace: &str, query: Option<String>) -> Result<Stat, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let stat_store = stat_store(database);
 
     let stats = stat_store
@@ -296,24 +233,9 @@ pub async fn stat_data_total(workspace: &str, query: Option<String>) -> Result<S
 
 #[instrument]
 pub async fn stat_data_sources(workspace: &str) -> Result<Stat, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let stat_store = stat_store(database);
 
     let stats = stat_store.data_sources().await?;
@@ -323,24 +245,9 @@ pub async fn stat_data_sources(workspace: &str) -> Result<Stat, HandlerError> {
 
 #[instrument]
 pub async fn stat_data_videos(workspace: &str) -> Result<Stat, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let stat_store = stat_store(database);
 
     let stats = stat_store.data_videos().await?;
@@ -400,24 +307,9 @@ pub async fn list_data(
     page: i32,
     page_size: i32,
 ) -> Result<Vec<Unit>, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let unit_store = unit_store(database);
 
     let data = unit_store.list(page, page_size).await?;
@@ -432,24 +324,9 @@ pub async fn search_data(
     page: i32,
     page_size: i32,
 ) -> Result<Vec<Unit>, HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let search_store = search_store(database);
 
     let search_query = parse_query(&query);
@@ -492,24 +369,9 @@ pub async fn create_segment(
     workspace: &str,
     segment_req: &SegmentRequest,
 ) -> Result<(), HandlerError> {
-    let host_actor = HostActor::from_registry().await.unwrap();
+    ensure_workspace(&workspace).await?;
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
-
-    if let Ok(false) = workspace_store.exists(&workspace).await {
-        let msg = format!("Workspace `{}` doesn't exist.", workspace);
-        error!("{:?}", msg);
-        return Err(HandlerError::Invalid(msg));
-    };
-
-    let database_actor = DatabaseActor::from_registry().await.unwrap();
-    let database = database_actor
-        .call(LookupDatabase {
-            workspace: workspace.to_string(),
-        })
-        .await??;
-
+    let database = workspace_database(&workspace).await?;
     let segment_store = segment_store(database);
 
     if let Ok(true) = segment_store.exists(&segment_req.slug()).await {
@@ -589,7 +451,7 @@ pub async fn show_download(
     workspace: &str,
     file_path: &str,
 ) -> Result<impl Stream<Item = Result<Bytes, std::io::Error>>, HandlerError> {
-    let workspace = show_workspace(&workspace).await?;
+    let workspace = lookup_workspace(workspace).await?;
 
     // When we list processes for a local workspace we need to use the local
     // sqlite host database, but for remote workspaces we still have to query

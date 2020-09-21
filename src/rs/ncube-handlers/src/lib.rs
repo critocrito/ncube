@@ -3,6 +3,7 @@ use ncube_actors::{
     host::RequirePool,
     ActorError, HostActor, Registry,
 };
+use ncube_data::{Workspace, WorkspaceKind};
 use ncube_db::{Database, DatabaseError};
 use ncube_errors::HostError;
 use ncube_stores::{workspace_store, WorkspaceStore};
@@ -63,8 +64,8 @@ impl From<HandlerError> for warp::Rejection {
 pub async fn ensure_workspace(workspace: &str) -> Result<(), HandlerError> {
     let host_actor = HostActor::from_registry().await.unwrap();
 
-    let db = host_actor.call(RequirePool).await??;
-    let workspace_store = workspace_store(db.clone());
+    let database = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(database.clone());
 
     if let false = workspace_store.exists(&workspace).await? {
         let msg = format!("Workspace `{}` doesn't exist.", workspace);
@@ -73,6 +74,25 @@ pub async fn ensure_workspace(workspace: &str) -> Result<(), HandlerError> {
     };
 
     Ok(())
+}
+
+#[instrument]
+pub async fn lookup_workspace(workspace: &str) -> Result<Workspace, HandlerError> {
+    let host_actor = HostActor::from_registry().await.unwrap();
+
+    let database = host_actor.call(RequirePool).await??;
+    let workspace_store = workspace_store(database.clone());
+
+    let workspace = workspace_store
+        .show_by_slug(&workspace)
+        .await
+        .map_err(|e| {
+            let msg = format!("Workspace `{}` doesn't exist.", workspace);
+            error!("{:?}", e.to_string());
+            HandlerError::Invalid(msg)
+        })?;
+
+    Ok(workspace)
 }
 
 #[instrument]
@@ -86,4 +106,24 @@ pub async fn workspace_database(workspace: &str) -> Result<Database, HandlerErro
         .await??;
 
     Ok(database)
+}
+
+#[instrument]
+pub async fn host_database() -> Result<Database, HandlerError> {
+    let host_actor = HostActor::from_registry().await.unwrap();
+
+    let database = host_actor.call(RequirePool).await??;
+
+    Ok(database)
+}
+
+#[instrument]
+pub async fn database(workspace: &Workspace) -> Result<Database, HandlerError> {
+    // When we list processes for a local workspace we need to use the local
+    // sqlite host database, but for remote workspaces we still have to query
+    // the remote workspace database.
+    match workspace.kind {
+        WorkspaceKind::Local(_) => host_database().await,
+        WorkspaceKind::Remote(_) => workspace_database(&workspace.slug).await,
+    }
 }

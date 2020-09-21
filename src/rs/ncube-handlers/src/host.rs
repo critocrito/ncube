@@ -1,8 +1,6 @@
 use ncube_actors::{
-    db::{DatabaseActor, LookupDatabase},
-    host::RequirePool,
     task::{RunProcess, TaskActor},
-    HostActor, Registry,
+    Registry,
 };
 use ncube_data::{Process, ProcessConfigReq, ProcessRunReq, WorkspaceKind};
 use ncube_stores::process_store;
@@ -12,64 +10,30 @@ use std::io::BufReader;
 use std::path::Path;
 use tracing::instrument;
 
-use crate::{workspace::show_workspace, workspace_database, HandlerError};
+use crate::{database, lookup_workspace, HandlerError};
 
 #[instrument]
-pub async fn list_processes(workspace_slug: &str) -> Result<Vec<Process>, HandlerError> {
-    let workspace = show_workspace(&workspace_slug).await?;
+pub async fn list_processes(workspace: &str) -> Result<Vec<Process>, HandlerError> {
+    let workspace = lookup_workspace(workspace).await?;
+    let database = database(&workspace).await?;
 
-    // When we list processes for a local workspace we need to use the local
-    // sqlite host database, but for remote workspaces we still have to query
-    // the remote workspace database.
-    let db = match workspace.kind {
-        WorkspaceKind::Local(_) => {
-            let host_actor = HostActor::from_registry().await.unwrap();
-            host_actor.call(RequirePool).await??
-        }
-        WorkspaceKind::Remote(_) => {
-            let database_actor = DatabaseActor::from_registry().await.unwrap();
-            database_actor
-                .call(LookupDatabase {
-                    workspace: workspace.slug.to_string(),
-                })
-                .await??
-        }
-    };
-
-    let process_store = process_store(db);
-    let processes = process_store.list(&workspace_slug).await?;
+    let process_store = process_store(database);
+    let processes = process_store.list(&workspace.slug).await?;
 
     Ok(processes)
 }
 
 #[instrument]
 pub async fn configure_process(
-    workspace_slug: &str,
+    workspace: &str,
     request: &ProcessConfigReq,
 ) -> Result<(), HandlerError> {
-    let workspace = show_workspace(&workspace_slug).await?;
+    let workspace = lookup_workspace(workspace).await?;
+    let database = database(&workspace).await?;
 
-    // When we list processes for a local workspace we need to use the local
-    // sqlite host database, but for remote workspaces we still have to query
-    // the remote workspace database.
-    let db = match workspace.kind {
-        WorkspaceKind::Local(_) => {
-            let host_actor = HostActor::from_registry().await.unwrap();
-            host_actor.call(RequirePool).await??
-        }
-        WorkspaceKind::Remote(_) => {
-            let database_actor = DatabaseActor::from_registry().await.unwrap();
-            database_actor
-                .call(LookupDatabase {
-                    workspace: workspace.slug.to_string(),
-                })
-                .await??
-        }
-    };
-
-    let process_store = process_store(db);
+    let process_store = process_store(database);
     process_store
-        .configure(&workspace_slug, &request.key, &request.value)
+        .configure(&workspace.slug, &request.key, &request.value)
         .await?;
 
     // We update the secrets.json file in the workspace as well.
@@ -101,16 +65,10 @@ pub async fn configure_process(
 
 #[instrument]
 pub async fn run_process(workspace: &str, request: &ProcessRunReq) -> Result<(), HandlerError> {
-    let workspace = show_workspace(&workspace).await?;
+    let workspace = lookup_workspace(workspace).await?;
+    let database = database(&workspace).await?;
 
-    let db = match workspace.kind {
-        WorkspaceKind::Local(_) => {
-            let host_actor = HostActor::from_registry().await.unwrap();
-            host_actor.call(RequirePool).await??
-        }
-        WorkspaceKind::Remote(_) => workspace_database(&workspace.slug).await?,
-    };
-    let process_store = process_store(db);
+    let process_store = process_store(database);
 
     match workspace.kind {
         WorkspaceKind::Local(_) => {
