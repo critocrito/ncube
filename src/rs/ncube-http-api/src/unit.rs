@@ -1,6 +1,8 @@
 use futures::try_join;
 use ncube_data::{ReqCtx, SearchResponse, SuccessResponse};
-use ncube_handlers::{unit as unit_handlers, workspace as handlers, HandlerError};
+use ncube_handlers::{
+    stat as stat_handlers, unit as unit_handlers, workspace as handlers, HandlerError,
+};
 use percent_encoding::percent_decode_str;
 use serde::Deserialize;
 use tracing::instrument;
@@ -58,7 +60,7 @@ async fn search(
             opts.page.unwrap_or(0),
             opts.size.unwrap_or(20),
         ),
-        handlers::stat_data_total(&workspace, query)
+        stat_handlers::stat_data_total(&workspace, query)
     )?;
 
     let response = SuccessResponse::new(SearchResponse {

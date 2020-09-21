@@ -1,5 +1,5 @@
 use ncube_data::{ReqCtx, SuccessResponse};
-use ncube_handlers::{stat as stat_handlers, workspace as handlers};
+use ncube_handlers::stat as handlers;
 use percent_encoding::percent_decode_str;
 use serde::Deserialize;
 use tracing::instrument;
@@ -116,7 +116,7 @@ async fn investigations_data(
     workspace: String,
     investigation: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let stat = stat_handlers::stat_investigation_data(&workspace, &investigation).await?;
+    let stat = handlers::stat_investigation_data(&workspace, &investigation).await?;
     let response = SuccessResponse::new(stat.value);
 
     Ok(warp::reply::json(&response))
@@ -128,7 +128,7 @@ async fn investigations_segments(
     workspace: String,
     investigation: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let stat = stat_handlers::stat_investigation_segments(&workspace, &investigation).await?;
+    let stat = handlers::stat_investigation_segments(&workspace, &investigation).await?;
     let response = SuccessResponse::new(stat.value);
 
     Ok(warp::reply::json(&response))
@@ -151,7 +151,7 @@ async fn investigations_verified(
     workspace: String,
     investigation: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let stat = stat_handlers::stat_investigation_verified(&workspace, &investigation).await?;
+    let stat = handlers::stat_investigation_verified(&workspace, &investigation).await?;
     let response = SuccessResponse::new(stat.value);
 
     Ok(warp::reply::json(&response))
@@ -164,7 +164,7 @@ async fn segments_verified(
     investigation: String,
     segment: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let stat = stat_handlers::stat_segment_verified(&workspace, &investigation, &segment).await?;
+    let stat = handlers::stat_segment_verified(&workspace, &investigation, &segment).await?;
     let response = SuccessResponse::new(stat.value);
 
     Ok(warp::reply::json(&response))
@@ -177,7 +177,7 @@ async fn segments_progress(
     investigation: String,
     segment: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let stat = stat_handlers::stat_segment_progress(&workspace, &investigation, &segment).await?;
+    let stat = handlers::stat_segment_progress(&workspace, &investigation, &segment).await?;
     let response = SuccessResponse::new(stat.value);
 
     Ok(warp::reply::json(&response))
@@ -188,7 +188,7 @@ async fn verified_total(
     _ctx: ReqCtx,
     workspace: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let stat = stat_handlers::stat_verified_total(&workspace).await?;
+    let stat = handlers::stat_verified_total(&workspace).await?;
     let response = SuccessResponse::new(stat.value);
 
     Ok(warp::reply::json(&response))
@@ -199,7 +199,7 @@ async fn in_process_total(
     _ctx: ReqCtx,
     workspace: String,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let stat = stat_handlers::stat_in_process_total(&workspace).await?;
+    let stat = handlers::stat_in_process_total(&workspace).await?;
     let response = SuccessResponse::new(stat.value);
 
     Ok(warp::reply::json(&response))

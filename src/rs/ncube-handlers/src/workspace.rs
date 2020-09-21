@@ -7,13 +7,13 @@ use ncube_actors::{
 };
 use ncube_data::{
     AccountRequest, DatabaseRequest, Investigation, InvestigationReq, Methodology, MethodologyReq,
-    Segment, SegmentRequest, Stat, Unit, Workspace, WorkspaceDatabase, WorkspaceKind,
+    Segment, SegmentRequest, Unit, Workspace, WorkspaceDatabase, WorkspaceKind,
     WorkspaceKindRequest, WorkspaceRequest,
 };
 use ncube_db::{migrations, sqlite, DatabaseError};
 use ncube_search::parse_query;
 use ncube_stores::{
-    investigation_store, methodology_store, search_store, segment_store, stat_store, unit_store,
+    investigation_store, methodology_store, search_store, segment_store, unit_store,
     workspace_store, WorkspaceStore,
 };
 use tokio::fs::File;
@@ -190,115 +190,6 @@ pub async fn update_workspace(
     };
 
     Ok(())
-}
-
-pub async fn stat_sources_total(
-    workspace: &str,
-    query: Option<String>,
-) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.sources_total(query).await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_sources_types(workspace: &str) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.sources_types().await?;
-
-    Ok(stats)
-}
-
-pub async fn stat_data_total(workspace: &str, query: Option<String>) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store
-        .data_total(query.map(|q| parse_query(&q)))
-        .await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_data_sources(workspace: &str) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.data_sources().await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_data_videos(workspace: &str) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.data_videos().await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_data_segments(workspace: &str) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.data_segments().await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_process_all(workspace: &str, process: &str) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.processes_all(&process).await?;
-
-    Ok(stats)
-}
-
-pub async fn stat_segment_units(workspace: &str, segment: &str) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-
-    let segment = show_segment(&workspace, &segment).await?;
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-    let stats = stat_store
-        .data_total(Some(parse_query(&segment.query)))
-        .await?;
-
-    Ok(stats)
-}
-
-#[instrument]
-pub async fn stat_investigations_total(workspace: &str) -> Result<Stat, HandlerError> {
-    ensure_workspace(&workspace).await?;
-    let database = workspace_database(&workspace).await?;
-    let stat_store = stat_store(database);
-
-    let stats = stat_store.investigations_total().await?;
-
-    Ok(stats)
 }
 
 #[instrument]
