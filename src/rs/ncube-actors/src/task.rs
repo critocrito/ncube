@@ -35,6 +35,23 @@ impl TaskActor {
     }
 }
 
+#[message(result = "Result<Vec<Task>, ActorError>")]
+#[derive(Debug)]
+pub struct ListTasks;
+
+#[async_trait]
+impl Handler<ListTasks> for TaskActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        _msg: ListTasks,
+    ) -> Result<Vec<Task>, ActorError> {
+        let tasks: Vec<Task> = self.cache.all().into_iter().map(|(_, v)| v).collect();
+
+        Ok(tasks)
+    }
+}
+
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
 pub struct UpdateTask {
