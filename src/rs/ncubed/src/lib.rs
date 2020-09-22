@@ -1,6 +1,6 @@
 // #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
-#![type_length_limit = "1343848"]
+#![type_length_limit = "1375249"]
 // #![cfg_attr(test, deny(warnings))]
 
 use ncube_actors::{Actor, ActorError, DatabaseActor, HostActor, Registry, TaskActor};
