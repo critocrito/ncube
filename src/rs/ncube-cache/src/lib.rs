@@ -70,4 +70,73 @@ where
         let mut cache = self.0.write().expect("RwLock poisoned");
         cache.insert(trimmed, Mutex::new(entry));
     }
+
+    pub fn all(&self) -> Vec<(String, T)> {
+        let cache = self.0.write().expect("RwLock poisoned");
+        cache
+            .iter()
+            .map(|(k, v)| {
+                let elem = v.lock().expect("Mutex poisoned");
+                let entry = elem.clone();
+
+                (k.to_string(), entry)
+            })
+            .collect()
+    }
+}
+
+// FIXME: I don't test any concurrent access to the cache.
+#[cfg(test)]
+mod cache_tests {
+    use super::*;
+
+    #[test]
+    fn maybe_return_elements() {
+        let cache: GuardedCache<i32> = GuardedCache::new();
+
+        assert_eq!(cache.get("one"), None);
+    }
+
+    #[test]
+    fn elements_can_be_put_only_once() {
+        let cache: GuardedCache<i32> = GuardedCache::new();
+
+        cache.put("one", 1);
+        cache.put("one", 23);
+
+        assert_eq!(cache.get("one"), Some(1));
+    }
+
+    #[test]
+    fn elements_can_be_updated() {
+        let cache: GuardedCache<i32> = GuardedCache::new();
+
+        cache.put("one", 1);
+
+        assert_eq!(cache.get("one"), Some(1));
+
+        cache.reset("one", 23);
+
+        assert_eq!(cache.get("one"), Some(23));
+    }
+
+    #[test]
+    fn test_if_elements_exist_in_cache() {
+        let cache: GuardedCache<i32> = GuardedCache::new();
+
+        assert_eq!(cache.has("one"), false);
+
+        cache.put("one", 1);
+
+        assert_eq!(cache.has("one"), true);
+    }
+
+    #[test]
+    fn list_all_elements_of_the_cache() {
+        let cache: GuardedCache<i32> = GuardedCache::new();
+
+        cache.put("one", 1);
+
+        assert_eq!(cache.all(), vec![("one".to_string(), 1)]);
+    }
 }
