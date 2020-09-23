@@ -30,6 +30,13 @@ PUT http://:api/api
 
 [{"name": "name", "value": "~/ncube"}]
 
+# Register a client.
+POST http://:api/register
+:headers
+
+# Unregister a client.
+DELETE http://:api/register/a57adc3cd5e94e3cbc445f454bcfdd0e
+:headers
 
 ###
 # Account Management

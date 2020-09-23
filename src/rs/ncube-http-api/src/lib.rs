@@ -15,6 +15,14 @@ mod stat;
 mod unit;
 mod user;
 mod workspace;
+mod ws;
+
+fn with_cors() -> warp::cors::Builder {
+    warp::cors()
+        .allow_any_origin()
+        .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_headers(vec!["content-type"])
+}
 
 pub async fn start_http_api(listen: SocketAddr) -> Result<(), HostError> {
     warp::serve(router()).run(listen).await;
@@ -35,7 +43,11 @@ pub(crate) fn router(
         }
     });
 
-    assets().or(api()).recover(http::handle_rejection).with(log)
+    assets()
+        .or(api())
+        .or(ws())
+        .recover(http::handle_rejection)
+        .with(log)
 }
 
 pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
@@ -57,11 +69,6 @@ pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::
 }
 
 pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    let cors = warp::cors()
-        .allow_any_origin()
-        .allow_methods(&[Method::GET, Method::POST, Method::PUT, Method::DELETE])
-        .allow_headers(vec!["content-type"]);
-
     warp::path("api")
         .and(
             config::routes()
@@ -76,5 +83,18 @@ pub(crate) fn api() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rej
                 .or(investigation::routes())
                 .or(methodology::routes()),
         )
-        .with(cors)
+        .with(with_cors())
+}
+
+pub(crate) fn ws() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    let register_path = warp::path("register");
+    let register = register_path
+        .and(warp::post())
+        .and_then(ws::register)
+        .or(register_path
+            .and(warp::delete())
+            .and(warp::path::param())
+            .and_then(ws::unregister));
+
+    register.with(with_cors())
 }

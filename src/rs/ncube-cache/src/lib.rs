@@ -50,6 +50,16 @@ where
         });
     }
 
+    pub fn delete(&mut self, key: &str) {
+        let trimmed = key.trim().to_string();
+        let cache = self.0.get_mut().expect("RwLock poisoned");
+
+        match cache.remove(&trimmed) {
+            None => trace!("element {} not in cache", key),
+            Some(_) => trace!("removed element {} from cache", key),
+        };
+    }
+
     pub fn has(&self, key: &str) -> bool {
         let trimmed = key.trim().to_string();
         let cache = self.0.read().expect("RwLock poisoned");
@@ -138,5 +148,20 @@ mod cache_tests {
         cache.put("one", 1);
 
         assert_eq!(cache.all(), vec![("one".to_string(), 1)]);
+    }
+
+    #[test]
+    fn remove_element_by_key() {
+        let mut cache: GuardedCache<i32> = GuardedCache::new();
+
+        assert_eq!(cache.has("one"), false);
+
+        cache.put("one", 1);
+
+        assert!(cache.has("one"));
+
+        cache.delete("one");
+
+        assert_eq!(cache.has("one"), false);
     }
 }

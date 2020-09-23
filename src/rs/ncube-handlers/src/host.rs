@@ -1,16 +1,21 @@
 use ncube_actors::{
+    host::{ClientSubscription, HostActor, RegisterClient, UnregisterClient, UpdateSubscription},
     task::{RunProcess, TaskActor},
     Registry,
 };
-use ncube_data::{Process, ProcessConfigReq, ProcessRunReq, WorkspaceKind};
+use ncube_data::{Client, Process, ProcessConfigReq, ProcessRunReq, WorkspaceKind};
 use ncube_stores::process_store;
 use serde_json::Value;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
-use tracing::instrument;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use tracing::{debug, instrument};
 
 use crate::{database, lookup_workspace, HandlerError};
+
+/// Our global unique user id counter.
+static NEXT_CLIENT_ID: AtomicUsize = AtomicUsize::new(1);
 
 #[instrument]
 pub async fn list_processes(workspace: &str) -> Result<Vec<Process>, HandlerError> {
@@ -97,6 +102,61 @@ pub async fn run_process(workspace: &str, request: &ProcessRunReq) -> Result<(),
                 .await?;
         }
     };
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn register_client() -> Result<String, HandlerError> {
+    let client_id = NEXT_CLIENT_ID.fetch_add(1, Ordering::Relaxed);
+
+    let actor = HostActor::from_registry().await.unwrap();
+
+    let uuid = actor.call(RegisterClient { client_id }).await??;
+
+    debug!("Register client {} ({}).", client_id, uuid);
+
+    Ok(uuid)
+}
+
+#[instrument]
+pub async fn unregister_client(uuid: &str) -> Result<(), HandlerError> {
+    let actor = HostActor::from_registry().await.unwrap();
+
+    debug!("Unregister client {}", uuid);
+
+    actor
+        .call(UnregisterClient {
+            uuid: uuid.to_string(),
+        })
+        .await??;
+
+    Ok(())
+}
+
+#[instrument]
+pub async fn client_subscription(uuid: &str) -> Result<Option<Client>, HandlerError> {
+    let actor = HostActor::from_registry().await.unwrap();
+
+    let client = actor
+        .call(ClientSubscription {
+            uuid: uuid.to_string(),
+        })
+        .await??;
+
+    Ok(client)
+}
+
+#[instrument]
+pub async fn update_subscription(uuid: &str, client: Client) -> Result<(), HandlerError> {
+    let actor = HostActor::from_registry().await.unwrap();
+
+    actor
+        .call(UpdateSubscription {
+            uuid: uuid.to_string(),
+            client,
+        })
+        .await??;
 
     Ok(())
 }

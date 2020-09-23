@@ -8,6 +8,7 @@ use slugify::slugify;
 use std::default::Default;
 use std::fmt::Debug;
 use std::fmt::{self, Display};
+use tokio::sync::mpsc;
 use uuid::Uuid;
 
 /// Normalize a string. This means to strip any whitespace and lowercase the string.
@@ -28,6 +29,21 @@ pub struct ConfigSetting {
 }
 
 pub type NcubeConfig = Vec<ConfigSetting>;
+
+/// A channel that can be used by a host to push messages to a client. A client
+/// in this context can either be the UI (Host -> UI) or another host (Remote
+/// Host -> Host).
+pub type Channel = mpsc::UnboundedSender<std::result::Result<warp::ws::Message, warp::Error>>;
+
+/// When connecting clients subscribe to updates from the host. A client can be
+/// either a browser view connecting to a host or a host connecting to a remote
+/// host.
+#[derive(Debug, Clone)]
+pub struct Client {
+    pub client_id: usize,
+    pub topics: Vec<String>,
+    pub sender: Option<Channel>,
+}
 
 /// Ncube workspace databases can either be a Sqlite or PostgreSQL database.
 ///
@@ -740,6 +756,12 @@ pub struct AnnotationReq {
     pub value: serde_json::Value,
     pub note: Option<String>,
     pub name: String,
+}
+
+#[derive(Debug, Serialize)]
+pub struct ClientSubscription {
+    pub uuid: String,
+    pub url: String,
 }
 
 #[cfg(test)]

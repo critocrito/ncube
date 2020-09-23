@@ -1,16 +1,19 @@
 use async_trait::async_trait;
-use ncube_data::{ConfigSetting, NcubeConfig};
+use ncube_cache::GuardedCache;
+use ncube_data::{Client, ConfigSetting, NcubeConfig};
 use ncube_db::{errors::DatabaseError, sqlite, Database};
 use ncube_fs::expand_tilde;
 use ncube_stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
 use std::path::PathBuf;
 use std::result::Result;
+use uuid::Uuid;
 use xactor::{message, Actor, Context, Handler};
 
 use crate::{ActorError, Registry};
 
 pub struct HostActor {
     db: Database,
+    clients: GuardedCache<Client>,
 }
 
 #[async_trait]
@@ -30,8 +33,11 @@ impl HostActor {
         let db = sqlite::Database::from_str(&connection_str, 1)
             .map_err(|e| ActorError::Database(DatabaseError::SqliteConfig(e)))?;
 
+        let clients: GuardedCache<Client> = GuardedCache::new();
+
         Ok(Self {
             db: Database::Sqlite(Box::new(db)),
+            clients,
         })
     }
 
@@ -227,6 +233,95 @@ impl Handler<EnableWorkspace> for HostActor {
     ) -> Result<(), ActorError> {
         let store = workspace_store(self.db.clone());
         store.enable(&msg.workspace).await?;
+        Ok(())
+    }
+}
+
+#[message(result = "Result<String, ActorError>")]
+#[derive(Debug)]
+pub struct RegisterClient {
+    pub client_id: usize,
+}
+
+#[async_trait]
+impl Handler<RegisterClient> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: RegisterClient,
+    ) -> Result<String, ActorError> {
+        let uuid = Uuid::new_v4()
+            .to_simple()
+            .encode_lower(&mut Uuid::encode_buffer())
+            .to_string();
+
+        self.clients.put(
+            &uuid,
+            Client {
+                client_id: msg.client_id,
+                topics: vec![String::from("host")],
+                sender: None,
+            },
+        );
+
+        Ok(uuid)
+    }
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct UnregisterClient {
+    pub uuid: String,
+}
+
+#[async_trait]
+impl Handler<UnregisterClient> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: UnregisterClient,
+    ) -> Result<(), ActorError> {
+        self.clients.delete(&msg.uuid);
+
+        Ok(())
+    }
+}
+
+#[message(result = "Result<Option<Client>, ActorError>")]
+#[derive(Debug)]
+pub struct ClientSubscription {
+    pub uuid: String,
+}
+
+#[async_trait]
+impl Handler<ClientSubscription> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: ClientSubscription,
+    ) -> Result<Option<Client>, ActorError> {
+        let client = self.clients.get(&msg.uuid);
+
+        Ok(client)
+    }
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct UpdateSubscription {
+    pub uuid: String,
+    pub client: Client,
+}
+
+#[async_trait]
+impl Handler<UpdateSubscription> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: UpdateSubscription,
+    ) -> Result<(), ActorError> {
+        self.clients.reset(&msg.uuid, msg.client);
+
         Ok(())
     }
 }
