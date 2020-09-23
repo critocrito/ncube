@@ -96,5 +96,10 @@ pub(crate) fn ws() -> impl Filter<Extract = impl warp::Reply, Error = warp::Reje
             .and(warp::path::param())
             .and_then(ws::unregister));
 
-    register.with(with_cors())
+    let ws = warp::path("ws")
+        .and(warp::ws())
+        .and(warp::path::param())
+        .and_then(ws::ws);
+
+    register.or(ws).with(with_cors())
 }

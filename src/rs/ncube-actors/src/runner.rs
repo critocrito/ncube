@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use ncube_data::{Task, TaskKind, TaskState};
+use ncube_data::{SubscriptionMessage, Task, TaskKind, TaskState};
 use ncube_tasks::{create_workspace, remove_location, run_data_process};
 use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Receiver, Sender};
@@ -8,7 +8,7 @@ use xactor::{message, Actor, Context, Handler};
 
 use crate::{
     db::{DatabaseActor, MigrateWorkspace},
-    host::{EnableWorkspace, HostActor},
+    host::{EnableWorkspace, HostActor, PublishMessage},
     task::{TaskActor, UpdateTask},
     ActorError, Registry,
 };
@@ -37,8 +37,11 @@ impl TaskRunner {
                             location, workspace
                         );
 
-                        let actor = TaskActor::from_registry().await.unwrap();
-                        actor
+                        let host_actor = HostActor::from_registry().await.unwrap();
+                        let database_actor = DatabaseActor::from_registry().await.unwrap();
+                        let task_actor = TaskActor::from_registry().await.unwrap();
+
+                        task_actor
                             .call(UpdateTask {
                                 task_id: task_id.clone(),
                                 state: TaskState::Running,
@@ -51,7 +54,20 @@ impl TaskRunner {
                             .await
                             .expect("Failed to create workspace");
 
-                        let database_actor = DatabaseActor::from_registry().await.unwrap();
+                        // FIXME: Remove serde_json dependency once the PubSub is refactored out.
+                        let message = SubscriptionMessage {
+                            task_id: task_id.to_string(),
+                            topic: "host".to_string(),
+                            data: "Created workspace".to_string(),
+                        };
+                        host_actor
+                            .call(PublishMessage {
+                                msg: serde_json::to_string(&message).unwrap(),
+                            })
+                            .await
+                            .unwrap()
+                            .unwrap();
+
                         database_actor
                             .call(MigrateWorkspace {
                                 workspace: workspace.to_string(),
@@ -60,7 +76,20 @@ impl TaskRunner {
                             .unwrap()
                             .unwrap();
 
-                        actor
+                        let message = SubscriptionMessage {
+                            task_id: task_id.to_string(),
+                            topic: "host".to_string(),
+                            data: "Database migrated".to_string(),
+                        };
+                        host_actor
+                            .call(PublishMessage {
+                                msg: serde_json::to_string(&message).unwrap(),
+                            })
+                            .await
+                            .unwrap()
+                            .unwrap();
+
+                        task_actor
                             .call(UpdateTask {
                                 task_id,
                                 state: TaskState::Done,
@@ -69,7 +98,6 @@ impl TaskRunner {
                             .unwrap()
                             .unwrap();
 
-                        let host_actor = HostActor::from_registry().await.unwrap();
                         host_actor
                             .call(EnableWorkspace { workspace })
                             .await

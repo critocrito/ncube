@@ -34,7 +34,23 @@ const Onboarding = ({onDone}: OnboardingProps) => {
     services: {
       fetchData: async (_ctx, _ev) => showConfig(),
 
-      registerClient: (_ctx, _ev) => registerClient(),
+      registerClient: async (_ctx, _ev) => {
+        // FIXME: Refactor this into a more manageable subscription structure.
+        const data = await registerClient();
+
+        const ws = new WebSocket(data.url);
+
+        // ws.addEventListener("open", function open() {
+        //   console.log("connected");
+        //   ws.send(Date.now().toString());
+        // });
+        //
+        ws.addEventListener("message", function subscribe(event) {
+          console.log("Message from server:", event.data);
+        });
+
+        return data;
+      },
     },
   });
 

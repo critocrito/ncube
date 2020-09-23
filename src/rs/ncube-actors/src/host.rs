@@ -6,6 +6,7 @@ use ncube_fs::expand_tilde;
 use ncube_stores::{config_store, workspace_store, ConfigStore, WorkspaceStore};
 use std::path::PathBuf;
 use std::result::Result;
+use tracing::error;
 use uuid::Uuid;
 use xactor::{message, Actor, Context, Handler};
 
@@ -321,6 +322,35 @@ impl Handler<UpdateSubscription> for HostActor {
         msg: UpdateSubscription,
     ) -> Result<(), ActorError> {
         self.clients.reset(&msg.uuid, msg.client);
+
+        Ok(())
+    }
+}
+
+#[message(result = "Result<(), ActorError>")]
+#[derive(Debug)]
+pub struct PublishMessage {
+    pub msg: String,
+}
+
+#[async_trait]
+impl Handler<PublishMessage> for HostActor {
+    async fn handle(
+        &mut self,
+        _ctx: &mut Context<Self>,
+        msg: PublishMessage,
+    ) -> Result<(), ActorError> {
+        for client in self.clients.all().iter() {
+            if let Some(channel) = &client.1.sender {
+                if let Err(e) = channel.send(Ok(warp::ws::Message::text(msg.msg.clone()))) {
+                    error!(
+                        "Error sending message to client {}: {}",
+                        client.0,
+                        e.to_string()
+                    );
+                }
+            }
+        }
 
         Ok(())
     }

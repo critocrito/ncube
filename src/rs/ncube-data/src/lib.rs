@@ -45,6 +45,13 @@ pub struct Client {
     pub sender: Option<Channel>,
 }
 
+#[derive(Debug, Serialize)]
+pub struct SubscriptionMessage<T> {
+    pub task_id: String,
+    pub topic: String,
+    pub data: T,
+}
+
 /// Ncube workspace databases can either be a Sqlite or PostgreSQL database.
 ///
 /// # Example
