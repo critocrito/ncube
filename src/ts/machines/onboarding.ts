@@ -6,7 +6,7 @@ interface OnboardingContext {}
 type OnboardingEvent = {type: "SHOW_CONFIG"};
 
 type OnboardingState = {
-  value: "showConfig" | "bootstrap" | "done";
+  value: "showConfig" | "registerClient" | "bootstrap" | "done";
   context: OnboardingContext;
 };
 
@@ -22,6 +22,18 @@ export default createMachine<
     showConfig: {
       invoke: {
         src: "fetchData",
+        onDone: {
+          target: "registerClient",
+        },
+        onError: {
+          target: "bootstrap",
+        },
+      },
+    },
+
+    registerClient: {
+      invoke: {
+        src: "registerClient",
         onDone: {
           target: "done",
         },

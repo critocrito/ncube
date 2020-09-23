@@ -35,6 +35,10 @@ export interface ConfigSetting {
 
 export type HostConfig = ConfigSetting[];
 
+export type RegisterResponse = {
+  url: string;
+};
+
 export interface WorkspaceCommon {
   id: number;
   name: string;

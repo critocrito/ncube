@@ -12,6 +12,7 @@ import {
   Process,
   ProcessConfigReq,
   ProcessRunReq,
+  RegisterResponse,
   Segment,
   SegmentReq,
   SegmentUnit,
@@ -112,6 +113,13 @@ export const createConfig = async (body: ConfigSettingReq[]): Promise<void> => {
   return emptyResponse(resp);
 };
 
+export const registerClient = async (): Promise<RegisterResponse> => {
+  const resp = await fetch("http://127.0.0.1:40666/register", {
+    method: "POST",
+  });
+
+  return dataResponse(resp);
+};
 /*
  * Workspaces
  */

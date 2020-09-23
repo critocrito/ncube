@@ -5,7 +5,7 @@ import BasicPanel from "../common/basic-panel";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
 import OnboardingForm, {OnboardingFormValues} from "../forms/onboarding";
-import {createConfig, showConfig} from "../http";
+import {createConfig, registerClient, showConfig} from "../http";
 import machine from "../machines/onboarding";
 import {ConfigSettingReq} from "../types";
 import {useServiceLogger} from "../utils";
@@ -33,6 +33,8 @@ const Onboarding = ({onDone}: OnboardingProps) => {
 
     services: {
       fetchData: async (_ctx, _ev) => showConfig(),
+
+      registerClient: (_ctx, _ev) => registerClient(),
     },
   });
 
@@ -40,6 +42,7 @@ const Onboarding = ({onDone}: OnboardingProps) => {
 
   switch (true) {
     case state.matches("showConfig"):
+    case state.matches("registerClient"):
       return <div />;
 
     case state.matches("bootstrap"):
