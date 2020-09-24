@@ -46,7 +46,8 @@ pub(crate) use _fatal as fatal;
 async fn main() {
     let project = ProjectDirs::from("net", "sugarcubetools", "Ncube").unwrap();
     let cfg_dir = project.config_dir();
-    let project_dir_db_path = cfg_dir.join("ncube.db");
+    let cfg_db = cfg_dir.join("ncube.db");
+    let project_dir_db_path = cfg_db.to_string_lossy().into_owned();
 
     let matches = App::new("ncubectl")
         .setting(AppSettings::ArgRequiredElseHelp)
@@ -61,7 +62,9 @@ async fn main() {
                 .long("database")
                 .about("Path to Ncube host database.")
                 .required(false)
-                .default_value(&project_dir_db_path.to_string_lossy())
+                // FIXME: Setting this yields the following error:
+                //        argument requires that `project_dir_db_path` is borrowed for `'static`
+                // .default_value(&project_dir_db_path)
                 .takes_value(true),
         )
         .arg(
@@ -89,6 +92,7 @@ async fn main() {
     } else {
         matches.value_of("database").unwrap().into()
     };
+
     if matches.occurrences_of("verbose") > 0 {
         let tracing_level = match matches.occurrences_of("verbose") {
             1 => Level::INFO,
@@ -103,7 +107,7 @@ async fn main() {
     }
 
     let config = ApplicationConfig {
-        host_db: format!("sqlite://{}", db_path.to_str().unwrap()),
+        host_db: format!("sqlite://{}", db_path),
         listen: "127.0.0.1:40666".parse().unwrap(),
     };
 
@@ -111,13 +115,14 @@ async fn main() {
     app.run_without_http().await.unwrap();
 
     match matches.subcommand() {
-        ("account", Some(matches)) => {
+        Some(("account", matches)) => {
             let workspace = matches.value_of("workspace").unwrap();
             let email = matches.value_of("email").unwrap();
 
             cmd::account(&workspace, &email).await;
         }
-        ("workspace", Some(workspace_matches)) => {
+
+        Some(("workspace", workspace_matches)) => {
             // FIXME: handle Postgresql database kind
             // let database = if workspace_matches.is_present("postgres_url") {
             //     DatabaseRequest::Postgresql
@@ -130,13 +135,15 @@ async fn main() {
 
             cmd::workspace(&workspace_name, database).await;
         }
-        ("connection", Some(connection_matches)) => {
+
+        Some(("connection", connection_matches)) => {
             let workspace = connection_matches.value_of("workspace").unwrap();
             let email = connection_matches.value_of("email").unwrap();
 
             cmd::connection(&workspace, &email).await;
         }
-        ("state", Some(state_matches)) => {
+
+        Some(("state", state_matches)) => {
             let modifier = state_matches.value_of("modifier").unwrap_or("all");
 
             match modifier {
@@ -151,7 +158,8 @@ async fn main() {
                 _ => fatal!("Unknown state modifier."),
             }
         }
-        ("reset", Some(state_matches)) => {
+
+        Some(("reset", state_matches)) => {
             let modifier = state_matches.value_of("modifier").unwrap();
 
             match modifier {
@@ -160,14 +168,14 @@ async fn main() {
             }
         }
 
-        ("migrate", Some(state_matches)) => {
+        Some(("migrate", state_matches)) => {
             let workspace = state_matches.value_of("workspace").unwrap();
 
             cmd::migrate(&workspace).await;
         }
 
-        ("delete", Some(delete_matches)) => match delete_matches.subcommand() {
-            ("workspace", Some(delete_workspace_matches)) => {
+        Some(("delete", delete_matches)) => match delete_matches.subcommand() {
+            Some(("workspace", delete_workspace_matches)) => {
                 let workspace = delete_workspace_matches.value_of("workspace").unwrap();
 
                 println!(
@@ -176,22 +184,27 @@ async fn main() {
                     delete_workspace_matches.is_present("assume_yes")
                 );
             }
-            ("account", Some(delete_account_matches)) => {
+
+            Some(("account", delete_account_matches)) => {
                 let workspace = delete_account_matches.value_of("workspace").unwrap();
                 let email = delete_account_matches.value_of("email").unwrap();
                 println!("Delete an account: {}/{}", workspace, email);
             }
+
             _ => unreachable!(),
         },
-        ("get", Some(_)) => {
+
+        Some(("get", _)) => {
             cmd::get().await;
         }
-        ("set", Some(set_matches)) => {
+
+        Some(("set", set_matches)) => {
             let setting = set_matches.value_of("setting").unwrap();
             let value = set_matches.value_of("value").unwrap();
 
             cmd::set(&setting, &value).await;
         }
+
         _ => unreachable!(),
     };
 }
