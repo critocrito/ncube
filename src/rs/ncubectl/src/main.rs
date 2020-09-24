@@ -56,7 +56,7 @@ async fn main() {
         .about("configure and control the Ncube daemon")
         .help_template(HELP)
         .arg(
-            Arg::with_name("database")
+            Arg::new("database")
                 .short('d')
                 .long("database")
                 .about("Path to Ncube host database.")

@@ -25,14 +25,14 @@ pub(crate) fn workspace_cli() -> App<'static> {
         .help_template(HELP)
         .about("Create a new local workspace.")
         .arg(
-            Arg::with_name("name")
+            Arg::new("name")
                 .value_name("name")
                 .required(true)
                 .about("The descriptive name for this workspace.")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("postgres_url")
+            Arg::new("postgres_url")
                 .value_name("postgres_url")
                 .about("Associate a PostgreSQL database with this workspace.")
                 .takes_value(true),
@@ -46,14 +46,14 @@ pub(crate) fn account_cli() -> App<'static> {
         .help_template(HELP)
         .about("Create a new account for a workspace.")
         .arg(
-            Arg::with_name("workspace")
+            Arg::new("workspace")
                 .value_name("workspace")
                 .required(true)
                 .about("The slug of the workspace this account is associated to.")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("email")
+            Arg::new("email")
                 .value_name("email")
                 .required(true)
                 .about("The email address of the new account.")
@@ -68,7 +68,7 @@ pub(crate) fn state_cli() -> App<'static> {
         .help_template(HELP)
         .about("Print the state of the local Ncube installation.")
         .arg(
-            Arg::with_name("modifier")
+            Arg::new("modifier")
                 .value_name("modifier")
                 .required(true)
                 .possible_values(&["workspaces", "accounts", "all"])
@@ -84,7 +84,7 @@ pub(crate) fn reset_cli() -> App<'static> {
         .help_template(HELP)
         .about("Reset settings of the local Ncube installation.")
         .arg(
-            Arg::with_name("modifier")
+            Arg::new("modifier")
                 .value_name("modifier")
                 .required(true)
                 .possible_values(&["secret"])
@@ -99,7 +99,7 @@ pub(crate) fn migrate_cli() -> App<'static> {
         .setting(AppSettings::DisableVersion)
         .about("Migrate a workspace to the latest version of Ncube.")
         .arg(
-            Arg::with_name("workspace")
+            Arg::new("workspace")
                 .value_name("workspace")
                 .required(true)
                 .about("The slug of the workspace this account is associated to.")
@@ -114,14 +114,14 @@ pub(crate) fn connection_cli() -> App<'static> {
         .help_template(HELP)
         .about("Print the connection details for a workspace account.")
         .arg(
-            Arg::with_name("workspace")
+            Arg::new("workspace")
                 .value_name("workspace")
                 .required(true)
                 .about("The slug of the workspace this account is associated to.")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("email")
+            Arg::new("email")
                 .value_name("email")
                 .required(true)
                 .about("The email address of the new account.")
@@ -141,14 +141,14 @@ pub(crate) fn delete_cli() -> App<'static> {
                 .setting(AppSettings::ArgRequiredElseHelp)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::with_name("workspace")
+                    Arg::new("workspace")
                         .value_name("workspace")
                         .required(true)
                         .about("The slug of the workspace this account is associated to.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("assume_yes")
+                    Arg::new("assume_yes")
                         .short('y')
                         .about("Assume 'yes' as answer to all prompts.")
                         .required(false)
@@ -160,21 +160,21 @@ pub(crate) fn delete_cli() -> App<'static> {
                 .setting(AppSettings::ArgRequiredElseHelp)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::with_name("workspace")
+                    Arg::new("workspace")
                         .value_name("workspace")
                         .required(true)
                         .about("The slug of the workspace this account is associated to.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("email")
+                    Arg::new("email")
                         .value_name("email")
                         .required(true)
                         .about("The email address of the new account.")
                         .takes_value(true),
                 )
                 .arg(
-                    Arg::with_name("assume_yes")
+                    Arg::new("assume_yes")
                         .short('y')
                         .about("Assume 'yes' as answer to all prompts.")
                         .required(false)
@@ -195,14 +195,14 @@ pub(crate) fn set_cli() -> App<'static> {
         .setting(AppSettings::DisableVersion)
         .about("Set a configuration setting.")
         .arg(
-            Arg::with_name("setting")
+            Arg::new("setting")
                 .value_name("setting")
                 .required(true)
                 .about("The name of configuration setting.")
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("value")
+            Arg::new("value")
                 .value_name("value")
                 .about("The new value of this configuration setting.")
                 .required(true)

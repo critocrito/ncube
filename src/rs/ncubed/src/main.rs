@@ -17,7 +17,7 @@ async fn main() {
         .author(crate_authors!())
         .about("The ncube daemon.")
         .arg(
-            Arg::with_name("listen_address")
+            Arg::new("listen_address")
                 .short('l')
                 .long("listen")
                 .about("Set the listen address and port.")
@@ -26,7 +26,7 @@ async fn main() {
                 .takes_value(true),
         )
         .arg(
-            Arg::with_name("database")
+            Arg::new("database")
                 .short('d')
                 .long("database")
                 .about("Path to Ncube host database.")
