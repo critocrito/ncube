@@ -81,7 +81,7 @@ where
         cache.insert(trimmed, Mutex::new(entry));
     }
 
-    pub fn all(&self) -> Vec<(String, T)> {
+    pub fn entries(&self) -> Vec<(String, T)> {
         let cache = self.0.write().expect("RwLock poisoned");
         cache
             .iter()
@@ -147,7 +147,7 @@ mod cache_tests {
 
         cache.put("one", 1);
 
-        assert_eq!(cache.all(), vec![("one".to_string(), 1)]);
+        assert_eq!(cache.entries(), vec![("one".to_string(), 1)]);
     }
 
     #[test]

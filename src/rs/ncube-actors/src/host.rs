@@ -340,7 +340,7 @@ impl Handler<PublishMessage> for HostActor {
         _ctx: &mut Context<Self>,
         msg: PublishMessage,
     ) -> Result<(), ActorError> {
-        for client in self.clients.all().iter() {
+        for client in self.clients.entries().iter() {
             if let Some(channel) = &client.1.sender {
                 if let Err(e) = channel.send(Ok(warp::ws::Message::text(msg.msg.clone()))) {
                     error!(

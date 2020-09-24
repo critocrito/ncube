@@ -46,7 +46,7 @@ impl Handler<ListTasks> for TaskActor {
         _ctx: &mut Context<Self>,
         _msg: ListTasks,
     ) -> Result<Vec<Task>, ActorError> {
-        let tasks: Vec<Task> = self.cache.all().into_iter().map(|(_, v)| v).collect();
+        let tasks: Vec<Task> = self.cache.entries().into_iter().map(|(_, v)| v).collect();
 
         Ok(tasks)
     }
