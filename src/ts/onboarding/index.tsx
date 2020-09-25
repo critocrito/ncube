@@ -2,10 +2,11 @@ import {useMachine} from "@xstate/react";
 import React from "react";
 
 import BasicPanel from "../common/basic-panel";
+import Error from "../common/error";
 import Fatal from "../common/fatal";
 import FormHandler from "../common/form-handler";
 import OnboardingForm, {OnboardingFormValues} from "../forms/onboarding";
-import {createConfig, registerClient, showConfig} from "../http";
+import {createConfig, healthCheck, registerClient, showConfig} from "../http";
 import machine from "../machines/onboarding";
 import {ConfigSettingReq} from "../types";
 import {useServiceLogger} from "../utils";
@@ -32,6 +33,8 @@ const Onboarding = ({onDone}: OnboardingProps) => {
     },
 
     services: {
+      checkHealth: async (_ctx, _ev) => healthCheck(),
+
       fetchData: async (_ctx, _ev) => showConfig(),
 
       registerClient: async (_ctx, _ev) => {
@@ -57,8 +60,9 @@ const Onboarding = ({onDone}: OnboardingProps) => {
   useServiceLogger(service, machine.id);
 
   switch (true) {
-    case state.matches("showConfig"):
-    case state.matches("registerClient"):
+    case state.matches("checkHealth") ||
+      state.matches("showConfig") ||
+      state.matches("registerClient"):
       return <div />;
 
     case state.matches("bootstrap"):
@@ -73,6 +77,14 @@ const Onboarding = ({onDone}: OnboardingProps) => {
             Form={OnboardingForm}
           />
         </BasicPanel>
+      );
+
+    case state.matches("error"):
+      return (
+        <Error
+          msg={`Failed to connect to host: ${state.context.error}`}
+          recover={() => send("RETRY")}
+        />
       );
 
     default:

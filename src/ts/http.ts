@@ -120,6 +120,13 @@ export const registerClient = async (): Promise<RegisterResponse> => {
 
   return dataResponse(resp);
 };
+
+export const healthCheck = async (): Promise<void> => {
+  const resp = await fetch("http://127.0.0.1:40666/health");
+
+  return emptyResponse(resp);
+};
+
 /*
  * Workspaces
  */

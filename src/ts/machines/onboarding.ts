@@ -1,14 +1,25 @@
-import {createMachine} from "xstate";
+import {assign, createMachine} from "xstate";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface OnboardingContext {}
+interface OnboardingContext {
+  error?: string;
+}
 
-type OnboardingEvent = {type: "SHOW_CONFIG"};
+type OnboardingEvent = {type: "SHOW_CONFIG"} | {type: "RETRY"};
 
-type OnboardingState = {
-  value: "showConfig" | "registerClient" | "bootstrap" | "done";
-  context: OnboardingContext;
-};
+type OnboardingState =
+  | {
+      value:
+        | "checkHealth"
+        | "showConfig"
+        | "registerClient"
+        | "bootstrap"
+        | "done";
+      context: OnboardingContext;
+    }
+  | {
+      value: "error";
+      context: OnboardingContext & {error: string};
+    };
 
 export default createMachine<
   OnboardingContext,
@@ -16,9 +27,23 @@ export default createMachine<
   OnboardingState
 >({
   id: "onboarding",
-  context: {},
-  initial: "showConfig",
+
+  initial: "checkHealth",
+
   states: {
+    checkHealth: {
+      invoke: {
+        src: "checkHealth",
+        onDone: {
+          target: "showConfig",
+        },
+        onError: {
+          target: "error",
+          actions: assign({error: (_ctx, {data}) => data.message}),
+        },
+      },
+    },
+
     showConfig: {
       invoke: {
         src: "fetchData",
@@ -46,6 +71,12 @@ export default createMachine<
     bootstrap: {
       on: {
         SHOW_CONFIG: "showConfig",
+      },
+    },
+
+    error: {
+      on: {
+        RETRY: "checkHealth",
       },
     },
 
