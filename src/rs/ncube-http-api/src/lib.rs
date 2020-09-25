@@ -1,7 +1,10 @@
 use ncube_errors::HostError;
 use std::net::SocketAddr;
 use tracing::{error, info};
-use warp::{http::Method, Filter};
+use warp::{
+    http::{Method, StatusCode},
+    Filter,
+};
 
 mod config;
 mod http;
@@ -45,6 +48,9 @@ pub(crate) fn router(
 
     assets()
         .or(api())
+        .or(warp::path("health")
+            .map(|| Ok(StatusCode::NO_CONTENT))
+            .with(with_cors()))
         .or(ws())
         .recover(http::handle_rejection)
         .with(log)

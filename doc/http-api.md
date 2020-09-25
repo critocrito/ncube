@@ -111,6 +111,7 @@ Ncube installation (originating from `127.0.0.1`) don't.
 
 ### Ncube
 
+- [Check Health](http-api/ncube/health.md) `GET /health`
 - [Register a Client](http-api/ncube/register.md) `POST /register`
 - [Unregister a Client](http-api/ncube/unregister.md) `DELETE /unregister/<client>`
 - [Show Ncube Configuration](http-api/ncube/show.md) `GET /`
