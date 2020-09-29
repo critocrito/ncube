@@ -1,8 +1,9 @@
 use ncube_actors::{
     db::{DatabaseActor, LookupDatabase},
     host::RequirePool,
-    ActorError, HostActor, Registry,
+    HostActor,
 };
+use ncube_actors_common::{ActorError, Registry};
 use ncube_data::{Workspace, WorkspaceKind};
 use ncube_db::{Database, DatabaseError};
 use ncube_errors::HostError;

@@ -1,16 +1,15 @@
 use async_trait::async_trait;
+use ncube_actors_common::{message, Actor, ActorError, Context, Handler, Registry};
 use ncube_data::{SubscriptionMessage, Task, TaskKind, TaskState};
 use ncube_tasks::{create_workspace, remove_location, run_data_process};
 use std::fmt::Debug;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tracing::info;
-use xactor::{message, Actor, Context, Handler};
 
 use crate::{
     db::{DatabaseActor, MigrateWorkspace},
     host::{EnableWorkspace, HostActor, PublishMessage},
     task::{TaskActor, UpdateTask},
-    ActorError, Registry,
 };
 
 pub struct TaskRunner {

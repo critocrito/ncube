@@ -1,16 +1,13 @@
 use async_trait::async_trait;
+use ncube_actors_common::{message, Actor, ActorError, Context, Handler, Registry};
 use ncube_data::{Account, WorkspaceDatabase};
 use ncube_db::{errors::DatabaseError, http, migrations, sqlite, Database, DatabaseCache};
 use ncube_stores::{account_store, process_store, workspace_store, WorkspaceStore};
 use std::result::Result;
 use tracing::{debug, info};
 use url::Url;
-use xactor::{message, Actor, Context, Handler};
 
-use crate::{
-    host::{HostActor, RequirePool},
-    ActorError, Registry,
-};
+use crate::host::{HostActor, RequirePool};
 
 /// The database actor can be queried for database connections for workspaces.
 /// Connection pools are cached when requested first time and subsequently
@@ -19,7 +16,8 @@ use crate::{
 /// # Example
 ///
 /// ```no_run
-/// use ncube_actors::{db::{LookupDatabase, DatabaseActor}, Registry};
+/// use ncube_actors::{db::{LookupDatabase, DatabaseActor}};
+/// use ncube_actors_common::Registry;
 ///
 /// # #[tokio::main]
 /// # async fn main () {

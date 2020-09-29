@@ -1,4 +1,5 @@
-use ncube_actors::{task::ListTasks, Registry, TaskActor};
+use ncube_actors::{task::ListTasks, TaskActor};
+use ncube_actors_common::Registry;
 use ncube_data::Task;
 use tracing::instrument;
 

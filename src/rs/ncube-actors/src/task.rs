@@ -1,14 +1,11 @@
 use async_trait::async_trait;
+use ncube_actors_common::{message, Actor, ActorError, Addr, Context, Handler, Registry};
 use ncube_data::{ProcessRunKind, Task, TaskKind, TaskState, Workspace};
 use ncube_tasks::TaskCache;
 use std::fmt::Debug;
 use tracing::info;
-use xactor::{message, Actor, Addr, Context, Handler};
 
-use crate::{
-    runner::{QueueTask, TaskRunner},
-    ActorError, Registry,
-};
+use crate::runner::{QueueTask, TaskRunner};
 
 pub struct TaskActor {
     cache: TaskCache,

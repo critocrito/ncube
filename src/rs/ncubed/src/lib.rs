@@ -3,7 +3,8 @@
 #![type_length_limit = "1375249"]
 // #![cfg_attr(test, deny(warnings))]
 
-use ncube_actors::{Actor, ActorError, DatabaseActor, HostActor, Registry, TaskActor};
+use ncube_actors::{DatabaseActor, HostActor, TaskActor};
+use ncube_actors_common::{Actor, ActorError, Registry};
 use ncube_db::errors::DatabaseError;
 use ncube_errors::HostError;
 use ncube_http_api::start_http_api;

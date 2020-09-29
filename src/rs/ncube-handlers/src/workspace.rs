@@ -3,8 +3,10 @@ use futures_util::{stream::Stream, TryFutureExt, TryStreamExt};
 use ncube_actors::{
     host::{RequirePool, WorkspaceRootSetting},
     task::{RemoveLocation, SetupWorkspace},
-    HostActor, Registry, TaskActor,
+    HostActor, TaskActor,
 };
+use ncube_actors_common::Registry;
+
 use ncube_data::{
     AccountRequest, DatabaseRequest, Investigation, InvestigationReq, Methodology, MethodologyReq,
     Segment, SegmentRequest, Unit, Workspace, WorkspaceDatabase, WorkspaceKind,

@@ -17,6 +17,7 @@ directories = "2.0.2"
 
 ncube-errors = { path = "../ncube-errors" }
 ncube-db = { path = "../ncube-db" }
+ncube-actors-common = { path = "../ncube-actors-common" }
 ncube-actors = { path = "../ncube-actors" }
 ncube-http-api = { path = "../ncube-http-api" }
 
