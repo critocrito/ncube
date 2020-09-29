@@ -1,4 +1,5 @@
 import {useMachine} from "@xstate/react";
+import PubSub from "pubsub-js";
 import React, {useEffect} from "react";
 
 import BasicPanel from "./common/basic-panel";
@@ -63,7 +64,8 @@ const App = () => {
             });
 
             ws.addEventListener("message", function subscribe(event) {
-              console.log("Message from server:", event.data);
+              const {topic, ...data} = JSON.parse(event.data);
+              PubSub.publish(topic, data);
             });
           }}
         />
