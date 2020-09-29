@@ -1,4 +1,4 @@
-#![type_length_limit = "1356769"]
+#![type_length_limit = "1358044"]
 
 use directories::ProjectDirs;
 use ncubed::{Application, ApplicationConfig};
