@@ -1,5 +1,5 @@
 [package]
-name = "ncube-actors"
+name = "ncube-actors-task"
 version = "0.9.3"
 authors = ["Christo <christo@cryptodrunks.net>"]
 edition = "2018"
