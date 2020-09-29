@@ -1,9 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
-use ncube_actors::{
-    db::{LookupDatabase, ResetDatabase},
-    DatabaseActor,
-};
 use ncube_actors_common::Registry;
+use ncube_actors_db::{DatabaseActor, LookupDatabase, ResetDatabase};
 use ncube_actors_host::{HostActor, SecretKeySetting};
 use ncube_crypto as crypto;
 use ncube_data::{Account, JwtToken, WorkspaceKind};

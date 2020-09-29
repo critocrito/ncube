@@ -28,6 +28,7 @@ ncube-errors = { path = "../ncube-errors" }
 ncube-db = { path = "../ncube-db" }
 ncube-actors-common = { path = "../ncube-actors-common" }
 ncube-actors-host = { path = "../ncube-actors-host" }
+ncube-actors-db = { path = "../ncube-actors-db" }
 ncube-actors = { path = "../ncube-actors" }
 ncube-stores = { path = "../ncube-stores" }
 ncube-search = { path = "../ncube-search" }

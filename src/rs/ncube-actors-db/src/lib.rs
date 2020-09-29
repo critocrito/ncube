@@ -15,7 +15,7 @@ use url::Url;
 /// # Example
 ///
 /// ```no_run
-/// use ncube_actors::{db::{LookupDatabase, DatabaseActor}};
+/// use ncube_actors_db::{LookupDatabase, DatabaseActor};
 /// use ncube_actors_common::Registry;
 ///
 /// # #[tokio::main]

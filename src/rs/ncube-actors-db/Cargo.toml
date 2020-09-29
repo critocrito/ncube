@@ -1,6 +1,6 @@
 [package]
-name = "ncube-actors"
-version = "0.9.3"
+name = "ncube-actors-db"
+version = "0.1.0"
 authors = ["Christo <christo@cryptodrunks.net>"]
 edition = "2018"
 
@@ -14,12 +14,11 @@ thiserror = "1.0"
 anyhow = "1.0"
 tracing = "0.1.16"
 tracing-futures = "0.2"
-serde = "1.0"
-serde_json = "1.0"
 xactor = { version = "0.7.7", default-features = false, features = ["runtime-tokio"] }
+url = "2.1.1"
 
 ncube-data = { path = "../ncube-data" }
-ncube-tasks = { path = "../ncube-tasks" }
+ncube-db = { path = "../ncube-db" }
+ncube-stores = { path = "../ncube-stores" }
 ncube-actors-common = { path = "../ncube-actors-common" }
 ncube-actors-host = { path = "../ncube-actors-host" }
-ncube-actors-db = { path = "../ncube-actors-db" }
