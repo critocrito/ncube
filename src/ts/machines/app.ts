@@ -4,11 +4,12 @@ import {Workspace} from "../types";
 
 export interface AppContext {
   workspaces: Workspace[];
+  ws?: WebSocket;
   error?: string;
 }
 
 export type AppEvent =
-  | {type: "SHOW_DASHBOARD"}
+  | {type: "SHOW_DASHBOARD"; ws: WebSocket}
   | {type: "SHOW_WORKSPACE"; workspace: Workspace}
   | {type: "done.invoke.fetchWorkspace"; data: Workspace}
   | {type: "CREATE_WORKSPACE"}
@@ -58,7 +59,10 @@ export default createMachine<AppContext, AppEvent, AppState>({
   states: {
     onboarding: {
       on: {
-        SHOW_DASHBOARD: "list_workspaces",
+        SHOW_DASHBOARD: {
+          target: "list_workspaces",
+          actions: assign({ws: (_ctx, {ws}) => ws}),
+        },
       },
     },
 

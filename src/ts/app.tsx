@@ -52,7 +52,22 @@ const App = () => {
 
   switch (true) {
     case state.matches("onboarding"):
-      return <Onboarding onDone={() => send("SHOW_DASHBOARD")} />;
+      return (
+        <Onboarding
+          onDone={(url: string) => {
+            const ws = new WebSocket(url);
+
+            // FIXME: How do I deal with errors?
+            ws.addEventListener("open", function open() {
+              send("SHOW_DASHBOARD", {ws});
+            });
+
+            ws.addEventListener("message", function subscribe(event) {
+              console.log("Message from server:", event.data);
+            });
+          }}
+        />
+      );
 
     case state.matches("list_workspaces"):
     case state.matches("show_workspace"):
