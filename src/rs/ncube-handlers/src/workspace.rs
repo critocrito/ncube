@@ -1,11 +1,11 @@
 use bytes::{Bytes, BytesMut};
 use futures_util::{stream::Stream, TryFutureExt, TryStreamExt};
 use ncube_actors::{
-    host::{RequirePool, WorkspaceRootSetting},
     task::{RemoveLocation, SetupWorkspace},
-    HostActor, TaskActor,
+    TaskActor,
 };
 use ncube_actors_common::Registry;
+use ncube_actors_host::{HostActor, RequirePool, WorkspaceRootSetting};
 
 use ncube_data::{
     AccountRequest, DatabaseRequest, Investigation, InvestigationReq, Methodology, MethodologyReq,

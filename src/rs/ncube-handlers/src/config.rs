@@ -1,10 +1,8 @@
-use ncube_actors::{
-    host::{
-        AllSettings, EndpointSetting, InsertSetting, IsBootstrapped, SecretKeySetting, Settings,
-    },
-    HostActor,
-};
 use ncube_actors_common::Registry;
+use ncube_actors_host::{
+    AllSettings, EndpointSetting, HostActor, InsertSetting, IsBootstrapped, SecretKeySetting,
+    Settings,
+};
 use ncube_crypto::gen_secret_key;
 use ncube_data::ConfigSetting;
 use rand::{self, rngs::StdRng, SeedableRng};

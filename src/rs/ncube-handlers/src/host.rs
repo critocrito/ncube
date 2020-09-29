@@ -1,8 +1,8 @@
-use ncube_actors::{
-    host::{ClientSubscription, HostActor, RegisterClient, UnregisterClient, UpdateSubscription},
-    task::{RunProcess, TaskActor},
-};
+use ncube_actors::task::{RunProcess, TaskActor};
 use ncube_actors_common::Registry;
+use ncube_actors_host::{
+    ClientSubscription, HostActor, RegisterClient, UnregisterClient, UpdateSubscription,
+};
 use ncube_data::{Client, Process, ProcessConfigReq, ProcessRunReq, WorkspaceKind};
 use ncube_stores::process_store;
 use serde_json::Value;
