@@ -12,15 +12,10 @@ tokio = { version = "0.2", features = ["sync"] }
 async-trait = "0.1"
 thiserror = "1.0"
 anyhow = "1.0"
-tracing = "0.1.16"
-tracing-futures = "0.2"
 xactor = { version = "0.7.7", default-features = false, features = ["runtime-tokio"] }
-warp = "0.2.2"
-uuid = "0.8"
 
 ncube-data = { path = "../ncube-data" }
 ncube-db = { path = "../ncube-db" }
 ncube-stores = { path = "../ncube-stores" }
 ncube-fs = { path = "../ncube-fs" }
 ncube-actors-common = { path = "../ncube-actors-common" }
-ncube-cache = { path = "../ncube-cache" }

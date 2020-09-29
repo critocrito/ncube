@@ -1,7 +1,7 @@
-use ncube_actors_common::Registry;
-use ncube_actors_host::{
-    ClientSubscription, HostActor, RegisterClient, UnregisterClient, UpdateSubscription,
+use ncube_actors_client::{
+    ClientActor, ClientSubscription, RegisterClient, UnregisterClient, UpdateSubscription,
 };
+use ncube_actors_common::Registry;
 use ncube_actors_task::{RunProcess, TaskActor};
 use ncube_data::{Client, Process, ProcessConfigReq, ProcessRunReq, WorkspaceKind};
 use ncube_stores::process_store;
@@ -110,7 +110,7 @@ pub async fn run_process(workspace: &str, request: &ProcessRunReq) -> Result<(),
 pub async fn register_client() -> Result<String, HandlerError> {
     let client_id = NEXT_CLIENT_ID.fetch_add(1, Ordering::Relaxed);
 
-    let actor = HostActor::from_registry().await.unwrap();
+    let actor = ClientActor::from_registry().await.unwrap();
 
     let uuid = actor.call(RegisterClient { client_id }).await??;
 
@@ -121,7 +121,7 @@ pub async fn register_client() -> Result<String, HandlerError> {
 
 #[instrument]
 pub async fn unregister_client(uuid: &str) -> Result<(), HandlerError> {
-    let actor = HostActor::from_registry().await.unwrap();
+    let actor = ClientActor::from_registry().await.unwrap();
 
     debug!("Unregister client {}", uuid);
 
@@ -136,7 +136,7 @@ pub async fn unregister_client(uuid: &str) -> Result<(), HandlerError> {
 
 #[instrument]
 pub async fn client_subscription(uuid: &str) -> Result<Option<Client>, HandlerError> {
-    let actor = HostActor::from_registry().await.unwrap();
+    let actor = ClientActor::from_registry().await.unwrap();
 
     let client = actor
         .call(ClientSubscription {
@@ -149,7 +149,7 @@ pub async fn client_subscription(uuid: &str) -> Result<Option<Client>, HandlerEr
 
 #[instrument]
 pub async fn update_subscription(uuid: &str, client: Client) -> Result<(), HandlerError> {
-    let actor = HostActor::from_registry().await.unwrap();
+    let actor = ClientActor::from_registry().await.unwrap();
 
     actor
         .call(UpdateSubscription {

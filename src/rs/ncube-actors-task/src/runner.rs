@@ -1,7 +1,8 @@
 use async_trait::async_trait;
+use ncube_actors_client::{ClientActor, PublishMessage};
 use ncube_actors_common::{message, Actor, ActorError, Context, Handler, Registry};
 use ncube_actors_db::{DatabaseActor, MigrateWorkspace};
-use ncube_actors_host::{EnableWorkspace, HostActor, PublishMessage};
+use ncube_actors_host::{EnableWorkspace, HostActor};
 use ncube_data::{SubscriptionMessage, Task, TaskKind, TaskState};
 use ncube_tasks::{create_workspace, remove_location, run_data_process};
 use std::fmt::Debug;
@@ -37,6 +38,7 @@ impl TaskRunner {
                         let host_actor = HostActor::from_registry().await.unwrap();
                         let database_actor = DatabaseActor::from_registry().await.unwrap();
                         let task_actor = TaskActor::from_registry().await.unwrap();
+                        let client_actor = ClientActor::from_registry().await.unwrap();
 
                         task_actor
                             .call(UpdateTask {
@@ -57,7 +59,7 @@ impl TaskRunner {
                             topic: "host".to_string(),
                             data: "Created workspace".to_string(),
                         };
-                        host_actor
+                        client_actor
                             .call(PublishMessage {
                                 msg: serde_json::to_string(&message).unwrap(),
                             })
@@ -78,7 +80,7 @@ impl TaskRunner {
                             topic: "host".to_string(),
                             data: "Database migrated".to_string(),
                         };
-                        host_actor
+                        client_actor
                             .call(PublishMessage {
                                 msg: serde_json::to_string(&message).unwrap(),
                             })

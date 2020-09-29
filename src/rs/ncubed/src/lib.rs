@@ -3,6 +3,7 @@
 #![type_length_limit = "1375249"]
 // #![cfg_attr(test, deny(warnings))]
 
+use ncube_actors_client::ClientActor;
 use ncube_actors_common::{Actor, ActorError, Registry};
 use ncube_actors_db::DatabaseActor;
 use ncube_actors_host::HostActor;
@@ -51,6 +52,8 @@ impl Application {
         TaskActor::register_once(task_actor).await;
         let database_actor = DatabaseActor::new().start().await?;
         DatabaseActor::register_once(database_actor).await;
+        let client_actor = ClientActor::new().start().await?;
+        ClientActor::register_once(client_actor).await;
 
         Ok(())
     }

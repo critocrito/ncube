@@ -1,6 +1,6 @@
 [package]
-name = "ncube-actors-task"
-version = "0.9.3"
+name = "ncube-actors-client"
+version = "0.1.0"
 authors = ["Christo <christo@cryptodrunks.net>"]
 edition = "2018"
 
@@ -14,13 +14,10 @@ thiserror = "1.0"
 anyhow = "1.0"
 tracing = "0.1.16"
 tracing-futures = "0.2"
-serde = "1.0"
-serde_json = "1.0"
 xactor = { version = "0.7.7", default-features = false, features = ["runtime-tokio"] }
+warp = "0.2.2"
+uuid = "0.8"
 
 ncube-data = { path = "../ncube-data" }
-ncube-tasks = { path = "../ncube-tasks" }
 ncube-actors-common = { path = "../ncube-actors-common" }
-ncube-actors-host = { path = "../ncube-actors-host" }
-ncube-actors-db = { path = "../ncube-actors-db" }
-ncube-actors-client = { path = "../ncube-actors-client" }
+ncube-cache = { path = "../ncube-cache" }

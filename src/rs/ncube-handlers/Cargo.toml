@@ -30,6 +30,7 @@ ncube-actors-common = { path = "../ncube-actors-common" }
 ncube-actors-host = { path = "../ncube-actors-host" }
 ncube-actors-db = { path = "../ncube-actors-db" }
 ncube-actors-task = { path = "../ncube-actors-task" }
+ncube-actors-client = { path = "../ncube-actors-client" }
 ncube-stores = { path = "../ncube-stores" }
 ncube-search = { path = "../ncube-search" }
 ncube-crypto = { path = "../ncube-crypto" }
