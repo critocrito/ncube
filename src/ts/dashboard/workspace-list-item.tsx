@@ -9,7 +9,7 @@ import {
   statInvestigationsTotal,
   statSourcesTotal,
 } from "../http";
-import {Workspace} from "../types";
+import {Notification, Workspace} from "../types";
 import Stat from "./stat";
 
 interface WorkspaceListItemProps {
@@ -31,15 +31,15 @@ const WorkspaceListItem = ({
 
     const token = PubSub.subscribe(
       `task.${slug}.setup_workspace`,
-      (topic: string, data: unknown) => {
-        switch (topic) {
-          case `task.${slug}.setup_workspace.done`: {
+      (_topic: string, notification: Notification) => {
+        switch (notification.kind) {
+          case "done": {
             setIsCreated(true);
             break;
           }
 
           default: {
-            console.log(topic, data);
+            // NO-OP
           }
         }
       },

@@ -16,6 +16,7 @@ import {listWorkspaces, saveWorkspace} from "./handlers";
 import {deleteWorkspace, showWorkspace} from "./http";
 import machine from "./machines/app";
 import Onboarding from "./onboarding";
+import {NotificationEnvelope} from "./types";
 import {useServiceLogger} from "./utils";
 import Workspace from "./workspace";
 
@@ -48,10 +49,12 @@ const App = () => {
             const ws = new WebSocket(url);
 
             // FIXME: How do I deal with errors?
-            ws.addEventListener("open", function open() {
-              ws.addEventListener("message", function subscribe(event) {
+            ws.addEventListener("open", () => {
+              ws.addEventListener("message", (event) => {
                 // FIXME: how to deal with the created_at??
-                const {topic, ...data} = JSON.parse(event.data);
+                const {topic, ...data}: NotificationEnvelope = JSON.parse(
+                  event.data,
+                );
                 PubSub.publish(topic, data);
               });
 

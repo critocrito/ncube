@@ -224,6 +224,45 @@ export type AnnotationSchema = {
   selections?: string[];
 };
 
+export type NotificationCommon = {
+  task_id: string;
+};
+
+export type NotificationQueued = {
+  kind: "queued";
+} & NotificationCommon;
+
+export type NotificationStart = {
+  kind: "start";
+} & NotificationCommon;
+
+export type NotificationProgress = {
+  kind: "progress";
+  data: {msg: string};
+} & NotificationCommon;
+
+export type NotificationDone = {
+  kind: "done";
+} & NotificationCommon;
+
+export type NotificationError = {
+  kind: "error";
+  data: {error: string};
+} & NotificationCommon;
+
+export type Notification =
+  | NotificationQueued
+  | NotificationStart
+  | NotificationProgress
+  | NotificationDone
+  | NotificationError;
+
+export type NotificationEnvelope = {
+  topic: string;
+  created_at: string;
+  data: Notification;
+};
+
 export type ProcessConfigReq = {
   key: string;
   value: Record<string, string>;
