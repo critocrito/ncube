@@ -611,10 +611,11 @@ pub struct ProcessRunReq {
 #[derive(Debug, Serialize, Clone)]
 pub enum TaskKind {
     SetupWorkspace {
-        location: String,
         workspace: String,
+        location: String,
     },
     RemoveLocation {
+        workspace: Workspace,
         location: String,
     },
     RunProcess {
@@ -634,27 +635,29 @@ pub enum TaskState {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct Task {
-    pub id: Uuid,
+    pub task_id: Uuid,
     #[serde(flatten)]
     pub kind: TaskKind,
     #[serde(flatten)]
     pub state: TaskState,
+    pub workspace: String,
 }
 
 impl Task {
-    pub fn new(kind: TaskKind) -> Self {
-        let id = Uuid::new_v4();
+    pub fn new(kind: TaskKind, workspace: &str) -> Self {
+        let task_id = Uuid::new_v4();
 
         Self {
             kind,
-            id,
+            task_id,
             state: TaskState::Queued,
+            workspace: workspace.to_string(),
         }
     }
 
     pub fn task_id(&self) -> String {
         let mut encoding_buffer = Uuid::encode_buffer();
-        self.id
+        self.task_id
             .to_hyphenated()
             .encode_lower(&mut encoding_buffer)
             .to_string()

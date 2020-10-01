@@ -1,10 +1,41 @@
 use async_trait::async_trait;
+use chrono::{DateTime, Utc};
 use ncube_actors_common::{message, Actor, ActorError, Context, Handler, Registry};
 use ncube_cache::GuardedCache;
 use ncube_data::Client;
+use serde::Serialize;
+use std::fmt::Debug;
 use std::result::Result;
 use tracing::error;
 use uuid::Uuid;
+
+pub trait PushNotification {}
+
+#[derive(Debug, Serialize)]
+pub struct PushNotificationEnvelope<T>
+where
+    T: Debug + Serialize + PushNotification + Send,
+{
+    topic: String,
+    created_at: DateTime<Utc>,
+    #[serde(flatten)]
+    data: T,
+}
+
+impl<T> PushNotificationEnvelope<T>
+where
+    T: Debug + Serialize + PushNotification + Send,
+{
+    pub fn new(topic: &str, data: T) -> Self {
+        let now = Utc::now();
+
+        PushNotificationEnvelope {
+            topic: topic.to_string(),
+            created_at: now,
+            data,
+        }
+    }
+}
 
 pub struct ClientActor {
     clients: GuardedCache<Client>,
@@ -111,22 +142,38 @@ impl Handler<UpdateSubscription> for ClientActor {
     }
 }
 
-#[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
-pub struct PublishMessage {
-    pub msg: String,
+pub struct PublishMessage<T>
+where
+    T: 'static + Send + Serialize + Debug + PushNotification,
+{
+    pub topic: String,
+    pub msg: T,
+}
+
+impl<T> xactor::Message for PublishMessage<T>
+where
+    T: Send + Serialize + Debug + PushNotification,
+{
+    type Result = Result<(), ActorError>;
 }
 
 #[async_trait]
-impl Handler<PublishMessage> for ClientActor {
+impl<T> Handler<PublishMessage<T>> for ClientActor
+where
+    T: Send + Serialize + Debug + PushNotification,
+{
     async fn handle(
         &mut self,
         _ctx: &mut Context<Self>,
-        msg: PublishMessage,
+        msg: PublishMessage<T>,
     ) -> Result<(), ActorError> {
+        let envelope = PushNotificationEnvelope::new(&msg.topic, msg.msg);
+        let message = serde_json::to_string(&envelope).unwrap();
+
         for client in self.clients.entries().iter() {
             if let Some(channel) = &client.1.sender {
-                if let Err(e) = channel.send(Ok(warp::ws::Message::text(msg.msg.clone()))) {
+                if let Err(e) = channel.send(Ok(warp::ws::Message::text(&message))) {
                     error!(
                         "Error sending message to client {}: {}",
                         client.0,

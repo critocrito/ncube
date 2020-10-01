@@ -78,8 +78,8 @@ impl Handler<UpdateTask> for TaskActor {
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
 pub struct SetupWorkspace {
-    pub location: String,
     pub workspace: String,
+    pub location: String,
 }
 
 #[async_trait]
@@ -89,10 +89,14 @@ impl Handler<SetupWorkspace> for TaskActor {
         _ctx: &mut Context<Self>,
         msg: SetupWorkspace,
     ) -> Result<(), ActorError> {
-        let task = Task::new(TaskKind::SetupWorkspace {
-            location: msg.location,
-            workspace: msg.workspace,
-        });
+        let slug = msg.workspace.clone();
+        let task = Task::new(
+            TaskKind::SetupWorkspace {
+                workspace: msg.workspace,
+                location: msg.location,
+            },
+            &slug,
+        );
         self.queue_task(task).await
     }
 }
@@ -100,6 +104,7 @@ impl Handler<SetupWorkspace> for TaskActor {
 #[message(result = "Result<(), ActorError>")]
 #[derive(Debug)]
 pub struct RemoveLocation {
+    pub workspace: Workspace,
     pub location: String,
 }
 
@@ -110,9 +115,14 @@ impl Handler<RemoveLocation> for TaskActor {
         _ctx: &mut Context<Self>,
         msg: RemoveLocation,
     ) -> Result<(), ActorError> {
-        let task = Task::new(TaskKind::RemoveLocation {
-            location: msg.location,
-        });
+        let slug = msg.workspace.slug.clone();
+        let task = Task::new(
+            TaskKind::RemoveLocation {
+                workspace: msg.workspace,
+                location: msg.location,
+            },
+            &slug,
+        );
         self.queue_task(task).await
     }
 }
@@ -132,10 +142,14 @@ impl Handler<RunProcess> for TaskActor {
         _ctx: &mut Context<Self>,
         msg: RunProcess,
     ) -> Result<(), ActorError> {
-        let task = Task::new(TaskKind::RunProcess {
-            workspace: msg.workspace,
-            process_name: msg.process_name,
-        });
+        let slug = msg.workspace.slug.clone();
+        let task = Task::new(
+            TaskKind::RunProcess {
+                workspace: msg.workspace,
+                process_name: msg.process_name,
+            },
+            &slug,
+        );
         self.queue_task(task).await
     }
 }

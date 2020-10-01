@@ -152,10 +152,15 @@ pub async fn remove_workspace(workspace: &str, remove_location: bool) -> Result<
 
     // I can't chain if let with the second predicate, hence the nesting.
     // https://github.com/rust-lang/rust/issues/53667
-    if let WorkspaceKind::Local(location) = workspace.kind {
+    if let WorkspaceKind::Local(location) = &workspace.kind {
         if remove_location {
             let actor = TaskActor::from_registry().await.unwrap();
-            actor.call(RemoveLocation { location }).await??;
+            actor
+                .call(RemoveLocation {
+                    workspace: workspace.clone(),
+                    location: location.clone(),
+                })
+                .await??;
         }
     }
 
