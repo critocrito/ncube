@@ -1,4 +1,5 @@
-import React from "react";
+import PubSub from "pubsub-js";
+import React, {useEffect, useState} from "react";
 
 import Button from "../common/button";
 import LoadingSpinner from "../common/loading-spinner";
@@ -22,7 +23,34 @@ const WorkspaceListItem = ({
   handleOpen,
   handleRemove,
 }: WorkspaceListItemProps) => {
-  const {kind, name, is_created: isCreated} = workspace;
+  const {kind, name, slug} = workspace;
+  const [isCreated, setIsCreated] = useState(workspace.is_created);
+
+  useEffect(() => {
+    if (isCreated) return;
+
+    const token = PubSub.subscribe(
+      `task.${slug}.setup_workspace`,
+      (topic: string, data: unknown) => {
+        switch (topic) {
+          case `task.${slug}.setup_workspace.done`: {
+            setIsCreated(true);
+            break;
+          }
+
+          default: {
+            console.log(topic, data);
+          }
+        }
+      },
+    );
+
+    // eslint-disable-next-line consistent-return
+    return () => {
+      // Clean up the subscription
+      PubSub.unsubscribe(token);
+    };
+  });
 
   return (
     <li className="bb">

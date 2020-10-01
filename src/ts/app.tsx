@@ -1,6 +1,6 @@
 import {useMachine} from "@xstate/react";
 import PubSub from "pubsub-js";
-import React, {useEffect} from "react";
+import React from "react";
 
 import BasicPanel from "./common/basic-panel";
 import Error from "./common/error";
@@ -40,17 +40,6 @@ const App = () => {
 
   const {workspaces} = state.context;
 
-  useEffect(() => {
-    const isCreating = workspaces.reduce((memo, {is_created: isCreated}) => {
-      if (memo) return memo;
-      return !isCreated;
-    }, false);
-
-    if (isCreating) {
-      setTimeout(() => send("RELOAD_WORKSPACES"), 10 * 1000);
-    }
-  }, [send, workspaces]);
-
   switch (true) {
     case state.matches("onboarding"):
       return (
@@ -60,12 +49,13 @@ const App = () => {
 
             // FIXME: How do I deal with errors?
             ws.addEventListener("open", function open() {
-              send("SHOW_DASHBOARD", {ws});
-            });
+              ws.addEventListener("message", function subscribe(event) {
+                // FIXME: how to deal with the created_at??
+                const {topic, ...data} = JSON.parse(event.data);
+                PubSub.publish(topic, data);
+              });
 
-            ws.addEventListener("message", function subscribe(event) {
-              const {topic, ...data} = JSON.parse(event.data);
-              PubSub.publish(topic, data);
+              send("SHOW_DASHBOARD", {ws});
             });
           }}
         />
