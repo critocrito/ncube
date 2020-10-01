@@ -11,22 +11,23 @@ use tracing::info;
 use crate::TaskLifecycle;
 
 pub struct TaskRunner {
-    tx: Sender<(String, Task)>,
+    tx: Sender<TaskLifecycle>,
 }
 
 impl Actor for TaskRunner {}
 
 impl TaskRunner {
     pub fn new() -> Self {
-        let (tx, mut rx): (Sender<(String, Task)>, Receiver<(String, Task)>) = mpsc::channel(100);
+        let (tx, mut rx): (Sender<TaskLifecycle>, Receiver<TaskLifecycle>) = mpsc::channel(100);
 
         tokio::spawn(async move {
-            while let Some((task_id, task)) = rx.recv().await {
-                info!("Received a new task {:?} with id {}.", task, task_id);
+            while let Some(lifecycle) = rx.recv().await {
+                info!(
+                    "Received a new task {:?} with id {}.",
+                    lifecycle.task, lifecycle.task.task_id
+                );
 
-                let lifecycle = TaskLifecycle::new(task.clone());
-
-                match task.kind.clone() {
+                match lifecycle.task.kind.clone() {
                     TaskKind::SetupWorkspace {
                         location,
                         workspace,
@@ -41,9 +42,12 @@ impl TaskRunner {
 
                         lifecycle.init().await;
 
-                        create_workspace(location)
-                            .await
-                            .expect("Failed to create workspace");
+                        if let Err(e) = create_workspace(location).await {
+                            lifecycle
+                                .error(&format!("Failed to create workspace: {}", e.to_string()))
+                                .await;
+                            return;
+                        };
 
                         lifecycle.progress("Created project directory.").await;
 
@@ -71,9 +75,15 @@ impl TaskRunner {
 
                         lifecycle.init().await;
 
-                        remove_location(location)
-                            .await
-                            .expect("Failed to remove a location");
+                        if let Err(e) = remove_location(location).await {
+                            lifecycle
+                                .error(&format!(
+                                    "Failed to remove workspace directory: {}",
+                                    e.to_string()
+                                ))
+                                .await;
+                            return;
+                        };
 
                         lifecycle.progress("Removed project directory.").await;
 
@@ -91,13 +101,17 @@ impl TaskRunner {
 
                         lifecycle.init().await;
 
-                        run_data_process(workspace, &process_name)
-                            .await
-                            .expect("Failed to run process");
+                        if let Err(e) = run_data_process(workspace, &process_name).await {
+                            lifecycle
+                                .error(&format!("Failed to run process: {}", e.to_string()))
+                                .await;
+                            return;
+                        };
 
                         lifecycle
                             .progress(&format!("Finished process {}", process_name))
                             .await;
+
                         lifecycle.finish().await;
                     }
                 }
@@ -117,7 +131,9 @@ pub struct QueueTask {
 #[async_trait]
 impl Handler<QueueTask> for TaskRunner {
     async fn handle(&mut self, _ctx: &mut Context<Self>, msg: QueueTask) -> Result<(), ActorError> {
-        self.tx.send((msg.task.task_id(), msg.task)).await?;
+        let lifecycle = TaskLifecycle::new(msg.task);
+        lifecycle.queued().await;
+        self.tx.send(lifecycle).await?;
         Ok(())
     }
 }

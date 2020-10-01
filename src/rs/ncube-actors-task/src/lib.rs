@@ -13,7 +13,7 @@ pub use self::task::*;
 #[derive(Debug, Serialize)]
 #[serde(tag = "kind", content = "data", rename_all = "snake_case")]
 pub enum NotificationEvent {
-    Init,
+    Queued,
     Start,
     Progress { msg: String },
     Done,
@@ -48,13 +48,24 @@ impl TaskLifecycle {
         }
     }
 
-    fn topic(&self, stage: &str) -> String {
-        format!(
-            "task.{}.{}.{}",
-            self.task.workspace,
-            self.task_label(),
-            stage
-        )
+    fn topic(&self) -> String {
+        format!("task.{}.{}", self.task.workspace, self.task_label(),)
+    }
+
+    async fn queued(&self) {
+        let client_actor = ClientActor::from_registry().await.unwrap();
+
+        client_actor
+            .call(PublishMessage {
+                topic: self.topic(),
+                msg: TaskPushNotification {
+                    event: NotificationEvent::Queued,
+                    task_id: self.task_id.clone(),
+                },
+            })
+            .await
+            .unwrap()
+            .unwrap();
     }
 
     // FIXME: Handle error
@@ -64,9 +75,9 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic("start"),
+                topic: self.topic(),
                 msg: TaskPushNotification {
-                    event: NotificationEvent::Init,
+                    event: NotificationEvent::Start,
                     task_id: self.task_id.clone(),
                 },
             })
@@ -89,7 +100,7 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic("progress"),
+                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Progress {
                         msg: msg.to_string(),
@@ -108,7 +119,7 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic("done"),
+                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Done,
                     task_id: self.task_id.clone(),
@@ -134,7 +145,7 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic("error"),
+                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Error {
                         error: msg.to_string(),
