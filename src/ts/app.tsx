@@ -65,17 +65,19 @@ const App = () => {
     case state.matches("delete_workspace"):
     case state.matches("dashboard"):
       return (
-        <BasicPanel>
-          <div className="fl w-100 pa3">
-            <Dashboard
-              workspaces={workspaces}
-              onShow={(workspace) => send("SHOW_WORKSPACE", {workspace})}
-              onDelete={(workspace) => send("DELETE_WORKSPACE", {workspace})}
-              onLink={() => send("LINK_WORKSPACE")}
-              onCreate={() => send("CREATE_WORKSPACE")}
-            />
-          </div>
-        </BasicPanel>
+        <AppProvider value={[state, send]}>
+          <BasicPanel>
+            <div className="fl w-100 pa3">
+              <Dashboard
+                workspaces={workspaces}
+                onShow={(workspace) => send("SHOW_WORKSPACE", {workspace})}
+                onDelete={(workspace) => send("DELETE_WORKSPACE", {workspace})}
+                onLink={() => send("LINK_WORKSPACE")}
+                onCreate={() => send("CREATE_WORKSPACE")}
+              />
+            </div>
+          </BasicPanel>
+        </AppProvider>
       );
 
     case state.matches("confirm_delete"): {
