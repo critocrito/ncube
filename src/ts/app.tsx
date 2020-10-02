@@ -50,7 +50,9 @@ const App = () => {
             ws.addEventListener("open", () => {
               const pipe = pubsub.connect();
 
-              ws.addEventListener("message", ({data}) => pipe(data));
+              ws.addEventListener("message", ({data}) =>
+                pipe(JSON.parse(data)),
+              );
 
               send("SHOW_DASHBOARD", {ws});
             });
