@@ -1,5 +1,4 @@
 import {useMachine} from "@xstate/react";
-import PubSub from "pubsub-js";
 import React from "react";
 
 import BasicPanel from "./common/basic-panel";
@@ -16,7 +15,6 @@ import {listWorkspaces, saveWorkspace} from "./handlers";
 import {deleteWorkspace, showWorkspace} from "./http";
 import machine from "./machines/app";
 import Onboarding from "./onboarding";
-import {Notification} from "./types";
 import {useServiceLogger} from "./utils";
 import Workspace from "./workspace";
 
@@ -39,7 +37,7 @@ const App = () => {
 
   useServiceLogger(service, machine.id);
 
-  const {workspaces} = state.context;
+  const {workspaces, pubsub} = state.context;
 
   switch (true) {
     case state.matches("onboarding"):
@@ -50,15 +48,9 @@ const App = () => {
 
             // FIXME: How do I deal with errors?
             ws.addEventListener("open", () => {
-              ws.addEventListener("message", (event) => {
-                // FIXME: how to deal with the created_at??
-                const {label, workspace, ...data}: Notification = JSON.parse(
-                  event.data,
-                );
-                const topic = `task.${workspace}.${label}`;
+              const pipe = pubsub.connect();
 
-                PubSub.publish(topic, data);
-              });
+              ws.addEventListener("message", ({data}) => pipe(data));
 
               send("SHOW_DASHBOARD", {ws});
             });

@@ -1,9 +1,9 @@
-import PubSub from "pubsub-js";
 import React, {useEffect, useState} from "react";
 
 import Button from "../common/button";
 import LoadingSpinner from "../common/loading-spinner";
 import WorkspaceTag from "../common/workspace-tag";
+import {useAppCtx} from "../context";
 import {
   statDataTotal,
   statInvestigationsTotal,
@@ -26,13 +26,19 @@ const WorkspaceListItem = ({
   const {kind, name, slug} = workspace;
   const [isCreated, setIsCreated] = useState(workspace.is_created);
 
+  const [
+    {
+      context: {pubsub},
+    },
+  ] = useAppCtx();
+
   useEffect(() => {
     if (isCreated) return;
 
-    const token = PubSub.subscribe(
+    const unsubscribe = pubsub.subscribe(
       `task.${slug}.setup_workspace`,
-      (_topic: string, notification: Notification) => {
-        switch (notification.kind) {
+      (msg: Notification) => {
+        switch (msg.kind) {
           case "done": {
             setIsCreated(true);
             break;
@@ -46,10 +52,7 @@ const WorkspaceListItem = ({
     );
 
     // eslint-disable-next-line consistent-return
-    return () => {
-      // Clean up the subscription
-      PubSub.unsubscribe(token);
-    };
+    return unsubscribe;
   });
 
   return (

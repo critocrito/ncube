@@ -1,9 +1,11 @@
 import {assign, createMachine} from "xstate";
 
+import PubSub from "../pubsub";
 import {Workspace} from "../types";
 
 export interface AppContext {
   workspaces: Workspace[];
+  pubsub: PubSub;
   ws?: WebSocket;
   error?: string;
 }
@@ -52,6 +54,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
 
   context: {
     workspaces: [],
+    pubsub: new PubSub(),
   },
 
   initial: "onboarding",
