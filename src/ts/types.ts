@@ -225,7 +225,10 @@ export type AnnotationSchema = {
 };
 
 export type NotificationCommon = {
+  created_at: string;
   task_id: string;
+  workspace: string;
+  label: string;
 };
 
 export type NotificationQueued = {
@@ -256,12 +259,6 @@ export type Notification =
   | NotificationProgress
   | NotificationDone
   | NotificationError;
-
-export type NotificationEnvelope = {
-  topic: string;
-  created_at: string;
-  data: Notification;
-};
 
 export type ProcessConfigReq = {
   key: string;

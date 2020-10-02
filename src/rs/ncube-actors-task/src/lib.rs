@@ -25,22 +25,22 @@ pub struct TaskPushNotification {
     #[serde(flatten)]
     event: NotificationEvent,
     task_id: String,
+    workspace: String,
+    label: String,
 }
 
 impl PushNotification for TaskPushNotification {}
 
 struct TaskLifecycle {
     task: Task,
-    task_id: String,
 }
 
 impl TaskLifecycle {
     fn new(task: Task) -> Self {
-        let task_id = task.task_id();
-        Self { task, task_id }
+        Self { task }
     }
 
-    fn task_label(&self) -> String {
+    fn label(&self) -> String {
         match &self.task.kind {
             TaskKind::SetupWorkspace { .. } => "setup_workspace".to_string(),
             TaskKind::RemoveLocation { .. } => "remove_project".to_string(),
@@ -48,8 +48,12 @@ impl TaskLifecycle {
         }
     }
 
-    fn topic(&self) -> String {
-        format!("task.{}.{}", self.task.workspace, self.task_label(),)
+    fn task_id(&self) -> String {
+        self.task.task_id().clone()
+    }
+
+    fn workspace(&self) -> String {
+        self.task.workspace.clone()
     }
 
     async fn queued(&self) {
@@ -57,10 +61,11 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Queued,
-                    task_id: self.task_id.clone(),
+                    task_id: self.task_id(),
+                    label: self.label(),
+                    workspace: self.workspace(),
                 },
             })
             .await
@@ -75,10 +80,11 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Start,
-                    task_id: self.task_id.clone(),
+                    task_id: self.task_id(),
+                    label: self.label(),
+                    workspace: self.workspace(),
                 },
             })
             .await
@@ -87,7 +93,7 @@ impl TaskLifecycle {
 
         task_actor
             .call(UpdateTask {
-                task_id: self.task_id.clone(),
+                task_id: self.task_id(),
                 state: TaskState::Running,
             })
             .await
@@ -100,12 +106,13 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Progress {
                         msg: msg.to_string(),
                     },
-                    task_id: self.task_id.clone(),
+                    task_id: self.task_id(),
+                    label: self.label(),
+                    workspace: self.workspace(),
                 },
             })
             .await
@@ -119,10 +126,11 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Done,
-                    task_id: self.task_id.clone(),
+                    task_id: self.task_id(),
+                    label: self.label(),
+                    workspace: self.workspace(),
                 },
             })
             .await
@@ -131,7 +139,7 @@ impl TaskLifecycle {
 
         task_actor
             .call(UpdateTask {
-                task_id: self.task_id.clone(),
+                task_id: self.task_id(),
                 state: TaskState::Done,
             })
             .await
@@ -145,12 +153,13 @@ impl TaskLifecycle {
 
         client_actor
             .call(PublishMessage {
-                topic: self.topic(),
                 msg: TaskPushNotification {
                     event: NotificationEvent::Error {
                         error: msg.to_string(),
                     },
-                    task_id: self.task_id.clone(),
+                    task_id: self.task_id(),
+                    label: self.label(),
+                    workspace: self.workspace(),
                 },
             })
             .await
@@ -159,7 +168,7 @@ impl TaskLifecycle {
 
         task_actor
             .call(UpdateTask {
-                task_id: self.task_id.clone(),
+                task_id: self.task_id(),
                 state: TaskState::Failed(msg.to_string()),
             })
             .await

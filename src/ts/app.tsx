@@ -16,7 +16,7 @@ import {listWorkspaces, saveWorkspace} from "./handlers";
 import {deleteWorkspace, showWorkspace} from "./http";
 import machine from "./machines/app";
 import Onboarding from "./onboarding";
-import {NotificationEnvelope} from "./types";
+import {Notification} from "./types";
 import {useServiceLogger} from "./utils";
 import Workspace from "./workspace";
 
@@ -52,9 +52,11 @@ const App = () => {
             ws.addEventListener("open", () => {
               ws.addEventListener("message", (event) => {
                 // FIXME: how to deal with the created_at??
-                const {topic, ...data}: NotificationEnvelope = JSON.parse(
+                const {label, workspace, ...data}: Notification = JSON.parse(
                   event.data,
                 );
+                const topic = `task.${workspace}.${label}`;
+
                 PubSub.publish(topic, data);
               });
 

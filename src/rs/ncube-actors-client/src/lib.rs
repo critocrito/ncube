@@ -16,7 +16,6 @@ pub struct PushNotificationEnvelope<T>
 where
     T: Debug + Serialize + PushNotification + Send,
 {
-    topic: String,
     created_at: DateTime<Utc>,
     #[serde(flatten)]
     data: T,
@@ -26,11 +25,10 @@ impl<T> PushNotificationEnvelope<T>
 where
     T: Debug + Serialize + PushNotification + Send,
 {
-    pub fn new(topic: &str, data: T) -> Self {
+    pub fn new(data: T) -> Self {
         let now = Utc::now();
 
         PushNotificationEnvelope {
-            topic: topic.to_string(),
             created_at: now,
             data,
         }
@@ -147,7 +145,6 @@ pub struct PublishMessage<T>
 where
     T: 'static + Send + Serialize + Debug + PushNotification,
 {
-    pub topic: String,
     pub msg: T,
 }
 
@@ -168,7 +165,7 @@ where
         _ctx: &mut Context<Self>,
         msg: PublishMessage<T>,
     ) -> Result<(), ActorError> {
-        let envelope = PushNotificationEnvelope::new(&msg.topic, msg.msg);
+        let envelope = PushNotificationEnvelope::new(msg.msg);
         let message = serde_json::to_string(&envelope).unwrap();
 
         for client in self.clients.entries().iter() {
