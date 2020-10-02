@@ -42,6 +42,8 @@ The following prerequesites are required to build Ncube from source:
   quite simple.
 - Builds are orcehstrated using [`make`](https://www.gnu.org/software/make/).
   macOS and most Linux distributions have `make` installed out of the box.
+- For OSX, the Apple's _Xcode Command Line Tools_ is also required and it may
+  be installed with `xcode-select --install`.
 
 Verify that all build dependencies are satisfied.
 
@@ -57,6 +59,13 @@ $ yarn --version
 
 $ make --version
 GNU Make 3.81
+```
+
+and if you are using OSX, verify xcode-select as well.
+
+```sh
+$ xcode-select --version
+xcode-select version 2373.
 ```
 
 Once all the dependencies are in place you can choose one of the following build targets. The build target that you most likely want can be simply build by running `make`:
