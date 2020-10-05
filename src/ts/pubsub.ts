@@ -32,14 +32,24 @@ export type Pipe = (envelope: NotificationEnvelope) => void;
 class PubSub {
   pubsub: typeof PubSubProvider;
 
+  taskCache: {[key: string]: Notification[]};
+
   constructor() {
     this.pubsub = PubSubProvider;
+    this.taskCache = {};
   }
 
   connect(): Pipe {
     const pipe = ({label, workspace, ...data}: NotificationEnvelope): void => {
       const topic = `task.${workspace}.${label}`;
+      this.taskCache[topic] = (this.taskCache[topic] || [])
+        .concat([data])
+        .sort((a, b) => {
+          if (a.order > b.order) return 1;
+          if (b.order > a.order) return -1;
 
+          return 0;
+        });
       this.pubsub.publish(topic, data);
     };
 
@@ -56,6 +66,14 @@ class PubSub {
     const unsubscribe = (): void => this.pubsub.unsubscribe(token);
 
     return unsubscribe;
+  }
+
+  lastMessage(topic: string): Notification | void {
+    return (this.taskCache[topic] || []).slice(-1)[0];
+  }
+
+  finish(topic: string): void {
+    delete this.taskCache[topic];
   }
 }
 

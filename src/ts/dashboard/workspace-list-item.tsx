@@ -1,3 +1,4 @@
+import c from "classnames";
 import React, {useEffect, useState} from "react";
 
 import Button from "../common/button";
@@ -18,13 +19,49 @@ interface WorkspaceListItemProps {
   handleRemove: () => void;
 }
 
+const extractMessage = (msg: Notification | void): string | undefined => {
+  if (msg === undefined) return;
+
+  // eslint-disable-next-line default-case
+  switch (msg.kind) {
+    case "queued": {
+      // eslint-disable-next-line consistent-return
+      return "Waiting to start workspace creation.";
+    }
+    case "start": {
+      // eslint-disable-next-line consistent-return
+      return "Started to create the workspace.";
+    }
+    case "progress": {
+      const {
+        data: {msg: message},
+      } = msg;
+      // eslint-disable-next-line consistent-return
+      return message;
+    }
+    case "done": {
+      // eslint-disable-next-line consistent-return
+      return "Workspace successfully created.";
+    }
+    case "error": {
+      const {
+        data: {error: message},
+      } = msg;
+      // eslint-disable-next-line consistent-return
+      return `Error creating workspace: ${message}`;
+    }
+  }
+};
+
 const WorkspaceListItem = ({
   workspace,
   handleOpen,
   handleRemove,
 }: WorkspaceListItemProps) => {
   const {kind, name, slug} = workspace;
+  const topic = `task.${slug}.setup_workspace`;
   const [isCreated, setIsCreated] = useState(workspace.is_created);
+  const [isError, setIsError] = useState(false);
 
   const [
     {
@@ -32,24 +69,24 @@ const WorkspaceListItem = ({
     },
   ] = useAppCtx();
 
+  const [message, setMessage] = useState<string | undefined>(
+    extractMessage(pubsub.lastMessage(topic)),
+  );
+
   useEffect(() => {
     if (isCreated) return;
 
-    const unsubscribe = pubsub.subscribe(
-      `task.${slug}.setup_workspace`,
-      (msg: Notification) => {
-        switch (msg.kind) {
-          case "done": {
-            setIsCreated(true);
-            break;
-          }
-
-          default: {
-            // NO-OP
-          }
-        }
-      },
-    );
+    const unsubscribe = pubsub.subscribe(topic, (msg: Notification) => {
+      setMessage(extractMessage(msg));
+      if (msg.kind === "done") {
+        setIsCreated(true);
+        pubsub.finish(topic);
+      }
+      if (msg.kind === "error") {
+        setIsError(true);
+        pubsub.finish(topic);
+      }
+    });
 
     // eslint-disable-next-line consistent-return
     return unsubscribe;
@@ -102,7 +139,19 @@ const WorkspaceListItem = ({
             </Button>
           </div>
         ) : (
-          <LoadingSpinner />
+          <div className="flex flex-column">
+            <LoadingSpinner className="ml-auto" />
+            {message && (
+              <div
+                className={c(
+                  "pt2 text-medium ml-auto nowrap",
+                  isError ? "error" : "success",
+                )}
+              >
+                {message}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </li>
