@@ -5,7 +5,7 @@ use ncube_fs::{expand_tilde, mkdirp, unzip_workspace};
 use remove_dir_all::remove_dir_all;
 use std::fmt::Debug;
 use std::path::{Path, PathBuf};
-use tokio::process::Command;
+use tokio::{process::Command, sync::mpsc::Sender};
 use tracing::{debug, info, instrument};
 
 pub type TaskCache = GuardedCache<Task>;
@@ -25,12 +25,21 @@ fn env_path(workspace_path: &PathBuf) -> String {
 }
 
 #[instrument]
-pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(), HostError> {
+pub async fn create_workspace<P: AsRef<Path> + Debug>(
+    location: P,
+    tx: &mut Sender<String>,
+) -> Result<(), HostError> {
     let expanded_path =
         expand_tilde(location).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
 
     mkdirp(&expanded_path)?;
     unzip_workspace(&expanded_path)?;
+
+    tx.send("Extract workspace from template.".to_string())
+        .await
+        .map_err(|e| {
+            HostError::General(format!("Failed to send notification: {}", e.to_string()))
+        })?;
 
     let env_path = env_path(&expanded_path);
 
@@ -46,6 +55,12 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(),
         .await
         .expect("npm failed to run");
 
+    tx.send("Installed workspace dependencies.".to_string())
+        .await
+        .map_err(|e| {
+            HostError::General(format!("Failed to send notification: {}", e.to_string()))
+        })?;
+
     info!("Installed Sugarcube dependencies.",);
 
     Command::new("sugarcube")
@@ -58,24 +73,43 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(location: P) -> Result<(),
         .await
         .expect("npm failed to run");
 
+    tx.send("Migrated the project database.".to_string())
+        .await
+        .map_err(|e| {
+            HostError::General(format!("Failed to send notification: {}", e.to_string()))
+        })?;
+
     info!("Migrated the Sqlite database.",);
 
     Ok(())
 }
 
 #[instrument]
-pub async fn remove_location<P: AsRef<Path> + Debug>(location: P) -> Result<(), HostError> {
+pub async fn remove_location<P: AsRef<Path> + Debug>(
+    location: P,
+    tx: &mut Sender<String>,
+) -> Result<(), HostError> {
     let expanded_path =
         expand_tilde(location).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
 
     info!("Removing workspace directory {:?}", expanded_path);
     remove_dir_all(&expanded_path)?;
 
+    tx.send("Removed the workspace directory.".to_string())
+        .await
+        .map_err(|e| {
+            HostError::General(format!("Failed to send notification: {}", e.to_string()))
+        })?;
+
     Ok(())
 }
 
 #[instrument]
-pub async fn run_data_process(workspace: Workspace, process_name: &str) -> Result<(), HostError> {
+pub async fn run_data_process(
+    workspace: Workspace,
+    process_name: &str,
+    tx: &mut Sender<String>,
+) -> Result<(), HostError> {
     match workspace.kind {
         WorkspaceKind::Local(location) => {
             let expanded_path = expand_tilde(location)
@@ -94,6 +128,12 @@ pub async fn run_data_process(workspace: Workspace, process_name: &str) -> Resul
                 .expect(format!("data process {} failed to start", &cmd).as_str())
                 .await
                 .expect(format!("data process {} failed to run", &cmd).as_str());
+
+            tx.send(format!("Finished data process {}.", process_name))
+                .await
+                .map_err(|e| {
+                    HostError::General(format!("Failed to send notification: {}", e.to_string()))
+                })?;
 
             Ok(())
         }

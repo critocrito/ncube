@@ -21,7 +21,7 @@ impl TaskRunner {
         let (tx, mut rx): (Sender<TaskLifecycle>, Receiver<TaskLifecycle>) = mpsc::channel(100);
 
         tokio::spawn(async move {
-            while let Some(lifecycle) = rx.recv().await {
+            while let Some(mut lifecycle) = rx.recv().await {
                 info!(
                     "Received a new task {:?} with id {}.",
                     lifecycle.task, lifecycle.task.task_id
@@ -42,14 +42,12 @@ impl TaskRunner {
 
                         lifecycle.init().await;
 
-                        if let Err(e) = create_workspace(location).await {
+                        if let Err(e) = create_workspace(location, &mut lifecycle.tx).await {
                             lifecycle
                                 .error(&format!("Failed to create workspace: {}", e.to_string()))
                                 .await;
                             return;
                         };
-
-                        lifecycle.progress("Created project directory.").await;
 
                         database_actor
                             .call(MigrateWorkspace {
@@ -58,8 +56,6 @@ impl TaskRunner {
                             .await
                             .unwrap()
                             .unwrap();
-
-                        lifecycle.progress("Migrated database.").await;
 
                         host_actor
                             .call(EnableWorkspace { workspace })
@@ -75,7 +71,7 @@ impl TaskRunner {
 
                         lifecycle.init().await;
 
-                        if let Err(e) = remove_location(location).await {
+                        if let Err(e) = remove_location(location, &mut lifecycle.tx).await {
                             lifecycle
                                 .error(&format!(
                                     "Failed to remove workspace directory: {}",
@@ -84,8 +80,6 @@ impl TaskRunner {
                                 .await;
                             return;
                         };
-
-                        lifecycle.progress("Removed project directory.").await;
 
                         lifecycle.finish().await;
                     }
@@ -101,16 +95,14 @@ impl TaskRunner {
 
                         lifecycle.init().await;
 
-                        if let Err(e) = run_data_process(workspace, &process_name).await {
+                        if let Err(e) =
+                            run_data_process(workspace, &process_name, &mut lifecycle.tx).await
+                        {
                             lifecycle
                                 .error(&format!("Failed to run process: {}", e.to_string()))
                                 .await;
                             return;
                         };
-
-                        lifecycle
-                            .progress(&format!("Finished process {}", process_name))
-                            .await;
 
                         lifecycle.finish().await;
                     }

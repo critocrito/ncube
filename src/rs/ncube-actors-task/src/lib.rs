@@ -2,8 +2,14 @@ use ncube_actors_client::{ClientActor, PublishMessage, PushNotification};
 use ncube_actors_common::Registry;
 use ncube_data::{Task, TaskKind, TaskState};
 use serde::Serialize;
-use std::fmt::Debug;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::{
+    fmt::Debug,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
+};
+use tokio::sync::mpsc::{self, Receiver, Sender};
 
 mod runner;
 mod task;
@@ -33,17 +39,33 @@ pub struct TaskPushNotification {
 
 impl PushNotification for TaskPushNotification {}
 
+#[derive(Clone)]
 struct TaskLifecycle {
     task: Task,
-    msg_order: AtomicUsize,
+    msg_order: Arc<AtomicUsize>,
+    tx: Sender<String>,
 }
 
 impl TaskLifecycle {
     fn new(task: Task) -> Self {
-        Self {
+        let (tx, mut rx): (Sender<String>, Receiver<String>) = mpsc::channel(100);
+
+        let lifecycle = Self {
             task,
-            msg_order: AtomicUsize::new(0),
-        }
+            msg_order: Arc::new(AtomicUsize::new(0)),
+            tx,
+        };
+
+        // We make a clone of the lifecycle so that we can push progress
+        // messages to it on a different runtime thread.
+        let lifecycle2 = lifecycle.clone();
+        tokio::spawn(async move {
+            while let Some(res) = rx.recv().await {
+                lifecycle2.progress(&res).await;
+            }
+        });
+
+        lifecycle
     }
 
     fn label(&self) -> String {
