@@ -51,8 +51,8 @@ impl TaskLifecycle {
         let (tx, mut rx): (Sender<String>, Receiver<String>) = mpsc::channel(100);
 
         let lifecycle = Self {
-            task,
             msg_order: Arc::new(AtomicUsize::new(0)),
+            task,
             tx,
         };
 

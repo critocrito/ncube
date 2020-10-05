@@ -32,10 +32,16 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(
     let expanded_path =
         expand_tilde(location).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
 
+    tx.send("Extracting the workspace from template.".to_string())
+        .await
+        .map_err(|e| {
+            HostError::General(format!("Failed to send notification: {}", e.to_string()))
+        })?;
+
     mkdirp(&expanded_path)?;
     unzip_workspace(&expanded_path)?;
 
-    tx.send("Extract workspace from template.".to_string())
+    tx.send("Installing workspace dependencies.".to_string())
         .await
         .map_err(|e| {
             HostError::General(format!("Failed to send notification: {}", e.to_string()))
@@ -55,7 +61,7 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(
         .await
         .expect("npm failed to run");
 
-    tx.send("Installed workspace dependencies.".to_string())
+    tx.send("Setting up the workspace database.".to_string())
         .await
         .map_err(|e| {
             HostError::General(format!("Failed to send notification: {}", e.to_string()))
@@ -73,12 +79,6 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(
         .await
         .expect("npm failed to run");
 
-    tx.send("Migrated the project database.".to_string())
-        .await
-        .map_err(|e| {
-            HostError::General(format!("Failed to send notification: {}", e.to_string()))
-        })?;
-
     info!("Migrated the Sqlite database.",);
 
     Ok(())
@@ -92,14 +92,14 @@ pub async fn remove_location<P: AsRef<Path> + Debug>(
     let expanded_path =
         expand_tilde(location).ok_or_else(|| HostError::General("Failed to expand path".into()))?;
 
-    info!("Removing workspace directory {:?}", expanded_path);
-    remove_dir_all(&expanded_path)?;
-
-    tx.send("Removed the workspace directory.".to_string())
+    tx.send("Removing the workspace directory.".to_string())
         .await
         .map_err(|e| {
             HostError::General(format!("Failed to send notification: {}", e.to_string()))
         })?;
+
+    info!("Removing workspace directory {:?}", expanded_path);
+    remove_dir_all(&expanded_path)?;
 
     Ok(())
 }
@@ -121,6 +121,12 @@ pub async fn run_data_process(
 
             let cmd = format!("processes/{}.sh", process_name);
 
+            tx.send(format!("Running data process {}.", process_name))
+                .await
+                .map_err(|e| {
+                    HostError::General(format!("Failed to send notification: {}", e.to_string()))
+                })?;
+
             Command::new(&cmd)
                 .current_dir(expanded_path.clone())
                 .env("PATH", &env_path)
@@ -128,12 +134,6 @@ pub async fn run_data_process(
                 .expect(format!("data process {} failed to start", &cmd).as_str())
                 .await
                 .expect(format!("data process {} failed to run", &cmd).as_str());
-
-            tx.send(format!("Finished data process {}.", process_name))
-                .await
-                .map_err(|e| {
-                    HostError::General(format!("Failed to send notification: {}", e.to_string()))
-                })?;
 
             Ok(())
         }
