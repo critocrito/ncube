@@ -3,6 +3,7 @@ use ncube_actors_common::Registry;
 use ncube_data::{Task, TaskKind, TaskState};
 use serde::Serialize;
 use std::fmt::Debug;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 mod runner;
 mod task;
@@ -27,17 +28,22 @@ pub struct TaskPushNotification {
     task_id: String,
     workspace: String,
     label: String,
+    order: usize,
 }
 
 impl PushNotification for TaskPushNotification {}
 
 struct TaskLifecycle {
     task: Task,
+    msg_order: AtomicUsize,
 }
 
 impl TaskLifecycle {
     fn new(task: Task) -> Self {
-        Self { task }
+        Self {
+            task,
+            msg_order: AtomicUsize::new(0),
+        }
     }
 
     fn label(&self) -> String {
@@ -56,16 +62,18 @@ impl TaskLifecycle {
         self.task.workspace.clone()
     }
 
-    async fn queued(&self) {
+    async fn push_to_client(&self, event: NotificationEvent) {
         let client_actor = ClientActor::from_registry().await.unwrap();
+        let order = self.msg_order.fetch_add(1, Ordering::Relaxed);
 
         client_actor
             .call(PublishMessage {
                 msg: TaskPushNotification {
-                    event: NotificationEvent::Queued,
                     task_id: self.task_id(),
                     label: self.label(),
                     workspace: self.workspace(),
+                    event,
+                    order,
                 },
             })
             .await
@@ -73,23 +81,13 @@ impl TaskLifecycle {
             .unwrap();
     }
 
+    async fn queued(&self) {
+        self.push_to_client(NotificationEvent::Queued).await;
+    }
+
     // FIXME: Handle error
     async fn init(&self) {
         let task_actor = TaskActor::from_registry().await.unwrap();
-        let client_actor = ClientActor::from_registry().await.unwrap();
-
-        client_actor
-            .call(PublishMessage {
-                msg: TaskPushNotification {
-                    event: NotificationEvent::Start,
-                    task_id: self.task_id(),
-                    label: self.label(),
-                    workspace: self.workspace(),
-                },
-            })
-            .await
-            .unwrap()
-            .unwrap();
 
         task_actor
             .call(UpdateTask {
@@ -99,43 +97,19 @@ impl TaskLifecycle {
             .await
             .unwrap()
             .unwrap();
+
+        self.push_to_client(NotificationEvent::Start).await;
     }
 
     async fn progress(&self, msg: &str) {
-        let client_actor = ClientActor::from_registry().await.unwrap();
-
-        client_actor
-            .call(PublishMessage {
-                msg: TaskPushNotification {
-                    event: NotificationEvent::Progress {
-                        msg: msg.to_string(),
-                    },
-                    task_id: self.task_id(),
-                    label: self.label(),
-                    workspace: self.workspace(),
-                },
-            })
-            .await
-            .unwrap()
-            .unwrap();
+        self.push_to_client(NotificationEvent::Progress {
+            msg: msg.to_string(),
+        })
+        .await;
     }
 
     async fn finish(&self) {
         let task_actor = TaskActor::from_registry().await.unwrap();
-        let client_actor = ClientActor::from_registry().await.unwrap();
-
-        client_actor
-            .call(PublishMessage {
-                msg: TaskPushNotification {
-                    event: NotificationEvent::Done,
-                    task_id: self.task_id(),
-                    label: self.label(),
-                    workspace: self.workspace(),
-                },
-            })
-            .await
-            .unwrap()
-            .unwrap();
 
         task_actor
             .call(UpdateTask {
@@ -145,26 +119,12 @@ impl TaskLifecycle {
             .await
             .unwrap()
             .unwrap();
+
+        self.push_to_client(NotificationEvent::Done).await;
     }
 
     async fn error(&self, msg: &str) {
         let task_actor = TaskActor::from_registry().await.unwrap();
-        let client_actor = ClientActor::from_registry().await.unwrap();
-
-        client_actor
-            .call(PublishMessage {
-                msg: TaskPushNotification {
-                    event: NotificationEvent::Error {
-                        error: msg.to_string(),
-                    },
-                    task_id: self.task_id(),
-                    label: self.label(),
-                    workspace: self.workspace(),
-                },
-            })
-            .await
-            .unwrap()
-            .unwrap();
 
         task_actor
             .call(UpdateTask {
@@ -174,5 +134,10 @@ impl TaskLifecycle {
             .await
             .unwrap()
             .unwrap();
+
+        self.push_to_client(NotificationEvent::Error {
+            error: msg.to_string(),
+        })
+        .await;
     }
 }

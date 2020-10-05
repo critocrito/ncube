@@ -9,6 +9,7 @@ const genMessage = (now: string): NotificationEnvelope => {
     task_id: "task_id",
     workspace: "workspace",
     label: "label",
+    order: 1,
     created_at: now,
   };
   return msg;
@@ -24,6 +25,7 @@ test.cb("connect a producer to a subscription", (t) => {
     t.deepEqual(msg, {
       kind: "queued",
       task_id: "task_id",
+      order: 1,
       created_at: now,
     });
     t.end();

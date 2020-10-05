@@ -227,6 +227,7 @@ export type AnnotationSchema = {
 export type NotificationCommon = {
   created_at: string;
   task_id: string;
+  order: number;
 };
 
 export type NotificationQueued = {
