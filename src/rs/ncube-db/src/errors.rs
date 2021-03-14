@@ -31,7 +31,7 @@ pub enum DatabaseError {
     #[error(transparent)]
     SqliteConfig(#[from] SqliteConfigError),
     #[error(transparent)]
-    Upgrade(#[from] refinery_migrations::Error),
+    Upgrade(#[from] refinery::Error),
 
     #[error(transparent)]
     Http(#[from] reqwest::Error),

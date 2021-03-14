@@ -53,12 +53,6 @@ impl From<ActorError> for HandlerError {
 
 impl warp::reject::Reject for HandlerError {}
 
-impl From<HandlerError> for warp::Rejection {
-    fn from(rejection: HandlerError) -> warp::Rejection {
-        warp::reject::custom(rejection)
-    }
-}
-
 #[instrument]
 pub async fn ensure_workspace(workspace: &str) -> Result<(), HandlerError> {
     let host_actor = HostActor::from_registry().await.unwrap();

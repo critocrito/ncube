@@ -58,6 +58,7 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(
         .arg("i")
         .spawn()
         .expect("npm failed to start")
+        .wait()
         .await
         .expect("npm failed to run");
 
@@ -76,6 +77,7 @@ pub async fn create_workspace<P: AsRef<Path> + Debug>(
         .arg("sql_schema_migrate")
         .spawn()
         .expect("npm failed to start")
+        .wait()
         .await
         .expect("npm failed to run");
 
@@ -132,6 +134,7 @@ pub async fn run_data_process(
                 .env("PATH", &env_path)
                 .spawn()
                 .expect(format!("data process {} failed to start", &cmd).as_str())
+                .wait()
                 .await
                 .expect(format!("data process {} failed to run", &cmd).as_str());
 

@@ -39,11 +39,7 @@ fn main() {
         .init();
 
     thread::spawn(move || {
-        let mut rt = runtime::Builder::new()
-            .threaded_scheduler()
-            .enable_all()
-            .build()
-            .unwrap();
+        let rt = runtime::Runtime::new().unwrap();
         rt.block_on(async {
             let ncube = Application::new(config);
             ncube.run().await.unwrap();

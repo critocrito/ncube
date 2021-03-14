@@ -2,6 +2,7 @@ use futures::{FutureExt, StreamExt};
 use ncube_data::{Client, ClientSubscription, SuccessResponse};
 use ncube_handlers::{host as handlers, HandlerError};
 use tokio::sync::mpsc;
+use tokio_stream::wrappers::UnboundedReceiverStream;
 use tracing::{error, info};
 use warp::ws::WebSocket;
 
@@ -41,6 +42,7 @@ pub async fn client_connection(
 ) -> Result<(), HandlerError> {
     let (client_ws_tx, _client_ws_rx) = ws.split();
     let (client_tx, client_rx) = mpsc::unbounded_channel();
+    let client_rx = UnboundedReceiverStream::new(client_rx);
 
     info!("Connected client {} ({}).", client.client_id, id);
 

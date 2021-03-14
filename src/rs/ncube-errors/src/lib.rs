@@ -13,12 +13,6 @@ pub enum HostError {
 
 impl warp::reject::Reject for HostError {}
 
-impl From<HostError> for warp::Rejection {
-    fn from(rejection: HostError) -> warp::Rejection {
-        warp::reject::custom(rejection)
-    }
-}
-
 impl From<AuthError> for HostError {
     fn from(e: AuthError) -> HostError {
         HostError::AuthError(e.to_string())
