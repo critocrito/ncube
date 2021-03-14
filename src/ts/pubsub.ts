@@ -40,20 +40,19 @@ class PubSub {
   }
 
   connect(): Pipe {
-    const pipe = ({label, workspace, ...data}: NotificationEnvelope): void => {
+    return ({label, workspace, ...data}: NotificationEnvelope): void => {
       const topic = `task.${workspace}.${label}`;
-      this.taskCache[topic] = (this.taskCache[topic] || [])
-        .concat([data])
-        .sort((a, b) => {
-          if (a.order > b.order) return 1;
-          if (b.order > a.order) return -1;
+      this.taskCache[topic] = [
+        ...(this.taskCache[topic] || []),
+        ...[data],
+      ].sort((a, b) => {
+        if (a.order > b.order) return 1;
+        if (b.order > a.order) return -1;
 
-          return 0;
-        });
+        return 0;
+      });
       this.pubsub.publish(topic, data);
     };
-
-    return pipe;
   }
 
   subscribe(

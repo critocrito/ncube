@@ -104,8 +104,8 @@ mod tests {
     async fn retrieves_the_same_actor_multiple_times() {
         struct MyActor;
 
-        impl Actor for MyActor {};
-        impl Registry for MyActor {};
+        impl Actor for MyActor {}
+        impl Registry for MyActor {}
 
         let act = MyActor.start().await.unwrap();
 
@@ -122,8 +122,8 @@ mod tests {
     async fn panics_when_registering_the_same_actor_twice() {
         struct MyActor;
 
-        impl Actor for MyActor {};
-        impl Registry for MyActor {};
+        impl Actor for MyActor {}
+        impl Registry for MyActor {}
 
         let act = MyActor.start().await.unwrap();
         let act2 = MyActor.start().await.unwrap();
