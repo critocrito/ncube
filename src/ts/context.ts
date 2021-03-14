@@ -46,6 +46,7 @@ const createContext = <A>() => {
 };
 
 export const [useAppCtx, AppProvider] = createContext<AppCtx>();
-export const [useWorkspaceCtx, WorkspaceProvider] = createContext<
-  WorkspaceCtx
->();
+export const [
+  useWorkspaceCtx,
+  WorkspaceProvider,
+] = createContext<WorkspaceCtx>();

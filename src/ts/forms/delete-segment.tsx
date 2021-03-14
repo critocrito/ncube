@@ -5,9 +5,9 @@ import React from "react";
 import Button from "../common/button";
 import {FormProps} from "../types";
 
-type DeleteSegmentFormProps<DeleteSegmentFormValues> = FormProps<
+type DeleteSegmentFormProps<
   DeleteSegmentFormValues
->;
+> = FormProps<DeleteSegmentFormValues>;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface DeleteSegmentFormValues {}

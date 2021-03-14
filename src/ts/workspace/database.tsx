@@ -12,7 +12,7 @@ import ConfirmDeleteSegment from "../database/confirm-delete-segment";
 import DataCard from "../database/data-card";
 import SendToVerificationForm from "../forms/send-to-verification";
 import {deleteSegment, listSegments, verifySegment} from "../http";
-import machine from "../machines/database";
+import machine, {DatabaseEventReallyDelete} from "../machines/database";
 import {DataStats, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import DataTable from "./data-table";
@@ -30,7 +30,8 @@ const Database = ({workspace, stats, onHeaderChange}: DatabaseProps) => {
     services: {
       fetchSegments: (_ctx, _ev) => listSegments(workspace.slug),
 
-      deleteSegment: async (_ctx, {segment}) => {
+      deleteSegment: async (_ctx, ev) => {
+        const {segment} = ev as DatabaseEventReallyDelete;
         await deleteSegment(workspace.slug, segment.slug);
         return segment;
       },

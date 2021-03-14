@@ -12,16 +12,25 @@ export interface TableContext<T extends {id: number}> {
   error?: string;
 }
 
+export type TableEventSearch = {
+  type: "SEARCH";
+  query: string;
+  pageIndex: number;
+  pageSize: number;
+};
+
+export type TableEventConfirmDelete = {type: "CONFIRM_DELETE"; id: number};
+
 export type TableEvent<T extends {id: number}> =
   | {type: "SHOW_TABLE"}
   | {type: "SHOW_DETAILS"; item: T}
   | {type: "SET_SELECTION"; selected: T[]}
   | {type: "SET_QUERY"; query: string}
-  | {type: "SEARCH"; query: string; pageIndex: number; pageSize: number}
+  | TableEventSearch
   | {type: "CREATE"}
   | {type: "HELP"}
   | {type: "DELETE"; item: T}
-  | {type: "CONFIRM_DELETE"; id: number}
+  | TableEventConfirmDelete
   | {type: "CANCEL"}
   | {type: "RETRY"};
 

@@ -1,7 +1,7 @@
 import {useMachine} from "@xstate/react";
 import React, {useMemo} from "react";
 
-import createFormMachine from "../machines/form";
+import createFormMachine, {FormEventSave} from "../machines/form";
 import {FormProps, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Fatal from "./fatal";
@@ -30,7 +30,10 @@ const FormHandler = <T extends unknown>({
       formDone: (_ctx) => onDone(),
     },
     services: {
-      store: (_ctx, {values}) => onSave(values),
+      store: (_ctx, ev) => {
+        const {values} = ev as FormEventSave<T>;
+        return onSave(values);
+      },
     },
   });
 

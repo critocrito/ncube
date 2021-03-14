@@ -6,7 +6,10 @@ import Fatal from "../common/fatal";
 import Modal from "../common/modal";
 import {useAppCtx} from "../context";
 import {listProcesses, runProcess, updateProcessConfig} from "../http";
-import machine from "../machines/process";
+import machine, {
+  ProcessEventRun,
+  ProcessEventSaveConfig,
+} from "../machines/process";
 import {Process as ProcessType, ProcessConfigReq, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import ProcessConfig from "./process-config";
@@ -21,11 +24,17 @@ const Process = ({workspace}: ProcessProps) => {
     services: {
       fetchProcesses: (_ctx, _ev) => listProcesses(workspace.slug),
 
-      storeProcessConfig: (_ctx, {config}) =>
-        updateProcessConfig(workspace.slug, config),
+      storeProcessConfig: (_ctx, ev) => {
+        const {config} = ev as ProcessEventSaveConfig;
+        return updateProcessConfig(workspace.slug, config);
+      },
 
-      runProcess: (_ctx, {process: {key}}) =>
-        runProcess(workspace.slug, {key, kind: "all"}),
+      runProcess: (_ctx, ev) => {
+        const {
+          process: {key},
+        } = ev as ProcessEventRun;
+        return runProcess(workspace.slug, {key, kind: "all"});
+      },
     },
 
     context: {

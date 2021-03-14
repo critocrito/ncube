@@ -7,11 +7,11 @@ const SelectColumnFilter = <T extends {id: number}>({
   column: {filterValue, setFilter, preFilteredRows, id},
 }: FilterProps<T>) => {
   const filterOptions = useMemo(() => {
-    const options: Set<string> = new Set();
-    preFilteredRows.forEach((row) => {
-      options.add(row.values[id]);
-    });
-    return [...options.values()];
+    return [
+      ...preFilteredRows
+        .reduce((memo, row) => memo.add(row.values[id]), new Set<string>())
+        .values(),
+    ];
   }, [id, preFilteredRows]);
 
   return (

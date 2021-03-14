@@ -4,8 +4,11 @@ export type FormContext<T> = {
   values?: Partial<T>;
   error?: string;
 };
+
+export type FormEventSave<T> = {type: "SAVE"; values: T};
+
 export type FormEvent<T> =
-  | {type: "SAVE"; values: T}
+  | FormEventSave<T>
   | {type: "CANCEL"}
   | {type: "DONE"}
   | {type: "RETRY"; values: T};

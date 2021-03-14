@@ -3,6 +3,8 @@ import React from "react";
 
 interface QueryTagProps {
   label: string;
+  // FIXME: Either remove description prop or use it
+  // eslint-disable-next-line react/no-unused-prop-types
   description?: string;
   className?: string;
 }

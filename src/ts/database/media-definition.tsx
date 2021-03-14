@@ -11,7 +11,7 @@ const MediaDefinition = ({downloads}: MediaDefinitionProps) => {
   const media = ["video", "image"].reduce((memo, type) => {
     const xs = downloads.filter(({type: t}) => t === type);
     if (xs.length === 0) return memo;
-    return memo.concat([`${xs.length} ${capitalize(type)}s`]);
+    return [...memo, `${xs.length} ${capitalize(type)}s`];
   }, [] as string[]);
 
   return <span>{media.join(", ")}</span>;

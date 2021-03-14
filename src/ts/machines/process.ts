@@ -8,10 +8,16 @@ type ProcessContext = {
   error?: string;
 };
 
+export type ProcessEventRun = {type: "RUN"; process: Process};
+export type ProcessEventSaveConfig = {
+  type: "SAVE_CONFIG";
+  config: ProcessConfigReq;
+};
+
 type ProcessEvent =
   | {type: "SHOW_DETAILS"; process: Process}
-  | {type: "RUN"; process: Process}
-  | {type: "SAVE_CONFIG"; config: ProcessConfigReq}
+  | ProcessEventRun
+  | ProcessEventSaveConfig
   | {type: "SHOW_HOME"}
   | {type: "RETRY"};
 

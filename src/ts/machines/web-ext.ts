@@ -7,11 +7,17 @@ export interface WebExtContext {
   error?: string;
 }
 
+export type WebExtEventStoreSource = {
+  type: "STORE_SOURCE";
+  source: SourceReq;
+  workspace: Workspace;
+};
+
 export type WebExtEvent =
   | {type: "PRESERVE"; url: string}
   | {type: "BACK"}
   | {type: "SELECT_WORKSPACE"; workspace: Workspace}
-  | {type: "STORE_SOURCE"; source: SourceReq; workspace: Workspace}
+  | WebExtEventStoreSource
   | {type: "CLOSE"}
   | {type: "RETRY"};
 

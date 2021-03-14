@@ -2,11 +2,11 @@ import {MutableRefObject, Ref, useEffect, useRef, useState} from "react";
 import {EventObject, Interpreter, StateSchema, Typestate} from "xstate";
 
 export const unreachable = (message?: string): never => {
-  if (message === undefined) {
-    throw new Error("Unreachable code reached.");
-  } else {
-    throw new Error(`Unreachable code reached: ${message}`);
-  }
+  const error =
+    message === undefined
+      ? new Error("Unreachable code reached.")
+      : new Error(`Unreachable code reached: ${message}`);
+  throw error;
 };
 
 export const isString = (x: unknown): x is string => {
@@ -67,13 +67,13 @@ export const paginate = (
     throw new Error(`Must allow odd number of page items`);
   }
   if (total < width) {
-    return [...new Array(total).keys()];
+    return [...Array.from({length: total}).keys()];
   }
   const left = Math.max(
     0,
     Math.min(total - width, current - Math.floor(width / 2)),
   );
-  const items: (string | number)[] = new Array(width);
+  const items: (string | number)[] = Array.from({length: width});
   for (let i = 0; i < width; i += 1) {
     items[i] = i + left;
   }
@@ -132,13 +132,13 @@ export const useCombinedRefs = <T extends HTMLElement>(
 
   useEffect(() => {
     refs.forEach((ref) => {
-      if (!ref) return;
-
-      if (typeof ref === "function") {
-        ref(targetRef.current);
-      } else if (ref && ref.current) {
-        // eslint-disable-next-line no-param-reassign
-        (ref as MutableRefObject<T | null>).current = targetRef?.current;
+      if (ref) {
+        if (typeof ref === "function") {
+          ref(targetRef.current);
+        } else if (ref && ref.current) {
+          // eslint-disable-next-line no-param-reassign
+          (ref as MutableRefObject<T | null>).current = targetRef?.current;
+        }
       }
     });
   }, [refs]);
@@ -257,7 +257,7 @@ export const truncate = (str: string, length: number): string => {
 
   // check if we would cut a surrogate pair in half, if so adjust the cut:
   // (NB: we're assuming string containing only valid surrogate pairs here)
-  if (/[\uD800-\uDBFF]/.exec(str[firstCut - 1])) {
+  if (/[\uD800-\uDBFF]/.test(str[firstCut - 1])) {
     if (secondCut < str.length) {
       firstCut += 1;
       secondCut += 1;
@@ -266,7 +266,7 @@ export const truncate = (str: string, length: number): string => {
       secondCut -= 1;
     }
   }
-  if (/[\uDC00-\uDFFF]/.exec(str[secondCut])) {
+  if (/[\uDC00-\uDFFF]/.test(str[secondCut])) {
     secondCut += 1;
   }
 

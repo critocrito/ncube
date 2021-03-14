@@ -8,13 +8,18 @@ type DatabaseContext = {
   error?: string;
 };
 
+export type DatabaseEventReallyDelete = {
+  type: "REALLY_DELETE_SEGMENT";
+  segment: Segment;
+};
+
 type DatabaseEvent =
   | {type: "SHOW_HOME"}
   | {type: "SHOW_DATA"}
   | {type: "SHOW_SEGMENT"; segment: Segment}
   | {type: "SEND_TO_VERIFY"; segment: Segment}
   | {type: "DELETE_SEGMENT"; segment: Segment}
-  | {type: "REALLY_DELETE_SEGMENT"; segment: Segment}
+  | DatabaseEventReallyDelete
   | {type: "RETRY"};
 
 type DatabaseState =

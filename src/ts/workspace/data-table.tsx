@@ -15,7 +15,7 @@ import DataDetails from "../database/details";
 import CreateSegmentForm from "../forms/create-segment";
 import UpdateSegmentForm from "../forms/update-segment";
 import {createSegment, listUnits, searchUnits, updateSegment} from "../http";
-import machine from "../machines/table";
+import machine, {TableEventSearch} from "../machines/table";
 import Table from "../table";
 import {Segment, SourceTag as Tag, Unit, Workspace} from "../types";
 import {truncate, useServiceLogger} from "../utils";
@@ -46,11 +46,14 @@ const DataTable = ({workspace, totalStat, segment}: DataTableProps) => {
   const [searchQuery, setSearchQuery] = useState(segment ? segment.query : "");
   const [state, send, service] = useMachine(machine, {
     services: {
-      listItems: async ({query}, {pageIndex, pageSize}) => {
+      listItems: async ({query}, ev) => {
+        const {pageIndex, pageSize} = ev as TableEventSearch;
+
         if (query === "") {
           const units = await listUnits(workspace.slug, pageIndex, pageSize);
           return {data: units, total: totalStat};
         }
+
         return searchUnits(workspace.slug, query, pageIndex, pageSize);
       },
     },

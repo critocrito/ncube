@@ -13,7 +13,10 @@ import LinkWorkspace from "./dashboard/link-workspace";
 import CreateWorkspaceForm from "./forms/create-workspace";
 import {listWorkspaces, saveWorkspace} from "./handlers";
 import {deleteWorkspace, showWorkspace} from "./http";
-import machine from "./machines/app";
+import machine, {
+  AppEventReallyDeleteWorkspace,
+  AppEventShowWorkspace,
+} from "./machines/app";
 import Onboarding from "./onboarding";
 import {useServiceLogger} from "./utils";
 import Workspace from "./workspace";
@@ -23,12 +26,16 @@ const App = () => {
     services: {
       listWorkspaces: (_ctx, _ev) => listWorkspaces(),
 
-      fetchWorkspace: async (_ctx, {workspace: {slug}}) => {
+      fetchWorkspace: async (_ctx, ev) => {
+        const {
+          workspace: {slug},
+        } = ev as AppEventShowWorkspace;
         const workspace = await showWorkspace(slug);
         return workspace;
       },
 
-      deleteWorkspace: async (_ctx, {workspace, removeLocation}) => {
+      deleteWorkspace: async (_ctx, ev) => {
+        const {workspace, removeLocation} = ev as AppEventReallyDeleteWorkspace;
         await deleteWorkspace(workspace.slug, removeLocation);
         return workspace;
       },

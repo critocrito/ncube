@@ -4,7 +4,6 @@ const HtmlWebPackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const WebpackExtensionManifestPlugin = require("webpack-extension-manifest-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 const baseManifest = require("./manifest");
 const pkg = require("./package.json");
 
@@ -16,6 +15,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "target/web-ext"),
     filename: "[name].[hash:8].js",
+    clean: true,
   },
 
   devtool: "source-map",
@@ -62,7 +62,6 @@ module.exports = {
   },
 
   plugins: [
-    new CleanWebpackPlugin(),
     new CopyPlugin({
       patterns: [{from: "resources/icons", to: "icons"}],
     }),

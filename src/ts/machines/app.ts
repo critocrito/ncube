@@ -10,18 +10,28 @@ export interface AppContext {
   error?: string;
 }
 
+export type AppEventShowWorkspace = {
+  type: "SHOW_WORKSPACE";
+  workspace: Workspace;
+};
+
+export type AppEventReallyDeleteWorkspace = {
+  type: "REALLY_DELETE_WORKSPACE";
+  workspace: Workspace;
+  removeLocation: boolean;
+};
+
 export type AppEvent =
   | {type: "SHOW_DASHBOARD"; ws: WebSocket}
-  | {type: "SHOW_WORKSPACE"; workspace: Workspace}
+  | AppEventShowWorkspace
   | {type: "done.invoke.fetchWorkspace"; data: Workspace}
   | {type: "CREATE_WORKSPACE"}
   | {type: "LINK_WORKSPACE"}
-  | {type: "DELETE_WORKSPACE"; workspace: Workspace}
   | {
-      type: "REALLY_DELETE_WORKSPACE";
+      type: "DELETE_WORKSPACE";
       workspace: Workspace;
-      removeLocation: boolean;
     }
+  | AppEventReallyDeleteWorkspace
   | {type: "RELOAD_WORKSPACES"}
   | {type: "RESTART_APP"}
   | {type: "RETRY"};
@@ -87,6 +97,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
 
     show_workspace: {
       invoke: {
+        id: "fetchWorkspace",
         src: "fetchWorkspace",
 
         onDone: {
@@ -102,6 +113,7 @@ export default createMachine<AppContext, AppEvent, AppState>({
 
     delete_workspace: {
       invoke: {
+        id: "deleteWorkspace",
         src: "deleteWorkspace",
 
         onDone: {

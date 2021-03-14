@@ -45,9 +45,7 @@ export const validationSchema = Yup.object({
   kind: Yup.string().oneOf(["remote"]).required(),
 });
 
-type LinkWorkspaceFormProps<LinkWorkspaceFormValues> = FormProps<
-  LinkWorkspaceFormValues
->;
+type LinkWorkspaceFormProps<T extends LinkWorkspaceFormValues> = FormProps<T>;
 
 const LinkWorkspaceForm = ({
   initialValues = defaultValues,

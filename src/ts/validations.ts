@@ -41,9 +41,7 @@ export const connectionDetailsUpload = Yup.object({
 });
 
 export const annotation = Yup.object({
-  kind: Yup.string()
-    .oneOf(["tag"] as const)
-    .defined(),
+  kind: Yup.string().oneOf(["tag"]).defined(),
   term: Yup.string().defined(),
 });
 
@@ -68,25 +66,17 @@ export const sourceReq = Yup.object({
 });
 
 export const localWorkspaceReq = Yup.object({
-  kind: Yup.string()
-    .oneOf(["local"] as const)
-    .defined(),
+  kind: Yup.string().oneOf(["local"]).defined(),
   name: workspaceName,
   description: workspaceDescription,
-  database: Yup.string()
-    .oneOf(["sqlite"] as const)
-    .defined(),
+  database: Yup.string().oneOf(["sqlite"]).defined(),
 });
 
 export const remoteWorkspaceReq = Yup.object({
-  kind: Yup.string()
-    .oneOf(["remote"] as const)
-    .defined(),
+  kind: Yup.string().oneOf(["remote"]).defined(),
   name: workspaceName,
   description: workspaceDescription,
-  database: Yup.string()
-    .oneOf(["http"] as const)
-    .defined(),
+  database: Yup.string().oneOf(["http"]).defined(),
   workspace: workspaceLabel,
   endpoint: workspaceEndpoint,
   account: Yup.object({
@@ -107,9 +97,7 @@ export const segmentReq = Yup.object({
 
 export const processRunReq = Yup.object({
   key: Yup.string().required(),
-  kind: Yup.string()
-    .oneOf(["all", "new", "selection"] as const)
-    .required(),
+  kind: Yup.string().oneOf(["all", "new", "selection"]).required(),
 });
 
 export const investigationReq = Yup.object({

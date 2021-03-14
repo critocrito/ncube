@@ -6,9 +6,9 @@ import Button from "../common/button";
 import Input from "../common/input";
 import {FormProps} from "../types";
 
-type OnboardingFormProps<OnboardingFormValues> = FormProps<
+type OnboardingFormProps<
   OnboardingFormValues
->;
+> = FormProps<OnboardingFormValues>;
 
 export interface OnboardingFormValues {
   workspace_root: string;

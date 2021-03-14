@@ -34,9 +34,9 @@ const VerificationDetails = <
   const [unit, setUnit] = useState<Unit | undefined>();
   const [annotations, setAnnotations] = useState<AnnotationType[]>([]);
 
-  const schemas: AnnotationSchema[] = Object.keys(state.meta).reduce(
-    (memo, key) => memo.concat(state.meta[key].annotations ?? []),
-    [],
+  const schemas = Object.keys(state.meta).reduce(
+    (memo, key) => [...memo, ...(state.meta[key].annotations ?? [])],
+    [] as AnnotationSchema[],
   );
 
   useEffect(() => {

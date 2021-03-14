@@ -92,8 +92,10 @@ export type Stats<T extends string> = {
 };
 
 // export type DataStats = Stats<"total" | "sources" | "videos">;
-export type DataStats = Stats<"total" | "sources" | "segments">;
-export type SourceStats = Stats<"total" | "types">;
+const dataStats = ["total", "sources", "segments"] as const;
+const sourceStats = ["total", "types"] as const;
+export type DataStats = Stats<typeof dataStats[number]>;
+export type SourceStats = Stats<typeof sourceStats[number]>;
 
 export type MediaType = "video" | "image" | "url";
 

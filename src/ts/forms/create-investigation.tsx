@@ -11,9 +11,9 @@ import {listMethodologies} from "../http";
 import {FormProps, Methodology, MethodologySchema} from "../types";
 import MethodologySelect from "./methodology-select";
 
-type CreateInvestigationFormProps<CreateInvestigationFormValues> = FormProps<
+type CreateInvestigationFormProps<
   CreateInvestigationFormValues
->;
+> = FormProps<CreateInvestigationFormValues>;
 
 export interface CreateInvestigationFormValues {
   title: string;

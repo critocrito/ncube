@@ -21,9 +21,6 @@ kinds.forEach((kind) => {
           Button
         </Button>
       </div>,
-    );
-
-    buttons.push(
       <div key={`${kind}-${size}-disabled`} className="flex items-center w-100">
         <p className="b w-30">
           {kind} {size} disabled

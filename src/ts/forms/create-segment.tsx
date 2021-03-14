@@ -23,9 +23,7 @@ export const validationSchema = Yup.object({
   query: Yup.string().required(),
 });
 
-type CreateSegmentFormProps<CreateSegmentFormValues> = FormProps<
-  CreateSegmentFormValues
->;
+type CreateSegmentFormProps<T extends CreateSegmentFormValues> = FormProps<T>;
 
 const CreateSegmentForm = ({
   initialValues = defaultValues,

@@ -29,9 +29,9 @@ export const validationSchema = Yup.object({
   kind: Yup.string().oneOf(["local"]).required(),
 });
 
-type CreateWorkspaceFormProps<CreateWorkspaceFormValues> = FormProps<
-  CreateWorkspaceFormValues
->;
+type CreateWorkspaceFormProps<
+  T extends CreateWorkspaceFormValues
+> = FormProps<T>;
 
 const CreateWorkspaceForm = ({
   initialValues = defaultValues,

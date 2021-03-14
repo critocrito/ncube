@@ -12,9 +12,9 @@ import {sourceTags} from "../validations";
 import SourceTagMultiSelect from "./source-tag-multi-select";
 import SourceTypeSelect from "./source-type-select";
 
-type CreateSourceFormProps<CreateSourceFormValues> = FormProps<
+type CreateSourceFormProps<
   CreateSourceFormValues
->;
+> = FormProps<CreateSourceFormValues>;
 
 export interface CreateSourceFormValues {
   type: string;

@@ -49,9 +49,10 @@ type ResponseMapper<T extends unknown, K extends unknown> = (a: T) => K;
 
 type DataResponse = {
   <T>(resp: Response): Promise<T>;
-  <T extends unknown, K>(resp: Response, mapper: ResponseMapper<T, K>): Promise<
-    K
-  >;
+  <T extends unknown, K>(
+    resp: Response,
+    mapper: ResponseMapper<T, K>,
+  ): Promise<K>;
 };
 
 export const dataResponse: DataResponse = async <T, K>(

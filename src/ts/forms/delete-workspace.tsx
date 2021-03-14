@@ -6,9 +6,9 @@ import BooleanSelect from "../common/boolean-select";
 import Button from "../common/button";
 import {FormProps} from "../types";
 
-type DeleteWorkspaceFormProps<DeleteWorkspaceFormValues> = FormProps<
+type DeleteWorkspaceFormProps<
   DeleteWorkspaceFormValues
->;
+> = FormProps<DeleteWorkspaceFormValues>;
 
 export interface DeleteWorkspaceFormValues {
   delete_location: boolean;

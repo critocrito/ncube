@@ -8,9 +8,9 @@ import {listInvestigations} from "../http";
 import {FormProps, Investigation} from "../types";
 import InvestigationSelect from "./investigation-select";
 
-type SendToVerificationFormProps<SendToVerificationFormValues> = FormProps<
+type SendToVerificationFormProps<
   SendToVerificationFormValues
->;
+> = FormProps<SendToVerificationFormValues>;
 
 export interface SendToVerificationFormValues {
   investigation: string;

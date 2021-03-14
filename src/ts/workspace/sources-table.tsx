@@ -15,7 +15,7 @@ import {useAppCtx} from "../context";
 import CreateSourceForm from "../forms/create-source";
 import {saveSource} from "../handlers";
 import {listSources, removeSource, searchSources} from "../http";
-import machine from "../machines/table";
+import machine, {TableEventConfirmDelete} from "../machines/table";
 import SourceDetails from "../source/details";
 import Table from "../table";
 import ActionBar from "../table/action-bar";
@@ -59,7 +59,10 @@ const SourcesTable = ({workspace, totalStat}: SourcesTableProps) => {
         return searchSources(workspace.slug, query, pageIndex, pageSize);
       },
 
-      deleteItem: (_ctx, {id}) => removeSource(workspace.slug, id),
+      deleteItem: (_ctx, ev) => {
+        const {id} = ev as TableEventConfirmDelete;
+        return removeSource(workspace.slug, id);
+      },
     },
 
     context: {

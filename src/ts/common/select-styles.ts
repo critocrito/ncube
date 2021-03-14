@@ -1,21 +1,17 @@
-import {CSSProperties} from "react";
 import {StylesConfig} from "react-select";
 
-interface StateProps {
-  [key: string]: unknown;
-}
+type OptionType = {
+  label: string;
+  value: string;
+};
 
-// It seems a bit weird that I have to define this pseudo element. But
-// Typescript is complaining otherwise.
-interface HoverCSSProperties extends CSSProperties {
-  ":hover"?: CSSProperties;
-}
+const selectStyle: StylesConfig<OptionType, false> = {
+  control: (provided) => ({
+    ...provided,
+    borderColor: "#dfe2ec",
+  }),
 
-const option = (
-  provided: HoverCSSProperties,
-  state: StateProps,
-): HoverCSSProperties =>
-  ({
+  option: (provided, state) => ({
     ...provided,
     borderColor: "#dfe2ec",
     color: state.isSelected ? "#0a2463" : "#0a2463",
@@ -25,12 +21,7 @@ const option = (
       ...provided[":hover"],
       backgroundColor: "#f8ece8",
     },
-  } as HoverCSSProperties);
-
-export default {
-  control: (provided) => ({
-    ...provided,
-    borderColor: "#dfe2ec",
   }),
-  option,
-} as StylesConfig;
+};
+
+export default selectStyle;

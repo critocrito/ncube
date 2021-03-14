@@ -76,9 +76,12 @@ const Verification = <
         ...states
       } = data.process.states;
 
-      const verificationColumns = ["incoming_data"]
-        .concat(Object.keys(states))
-        .concat(["discarded_data", "verified_data"]);
+      const verificationColumns = [
+        "incoming_data",
+        ...Object.keys(states),
+        "discarded_data",
+        "verified_data",
+      ];
 
       const fetchedUnits = await Promise.all(
         verificationColumns.map((name) =>
@@ -176,11 +179,12 @@ const Verification = <
       );
       units.set(
         destinationId,
-        // Insert unit at the speciifed index.
-        destinationUnits
-          .slice(0, index)
-          .concat([unit])
-          .concat(destinationUnits.slice(index)),
+        // Insert unit at the specified index.
+        [
+          ...destinationUnits.slice(0, index),
+          unit,
+          ...destinationUnits.slice(index),
+        ],
       );
 
       setUnits(new Map(units.entries()));

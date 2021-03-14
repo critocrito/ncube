@@ -2,7 +2,7 @@
 import c from "classnames";
 import {useCombobox, useMultipleSelection} from "downshift";
 import {FormikProps, withFormik} from "formik";
-import matchSorter from "match-sorter";
+import {matchSorter} from "match-sorter";
 import React, {useState} from "react";
 
 import iconChevronDown from "../../../resources/public/images/icon_chevron_down.svg";
@@ -354,7 +354,7 @@ const MultiSelect = ({onAdd, onRemove, className, data}: MultiSelectProps) => {
                 onAdd={(label: string, description?: string) => {
                   const item = {label, description};
                   onAdd(item);
-                  setCreatedData(createdData.concat([item]));
+                  setCreatedData([...createdData, item]);
                 }}
               />
             </div>

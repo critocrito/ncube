@@ -4,7 +4,7 @@ import React from "react";
 import Error from "../common/error";
 import Fatal from "../common/fatal";
 import {listWorkspaces, saveSource} from "../handlers";
-import machine from "../machines/web-ext";
+import machine, {WebExtEventStoreSource} from "../machines/web-ext";
 import {SourceReq, Workspace} from "../types";
 import {useServiceLogger} from "../utils";
 import Introduction from "./introduction";
@@ -20,8 +20,10 @@ const Popup = ({sourceReq}: PopupProps) => {
     services: {
       listWorkspaces: (_ctx, _ev) => listWorkspaces(),
 
-      storeSource: (_ctx, {source, workspace}) =>
-        saveSource(workspace.slug, source),
+      storeSource: (_ctx, ev) => {
+        const {source, workspace} = ev as WebExtEventStoreSource;
+        return saveSource(workspace.slug, source);
+      },
     },
 
     actions: {
