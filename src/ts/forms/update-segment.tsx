@@ -2,8 +2,8 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Button from "../common/button";
-import Input from "../common/input";
+import Button from "../components/button";
+import Input from "../components/input";
 import {FormProps} from "../types";
 
 export type UpdateSegmentFormValues = {

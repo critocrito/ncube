@@ -1,4 +1,4 @@
-/* eslint react/jsx-props-no-spreading: off, react/no-array-index-key: off */
+/* eslint react/jsx-props-no-spreading: off */
 import c from "classnames";
 import {useCombobox, useMultipleSelection} from "downshift";
 import {FormikProps, withFormik} from "formik";
@@ -8,10 +8,10 @@ import React, {useState} from "react";
 import iconChevronDown from "../../../resources/public/images/icon_chevron_down.svg";
 import iconChevronUp from "../../../resources/public/images/icon_chevron_up.svg";
 import iconTrash from "../../../resources/public/images/icon_trash.svg";
-import Button from "../common/button";
-import QueryTag from "../common/query-tag";
+import Button from "../components/button";
+import QueryTag from "../components/query-tag";
+import * as v from "../lib/validations";
 import {SourceTag} from "../types";
-import * as v from "../validations";
 
 interface MultiSelectProps {
   data: SourceTag[];

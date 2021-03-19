@@ -1,13 +1,12 @@
-/* eslint react/no-array-index-key: off */
 import {Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import {EventObject} from "xstate";
 import * as Yup from "yup";
 
-import Button from "../common/button";
-import Input from "../common/input";
-import Textarea from "../common/text-area";
-import {listMethodologies} from "../http";
+import Button from "../components/button";
+import Input from "../components/input";
+import Textarea from "../components/text-area";
+import {listMethodologies} from "../lib/http";
 import {FormProps, Methodology, MethodologySchema} from "../types";
 import MethodologySelect from "./methodology-select";
 

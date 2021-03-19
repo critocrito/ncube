@@ -6,7 +6,7 @@ import React from "react";
 
 import iconChevronDown from "../../../resources/public/images/icon_chevron_down.svg";
 import iconChevronUp from "../../../resources/public/images/icon_chevron_up.svg";
-import LabeledSourceTag from "../common/labeled-source-tag";
+import LabeledSourceTag from "../components/labeled-source-tag";
 import {SourceType} from "../types";
 
 interface SourceTypeSelectProps {

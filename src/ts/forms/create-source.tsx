@@ -1,14 +1,13 @@
-/* eslint react/no-array-index-key: off */
 import {sourceType} from "@sugarcube/source-types";
 import {FieldArray, Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
-import Button from "../common/button";
-import Input from "../common/input";
-import {listSourceTags} from "../http";
+import Button from "../components/button";
+import Input from "../components/input";
+import {listSourceTags} from "../lib/http";
+import {sourceTags} from "../lib/validations";
 import {FormProps, SourceTag} from "../types";
-import {sourceTags} from "../validations";
 import SourceTagMultiSelect from "./source-tag-multi-select";
 import SourceTypeSelect from "./source-type-select";
 

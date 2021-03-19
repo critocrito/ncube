@@ -1,6 +1,6 @@
 import test, {ExecutionContext} from "ava";
 
-import {paginate} from "../../src/ts/utils";
+import {paginate} from "../../src/ts/lib/utils";
 
 const paginationMacro = (
   t: ExecutionContext,

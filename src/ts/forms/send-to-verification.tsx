@@ -3,8 +3,8 @@ import {Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
-import Button from "../common/button";
-import {listInvestigations} from "../http";
+import Button from "../components/button";
+import {listInvestigations} from "../lib/http";
 import {FormProps, Investigation} from "../types";
 import InvestigationSelect from "./investigation-select";
 

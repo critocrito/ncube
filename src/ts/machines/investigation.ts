@@ -5,6 +5,9 @@ import {Investigation, Segment, SegmentUnit, Workspace} from "../types";
 type InvestigationContext = {
   workspace: Workspace;
   investigations: Investigation[];
+  segment?: Segment;
+  investigation?: Investigation;
+  unit?: SegmentUnit<Record<string, unknown>, EventObject>;
   error?: string;
 };
 
@@ -24,14 +27,29 @@ type InvestigationEvent =
 
 type InvestigationState =
   | {
-      value:
-        | "investigations"
-        | "home"
-        | "details"
-        | "create"
-        | "segment"
-        | "unit";
+      value: "investigations" | "home" | "create";
       context: InvestigationContext;
+    }
+  | {
+      value: "details";
+      context: InvestigationContext & {
+        investigation: Investigation;
+      };
+    }
+  | {
+      value: "segment";
+      context: InvestigationContext & {
+        investigation: Investigation;
+        segment: Segment;
+      };
+    }
+  | {
+      value: "unit";
+      context: InvestigationContext & {
+        investigation: Investigation;
+        segment: Segment;
+        unit: SegmentUnit<Record<string, unknown>, EventObject>;
+      };
     }
   | {
       value: "error";
@@ -42,64 +60,105 @@ export default createMachine<
   InvestigationContext,
   InvestigationEvent,
   InvestigationState
->({
-  id: "investigation",
-  initial: "investigations",
-  states: {
-    investigations: {
-      invoke: {
-        src: "fetchInvestigations",
+>(
+  {
+    id: "investigation",
+    initial: "investigations",
+    states: {
+      investigations: {
+        invoke: {
+          src: "fetchInvestigations",
 
-        onDone: {
-          target: "home",
-          actions: assign({investigations: (_, {data}) => data}),
+          onDone: {
+            target: "home",
+            actions: assign({investigations: (_, {data}) => data}),
+          },
+
+          onError: {
+            target: "error",
+            actions: assign({error: (_ctx, {data}) => data.message}),
+          },
         },
+      },
 
-        onError: {
-          target: "error",
-          actions: assign({error: (_ctx, {data}) => data.message}),
+      home: {
+        entry: ["resetContext"],
+        on: {
+          SHOW_DETAILS: {
+            target: "details",
+            actions: assign({
+              investigation: (_ctx, {investigation}) => investigation,
+            }),
+          },
+          CREATE_INVESTIGATION: "create",
         },
       },
-    },
 
-    home: {
-      on: {
-        SHOW_DETAILS: "details",
-        CREATE_INVESTIGATION: "create",
+      details: {
+        on: {
+          SHOW_HOME: "home",
+          VERIFY_SEGMENT: {
+            target: "segment",
+            actions: assign((ctx, {segment, investigation}) => ({
+              ...ctx,
+              segment,
+              investigation,
+            })),
+          },
+        },
       },
-    },
 
-    details: {
-      on: {
-        SHOW_HOME: "home",
-        VERIFY_SEGMENT: "segment",
+      create: {
+        on: {
+          SHOW_HOME: "investigations",
+        },
       },
-    },
 
-    create: {
-      on: {
-        SHOW_HOME: "investigations",
+      segment: {
+        on: {
+          SHOW_DETAILS: "details",
+          SHOW_HOME: "investigations",
+          SHOW_UNIT: {
+            target: "unit",
+            actions: assign((ctx, {investigation, segment, unit}) => ({
+              ...ctx,
+              segment,
+              investigation,
+              unit,
+            })),
+          },
+        },
       },
-    },
 
-    segment: {
-      on: {
-        SHOW_DETAILS: "details",
-        SHOW_HOME: "investigations",
-        SHOW_UNIT: "unit",
+      unit: {
+        on: {
+          VERIFY_SEGMENT: {
+            target: "segment",
+            actions: assign((ctx, {segment, investigation}) => ({
+              ...ctx,
+              segment,
+              investigation,
+            })),
+          },
+        },
       },
-    },
 
-    unit: {
-      on: {
-        VERIFY_SEGMENT: "segment",
-      },
-    },
-
-    error: {
-      on: {
-        RETRY: "home",
+      error: {
+        on: {
+          RETRY: "home",
+        },
       },
     },
   },
-});
+  {
+    actions: {
+      resetContext: assign((ctx) => ({
+        ...ctx,
+        investigation: undefined,
+        segment: undefined,
+        unit: undefined,
+        error: undefined,
+      })),
+    },
+  },
+);

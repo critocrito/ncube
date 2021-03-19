@@ -1,0 +1,20 @@
+import React from "react";
+
+import {capitalize} from "../../lib/utils";
+import {Download} from "../../types";
+
+interface MediaDefinitionProps {
+  downloads: Download[];
+}
+
+const MediaDefinition = ({downloads}: MediaDefinitionProps) => {
+  const media = ["video", "image"].reduce((memo, type) => {
+    const xs = downloads.filter(({type: t}) => t === type);
+    if (xs.length === 0) return memo;
+    return [...memo, `${xs.length} ${capitalize(type)}s`];
+  }, [] as string[]);
+
+  return <span>{media.join(", ")}</span>;
+};
+
+export default MediaDefinition;

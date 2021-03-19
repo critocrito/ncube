@@ -1,8 +1,7 @@
-/* eslint react/no-array-index-key: off */
 import {Form, Formik} from "formik";
 import React from "react";
 
-import Button from "../common/button";
+import Button from "../components/button";
 import {FormProps} from "../types";
 
 type DeleteSegmentFormProps<

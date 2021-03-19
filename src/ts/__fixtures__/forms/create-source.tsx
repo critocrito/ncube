@@ -1,14 +1,14 @@
-import {FetchMock} from "@react-mock/fetch";
 import React, {useState} from "react";
 
 import CreateSource, {CreateSourceFormValues} from "../../forms/create-source";
-import {WorkspaceLocal} from "../../types";
-import workspace from "../local-workspace.json";
-import data from "./source-tags.json";
+import {WorkspaceLocal, SourceTag} from "../../types";
+import {HttpSuccessResponse} from "../../lib/http";
+import {localWorkspace as workspace, sourceTags} from "../data";
+import {FetchMock} from "../helpers";
 
-const resp = {
+const resp: HttpSuccessResponse<SourceTag[]> = {
   status: "success",
-  data,
+  data: sourceTags,
 };
 
 const Wrapper = () => {
@@ -26,8 +26,8 @@ const Wrapper = () => {
 
   return (
     <div>
-      <FetchMock
-        matcher="http://127.0.0.1:40666/api/workspaces/my-workspace/source-tags"
+      <FetchMock<SourceTag[]>
+        matcher="/workspaces/my-workspace/source-tags"
         response={resp}
       >
         <CreateSource

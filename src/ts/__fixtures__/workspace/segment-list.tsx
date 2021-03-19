@@ -1,24 +1,27 @@
 import React from "react";
 
-import {Workspace} from "../../types";
-import SegmentList from "../../workspace/segment-list";
-import workspace from "../local-workspace.json";
-import segments from "../segments.json";
-
-const Wrapper = () => {
-  return (
-    <SegmentList
-      onExplore={() => {}}
-      onVerify={() => {}}
-      onRemove={() => {}}
-      segments={segments}
-      workspace={(workspace as unknown) as Workspace}
-    />
-  );
-};
+import SegmentList from "../../components/data/segment-list";
+import {localWorkspace as workspace, segments} from "../data";
+import {FetchMock} from "../helpers";
 
 export default (
   <div className="noto lh-copy pa2 flex flex-column bg-canvas">
-    <Wrapper />
+    <FetchMock
+      matcher="/workspaces/my-workspace/stats/segments/mf001a/units"
+      response={{status: "success", data: 1}}
+    >
+      <FetchMock
+        matcher="/workspaces/my-workspace/stats/segments/rebel-attacks/units"
+        response={{status: "success", data: 2}}
+      >
+        <SegmentList
+          onExplore={() => {}}
+          onVerify={() => {}}
+          onRemove={() => {}}
+          segments={segments}
+          workspace={workspace}
+        />
+      </FetchMock>
+    </FetchMock>
   </div>
 );

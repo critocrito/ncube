@@ -1,6 +1,6 @@
 import test from "ava";
 
-import PubSub from "../../src/ts/pubsub";
+import PubSub from "../../src/ts/lib/pubsub";
 import {Notification, NotificationEnvelope} from "../../src/ts/types";
 
 const genMessage = (now: string): NotificationEnvelope => {

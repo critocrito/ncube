@@ -73,6 +73,3 @@ jobs:
 
     - name: Test Ncube Backend
       run: make test-backend
-
-    - name: Build Ncube Backend
-      run: make backend

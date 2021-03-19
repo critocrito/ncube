@@ -1,7 +1,9 @@
 import {EventObject, MachineConfig, State, StateSchema} from "xstate";
 import * as Yup from "yup";
 
-import * as v from "./validations";
+import * as v from "./lib/validations";
+
+export {EventObject} from "xstate";
 
 export type Platform = "youtube" | "twitter" | "http";
 
