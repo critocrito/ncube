@@ -181,9 +181,6 @@ yarn start
 ```
 
 This will open a browser at `http://localhost:8080` that provides the UI.
-Further this will start [React
-Cosmos](https://github.com/react-cosmos/react-cosmos) on
-`http://localhost:5000`.
 
 ### Tests
 

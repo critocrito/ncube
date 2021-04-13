@@ -1,7 +1,0 @@
-{
-  "globalImports": ["./src/css/styles.css"],
-  "watchDirs": ["src"],
-  "webpack": {
-    "configPath": "./webpack.cosmos.js"
-  }
-}
