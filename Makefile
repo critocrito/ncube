@@ -18,14 +18,15 @@ pkgs_release_dir = pkgs
 
 all: $(release_dir)/ncube
 
-$(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css: deps
+$(webpack_dir): deps
 	yarn compile
 
 web-ext: deps
 	yarn web-ext:prod
 
-$(dist_dir): $(webpack_dir)/index.html $(webpack_dir)/app.js $(webpack_dir)/styles.css
-	cp -av $(webpack_dir) $(dist_dir)
+$(dist_dir): $(webpack_dir)
+	@mkdir -p $(dist_dir)
+	@cp -av $(webpack_dir)/* $(dist_dir)
 
 $(workspace_archive):
 	@mkdir -p $(workspace_dir)
@@ -99,7 +100,7 @@ pkg-web-ext: web-ext
 	@mkdir -p $(pkgs_release_dir)
 	node_modules/.bin/web-ext build -s $(webext_dir) -a $(pkgs_release_dir) --overwrite-dest
 
-verify-ui:
+verify-ui: deps $(dist_dir)
 	yarn lint
 	yarn type-check
 
