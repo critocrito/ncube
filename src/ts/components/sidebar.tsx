@@ -9,7 +9,7 @@ import processIcon from "../../../resources/public/images/icon_process.svg";
 import sourceIcon from "../../../resources/public/images/icon_source.svg";
 import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
 import settingsIcon from "../../../resources/public/images/settings.svg";
-import {useAppCtx, useWorkspaceCtx} from "../lib/context";
+import {useNcubeCtx, useWorkspaceCtx} from "../lib/context";
 import {Workspace} from "../types";
 import WorkspaceSelector from "./workspace-selector";
 
@@ -19,7 +19,7 @@ interface SidebarProps {
 
 const Sidebar = ({workspaces}: SidebarProps) => {
   const [expanded, setExpanded] = useState(true);
-  const [, appSend] = useAppCtx();
+  const [, ncubeSend] = useNcubeCtx();
   const [workspaceState, workspaceSend] = useWorkspaceCtx();
 
   const toggleExpanded = () => setExpanded(!expanded);
@@ -57,7 +57,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                     selectedWorkspace={workspaceState.context.workspace}
                     className="workspace-select w-100 b bg-sapphire ba b--sapphire white pointer"
                     onChange={(workspace) =>
-                      appSend("SHOW_WORKSPACE", {workspace})
+                      ncubeSend("SHOW_WORKSPACE", {workspace})
                     }
                   />
                 </div>
@@ -69,7 +69,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                     <li>
                       <button
                         className="flex items-center b--none bg-white pointer dim"
-                        onClick={() => workspaceSend("SOURCE")}
+                        onClick={() => workspaceSend({type: "SOURCE"})}
                       >
                         <img
                           height="20px"
@@ -84,7 +84,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                     <li className="mt3">
                       <button
                         className="flex items-center b--none bg-white pointer dim"
-                        onClick={() => workspaceSend("DATA")}
+                        onClick={() => workspaceSend({type: "DATA"})}
                       >
                         <img
                           height="20px"
@@ -99,7 +99,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                     <li className="mt3">
                       <button
                         className="flex items-center b--none bg-white pointer dim"
-                        onClick={() => workspaceSend("PROCESS")}
+                        onClick={() => workspaceSend({type: "PROCESS"})}
                       >
                         <img
                           height="20px"
@@ -114,7 +114,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                     <li className="mt3">
                       <button
                         className="flex items-center b--none bg-white pointer dim"
-                        onClick={() => workspaceSend("INVESTIGATION")}
+                        onClick={() => workspaceSend({type: "INVESTIGATION"})}
                       >
                         <img
                           height="20px"
@@ -130,7 +130,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
                 <div className="pa2 h3 w5 bt b--solitude bw1 flex items-center justify-between fixed bottom-0">
                   <button
                     className="b--none bg-white pointer dim"
-                    onClick={() => appSend("SHOW_DASHBOARD")}
+                    onClick={() => ncubeSend("SHOW_DASHBOARD")}
                   >
                     <img height="45px" src={logoIcon} alt="Ncube logo." />
                   </button>

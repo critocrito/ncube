@@ -1,6 +1,6 @@
 import React from "react";
 
-import ProcessConfig from "../../components/processes/config";
+import ProcessConfig from "../../components/processes-config";
 import {process1 as process} from "../data";
 
 export default (

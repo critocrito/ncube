@@ -1,15 +1,16 @@
 import {useMachine} from "@xstate/react";
 import React, {useMemo} from "react";
 
-import {useServiceLogger} from "../lib/utils";
+import {useServiceLogger} from "../lib/hooks";
 import createFormMachine, {FormEventSave} from "../machines/form";
 import {FormProps, Workspace} from "../types";
+import Placeholder from "./placeholder";
 import Unreachable from "./unreachable";
 
 interface FormHandlerProps<T> {
   Form: React.FC<FormProps<T>>;
   initialValues?: Partial<T>;
-  onDone: () => void;
+  onDone: (values?: T) => void;
   onSave?: (values: T) => Promise<void>;
   workspace?: Workspace;
 }
@@ -27,7 +28,7 @@ const FormHandler = <T extends unknown>({
 
   const [state, send, service] = useMachine(machine, {
     actions: {
-      formDone: (_ctx) => onDone(),
+      formDone: () => onDone(),
     },
     services: {
       store: (_ctx, ev) => {
@@ -62,7 +63,7 @@ const FormHandler = <T extends unknown>({
     }
 
     case state.matches("done"):
-      return <div />;
+      return <Placeholder />;
 
     default:
       return <Unreachable machine={machine.id} state={state.value} />;

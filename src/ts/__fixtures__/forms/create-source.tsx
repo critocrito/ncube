@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 
 import CreateSource, {CreateSourceFormValues} from "../../forms/create-source";
-import {WorkspaceLocal, SourceTag} from "../../types";
 import {HttpSuccessResponse} from "../../lib/http";
+import {SourceTag, WorkspaceLocal} from "../../types";
 import {localWorkspace as workspace, sourceTags} from "../data";
 import {FetchMock} from "../helpers";
 

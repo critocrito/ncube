@@ -52,7 +52,7 @@
     "tachyons": "^4.12.0",
     "video.js": "^7.11.4",
     "webextension-polyfill": "^0.7.0",
-    "xstate": "^4.16.2",
+    "xstate": "^4.17.1",
     "yup": "^0.32.9"
   },
   "devDependencies": {

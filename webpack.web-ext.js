@@ -9,12 +9,12 @@ const pkg = require("./package.json");
 
 module.exports = {
   entry: {
-    popup: "./src/ts/discovery.tsx",
+    popup: "./src/ts/web-extension.tsx",
   },
 
   output: {
     path: path.resolve(__dirname, "target/web-ext"),
-    filename: "[name].[hash:8].js",
+    filename: "[name].[chunkhash:8].js",
     clean: true,
   },
 
@@ -70,7 +70,7 @@ module.exports = {
       filename: "./popup.html",
     }),
     new MiniCssExtractPlugin({
-      filename: "[name].[hash:8].css",
+      filename: "[name].[chunkhash:8].css",
       chunkFilename: "[name].[chunkhash:8].css",
     }),
     new WebpackExtensionManifestPlugin({

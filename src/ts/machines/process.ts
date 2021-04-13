@@ -1,5 +1,12 @@
-import {assign, createMachine} from "xstate";
+import {
+  ActorRefFrom,
+  assign,
+  createMachine,
+  DoneInvokeEvent,
+  Interpreter,
+} from "xstate";
 
+import {listProcesses, runProcess, updateProcessConfig} from "../lib/http";
 import {Process, ProcessConfigReq, Workspace} from "../types";
 
 type ProcessContext = {
@@ -10,7 +17,7 @@ type ProcessContext = {
 
 export type ProcessEventRun = {type: "RUN"; process: Process};
 export type ProcessEventSaveConfig = {
-  type: "SAVE_CONFIG";
+  type: "STORE_CONFIG";
   config: ProcessConfigReq;
 };
 
@@ -31,74 +38,104 @@ type ProcessState =
       context: ProcessContext & {error: string};
     };
 
-export default createMachine<ProcessContext, ProcessEvent, ProcessState>({
-  id: "process",
-  initial: "processes",
-  states: {
-    processes: {
-      invoke: {
-        src: "fetchProcesses",
+export type ProcessMachineInterpreter = ActorRefFrom<
+  Interpreter<ProcessContext, ProcessState, ProcessEvent>["machine"]
+>;
 
-        onDone: {
-          target: "home",
-          actions: assign({processes: (_, {data}) => data}),
-        },
-
-        onError: {
-          target: "error",
-          actions: assign({error: (_ctx, {data}) => data.message}),
-        },
-      },
-    },
-
-    configure: {
-      invoke: {
-        src: "storeProcessConfig",
-
-        onDone: {
-          target: "processes",
-        },
-
-        onError: {
-          target: "error",
-          actions: assign({error: (_ctx, {data}) => data.message}),
+export default createMachine<ProcessContext, ProcessEvent, ProcessState>(
+  {
+    id: "process",
+    initial: "processes",
+    states: {
+      processes: {
+        invoke: {
+          src: "fetchProcesses",
+          onDone: {
+            target: "home",
+            actions: "setProcesses",
+          },
+          onError: {
+            target: "error",
+            actions: "fail",
+          },
         },
       },
-    },
 
-    run: {
-      invoke: {
-        src: "runProcess",
-
-        onDone: {
-          target: "processes",
-        },
-
-        onError: {
-          target: "error",
-          actions: assign({error: (_ctx, {data}) => data.message}),
+      configure: {
+        invoke: {
+          src: "storeConfig",
+          onDone: "processes",
+          onError: {
+            target: "error",
+            actions: "fail",
+          },
         },
       },
-    },
 
-    home: {
-      on: {
-        SHOW_DETAILS: "details",
-        RUN: "run",
+      run: {
+        invoke: {
+          src: "runProcess",
+          onDone: "processes",
+          onError: {
+            target: "error",
+            actions: "fail",
+          },
+        },
       },
-    },
 
-    details: {
-      on: {
-        SHOW_HOME: "home",
-        SAVE_CONFIG: "configure",
+      home: {
+        on: {
+          SHOW_DETAILS: "details",
+          RUN: "run",
+        },
       },
-    },
 
-    error: {
-      on: {
-        RETRY: "home",
+      details: {
+        on: {
+          SHOW_HOME: "home",
+          STORE_CONFIG: "configure",
+        },
+      },
+
+      error: {
+        on: {
+          RETRY: "home",
+        },
       },
     },
   },
-});
+  {
+    actions: {
+      setProcesses: assign({
+        processes: (_ctx, ev) => {
+          const {data} = ev as DoneInvokeEvent<Process[]>;
+          return data;
+        },
+      }),
+
+      fail: assign({
+        error: (_ctx, ev) => {
+          const {data} = ev as DoneInvokeEvent<Error>;
+          return data.message;
+        },
+      }),
+    },
+
+    services: {
+      fetchProcesses: ({workspace}): Promise<Process[]> =>
+        listProcesses(workspace.slug),
+
+      storeConfig: ({workspace}, ev): Promise<void> => {
+        const {config} = ev as ProcessEventSaveConfig;
+        return updateProcessConfig(workspace.slug, config);
+      },
+
+      runProcess: ({workspace}, ev): Promise<void> => {
+        const {
+          process: {key},
+        } = ev as ProcessEventRun;
+        return runProcess(workspace.slug, {key, kind: "all"});
+      },
+    },
+  },
+);

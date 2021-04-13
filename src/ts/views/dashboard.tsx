@@ -1,50 +1,130 @@
+import {useActor} from "@xstate/react";
 import React from "react";
 
-import DashboardActions from "../components/dashboard/actions";
-import DashboardHeader from "../components/dashboard/header";
-import DashboardWorkspaces from "../components/dashboard/workspaces";
+import DashboardCreateWorkspace from "../components/dashboard-create-workspace";
+import DashboardDeleteWorkspace from "../components/dashboard-delete-workspace";
+import DashboardHome from "../components/dashboard-home";
+import DashboardLinkConnection from "../components/dashboard-link-connection";
+import DashboardLinkWorkspace from "../components/dashboard-link-workspace";
+import Error from "../components/error";
+import Modal from "../components/modal";
 import BasicPanel from "../components/panel-basic";
-import {Workspace} from "../types";
+import Unreachable from "../components/unreachable";
+import machine, {
+  DashboardContext,
+  DashboardMachineInterpreter,
+} from "../machines/dashboard";
+import {ConnectionDetails, Workspace} from "../types";
 
 interface DashboardProps {
-  workspaces: Workspace[];
-  onShow: (workspace: Workspace) => void;
-  onDelete: (workspace: Workspace) => void;
-  onCreate: () => void;
-  onLink: () => void;
+  dashboardRef: DashboardMachineInterpreter;
 }
 
-const Dashboard = ({
-  workspaces,
-  onShow,
-  onDelete,
-  onCreate,
-  onLink,
-}: DashboardProps) => {
-  const workspaceAction = (action: "show" | "delete", workspace: Workspace) => {
-    if (action === "show") {
-      onShow(workspace);
-    } else if (action === "delete") {
-      onDelete(workspace);
-    }
-  };
+const Dashboard = ({dashboardRef}: DashboardProps) => {
+  const [state, send] = useActor(dashboardRef);
 
-  return (
-    <BasicPanel>
-      <div className="fl w-100 pa3">
-        <DashboardHeader />
+  const {workspaces} = state.context;
 
-        <DashboardWorkspaces
+  if (
+    state.matches("workspaces") ||
+    state.matches("workspace") ||
+    state.matches("dashboard") ||
+    state.matches("details")
+  ) {
+    return (
+      <BasicPanel>
+        <DashboardHome
           workspaces={workspaces}
-          workspaceAction={workspaceAction}
+          onShow={(workspace) => send({type: "SHOW_WORKSPACE", workspace})}
+          onDelete={(workspace) => send({type: "DELETE_WORKSPACE", workspace})}
+          onLink={() => send({type: "LINK_CONNECTION"})}
+          onCreate={() => send({type: "CREATE_WORKSPACE"})}
         />
+      </BasicPanel>
+    );
+  }
 
-        <div className="ml-auto w-40 mt3">
-          <DashboardActions onLink={onLink} onCreate={onCreate} />
-        </div>
-      </div>
-    </BasicPanel>
-  );
+  if (state.matches("create")) {
+    return (
+      <BasicPanel
+        header="Fill in some details about your new workspace."
+        description="Before you can create a new local workspace, please fill in some basic configuration."
+      >
+        <DashboardCreateWorkspace onDone={() => send({type: "RELOAD"})} />
+      </BasicPanel>
+    );
+  }
+
+  if (state.matches("connection")) {
+    return (
+      <BasicPanel
+        header="Fill in some details about your new workspace."
+        description="Before you can create a new local workspace, please fill in some basic configuration."
+      >
+        <DashboardLinkConnection
+          onSubmit={(details) => send({type: "LINK_WORKSPACE", details})}
+          onError={(error) => send({type: "ERROR", error})}
+          onCancel={() => send({type: "RELOAD"})}
+        />
+      </BasicPanel>
+    );
+  }
+
+  if (state.matches("link")) {
+    const {connection} = state.context as DashboardContext & {
+      connection: ConnectionDetails;
+    };
+
+    return (
+      <BasicPanel
+        header="Fill in some details about your new workspace."
+        description="Before you can create a new local workspace, please fill in some basic configuration."
+      >
+        <DashboardLinkWorkspace
+          connection={connection}
+          onDone={() => send({type: "RELOAD"})}
+        />
+      </BasicPanel>
+    );
+  }
+
+  if (state.matches("delete")) {
+    const {workspace} = state.context as DashboardContext & {
+      workspace: Workspace;
+    };
+
+    return (
+      <BasicPanel>
+        <>
+          <Modal
+            onCancel={() => send({type: "RELOAD"})}
+            title="Delete Workspace"
+            description="Delete workspace."
+          >
+            <DashboardDeleteWorkspace
+              workspace={workspace}
+              onDone={() => send({type: "RELOAD"})}
+            />
+          </Modal>
+
+          <DashboardHome workspaces={workspaces} />
+        </>
+      </BasicPanel>
+    );
+  }
+
+  if (state.matches("error")) {
+    const {error} = state.context;
+
+    return (
+      <Error
+        msg={error || "Failed to fetch workspaces."}
+        recover={() => send({type: "RETRY"})}
+      />
+    );
+  }
+
+  return <Unreachable machine={machine.id} state={state.value} />;
 };
 
 export default Dashboard;

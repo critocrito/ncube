@@ -1,20 +1,12 @@
 import {
-  Source,
   AnnotationSchema,
-  Process,
-  Workspace,
-  SourceTag,
   Methodology,
-  MethodologySchema,
-  EventObject,
+  Process,
   Segment,
+  Source,
+  SourceTag,
+  Workspace,
 } from "../types";
-
-export type FixtureMethodology = Methodology<
-  unknown,
-  MethodologySchema,
-  EventObject
->;
 
 export const localWorkspace: Workspace = {
   id: 23,
@@ -93,7 +85,7 @@ export const sourceTags: SourceTag[] = [
   {label: "Check Later"},
 ];
 
-export const methodology1: FixtureMethodology = {
+export const methodology1: Methodology = {
   id: 1,
   title: "Tutorial",
   slug: "tutorial",
@@ -126,7 +118,7 @@ export const methodology1: FixtureMethodology = {
             },
             {
               name: "narrative",
-              description: null,
+              description: undefined,
               kind: "text",
               required: true,
             },

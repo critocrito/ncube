@@ -4,7 +4,7 @@
 
 <div align="center">
 
-![Ncube Screenshot](https://raw.githubusercontent.com/critocrito/ncube/master/resources/screenshots/ncube.png)
+![Ncube Screenshot](https://raw.githubusercontent.com/critocrito/ncube/main/resources/screenshots/ncube.png)
 
 [Installation](#installation) • [Documentation](#documentation) • [Ncube Discovery](#ncube-discovery) • [Development](#development)
 
@@ -107,7 +107,7 @@ fc4 -fsr doc/diagrams
 
 Ncube is accompanied by a browser extension for the [Firefox browser](https://www.mozilla.org/en-US/firefox/new) and for the [Google Chrome browser](https://www.google.com/chrome/) for a smoother investigation workflow. The browser extension allows to store URL from the browser as sources directly in Ncube.
 
-![Discovery Browser Extension Screenshot](https://raw.githubusercontent.com/critocrito/ncube/master/resources/screenshots/discovery.png)
+![Discovery Browser Extension Screenshot](https://raw.githubusercontent.com/critocrito/ncube/main/resources/screenshots/discovery.png)
 
 ### Installation
 
@@ -203,10 +203,10 @@ Ncube was developed with the support of:
 
 <p align="justify">
   <a href="https://www.bmbf.de" alt="Bundesministerium für Bildung und Forschung">
-    <img src="https://raw.githubusercontent.com/critocrito/ncube/master/resources/logos/BMBF.jpg" width="26%" />
+    <img src="https://raw.githubusercontent.com/critocrito/ncube/main/resources/logos/BMBF.jpg" width="26%" />
   </a>
 
   <a href="https://prototypefund.de" alt="Prototype Fund">
-    <img src="https://raw.githubusercontent.com/critocrito/ncube/master/resources/logos/PrototypeFund-P-Logo.png" width="13%" />
+    <img src="https://raw.githubusercontent.com/critocrito/ncube/main/resources/logos/PrototypeFund-P-Logo.png" width="13%" />
   </a>
 </p>

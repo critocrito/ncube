@@ -1,6 +1,6 @@
 import React from "react";
 
-import SegmentList from "../../components/data/segment-list";
+import SegmentList from "../../components/data-segments-table";
 import {localWorkspace as workspace, segments} from "../data";
 import {FetchMock} from "../helpers";
 
@@ -15,9 +15,9 @@ export default (
         response={{status: "success", data: 2}}
       >
         <SegmentList
-          onExplore={() => {}}
+          onShow={() => {}}
           onVerify={() => {}}
-          onRemove={() => {}}
+          onDelete={() => {}}
           segments={segments}
           workspace={workspace}
         />

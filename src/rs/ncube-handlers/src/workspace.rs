@@ -147,7 +147,8 @@ pub async fn list_workspaces() -> Result<Vec<Workspace>, HandlerError> {
 #[instrument]
 pub async fn remove_workspace(workspace: &str, remove_location: bool) -> Result<(), HandlerError> {
     let workspace = lookup_workspace(workspace).await?;
-    let database = workspace_database(&workspace.slug).await?;
+    let host_actor = HostActor::from_registry().await.unwrap();
+    let database = host_actor.call(RequirePool).await??;
     let workspace_store = workspace_store(database.clone());
 
     // I can't chain if let with the second predicate, hence the nesting.

@@ -3,29 +3,16 @@ import c from "classnames";
 import {useSelect} from "downshift";
 import {useField} from "formik";
 import React from "react";
-import {EventObject} from "xstate";
 
 import iconChevronDown from "../../../resources/public/images/icon_chevron_down.svg";
 import iconChevronUp from "../../../resources/public/images/icon_chevron_up.svg";
-import {Methodology, MethodologySchema} from "../types";
+import {Methodology} from "../types";
 
-interface MethodologySelectProps<
-  TContext extends unknown,
-  TStateSchema extends MethodologySchema,
-  TEvent extends EventObject
-> {
-  methodologies: Methodology<TContext, TStateSchema, TEvent>[];
+interface MethodologySelectProps {
+  methodologies: Methodology[];
 }
 
-const MethodologySelectItem = <
-  TContext extends unknown,
-  TStateSchema extends MethodologySchema,
-  TEvent extends EventObject
->({
-  item,
-}: {
-  item: Methodology<TContext, TStateSchema, TEvent>;
-}) => {
+const MethodologySelectItem = ({item}: {item: Methodology}) => {
   return (
     <div>
       {item.title}
@@ -35,13 +22,7 @@ const MethodologySelectItem = <
   );
 };
 
-const MethodologySelect = <
-  TContext extends unknown,
-  TStateSchema extends MethodologySchema,
-  TEvent extends EventObject
->({
-  methodologies,
-}: MethodologySelectProps<TContext, TStateSchema, TEvent>) => {
+const MethodologySelect = ({methodologies}: MethodologySelectProps) => {
   const {
     isOpen,
     selectedItem,

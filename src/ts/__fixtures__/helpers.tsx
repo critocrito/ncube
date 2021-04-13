@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from "react";
-import fetchMock, {FetchMockStatic} from "fetch-mock";
 import {useMachine} from "@xstate/react";
+import fetchMock, {FetchMockStatic} from "fetch-mock";
+import React, {useEffect, useState} from "react";
 
-import {AppProvider, WorkspaceProvider} from "../lib/context";
+import {NcubeProvider, WorkspaceProvider} from "../lib/context";
+import {HttpDataResponse} from "../lib/http";
 import PubSub from "../lib/pubsub";
-import appMachine from "../machines/app";
+import ncubeMachine from "../machines/ncube";
 import workspaceMachine from "../machines/workspace";
 import {localWorkspace as workspace} from "./data";
-import {HttpDataResponse} from "../lib/http";
 
 fetchMock.config.overwriteRoutes = true;
 
@@ -38,7 +38,7 @@ export const FetchMock = <T extends unknown>({
     return () => {
       if (mock) mock.restore();
     };
-  }, [matcher, response]);
+  }, [mock, matcher, response, method]);
 
   return <>{mock && children}</>;
 };
@@ -48,7 +48,7 @@ interface WrapperProps {
 }
 
 export const Wrapper = ({children}: WrapperProps) => {
-  const [appState, appSend] = useMachine(appMachine, {
+  const [ncubeState, ncubeSend] = useMachine(ncubeMachine, {
     context: {
       workspaces: [],
       pubsub: new PubSub(),
@@ -91,10 +91,10 @@ export const Wrapper = ({children}: WrapperProps) => {
   });
 
   return (
-    <AppProvider value={[appState, appSend]}>
+    <NcubeProvider value={[ncubeState, ncubeSend]}>
       <WorkspaceProvider value={[workspaceState, workspaceSend]}>
         {children}
       </WorkspaceProvider>
-    </AppProvider>
+    </NcubeProvider>
   );
 };

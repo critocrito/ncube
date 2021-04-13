@@ -5,6 +5,9 @@ import * as v from "./lib/validations";
 
 export {EventObject} from "xstate";
 
+export type Resource = {id: number};
+export type SlugResource = {slug: string} & Resource;
+
 export type Platform = "youtube" | "twitter" | "http";
 
 export type SourceType =
@@ -41,17 +44,15 @@ export type RegisterResponse = {
   url: string;
 };
 
-export interface WorkspaceCommon {
-  id: number;
+export type WorkspaceCommon = SlugResource & {
   name: string;
-  slug: string;
   description?: string;
   created_at: Date;
   updated_at: Date;
   is_created: boolean;
   database: "sqlite" | "http";
   database_path: string;
-}
+};
 
 export type WorkspaceLocal = {
   kind: "local";
@@ -81,12 +82,17 @@ export interface SourceTag {
   description?: string;
 }
 
-export interface Source {
+export type Source = {
   id: number;
   type: string;
   term: string;
   tags: SourceTag[];
-}
+};
+
+export type SearchResults<T extends Resource> = {
+  data: T[];
+  total: number;
+};
 
 // export type Stats = Record<string, number>;
 export type Stats<T extends string> = {
@@ -118,8 +124,7 @@ export type Download = {
   data?: Record<string, unknown>;
 };
 
-export type Unit = {
-  id: number;
+export type Unit = Resource & {
   id_hash: string;
   content_hash: string;
   source: string;
@@ -139,9 +144,7 @@ export type Unit = {
   tags: SourceTag[];
 };
 
-export type Segment = {
-  id: number;
-  slug: string;
+export type Segment = SlugResource & {
   title: string;
   query: string;
   // FIXME: dates should be Date not string.
@@ -158,8 +161,7 @@ export type ProcessConfig = {
   value?: Record<string, string>;
 };
 
-export type Process = {
-  id: number;
+export type Process = Resource & {
   key: string;
   name: string;
   description: string;
@@ -175,41 +177,41 @@ export interface MethodologySchema extends StateSchema {
   };
 }
 
-export type Methodology<
-  TContext extends unknown,
-  TStateSchema extends MethodologySchema,
-  TEvent extends EventObject
-> = {
+export type Methodology = {
   id: number;
   title: string;
   slug: string;
   description?: string;
-  process: MachineConfig<TContext, TStateSchema, TEvent>;
+  process: MachineConfig<
+    Record<string, unknown>,
+    MethodologySchema,
+    EventObject
+  >;
   created_at: string;
   updated_at: string;
 };
 
-export type Investigation = {
-  id: number;
+export type Investigation = SlugResource & {
   title: string;
-  slug: string;
   description?: string;
   methodology: string;
   created_at: string;
   updated_at: string;
 };
 
-export type SegmentUnit<
-  TContext extends unknown,
-  TEvent extends EventObject
-> = {
-  id: number;
+export type SegmentUnit = Resource & {
   source: string;
   title?: string;
   videos: number;
   images: number;
-  state: State<TContext, TEvent>;
+  state: State<Record<string, unknown>, EventObject>;
   verification: number;
+};
+
+export type Verification = {
+  methodology: Methodology;
+  columns: string[];
+  units: Map<string, SegmentUnit[]>;
 };
 
 export type Annotation = {

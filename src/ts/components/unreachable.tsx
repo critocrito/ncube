@@ -1,7 +1,7 @@
 import React from "react";
 import {StateValue} from "xstate";
 
-import {useAppCtx} from "../lib/context";
+import {useNcubeCtx} from "../lib/context";
 import Fatal from "./fatal";
 
 interface UnreachableProps {
@@ -11,7 +11,7 @@ interface UnreachableProps {
 }
 
 const Unreachable = ({machine, state, reset}: UnreachableProps) => {
-  const [, send] = useAppCtx();
+  const [, send] = useNcubeCtx();
 
   return (
     <Fatal

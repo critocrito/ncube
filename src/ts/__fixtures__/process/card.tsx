@@ -1,6 +1,6 @@
 import React from "react";
 
-import ProcessCard from "../../components/processes/card";
+import ProcessCard from "../../components/processes-card";
 import {process1, process2} from "../data";
 import {FetchMock, Wrapper} from "../helpers";
 
@@ -11,8 +11,8 @@ export default (
       response={{status: "success", data: 23}}
     >
       <Wrapper>
-        <ProcessCard process={process1} onClick={() => {}} onRun={() => {}} />
-        <ProcessCard process={process2} onClick={() => {}} onRun={() => {}} />
+        <ProcessCard process={process1} onShow={() => {}} onRun={() => {}} />
+        <ProcessCard process={process2} onShow={() => {}} onRun={() => {}} />
       </Wrapper>
     </FetchMock>
   </div>

@@ -1,54 +1,54 @@
+import {useMachine} from "@xstate/react";
 import React from "react";
 
-import DeleteWorkspace from "../forms/delete-workspace";
-import {Workspace} from "../types";
+import machine, {DeleteContext, DeleteEvent} from "../machines/delete";
+import Error from "./error";
+import Placeholder from "./placeholder";
+import Unreachable from "./unreachable";
 
-interface ConfirmDeleteProps {
-  workspace: Workspace;
-  onCancel: () => void;
-  onDelete: (removeLocation: boolean) => void;
+interface ConfirmDeleteProps<T extends Record<string, unknown>> {
+  onDelete: (ctx: DeleteContext, ev: DeleteEvent<T>) => Promise<void>;
+  onDone: () => void;
+  children: (args: {
+    onSubmit: (data: T) => void;
+    onCancel: () => void;
+  }) => React.ReactNode;
 }
 
-const ConfirmDelete = ({
-  workspace: {name, description, location},
-  onCancel,
+const ConfirmDelete = <T extends Record<string, unknown>>({
   onDelete,
-}: ConfirmDeleteProps) => {
-  return (
-    <div className="flex flex-column">
-      <h3 className="header3">
-        Are you sure you want to delete this workspace?
-      </h3>
+  onDone,
+  children,
+}: ConfirmDeleteProps<T>) => {
+  const m = machine<T>();
+  const [state, send, service] = useMachine<DeleteContext, DeleteEvent<T>>(m, {
+    services: {delete: onDelete},
+  });
 
-      <p className="mb2 b sapphire">Name</p>
-      <div className="flex items-start justify-between">
-        <span className="w-90">{name}</span>
-      </div>
+  service.onDone(onDone);
 
-      {description && (
-        <>
-          <p className="mb2 b sapphire">Description</p>
-          <div className="flex items-start justify-between">
-            <span className="w-90">{description}</span>
-          </div>
-        </>
-      )}
+  const onSubmit = (data: T) => send({type: "YES", data});
+  const onCancel = () => send({type: "NO"});
 
-      <p className="mb2 b sapphire">Location</p>
-      <div className="flex items-start justify-between">
-        <span className="w-90">{location}</span>
-      </div>
+  if (state.matches("confirm")) return <>{children({onSubmit, onCancel})}</>;
 
-      <div className="mt4">
-        <DeleteWorkspace
-          onCancel={onCancel}
-          onSubmit={({delete_location: deleteLocation}) =>
-            onDelete(deleteLocation)
-          }
-        />
-      </div>
-    </div>
-  );
+  if (
+    state.matches("delete") ||
+    state.matches("abort") ||
+    state.matches("success")
+  )
+    return <Placeholder />;
+
+  if (state.matches("error")) {
+    return (
+      <Error
+        msg={state.context.error || "Failed to delete resource."}
+        recover={() => send({type: "RETRY"})}
+      />
+    );
+  }
+
+  return <Unreachable machine={m.id} state={state.value} />;
 };
 
 export default ConfirmDelete;

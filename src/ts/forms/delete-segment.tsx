@@ -8,8 +8,7 @@ type DeleteSegmentFormProps<
   DeleteSegmentFormValues
 > = FormProps<DeleteSegmentFormValues>;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface DeleteSegmentFormValues {}
+export type DeleteSegmentFormValues = Record<string, unknown>;
 
 export const defaultValues: DeleteSegmentFormValues = {};
 

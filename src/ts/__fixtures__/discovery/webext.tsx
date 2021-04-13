@@ -1,11 +1,10 @@
 import React from "react";
 
-import WebExtension from "../../components/webext";
-import Layout from "../../components/webext/layout";
-import {Workspace, SourceTag} from "../../types";
 import {HttpSuccessResponse} from "../../lib/http";
-import {FetchMock} from "../helpers";
+import {SourceTag, Workspace} from "../../types";
+import Discovery from "../../views/discovery";
 import {localWorkspace, remoteWorkspace, sourceTags} from "../data";
+import {FetchMock} from "../helpers";
 
 const workspacesResp: HttpSuccessResponse<Workspace[]> = {
   status: "success",
@@ -18,13 +17,6 @@ const sourceTagsResp: HttpSuccessResponse<SourceTag[]> = {
 };
 
 const Wrapper = () => {
-  const url = "https://www.youtube.com/watch?v=123456";
-  const sourceReq = {
-    type: "youtube_video",
-    term: url,
-    tags: [],
-  };
-
   return (
     <FetchMock<Workspace[]> matcher="/workspaces" response={workspacesResp}>
       <FetchMock<SourceTag[]>
@@ -45,9 +37,7 @@ const Wrapper = () => {
               response={201}
               method="POST"
             >
-              <Layout>
-                <WebExtension sourceReq={sourceReq} />
-              </Layout>
+              <Discovery />
             </FetchMock>
           </FetchMock>
         </FetchMock>

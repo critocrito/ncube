@@ -3,16 +3,12 @@ import React, {useState} from "react";
 import CreateInvestigation, {
   CreateInvestigationFormValues,
 } from "../../forms/create-investigation";
-import {WorkspaceLocal} from "../../types";
 import {HttpSuccessResponse} from "../../lib/http";
-import {
-  localWorkspace as workspace,
-  methodology1,
-  FixtureMethodology,
-} from "../data";
+import {Methodology, WorkspaceLocal} from "../../types";
+import {localWorkspace as workspace, methodology1} from "../data";
 import {FetchMock} from "../helpers";
 
-const resp: HttpSuccessResponse<FixtureMethodology[]> = {
+const resp: HttpSuccessResponse<Methodology[]> = {
   status: "success" as const,
   data: [methodology1],
 };
@@ -34,7 +30,7 @@ const Wrapper = () => {
 
   return (
     <div>
-      <FetchMock<FixtureMethodology[]>
+      <FetchMock<Methodology[]>
         matcher="/workspaces/my-workspace/methodologies"
         response={resp}
       >

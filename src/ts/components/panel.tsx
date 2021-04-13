@@ -1,6 +1,6 @@
 import React from "react";
 
-import {Workspace} from "../types";
+import {useNcubeCtx, useWorkspaceCtx} from "../lib/context";
 import Navbar from "./navbar";
 import PanelHeader from "./panel-header";
 import Sidebar from "./sidebar";
@@ -8,18 +8,22 @@ import Sidebar from "./sidebar";
 interface PanelProps {
   header: string;
   description?: string;
-  workspaces: Workspace[];
-  workspace: Workspace;
   children: JSX.Element;
 }
 
-const Panel = ({
-  children,
-  header,
-  description,
-  workspaces,
-  workspace,
-}: PanelProps) => {
+const Panel = ({children, header, description}: PanelProps) => {
+  const [
+    {
+      context: {workspaces},
+    },
+  ] = useNcubeCtx();
+
+  const [
+    {
+      context: {workspace},
+    },
+  ] = useWorkspaceCtx();
+
   return (
     <div className="flex">
       <Sidebar workspaces={workspaces} />

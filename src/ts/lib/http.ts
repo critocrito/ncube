@@ -2,17 +2,16 @@ import {EventObject, State} from "xstate";
 
 import {
   Annotation,
-  AnnotationReq,
   ConfigSettingReq,
   HostConfig,
   Investigation,
   InvestigationReq,
   Methodology,
-  MethodologySchema,
   Process,
   ProcessConfigReq,
   ProcessRunReq,
   RegisterResponse,
+  SearchResults,
   Segment,
   SegmentReq,
   SegmentUnit,
@@ -205,7 +204,7 @@ export const searchSources = async (
   query: string,
   pageIndex = 0,
   pageSize = 20,
-): Promise<{data: Source[]; total: number}> => {
+): Promise<SearchResults<Source>> => {
   const url = new URL(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/sources/search`,
   );
@@ -302,7 +301,7 @@ export const searchUnits = async (
   query: string,
   pageIndex = 0,
   pageSize = 20,
-): Promise<{data: Unit[]; total: number}> => {
+): Promise<SearchResults<Unit>> => {
   const url = new URL(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/data/search`,
   );
@@ -452,13 +451,9 @@ export const listInvestigations = async (
   return dataResponse(resp);
 };
 
-export const listMethodologies = async <
-  TContext extends Record<string, unknown>,
-  TStateSchema extends MethodologySchema,
-  TEvent extends EventObject
->(
+export const listMethodologies = async (
   workspace: string,
-): Promise<Methodology<TContext, TStateSchema, TEvent>[]> => {
+): Promise<Methodology[]> => {
   const resp = await fetch(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/methodologies`,
   );
@@ -514,22 +509,16 @@ export const listInvestigationSegments = async (
   return dataResponse(resp);
 };
 
-export const showMethodology = async <
-  TContext extends Record<string, unknown>,
-  TStateSchema extends MethodologySchema,
-  TEvent extends EventObject
->(
+export const showMethodology = async (
   workspace: string,
   methodology: string,
-): Promise<Methodology<TContext, TStateSchema, TEvent>> => {
+): Promise<Methodology> => {
   const resp = await fetch(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/methodologies/${methodology}`,
   );
 
   const {process, ...rest} = await dataResponse<
-    Methodology<TContext, TStateSchema, TEvent> & {
-      process: string;
-    }
+    Methodology & {process: string}
   >(resp);
   return {
     process: JSON.parse(process),
@@ -538,37 +527,29 @@ export const showMethodology = async <
   // return dataResponse(resp);
 };
 
-export const listSegmentUnits = async <
-  TContext extends Record<string, unknown>,
-  TEvent extends EventObject
->(
+export const listSegmentUnits = async (
   workspace: string,
   investigation: string,
   segment: string,
-): Promise<SegmentUnit<TContext, TEvent>[]> => {
+): Promise<SegmentUnit[]> => {
   const resp = await fetch(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/segments/${segment}`,
   );
 
-  return dataResponse(
-    resp,
-    (units: Array<SegmentUnit<TContext, TEvent> & {state: string}>) =>
-      units.map(({state, ...rest}) => ({
-        state: JSON.parse(state),
-        ...rest,
-      })),
+  return dataResponse(resp, (units: Array<SegmentUnit & {state: string}>) =>
+    units.map(({state, ...rest}) => ({
+      state: JSON.parse(state),
+      ...rest,
+    })),
   );
 };
 
-export const listSegmentUnitsByState = async <
-  TContext extends Record<string, unknown>,
-  TEvent extends EventObject
->(
+export const listSegmentUnitsByState = async (
   workspace: string,
   investigation: string,
   segment: string,
   state: string,
-): Promise<SegmentUnit<TContext, TEvent>[]> => {
+): Promise<SegmentUnit[]> => {
   const url = new URL(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/investigations/${investigation}/segments/${segment}`,
   );
@@ -577,13 +558,11 @@ export const listSegmentUnitsByState = async <
 
   const resp = await fetch(url.toString());
 
-  return dataResponse(
-    resp,
-    (units: Array<SegmentUnit<TContext, TEvent> & {state: string}>) =>
-      units.map(({state: s, ...rest}) => ({
-        state: JSON.parse(s),
-        ...rest,
-      })),
+  return dataResponse(resp, (units: Array<SegmentUnit & {state: string}>) =>
+    units.map(({state: s, ...rest}) => ({
+      state: JSON.parse(s),
+      ...rest,
+    })),
   );
 };
 
@@ -616,7 +595,7 @@ export const setAnnotation = async (
   workspace: string,
   investigation: string,
   verification: number,
-  body: AnnotationReq,
+  body: Annotation,
 ): Promise<void> => {
   // FIXME: Add validation
   // await v.investigationReq.isValid(body);

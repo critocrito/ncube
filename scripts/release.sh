@@ -72,4 +72,4 @@ git commit -m "chore(release): release version $VERSION" -e
 LAST_MSG=$(git log -1 --pretty=%B | sed 's/chore(release): //g')
 git tag -a "$VERSION" -m "$LAST_MSG"
 
-echo "Run 'git push --follow-tags origin master' to publish the release."
+echo "Run 'git push --follow-tags origin main' to publish the release."

@@ -5,30 +5,32 @@
  *      https://github.com/typescript-cheatsheets/react-typescript-cheatsheet/blob/master/README.md#context
  */
 import React from "react";
-import {Interpreter, State} from "xstate";
+import {EventObject, Interpreter, State} from "xstate";
 
-import appMachine, {AppContext, AppEvent, AppState} from "../machines/app";
+// import {Sender} from "@xstate/react/types";
+import ncubeMachine, {
+  NcubeContext,
+  NcubeEvent,
+  NcubeState,
+} from "../machines/ncube";
 import workspaceMachine, {
   WorkspaceContext,
   WorkspaceEvent,
   WorkspaceState,
 } from "../machines/workspace";
 
-type AppSchema = typeof appMachine;
-type AppCtx = [
-  State<AppContext, AppEvent, AppSchema, AppState>,
-  Interpreter<AppContext, AppSchema, AppEvent, AppState>["send"],
+type Sender<TEvent extends EventObject> = (event: TEvent) => void;
+
+type NcubeSchema = typeof ncubeMachine;
+type NcubeCtx = [
+  State<NcubeContext, NcubeEvent, NcubeSchema, NcubeState>,
+  Interpreter<NcubeContext, NcubeSchema, NcubeEvent, NcubeState>["send"],
 ];
 
 type WorkspaceSchema = typeof workspaceMachine;
 type WorkspaceCtx = [
   State<WorkspaceContext, WorkspaceEvent, WorkspaceSchema, WorkspaceState>,
-  Interpreter<
-    WorkspaceContext,
-    WorkspaceSchema,
-    WorkspaceEvent,
-    WorkspaceState
-  >["send"],
+  Sender<WorkspaceEvent>,
 ];
 
 // This is a trick to allow to create a context provider and hook with an
@@ -45,7 +47,7 @@ const createContext = <A>() => {
   return [useCtx, ctx.Provider] as const;
 };
 
-export const [useAppCtx, AppProvider] = createContext<AppCtx>();
+export const [useNcubeCtx, NcubeProvider] = createContext<NcubeCtx>();
 export const [
   useWorkspaceCtx,
   WorkspaceProvider,

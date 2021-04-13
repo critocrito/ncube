@@ -1,4 +1,4 @@
-import {assign, createMachine} from "xstate";
+import {assign, createMachine, DoneInvokeEvent} from "xstate";
 
 export type FormContext<T> = {
   values?: Partial<T>;
@@ -24,51 +24,68 @@ export type FormState<T> =
 
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export default <T extends unknown>(initialValues?: Partial<T>) =>
-  createMachine<FormContext<T>, FormEvent<T>, FormState<T>>({
-    id: "form",
+  createMachine<FormContext<T>, FormEvent<T>, FormState<T>>(
+    {
+      id: "form",
 
-    context: {
-      values: initialValues,
-      error: undefined,
+      context: {
+        values: initialValues,
+        error: undefined,
+      },
+
+      initial: "initial",
+
+      states: {
+        initial: {
+          on: {
+            SAVE: {
+              target: "saving",
+              actions: "setValues",
+            },
+            CANCEL: "done",
+          },
+        },
+
+        saving: {
+          invoke: {
+            src: "store",
+            onDone: {
+              target: "done",
+            },
+            onError: {
+              target: "error",
+              actions: "fail",
+            },
+          },
+        },
+
+        error: {
+          on: {
+            RETRY: "initial",
+          },
+        },
+
+        done: {
+          entry: "formDone",
+          type: "final",
+        },
+      },
     },
-
-    initial: "initial",
-
-    states: {
-      initial: {
-        on: {
-          SAVE: {
-            target: "saving",
-            actions: assign({
-              values: (_ctx, ev) => ev.values,
-            }),
+    {
+      actions: {
+        setValues: assign({
+          values: (_ctx, ev) => {
+            const {values} = ev as FormEventSave<T>;
+            return values;
           },
-          CANCEL: "done",
-        },
-      },
+        }),
 
-      saving: {
-        invoke: {
-          src: "store",
-          onDone: {
-            target: "done",
+        fail: assign({
+          error: (_ctx, ev) => {
+            const {data} = ev as DoneInvokeEvent<Error>;
+            return data.message;
           },
-          onError: {
-            target: "error",
-            actions: assign({error: (_, {data}) => data.message}),
-          },
-        },
-      },
-
-      error: {
-        on: {
-          RETRY: "initial",
-        },
-      },
-
-      done: {
-        entry: "formDone",
-        type: "final",
+        }),
       },
     },
-  });
+  );

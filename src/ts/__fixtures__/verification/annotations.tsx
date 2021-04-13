@@ -1,6 +1,6 @@
 import React from "react";
 
-import {AnnotationItem} from "../../components/verification/annotations";
+import {AnnotationItem} from "../../components/verification-annotations";
 import {Annotation as AnnotationType} from "../../types";
 import {annotations} from "../data";
 

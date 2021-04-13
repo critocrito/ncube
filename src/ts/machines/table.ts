@@ -1,49 +1,43 @@
-import {assign, createMachine} from "xstate";
+import {
+  ActorRefFrom,
+  assign,
+  createMachine,
+  DoneInvokeEvent,
+  Interpreter,
+  sendParent,
+} from "xstate";
 
-import {Source, Unit} from "../types";
+import {SearchResults, Source, Unit} from "../types";
 
-export interface TableContext<T extends {id: number}> {
-  query: string;
+type TableItem = {id: number};
+
+export type TableContext<T extends TableItem> = {
   pageIndex: number;
   pageSize: number;
   total: number;
-  results: T[];
   selected: T[];
   error?: string;
-}
+};
 
-export type TableEventSearch = {
-  type: "SEARCH";
-  query: string;
+export type TableEventSelection<T extends TableItem> = {
+  type: "SET_SELECTION";
+  selected: T[];
+};
+
+export type TableEventPagination = {
+  type: "SET_PAGINATION";
   pageIndex: number;
   pageSize: number;
 };
 
-export type TableEventConfirmDelete = {type: "CONFIRM_DELETE"; id: number};
-
-export type TableEvent<T extends {id: number}> =
-  | {type: "SHOW_TABLE"}
-  | {type: "SHOW_DETAILS"; item: T}
-  | {type: "SET_SELECTION"; selected: T[]}
-  | {type: "SET_QUERY"; query: string}
-  | TableEventSearch
-  | {type: "CREATE"}
-  | {type: "HELP"}
-  | {type: "DELETE"; item: T}
-  | TableEventConfirmDelete
-  | {type: "CANCEL"}
+export type TableEvent<T extends TableItem> =
+  | TableEventSelection<T>
+  | TableEventPagination
   | {type: "RETRY"};
 
-export type TableState<T extends {id: number}> =
+export type TableState<T extends TableItem> =
   | {
-      value:
-        | "fetching"
-        | "deleting"
-        | "table"
-        | "details"
-        | "help"
-        | "create"
-        | "delete";
+      value: "table";
       context: TableContext<T>;
     }
   | {
@@ -51,114 +45,85 @@ export type TableState<T extends {id: number}> =
       context: TableContext<T> & {error: string};
     };
 
+export type TableMachineInterpreter = ActorRefFrom<
+  Interpreter<
+    TableContext<Unit | Source>,
+    TableState<Unit | Source>,
+    TableEvent<Unit | Source>
+  >["machine"]
+>;
+
 export default createMachine<
   TableContext<Unit | Source>,
   TableEvent<Unit | Source>,
   TableState<Unit | Source>
->({
-  id: "table",
+>(
+  {
+    id: "table",
 
-  initial: "table",
+    initial: "table",
 
-  states: {
-    fetching: {
-      invoke: {
-        src: "listItems",
+    states: {
+      table: {
+        on: {
+          SET_SELECTION: {
+            actions: [
+              "setSelection",
+              sendParent(({selected}) => ({type: "SET_SELECTION", selected})),
+            ],
+          },
 
-        onDone: {
-          target: "table",
-          actions: assign((_ctx, {data}) => ({
-            results: data.data,
-            total: data.total,
-            selected: [],
-          })),
-        },
-
-        onError: {
-          target: "error",
-          actions: assign({error: (_ctx, {data}) => data.message}),
-        },
-      },
-    },
-
-    deleting: {
-      invoke: {
-        src: "deleteItem",
-
-        onDone: {
-          target: "fetching",
-        },
-
-        onError: {
-          target: "error",
-          actions: assign({error: (_ctx, {data}) => data.message}),
+          SET_PAGINATION: {
+            actions: [
+              "setPagination",
+              sendParent(({pageIndex, pageSize}) => ({
+                type: "PAGINATE",
+                pageIndex,
+                pageSize,
+              })),
+            ],
+          },
         },
       },
-    },
 
-    table: {
-      on: {
-        SHOW_DETAILS: "details",
-
-        CREATE: "create",
-
-        SEARCH: {
-          target: "fetching",
-          actions: assign((_ctx, {query, pageIndex, pageSize}) => ({
-            query,
-            pageIndex,
-            pageSize,
-          })),
+      error: {
+        on: {
+          RETRY: "table",
         },
-
-        SET_SELECTION: {
-          target: "table",
-          internal: true,
-          actions: assign({selected: (_ctx, {selected}) => selected}),
-        },
-
-        SET_QUERY: {
-          target: "table",
-          internal: true,
-          actions: assign({query: (_ctx, {query}) => query}),
-        },
-
-        DELETE: "delete",
-
-        HELP: "help",
-      },
-    },
-
-    help: {
-      on: {
-        SHOW_TABLE: "table",
-      },
-    },
-
-    create: {
-      on: {
-        SHOW_TABLE: "fetching",
-      },
-    },
-
-    delete: {
-      on: {
-        CANCEL: "table",
-        CONFIRM_DELETE: "deleting",
-      },
-    },
-
-    details: {
-      on: {
-        SHOW_TABLE: "table",
-        DELETE: "delete",
-      },
-    },
-
-    error: {
-      on: {
-        RETRY: "table",
       },
     },
   },
-});
+  {
+    actions: {
+      setSelection: assign({
+        selected: (_ctx, ev) => {
+          const {selected} = ev as TableEventSelection<Unit | Source>;
+
+          return selected;
+        },
+      }),
+
+      setPagination: assign((_ctx, ev) => {
+        const {pageIndex, pageSize} = ev as TableEventPagination;
+        return {pageIndex, pageSize};
+      }),
+
+      setResults: assign((_ctx, ev) => {
+        const {data} = ev as DoneInvokeEvent<SearchResults<Unit | Source>>;
+
+        return {
+          results: data.data,
+          total: data.total,
+          selected: [],
+        };
+      }),
+
+      fail: assign({
+        error: (_ctx, ev) => {
+          const {data} = ev as DoneInvokeEvent<Error>;
+          return data.message;
+        },
+      }),
+    },
+  },
+);

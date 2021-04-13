@@ -1,6 +1,6 @@
 import React from "react";
 
-import SourceDetails from "../../components/sources/details";
+import SourceDetails from "../../components/sources-details";
 import {source} from "../data";
 
 export default (
