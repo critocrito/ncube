@@ -1,4 +1,4 @@
-import c from "classnames";
+import c from "clsx";
 import copy from "copy-to-clipboard";
 import React, {useState} from "react";
 

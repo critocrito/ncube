@@ -1,4 +1,4 @@
-import c from "classnames";
+import c from "clsx";
 import React, {useState} from "react";
 
 import chevronLeftIcon from "../../../resources/public/images/icon_chevron_left.svg";

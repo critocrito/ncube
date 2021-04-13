@@ -1,4 +1,4 @@
-import c from "classnames";
+import c from "clsx";
 import React from "react";
 
 import iconDownload from "../../../resources/public/images/icon_download.svg";

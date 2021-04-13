@@ -1,4 +1,4 @@
-import c from "classnames";
+import c from "clsx";
 import parseISO from "date-fns/parseISO";
 import {Form, Formik} from "formik";
 import React from "react";

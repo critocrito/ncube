@@ -1,5 +1,5 @@
 /* eslint react/jsx-props-no-spreading: off */
-import c from "classnames";
+import c from "clsx";
 import {useCombobox, useMultipleSelection} from "downshift";
 import {FormikProps, withFormik} from "formik";
 import {matchSorter} from "match-sorter";

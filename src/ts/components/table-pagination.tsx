@@ -1,4 +1,4 @@
-import c from "classnames";
+import c from "clsx";
 import React, {PropsWithChildren, useCallback} from "react";
 
 import {isNumber, paginate} from "../lib/utils";

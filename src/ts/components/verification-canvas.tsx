@@ -1,5 +1,5 @@
 /* eslint react/jsx-props-no-spreading: off */
-import c from "classnames";
+import c from "clsx";
 import {csvFormat} from "d3-dsv";
 import React, {useCallback, useState} from "react";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";

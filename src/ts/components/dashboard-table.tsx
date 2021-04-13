@@ -1,4 +1,4 @@
-import c from "classnames";
+import c from "clsx";
 import React, {useEffect, useState} from "react";
 
 import WorkspacesEmpty from "../../mdx/workspaces-empty.mdx";

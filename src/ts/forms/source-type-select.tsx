@@ -1,5 +1,5 @@
 /* eslint react/jsx-props-no-spreading: off */
-import c from "classnames";
+import c from "clsx";
 import {useSelect} from "downshift";
 import {useField} from "formik";
 import React from "react";

@@ -1,6 +1,6 @@
 /* eslint react/jsx-props-no-spreading: off */
 import {useActor} from "@xstate/react";
-import c from "classnames";
+import c from "clsx";
 import React, {PropsWithChildren, useEffect} from "react";
 import {
   CellProps,
