@@ -1,5 +1,8 @@
 @import "tachyons";
 
+@tailwind base;
+@tailwind components;
+
 :root {
   /* Main colors. Headers, infotext, buttons, borders */
 
@@ -227,35 +230,35 @@
 
 /* Butons */
 .btn {
-  @insert .white .link .pa2 .ttu .br2 .tc .b .nowrap;
+  @apply white link pa2 ttu br2 tc b nowrap;
   border-radius: 3px;
   border: none;
 }
 
 .btn-active {
-  @insert .btn;
+  @apply btn;
   cursor: pointer;
 }
 
 .btn-active:hover {
-  @insert .o-50;
+  @apply o-50;
 }
 
 .btn-disabled {
-  @insert .btn .gray-75 .bg-white .b--gray-75 .o-50;
+  @apply btn gray-75 bg-white b--gray-75 o-50;
   cursor: unset;
 }
 
 .btn-sapphire {
-  @insert .bg-sapphire .b--sapphire;
+  @apply bg-sapphire b--sapphire;
 }
 
 .btn-bittersweet {
-  @insert .bg-bittersweet .b--bittersweet;
+  @apply bg-bittersweet b--bittersweet;
 }
 
 .btn-link {
-  @insert .bg-transparent .b--none .sapphire;
+  @apply bg-transparent b--none sapphire;
 }
 
 .btn-large {
@@ -287,34 +290,34 @@ body:not(.user-is-tabbing) textarea:focus {
 }
 
 form {
-  @insert .flex .flex-column .mw6;
+  @apply flex flex-column mw6;
 }
 
 ::placeholder {
-  @insert .gray-25 .o-100;
+  @apply gray-25 o-100;
 }
 
 /* Tables */
 
 th {
-  @insert .pa2;
+  @apply pa2;
 }
 
 td {
-  @insert .br .bb .b--sapphire .pa2;
+  @apply br bb b--sapphire pa2;
   position: relative;
 }
 
 tr {
-  @insert .bg-white;
+  @apply bg-white;
 }
 
 tr:hover {
-  @insert .bg-canvas;
+  @apply bg-canvas;
 }
 
 .card tr:hover {
-  @insert .bg-white;
+  @apply bg-white;
 }
 
 .trash {
@@ -370,17 +373,17 @@ tr:hover .trash {
 
 /* Other elements  */
 .base-tag {
-  @insert .pl3 .pr3 .br4 .text-medium .tc .b .ttu;
+  @apply pl3 pr3 br4 text-medium tc b ttu;
   height: 1.5rem;
 }
 
 .tag {
-  @insert .base-tag;
+  @apply base-tag;
   width: auto;
 }
 
 .short-tag {
-  @insert .base-tag;
+  @apply base-tag;
   width: 3.5rem;
   color: white;
 }
@@ -493,3 +496,5 @@ tr:hover .trash {
 .workspace-select[aria-disabled="true"] {
   border-color: var(--color-solitude);
 }
+
+@tailwind utilities;
