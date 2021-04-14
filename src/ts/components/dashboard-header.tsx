@@ -8,7 +8,7 @@ import IntroText from "./intro-text";
 const DashboardHeader = () => {
   return (
     <>
-      <header className="mb5 mt4">
+      <header className="mb-5 mt-4">
         <ExternalLink href="https://sugarcubetools.net">
           <img src={logoIcon} alt="Ncube logo." />
         </ExternalLink>

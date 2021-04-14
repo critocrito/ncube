@@ -192,8 +192,7 @@ tr:hover .trash {
 
 /* Other elements  */
 .base-tag {
-  @apply py-3 rounded-full text-md text-center font-bold uppercase;
-  height: 1.5rem;
+  @apply py-3 h-6 rounded-full text-center font-bold uppercase;
 }
 
 .tag {
@@ -205,41 +204,6 @@ tr:hover .trash {
   @apply base-tag;
   width: 3.5rem;
   color: white;
-}
-
-/* Loading Spinner */
-.loading {
-  @apply bg-white;
-
-  width: 10px;
-  height: 10px;
-  border-radius: 100%;
-  float: left;
-  margin-right: 5px;
-}
-.loading-0 {
-  @apply bg-sapphire;
-  -webkit-animation: bounce 1s infinite;
-  -webkit-animation-delay: 0.1s;
-}
-.loading-1 {
-  @apply bg-sapphire;
-  -webkit-animation: bounce 1s infinite;
-  -webkit-animation-delay: 0.3s;
-}
-.loading-2 {
-  @apply bg-sapphire;
-  -webkit-animation: bounce 1s infinite ease;
-  -webkit-animation-delay: 0.5s;
-}
-@-webkit-keyframes bounce {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  60% {
-    opacity: 0;
-  }
 }
 
 .fade-in {
@@ -370,5 +334,15 @@ tr:hover .trash {
   }
   .header5 {
     @apply text-md leading-none;
+  }
+
+  .animate-delay-100 {
+    animation-delay: 0.1s;
+  }
+  .animate-delay-300 {
+    animation-delay: 0.3s;
+  }
+  .animate-delay-500 {
+    animation-delay: 0.5s;
   }
 }

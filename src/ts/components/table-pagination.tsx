@@ -62,10 +62,12 @@ const TablePagination = ({
     <div className="mt3 text-md gray-25">
       {pager} <span className="ml2 mr2" />{" "}
       {loading ? (
-        <span>
+        <>
           Loading
-          <LoadingSpinner className="ml3" />
-        </span>
+          <span className="ml3">
+            <LoadingSpinner />
+          </span>
+        </>
       ) : (
         counter
       )}

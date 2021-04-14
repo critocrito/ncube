@@ -48,6 +48,17 @@ module.exports = {
           yellow: "#e4d976",
         },
       },
+
+      animation: {
+        spinner: "spinner 1.5s ease-in-out infinite",
+      },
+
+      keyframes: {
+        spinner: {
+          "0%, 100%": {opacity: 1},
+          "60%": {opacity: 0},
+        },
+      },
     },
   },
   variants: {

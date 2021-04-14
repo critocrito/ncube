@@ -1,16 +1,14 @@
 import c from "clsx";
 import React from "react";
 
-interface LoadingSpinnerProps {
-  className?: string;
-}
+const LoadingSpinner = () => {
+  const className = "w-2 h-2 rounded bg-sapphire fl mr-1 animate-spinner";
 
-const LoadingSpinner = ({className}: LoadingSpinnerProps) => {
   return (
-    <div className={c("dib", className)}>
-      <div className="loading loading-0" />
-      <div className="loading loading-1" />
-      <div className="loading loading-2" />
+    <div className="inline-block">
+      <div className={c(className, "animate-delay-100")} />
+      <div className={c(className, "animate-delay-300")} />
+      <div className={c(className, "animate-delay-500")} />
     </div>
   );
 };

@@ -1,4 +1,3 @@
-import c from "clsx";
 import React from "react";
 
 import Button from "./button";
@@ -6,23 +5,18 @@ import Button from "./button";
 interface DashboardActionsProps {
   onLink: () => void;
   onCreate: () => void;
-  className?: string;
 }
 
-const DashboardActions = ({
-  onLink,
-  onCreate,
-  className,
-}: DashboardActionsProps) => {
+const DashboardActions = ({onLink, onCreate}: DashboardActionsProps) => {
   return (
-    <div className={c("flex justify-between", className)}>
+    <>
       <Button kind="secondary" size="large" onClick={onLink}>
         Link Workspace
       </Button>
       <Button size="large" onClick={onCreate}>
         Create Workspace
       </Button>
-    </div>
+    </>
   );
 };
 

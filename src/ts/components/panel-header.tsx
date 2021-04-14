@@ -21,7 +21,7 @@ const PanelHeader = ({workspace}: PanelHeaderProps) => {
           {`Workspace: ${workspace.name}`}
         </button>
       </div>
-      <WorkspaceTag className="mb1" kind={workspace.kind} />
+      <WorkspaceTag kind={workspace.kind} />
     </div>
   );
 };

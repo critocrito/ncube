@@ -23,7 +23,7 @@ const Button = ({
   const classes = c(
     "items-center rounded-sm border border-transparent",
     "text-white font-bold leading-tight no-underline uppercase whitespace-nowrap",
-    "px-3 py-2 mx-2 min-w-min",
+    "px-3 py-2 min-w-min",
     {
       "bg-bittersweet": kind === "primary" && !disabled,
       "bg-sapphire": kind === "secondary" && !disabled,

@@ -7,7 +7,7 @@ interface IntroTextProps {
 }
 
 const IntroText = ({children, className}: IntroTextProps) => {
-  return <div className={c("mb4", className)}>{children}</div>;
+  return <div className={c("mb-4", className)}>{children}</div>;
 };
 
 export default IntroText;

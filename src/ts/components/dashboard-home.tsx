@@ -22,7 +22,7 @@ const DashboardHome = ({
   onCreate = voidFn,
 }: DashboardHomeProps) => {
   return (
-    <div className="fl w-100 pa3">
+    <>
       <DashboardHeader />
 
       <DashboardTable
@@ -31,10 +31,10 @@ const DashboardHome = ({
         onDelete={onDelete}
       />
 
-      <div className="ml-auto w-40 mt3">
+      <div className="mt-3 flex space-x-4 fr">
         <DashboardActions onLink={onLink} onCreate={onCreate} />
       </div>
-    </div>
+    </>
   );
 };
 

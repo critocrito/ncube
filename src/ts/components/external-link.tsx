@@ -1,4 +1,3 @@
-import c from "clsx";
 import React from "react";
 
 import rpc from "../lib/rpc";
@@ -6,16 +5,12 @@ import rpc from "../lib/rpc";
 interface ExternalLinkProps {
   href: string;
   children: JSX.Element | string;
-  className?: string;
 }
 
-const ExternalLink = ({href, children, className}: ExternalLinkProps) => {
+const ExternalLink = ({href, children}: ExternalLinkProps) => {
   return (
     <button
-      className={c(
-        "b--transparent bg-transparent pointer text-bittersweet underline pa0",
-        className,
-      )}
+      className="text-bittersweet underline p-0"
       onClick={() => rpc.openExternal(href)}
     >
       {children}

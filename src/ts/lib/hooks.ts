@@ -103,3 +103,31 @@ export const useCombinedRefs = <T extends HTMLElement>(
 
   return targetRef;
 };
+
+export const useBreakpointSize = (): number => {
+  const [size, setSize] = useState<number>(0);
+
+  useEffect(() => {
+    const resize = (): void => {
+      if (!window?.innerWidth) return;
+      setSize(window.innerWidth);
+    };
+
+    window.addEventListener("resize", resize);
+
+    resize();
+
+    return (): void => {
+      window.removeEventListener("resize", resize);
+    };
+  });
+
+  return size;
+};
+
+export const useMobileSize = (breakpoint = 768): boolean => {
+  const size = useBreakpointSize();
+
+  // We are on mobile if we are below 640px.
+  return size < breakpoint;
+};

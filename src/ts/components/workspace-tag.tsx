@@ -3,23 +3,20 @@ import React from "react";
 
 interface WorkspaceTagProps {
   kind?: "local" | "remote";
-  className?: string;
 }
 
-const WorkspaceTag = ({kind = "local", className}: WorkspaceTagProps) => {
+const WorkspaceTag = ({kind = "local"}: WorkspaceTagProps) => {
   const label = kind === "local" ? "local" : "remote";
   const classes = c(
-    "tag flex flex-column justify-around text-sapphire",
-    // This works since we only have two types of workspaces.
-    kind === "local" ? "bg-solitude" : "bg-gray-25",
-    className,
+    "text-sapphire text-sm font-bold uppercase",
+    "items-center text-center px-3 py-0.5 w-20 rounded-full",
+    {
+      "bg-solitude": kind === "local",
+      "bg-gray-light": kind === "remote",
+    },
   );
 
-  return (
-    <div className={classes}>
-      <span>{label}</span>
-    </div>
-  );
+  return <span className={classes}>{label}</span>;
 };
 
 export default WorkspaceTag;

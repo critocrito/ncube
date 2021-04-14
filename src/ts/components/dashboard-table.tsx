@@ -13,7 +13,7 @@ import Button from "./button";
 import IntroText from "./intro-text";
 import LoadingSpinner from "./loading-spinner";
 import Overline from "./overline";
-import Stat from "./stat-dashboard";
+import DashboardStats from "./dashboard-stats";
 import WorkspaceTag from "./workspace-tag";
 
 interface DashboardWorkspacesProps {
@@ -102,63 +102,52 @@ const DashboardWorkspaceItem = ({
   });
 
   return (
-    <li className="bb">
-      <div className="flex items-center justify-between w-100">
-        <div className="flex flex-wrap w-80">
-          <div className=" w-100 flex justify-between items-center">
-            <div className="flex w-10 mr3">
-              <WorkspaceTag kind={kind} />
-            </div>
-            <h3 className="header3 flex-nowrap w-100 ma0 pv4">{name}</h3>
+    <li className="border-b">
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col justify-around h-36 my-1 md:my-4">
+          <div className="flex items-center space-x-4">
+            <WorkspaceTag kind={kind} />
+
+            <h3 className="header3">{name}</h3>
           </div>
-          <div className="w-70 pb4 mr2">
-            {isCreated ? (
-              <div className="flex items-center justify-between">
-                <Stat
-                  kind="source"
-                  fetchStat={() => statSourcesTotal(workspace.slug)}
-                />
-                <Stat
-                  kind="data"
-                  fetchStat={() => statDataTotal(workspace.slug)}
-                />
-                <Stat
-                  kind="investigation"
-                  fetchStat={() => statInvestigationsTotal(workspace.slug)}
-                />
-              </div>
-            ) : (
-              <div>
-                This workspace is being created in the background. Depending on
-                your computer and Internet speed this can take some time.
-              </div>
-            )}
-          </div>
+
+          {isCreated ? (
+            <DashboardStats
+              fetchSourcesStat={() => statSourcesTotal(workspace.slug)}
+              fetchDataStat={() => statDataTotal(workspace.slug)}
+              fetchInvestigationsStat={() =>
+                statInvestigationsTotal(workspace.slug)
+              }
+            />
+          ) : (
+            <p className="max-w-lg">
+              This workspace is being created in the background. Depending on
+              your computer and Internet speed this can take some time.
+            </p>
+          )}
         </div>
 
         {isCreated ? (
-          <div className="flex">
+          <div className="flex flex-col md:items-center md:flex-row space-y-4 md:space-y-0 md:space-x-4">
             {kind === "local" && (
-              <Button className="ml1" kind="caution" onClick={handleRemove}>
+              <Button kind="caution" onClick={handleRemove}>
                 Remove
               </Button>
             )}
-            <Button className="ml1" onClick={handleOpen}>
-              Open
-            </Button>
+            <Button onClick={handleOpen}>Open</Button>
           </div>
         ) : (
-          <div className="flex flex-column">
-            <LoadingSpinner className="ml-auto" />
+          <div className="flex flex-col items-end">
+            <LoadingSpinner />
             {message && (
-              <div
-                className={c(
-                  "pt2 text-md ml-auto nowrap",
-                  isError ? "error" : "success",
-                )}
+              <span
+                className={c("pt-2 text-sm whitespace-nowrap", {
+                  "text-error": isError,
+                  "text-success": !isError,
+                })}
               >
                 {message}
-              </div>
+              </span>
             )}
           </div>
         )}
@@ -172,11 +161,12 @@ const DashboardWorkspaces = ({
   onShow,
   onDelete,
 }: DashboardWorkspacesProps) => {
+  // className="list-inside pl0 mt0 mb0"
   return workspaces.length > 0 ? (
     <>
-      <Overline className="pt4" label="Workspaces" />
+      <Overline className="pt-4" label="Workspaces" />
 
-      <ul className="list pl0 mt0 mb0">
+      <ul>
         {workspaces.map((workspace) => (
           <DashboardWorkspaceItem
             key={workspace.id}
