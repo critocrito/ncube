@@ -1,7 +1,7 @@
-import c from "clsx";
-import React from "react";
+import React, {useEffect, useRef} from "react";
 
 import closeIcon from "../../../resources/public/images/icon_close.svg";
+import {isMouseEvent} from "../lib/utils";
 
 interface ModalProps {
   title: string;
@@ -11,42 +11,87 @@ interface ModalProps {
   className?: string;
 }
 
-const Modal = ({
-  title,
-  description,
-  onCancel,
-  children,
-  className,
-}: ModalProps) => {
+const Modal = ({title, description, onCancel, children}: ModalProps) => {
+  // eslint-disable-next-line unicorn/no-null
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Collapse the modal when we click outside the menu.
+  useEffect(() => {
+    const handleClickOutside = (ev: Event) => {
+      if (isMouseEvent(ev) && !ref.current?.contains(ev.target as Node)) {
+        onCancel();
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside, true);
+    return () => {
+      document.removeEventListener("click", handleClickOutside, true);
+    };
+  }, [onCancel]);
+
+  // Collapse the modal when we press the escape key.
+  useEffect(() => {
+    const handleEscapeKey = (ev: KeyboardEvent) => {
+      const key = ev.key || ev.keyCode;
+      if (key === "Escape" || key === "Esc" || key === 27) {
+        onCancel();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscapeKey, false);
+    return () => {
+      document.removeEventListener("keydown", handleEscapeKey, false);
+    };
+  }, [onCancel]);
+
+  // Disable background scrolling.
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
+
   return (
-    <>
-      <div
-        role="dialog"
-        aria-labelledby={title}
-        aria-describedby={description}
-        className={c(
-          "absolute top-2 ml-auto h-40 w-50 bg-canvas z-9999",
-          className,
-        )}
-      >
-        <div className="relative">
-          <button
-            aria-label="Close Modal"
-            className="absolute bg-canvas b--none top-0 right-0 mt2"
-            onClick={onCancel}
-          >
-            <img
-              src={closeIcon}
-              height="15px"
-              width="15px"
-              alt="Close modal."
-            />
-          </button>
-          <div className="pa4">{children}</div>
+    <div
+      className="fixed z-10 inset-0 overflow-y-auto"
+      aria-labelledby={title}
+      aria-describedby={description}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div
+          className="fixed inset-0 bg-gray-light bg-opacity-60 transition-opacity"
+          aria-hidden="true"
+        ></div>
+
+        <span
+          className="hidden sm:inline-block sm:align-middle sm:h-screen"
+          aria-hidden="true"
+        >
+          &#8203;
+        </span>
+
+        <div
+          ref={ref}
+          className="inline-block align-bottom bg-white rounded-sm px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
+        >
+          <div className="hidden sm:block absolute top-0 right-0 pt-4 pr-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              aria-label="Close Modal"
+              className="bg-white rounded-md text-gray-400 hover:text-gray-500"
+            >
+              <span className="sr-only">Close</span>
+              <img src={closeIcon} className="w-4 h-4" alt="Close modal." />
+            </button>
+          </div>
+          <div className="sm:flex sm:items-start">{children}</div>
         </div>
       </div>
-      <div className=" absolute bg-black o-50 w-100 h-100 fixed z-999 top-0 left-0 flex items-center justify-around" />
-    </>
+    </div>
   );
 };
 
