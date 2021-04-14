@@ -14,7 +14,7 @@ const QueryTagList = ({tags}: QueryTagListProps) => {
         <li key={label} className="mt2 mb2">
           <div className="flex">
             <QueryTag label={label} />
-            <span className="ml2 solitude text-medium">{description}</span>
+            <span className="ml2 solitude text-md">{description}</span>
           </div>
         </li>
       ))}

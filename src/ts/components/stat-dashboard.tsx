@@ -45,7 +45,7 @@ const Stat = ({kind, fetchStat}: StatProps) => {
   return (
     <div className="ml2 mr2 flex items-center">
       <img src={icon} className="mr1" alt={`Icon for the ${kind} stat.`} />
-      <div className="b text-medium ttu sapphire">
+      <div className="b text-md ttu text-sapphire">
         {label}: {statValue === 0 ? <span>&mdash;</span> : statValue}
       </div>
     </div>

@@ -153,7 +153,7 @@ const DashboardWorkspaceItem = ({
             {message && (
               <div
                 className={c(
-                  "pt2 text-medium ml-auto nowrap",
+                  "pt2 text-md ml-auto nowrap",
                   isError ? "error" : "success",
                 )}
               >

@@ -17,7 +17,7 @@ const MethodologySelectItem = ({item}: {item: Methodology}) => {
     <div>
       {item.title}
       <span className="w3">&nbsp;</span>
-      <span className="text-medium solitude">{item.description}</span>
+      <span className="text-md solitude">{item.description}</span>
     </div>
   );
 };

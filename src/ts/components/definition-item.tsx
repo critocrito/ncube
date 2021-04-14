@@ -8,8 +8,8 @@ interface DefinitionItemProps {
 const DefinitionItem = ({item, value}: DefinitionItemProps) => {
   return (
     <dl className="mv2">
-      <dt className="dib b text-medium">{item}:</dt>
-      <dd className="dib ml1 text-medium">{value}</dd>
+      <dt className="dib b text-md">{item}:</dt>
+      <dd className="dib ml1 text-md">{value}</dd>
     </dl>
   );
 };

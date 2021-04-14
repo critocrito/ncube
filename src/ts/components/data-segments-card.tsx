@@ -45,21 +45,21 @@ const DataSegmentsCard = ({
 
             <thead>
               <tr>
-                <th className="ba b--fair-pink tc b sapphire">Query</th>
-                <th className="ba b--fair-pink tc b sapphire">Units</th>
-                <th className="ba b--fair-pink tc b sapphire">New</th>
+                <th className="ba b--fair-pink tc b text-sapphire">Query</th>
+                <th className="ba b--fair-pink tc b text-sapphire">Units</th>
+                <th className="ba b--fair-pink tc b text-sapphire">New</th>
               </tr>
             </thead>
 
             <tbody>
               <tr>
-                <td className="ba b--fair-pink tc sapphire">{query}</td>
-                <td className="ba b--fair-pink tc sapphire">
+                <td className="ba b--fair-pink tc text-sapphire">{query}</td>
+                <td className="ba b--fair-pink tc text-sapphire">
                   <Stat
                     fetchStat={() => statSegmentsUnits(workspace.slug, slug)}
                   />
                 </td>
-                <td className="ba b--fair-pink tc sapphire">&mdash;</td>
+                <td className="ba b--fair-pink tc text-sapphire">&mdash;</td>
               </tr>
             </tbody>
           </table>

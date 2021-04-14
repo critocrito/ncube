@@ -49,7 +49,7 @@ const DataDetails = ({unit}: DataDetailsProps) => {
       <MediaViewer downloads={unit.downloads} />
 
       <div className="flex justify-between items-center mt3">
-        <span className="ttu w-10 b text-medium">Unit</span>
+        <span className="ttu w-10 b text-md">Unit</span>
         <hr className="w-80" />
       </div>
 
@@ -71,13 +71,13 @@ const DataDetails = ({unit}: DataDetailsProps) => {
       <DefinitionItem item="Description" value={unit.description || ""} />
 
       <div className="flex justify-between items-center mt3">
-        <span className="ttu w-10 b text-medium nowrap">Fetch Info</span>
+        <span className="ttu w-10 b text-md nowrap">Fetch Info</span>
         <hr className="w-80" />
       </div>
       <DefinitionItem item="Publish Date" value={fetchedAt} />
 
       <div className="flex justify-between items-center mt3">
-        <span className="ttu w-10 b text-medium">Tags</span>
+        <span className="ttu w-10 b text-md">Tags</span>
         <hr className="w-80" />
       </div>
       <QueryTagList tags={unit.tags} />

@@ -18,9 +18,9 @@ const InvestigationsDetails = ({
   return (
     <div>
       <div className="flex items-center pb2">
-        <h4 className="header4 sapphire">Segments</h4>
+        <h4 className="header4">Segments</h4>
         <div className="ml3 h1 w-100">
-          <hr className="sapphire" />
+          <hr className="text-sapphire" />
         </div>
       </div>
 

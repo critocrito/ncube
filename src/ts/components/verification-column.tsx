@@ -40,7 +40,7 @@ const VerificationColumn = ({
       )}
     >
       <div className="bb b--solitude h3 ttu center w-100 pa2 mv2 flex items-center">
-        <span className="text-medium b sapphire">{name}</span>
+        <span className="text-md b text-sapphire">{name}</span>
       </div>
 
       <div className="pa2 mv2 flex items-center justify-between">

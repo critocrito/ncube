@@ -11,7 +11,7 @@ interface ProcessesInfoBoxProps {
 
 const ProcessesInfoBox = ({isSetup, onSetup}: ProcessesInfoBoxProps) => {
   return isSetup ? (
-    <div className="text-medium flex items-center">
+    <div className="text-md flex items-center">
       <img src={successIcon} alt="Process is configured." className="h1 w1" />
       <span className="ml2 tl">
         All requirements for this process are fulfilled.
@@ -19,7 +19,7 @@ const ProcessesInfoBox = ({isSetup, onSetup}: ProcessesInfoBoxProps) => {
     </div>
   ) : (
     <div className="flex items-center justify-between hover">
-      <div className="text-medium flex items-center">
+      <div className="text-md flex items-center">
         <img
           src={failIcon}
           alt="Process requires configuration."

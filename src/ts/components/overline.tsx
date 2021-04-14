@@ -9,7 +9,7 @@ interface OverlineProps {
 const Overline = ({label, className}: OverlineProps) => {
   return (
     <div
-      className={c("b bb b--sapphire ttu sapphire pb", className)}
+      className={c("b bb b--sapphire ttu text-sapphire pb", className)}
     >{`${label}:`}</div>
   );
 };

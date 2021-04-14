@@ -9,7 +9,7 @@ interface WorkspaceTagProps {
 const WorkspaceTag = ({kind = "local", className}: WorkspaceTagProps) => {
   const label = kind === "local" ? "local" : "remote";
   const classes = c(
-    "tag flex flex-column justify-around sapphire",
+    "tag flex flex-column justify-around text-sapphire",
     // This works since we only have two types of workspaces.
     kind === "local" ? "bg-solitude" : "bg-gray-25",
     className,

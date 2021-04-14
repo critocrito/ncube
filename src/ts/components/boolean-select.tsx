@@ -44,7 +44,7 @@ const BooleanSelect = ({
         {label}
       </label>
 
-      {description && <span className="text-medium mb2">{description}</span>}
+      {description && <span className="text-md mb2">{description}</span>}
 
       <S
         styles={styles}

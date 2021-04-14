@@ -42,7 +42,7 @@ const TablePagination = ({
           className={c(
             baseClass,
             "pointer",
-            page === pageIndex ? "sapphire" : "gray-25",
+            page === pageIndex ? "text-sapphire" : "text-gray-light",
           )}
           role="button"
           tabIndex={0}
@@ -59,7 +59,7 @@ const TablePagination = ({
   );
 
   return (
-    <div className="mt3 text-medium gray-25">
+    <div className="mt3 text-md gray-25">
       {pager} <span className="ml2 mr2" />{" "}
       {loading ? (
         <span>

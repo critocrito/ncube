@@ -37,19 +37,6 @@
   --color-washed-yellow: #e4d976;
 }
 
-/* Colors */
-.canvas {
-  color: var(--color-canvas);
-}
-
-.bittersweet {
-  color: var(--color-bittersweet);
-}
-
-.sapphire {
-  color: var(--color-sapphire);
-}
-
 .fair-pink {
   color: var(--color-fair-pink);
 }
@@ -72,56 +59,6 @@
 
 .error {
   color: var(--color-error);
-}
-/* Background */
-
-.bg-canvas {
-  background: var(--color-canvas);
-}
-
-.bg-bittersweet {
-  background: var(--color-bittersweet);
-}
-
-.bg-sapphire {
-  background: var(--color-sapphire);
-}
-
-.bg-fair-pink {
-  background: var(--color-fair-pink);
-}
-
-.bg-solitude {
-  background: var(--color-solitude); /* Background of tags */
-}
-
-.bg-gray-25 {
-  background: var(--color-gray-25);
-}
-
-.bg-gray-75 {
-  background: var(--color-gray-75);
-}
-
-.bg-success {
-  background: var(--color-success);
-}
-
-.bg-error {
-  background: var(--color-error);
-}
-/* Background */
-
-.bg-youtube {
-  background: var(--color-youtube);
-}
-
-.bg-twitter {
-  background: var(--color-twitter);
-}
-
-.bg-http {
-  background: var(--color-http);
 }
 
 /* Borders */
@@ -190,47 +127,9 @@
     url(../../resources/public/fonts/NotoSans-Regular.ttf) format("truetype");
 }
 
-.noto {
-  font-family: "Noto Sans", sans-serif;
-}
-
-.header1 {
-  font-size: 3.052em;
-  color: var(--color-sapphire);
-  line-height: 1em;
-}
-.header2 {
-  font-size: 2.441em;
-  color: var(--color-sapphire);
-  line-height: 1em;
-}
-.header3 {
-  font-size: 1.953em;
-  color: var(--color-sapphire);
-  line-height: 1em;
-}
-.header4 {
-  font-size: 1.563em;
-  color: var(--color-sapphire);
-  line-height: 1em;
-}
-.header5 {
-  font-size: 1.25em;
-  line-height: 1em;
-}
-
-.text-medium {
-  font-size: 0.8em;
-}
-
-.text-small {
-  font-size: 0.7em;
-  color: var(--color-gray-75);
-}
-
 /* Butons */
 .btn {
-  @apply white link pa2 ttu br2 tc b nowrap;
+  @apply text-white link pa2 ttu br2 tc b nowrap;
   border-radius: 3px;
   border: none;
 }
@@ -245,7 +144,7 @@
 }
 
 .btn-disabled {
-  @apply btn gray-75 bg-white b--gray-75 o-50;
+  @apply btn text-gray-75 bg-white b--gray-75 o-50;
   cursor: unset;
 }
 
@@ -258,7 +157,7 @@
 }
 
 .btn-link {
-  @apply bg-transparent b--none sapphire;
+  @apply bg-transparent b--none text-sapphire;
 }
 
 .btn-large {
@@ -276,19 +175,6 @@
 }
 
 /* Global elements */
-
-body {
-  font-size: 16px;
-  color: var(--color-gray-75);
-}
-
-body:not(.user-is-tabbing) button:focus,
-body:not(.user-is-tabbing) input:focus,
-body:not(.user-is-tabbing) select:focus,
-body:not(.user-is-tabbing) textarea:focus {
-  outline: none;
-}
-
 form {
   @apply flex flex-column mw6;
 }
@@ -373,7 +259,7 @@ tr:hover .trash {
 
 /* Other elements  */
 .base-tag {
-  @apply pl3 pr3 br4 text-medium tc b ttu;
+  @apply pl3 pr3 br4 text-md tc b ttu;
   height: 1.5rem;
 }
 
@@ -390,27 +276,28 @@ tr:hover .trash {
 
 /* Loading Spinner */
 .loading {
+  @apply bg-white;
+
   width: 10px;
   height: 10px;
-  background: #fff;
   border-radius: 100%;
   float: left;
   margin-right: 5px;
 }
 .loading-0 {
+  @apply bg-sapphire;
   -webkit-animation: bounce 1s infinite;
   -webkit-animation-delay: 0.1s;
-  background: var(--color-sapphire);
 }
 .loading-1 {
+  @apply bg-sapphire;
   -webkit-animation: bounce 1s infinite;
   -webkit-animation-delay: 0.3s;
-  background: var(--color-sapphire);
 }
 .loading-2 {
+  @apply bg-sapphire;
   -webkit-animation: bounce 1s infinite ease;
   -webkit-animation-delay: 0.5s;
-  background: var(--color-sapphire);
 }
 @-webkit-keyframes bounce {
   0%,
@@ -469,7 +356,7 @@ tr:hover .trash {
 }
 /* Hover style */
 .workspace-select:hover {
-  border-color: var(--color-solitude);
+  @apply border-solitude;
 }
 
 /* Set options to normal weight */
@@ -488,13 +375,67 @@ tr:hover .trash {
 /* Disabled styles */
 .workspace-select:disabled,
 .workspace-select[aria-disabled="true"] {
-  color: graytext;
+  @apply text-gray-light;
   background-image: url("../../resources/public/images/icon_workspace_select.svg");
 }
 
 .workspace-select:disabled:hover,
 .workspace-select[aria-disabled="true"] {
-  border-color: var(--color-solitude);
+  @apply border-solitude;
 }
 
 @tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: "Noto Sans";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: local("Noto Sans Bold"), local("NotoSans-Bold"),
+      url(../../resources/public/fonts/NotoSans-Bold.ttf) format("truetype");
+  }
+
+  @font-face {
+    font-family: "Noto Sans";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: local("Noto Sans"), local("NotoSans"),
+      url(../../resources/public/fonts/NotoSans-Regular.ttf) format("truetype");
+  }
+
+  html {
+    @apply font-noto;
+    font-size: 16px;
+  }
+
+  body {
+    @apply text-gray-dark bg-canvas;
+  }
+
+  body:not(.user-is-tabbing) button:focus,
+  body:not(.user-is-tabbing) input:focus,
+  body:not(.user-is-tabbing) select:focus,
+  body:not(.user-is-tabbing) textarea:focus {
+    outline: none;
+  }
+}
+
+@layer utilities {
+  .header1 {
+    @apply text-3xl text-sapphire leading-none;
+  }
+  .header2 {
+    @apply text-2xl text-sapphire leading-none;
+  }
+  .header3 {
+    @apply text-xl text-sapphire leading-none;
+  }
+  .header4 {
+    @apply text-lg text-sapphire leading-none;
+  }
+  .header5 {
+    @apply text-md leading-none;
+  }
+}

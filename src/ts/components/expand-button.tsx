@@ -25,7 +25,7 @@ const ExpansionItem = ({
           onClick={onClick}
           disabled={disabled}
         >
-          <div className="fl b sapphire">
+          <div className="fl b text-sapphire">
             <div className={c(className)}> {children}</div>
           </div>
         </button>

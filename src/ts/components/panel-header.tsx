@@ -13,9 +13,9 @@ const PanelHeader = ({workspace}: PanelHeaderProps) => {
 
   return (
     <div className="bb b--sapphire w-100 flex justify-between items-center pb2">
-      <div className="b text-medium sapphire ttu w-30">
+      <div className="b text-md text-sapphire ttu w-30">
         <button
-          className="b--none bg-transparent pointer b sapphire ttu ma0 pa0 dim"
+          className="b--none bg-transparent pointer b text-sapphire ttu ma0 pa0 dim"
           onClick={() => workspaceSend({type: "OVERVIEW"})}
         >
           {`Workspace: ${workspace.name}`}

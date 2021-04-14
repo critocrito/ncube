@@ -35,7 +35,7 @@ const Panel = ({children, header, description}: PanelProps) => {
 
             <div>
               <h1 className="header1">{header}</h1>
-              <p className="text-medium">{description}</p>
+              <p className="text-md">{description}</p>
             </div>
 
             <div className="cf w-100 pv3">{children}</div>

@@ -37,7 +37,7 @@ const StatsTable = ({stats}: StatsTableProps) => {
             ) : (
               <th
                 key={`${key}-header`}
-                className="ba b--fair-pink tc b sapphire"
+                className="ba b--fair-pink tc b text-sapphire"
               >
                 {capitalize(key)}
               </th>
@@ -52,7 +52,10 @@ const StatsTable = ({stats}: StatsTableProps) => {
             stats[key] === undefined ? (
               <td key={`row-${index}`} className="bn" />
             ) : (
-              <td key={`${key}-row`} className="ba b--fair-pink tc sapphire">
+              <td
+                key={`${key}-row`}
+                className="ba b--fair-pink tc text-sapphire"
+              >
                 {stats[key]}
               </td>
             ),

@@ -28,9 +28,9 @@ const SourcesDelete = ({workspace, source, onDone}: SourcesDeleteProps) => {
               Are you sure you want to delete this source?
             </h3>
 
-            <p className="mb2 b sapphire">Title</p>
+            <p className="mb2 b text-sapphire">Title</p>
             <div className="flex items-start justify-between">
-              <dl className="pa4 mt0 sapphire">
+              <dl className="pa4 mt0 text-sapphire">
                 <dt className="f6 b">Type</dt>
                 <dd className="ml0">{type}</dd>
                 <dt className="f6 b mt2">Term</dt>

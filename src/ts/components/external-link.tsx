@@ -13,7 +13,7 @@ const ExternalLink = ({href, children, className}: ExternalLinkProps) => {
   return (
     <button
       className={c(
-        "b--transparent bg-transparent pointer bittersweet underline pa0",
+        "b--transparent bg-transparent pointer text-bittersweet underline pa0",
         className,
       )}
       onClick={() => rpc.openExternal(href)}

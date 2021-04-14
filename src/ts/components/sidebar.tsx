@@ -40,7 +40,7 @@ const Sidebar = ({workspaces}: SidebarProps) => {
         }}
       >
         <button
-          className="sapphire b h2 w2 br-100 shadow-1 b--none bg-canvas flex flex-column justify-around items-center pointer dim"
+          className="text-sapphire b h2 w2 br-100 shadow-1 b--none bg-canvas flex flex-column justify-around items-center pointer dim"
           onClick={toggleExpanded}
         >
           {buttonLabel}

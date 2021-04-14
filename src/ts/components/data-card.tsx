@@ -25,7 +25,7 @@ const DataCard = ({workspace: {slug}, onShow}: DataCardProps) => {
               />
               <h4 className="header4 pl2">Data</h4>
             </div>
-            <p className="text-small">&nbsp;</p>
+            <p className="text-xs">&nbsp;</p>
           </div>
         </div>
 
@@ -39,13 +39,13 @@ const DataCard = ({workspace: {slug}, onShow}: DataCardProps) => {
 
             <thead>
               <tr>
-                <th className="ba b--fair-pink tc b sapphire nowrap">
+                <th className="ba b--fair-pink tc b text-sapphire nowrap">
                   Total Data
                 </th>
-                <th className="ba b--fair-pink tc b sapphire nowrap">
+                <th className="ba b--fair-pink tc b text-sapphire nowrap">
                   Total Sources
                 </th>
-                <th className="ba b--fair-pink tc b sapphire nowrap">
+                <th className="ba b--fair-pink tc b text-sapphire nowrap">
                   Total Segments
                 </th>
               </tr>
@@ -53,13 +53,13 @@ const DataCard = ({workspace: {slug}, onShow}: DataCardProps) => {
 
             <tbody>
               <tr>
-                <td className="ba b--fair-pink tc sapphire">
+                <td className="ba b--fair-pink tc text-sapphire">
                   <Stat fetchStat={() => statDataTotal(slug)} />
                 </td>
-                <td className="ba b--fair-pink tc sapphire">
+                <td className="ba b--fair-pink tc text-sapphire">
                   <Stat fetchStat={() => statDataSources(slug)} />
                 </td>
-                <td className="ba b--fair-pink tc sapphire">
+                <td className="ba b--fair-pink tc text-sapphire">
                   <Stat fetchStat={() => statDataSegments(slug)} />
                 </td>
               </tr>

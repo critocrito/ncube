@@ -17,7 +17,7 @@ const QueryTag = ({label, className}: QueryTagProps) => {
         className,
       )}
     >
-      <div className="w-90 tc sapphire">
+      <div className="w-90 tc text-sapphire">
         <span>{label}</span>
       </div>
     </div>

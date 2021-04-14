@@ -35,9 +35,7 @@ const VerificationDetails = ({
         <DataDetails unit={unit} />
 
         <div className="flex justify-between items-center mt3">
-          <span className="ttu w-10 b text-medium">
-            VerificationAnnotations
-          </span>
+          <span className="ttu w-10 b text-md">VerificationAnnotations</span>
           <hr className="w-80" />
         </div>
 

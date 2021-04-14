@@ -54,7 +54,7 @@ const WorkspacesCard = ({kind, stats, onShow}: WorkspacesCardProps) => {
             />
             <h4 className="header4 pl2">{title}</h4>
           </div>
-          <p className="text-small">{description}</p>
+          <p className="text-xs">{description}</p>
         </div>
       </div>
 

@@ -38,29 +38,31 @@ const InvestigationsSegmentCard = ({
 
           <thead>
             <tr>
-              <th className="bl br bt b--fair-pink tl b sapphire">
+              <th className="bl br bt b--fair-pink tl b text-sapphire">
                 {segment.title}
               </th>
-              <th className="ba b--fair-pink tc b sapphire">New Data</th>
-              <th className="ba b--fair-pink tc b sapphire">
+              <th className="ba b--fair-pink tc b text-sapphire">New Data</th>
+              <th className="ba b--fair-pink tc b text-sapphire">
                 Data In Progress
               </th>
-              <th className="ba b--fair-pink tc b sapphire">Verified Data</th>
+              <th className="ba b--fair-pink tc b text-sapphire">
+                Verified Data
+              </th>
             </tr>
           </thead>
 
           <tbody>
             <tr>
-              <td className="bl br bb b--fair-pink tl sapphire">&nbsp;</td>
-              <td className="ba b--fair-pink tc sapphire">&mdash;</td>
-              <td className="ba b--fair-pink tc sapphire">
+              <td className="bl br bb b--fair-pink tl text-sapphire">&nbsp;</td>
+              <td className="ba b--fair-pink tc text-sapphire">&mdash;</td>
+              <td className="ba b--fair-pink tc text-sapphire">
                 <Stat
                   fetchStat={() =>
                     statSegmentsProgress(slug, investigation.slug, segment.slug)
                   }
                 />
               </td>
-              <td className="ba b--fair-pink tc sapphire">
+              <td className="ba b--fair-pink tc text-sapphire">
                 <Stat
                   fetchStat={() =>
                     statSegmentsVerified(slug, investigation.slug, segment.slug)

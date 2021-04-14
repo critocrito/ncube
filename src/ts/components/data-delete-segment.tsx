@@ -32,12 +32,12 @@ const DataDeleteSegment = ({
               Are you sure you want to delete this Segment?
             </h3>
 
-            <p className="mb2 b sapphire">Title</p>
+            <p className="mb2 b text-sapphire">Title</p>
             <div className="flex items-start justify-between">
               <span className="w-90">{title}</span>
             </div>
 
-            <p className="mb2 b sapphire">Query</p>
+            <p className="mb2 b text-sapphire">Query</p>
             <div className="flex items-start justify-between">
               <span className="w-90">{query}</span>
             </div>

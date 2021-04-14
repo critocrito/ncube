@@ -107,13 +107,13 @@ const AddForm = withFormik<AddSourceProps, AddSourceFormValues>({
           <div className="flex justify-between w-two-thirds">
             <div className="w-50">
               {hasErrorLabel && (
-                <div className="error text-medium">{errors.label}</div>
+                <div className="error text-md">{errors.label}</div>
               )}
             </div>
 
             <div className="w-50 ml2">
               {hasErrorDescription && (
-                <div className="error text-medium">{errors.description}</div>
+                <div className="error text-md">{errors.description}</div>
               )}
             </div>
           </div>
