@@ -49,7 +49,7 @@ const DataHome = ({
           onSearch={onSearch}
         />
 
-        <ButtonHelp onClick={onHelp} />
+        <ButtonHelp className="ml-2" onClick={onHelp} />
       </div>
 
       <DataActions

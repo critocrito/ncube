@@ -11,18 +11,6 @@ interface ButtonProps {
   type?: "submit" | "button" | "reset";
 }
 
-const styles = {
-  primary: "btn-bittersweet",
-  secondary: "btn-sapphire",
-  caution: "btn-link",
-};
-
-const sizes = {
-  normal: "btn-regular",
-  large: "btn-large",
-  small: "btn-small",
-};
-
 const Button = ({
   kind = "primary",
   size = "normal",
@@ -33,9 +21,19 @@ const Button = ({
   className,
 }: ButtonProps) => {
   const classes = c(
-    styles[kind] !== undefined && !disabled ? styles[kind] : undefined,
-    sizes[size] !== undefined ? sizes[size] : undefined,
-    disabled ? "btn-disabled" : "btn-active",
+    "items-center rounded-sm border border-transparent",
+    "text-white font-bold leading-tight no-underline uppercase whitespace-nowrap",
+    "px-3 py-2 mx-2 min-w-min",
+    {
+      "bg-bittersweet": kind === "primary" && !disabled,
+      "bg-sapphire": kind === "secondary" && !disabled,
+      "text-sapphire bg-transparent": kind === "caution" && !disabled,
+      "transition duration-150 ease-in-out hover:opacity-75": !disabled,
+      "text-gray-dark bg-white border border-gray-dark opacity-50 cursor-not-allowed": disabled,
+      "w-48": size === "large",
+      "w-28": size === "normal",
+      "w-20": size === "small",
+    },
     className,
   );
 

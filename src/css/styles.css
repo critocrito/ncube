@@ -107,90 +107,23 @@
   border-color: var(--color-url);
 }
 
-/* Fonts and text */
-
-@font-face {
-  font-family: "Noto Sans";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: local("Noto Sans Bold"), local("NotoSans-Bold"),
-    url(../../resources/public/fonts/NotoSans-Bold.ttf) format("truetype");
-}
-
-@font-face {
-  font-family: "Noto Sans";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: local("Noto Sans"), local("NotoSans"),
-    url(../../resources/public/fonts/NotoSans-Regular.ttf) format("truetype");
-}
-
-/* Butons */
-.btn {
-  @apply text-white link pa2 ttu br2 tc b nowrap;
-  border-radius: 3px;
-  border: none;
-}
-
-.btn-active {
-  @apply btn;
-  cursor: pointer;
-}
-
-.btn-active:hover {
-  @apply o-50;
-}
-
-.btn-disabled {
-  @apply btn text-gray-75 bg-white b--gray-75 o-50;
-  cursor: unset;
-}
-
-.btn-sapphire {
-  @apply bg-sapphire b--sapphire;
-}
-
-.btn-bittersweet {
-  @apply bg-bittersweet b--bittersweet;
-}
-
-.btn-link {
-  @apply bg-transparent b--none text-sapphire;
-}
-
-.btn-large {
-  width: 12rem;
-}
-
-.btn-regular {
-  width: 6rem;
-}
-
-.btn-small {
-  width: 5.5rem;
-  padding: 6px;
-  margin: 5px;
-}
-
 /* Global elements */
 form {
-  @apply flex flex-column mw6;
+  @apply flex flex-col max-w-lg;
 }
 
 ::placeholder {
-  @apply gray-25 o-100;
+  @apply gray-25 opacity-100;
 }
 
 /* Tables */
 
 th {
-  @apply pa2;
+  @apply p-2;
 }
 
 td {
-  @apply br bb b--sapphire pa2;
+  @apply border-r border-b b--sapphire p-2;
   position: relative;
 }
 
@@ -259,7 +192,7 @@ tr:hover .trash {
 
 /* Other elements  */
 .base-tag {
-  @apply pl3 pr3 br4 text-md tc b ttu;
+  @apply py-3 rounded-full text-md text-center font-bold uppercase;
   height: 1.5rem;
 }
 
