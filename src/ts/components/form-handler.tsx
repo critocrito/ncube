@@ -49,7 +49,7 @@ const FormHandler = <T extends unknown>({
       return (
         <>
           {state.context.error && (
-            <span className="error">{state.context.error}</span>
+            <span className="text-error">{state.context.error}</span>
           )}
           <Form
             onSubmit={(values: T) => send("SAVE", {values})}

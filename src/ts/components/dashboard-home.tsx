@@ -31,7 +31,7 @@ const DashboardHome = ({
         onDelete={onDelete}
       />
 
-      <div className="mt-3 flex space-x-4 fr">
+      <div className="mt-3 flex justify-end space-x-4">
         <DashboardActions onLink={onLink} onCreate={onCreate} />
       </div>
     </>

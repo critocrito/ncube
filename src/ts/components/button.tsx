@@ -28,7 +28,7 @@ const Button = ({
       "bg-bittersweet": kind === "primary" && !disabled,
       "bg-sapphire": kind === "secondary" && !disabled,
       "text-sapphire bg-transparent": kind === "caution" && !disabled,
-      "transition duration-150 ease-in-out hover:opacity-75": !disabled,
+      dim: !disabled,
       "text-gray-dark bg-white border border-gray-dark opacity-50 cursor-not-allowed": disabled,
       "w-48": size === "large",
       "w-28": size === "normal",

@@ -19,7 +19,7 @@ const WorkspaceSelector = ({
   return (
     <select
       defaultValue={selectedWorkspace?.slug}
-      className={c(className, "w-100 b")}
+      className={c(className, "font-bold px-0")}
       onChange={(ev) => {
         const workspace = workspaces.find(({slug}) => slug === ev.target.value);
         if (workspace) onChange(workspace);

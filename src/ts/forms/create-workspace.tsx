@@ -2,8 +2,8 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
 import Input from "../components/input";
+import FormActions from "../components/form-actions";
 import {FormProps} from "../types";
 
 export type CreateWorkspaceFormValues = {
@@ -50,7 +50,7 @@ const CreateWorkspaceForm = ({
         const disableSubmit = !formik.isValid || formik.isSubmitting;
 
         return (
-          <Form>
+          <Form className="space-y-4">
             <Input label="What is the name of this workspace?" name="name" />
             <Input
               label="If you like, you can add a short description."
@@ -60,25 +60,11 @@ const CreateWorkspaceForm = ({
             <input name="database" type="hidden" value="sqlite" />
             <input name="kind" type="hidden" value="local" />
 
-            <div className="flex justify-between ml-auto w-80 pv3  pv2">
-              <Button
-                type="reset"
-                size="large"
-                kind="secondary"
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                className="fr"
-                type="submit"
-                size="large"
-                disabled={disableSubmit}
-              >
-                Create Workspace
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Create Workspace"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}
