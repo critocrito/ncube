@@ -1,14 +1,27 @@
 import c from "clsx";
 import React from "react";
+import {SingleValueProps} from "react-select";
 
-import {Workspace} from "../types";
+import {SelectOption, Workspace} from "../types";
+import SelectDropdown from "./select-dropdown";
 
 interface WorkspaceSelectorProps {
   workspaces: Workspace[];
   onChange: (w: Workspace) => void;
-  selectedWorkspace?: Workspace;
+  selectedWorkspace: Workspace;
   className?: string;
 }
+
+export const SingleValue = ({
+  innerProps,
+  data,
+}: SingleValueProps<SelectOption>) => {
+  return (
+    <div className="font-bold text-white" {...innerProps}>
+      {data.label}
+    </div>
+  );
+};
 
 const WorkspaceSelector = ({
   workspaces,
@@ -16,19 +29,30 @@ const WorkspaceSelector = ({
   onChange,
   className,
 }: WorkspaceSelectorProps) => {
+  const options = workspaces.map(({name: label, slug: value}) => ({
+    label,
+    value,
+  }));
+
   return (
-    <select
-      defaultValue={selectedWorkspace?.slug}
-      className={c(className, "font-bold px-0")}
-      onChange={(ev) => {
-        const workspace = workspaces.find(({slug}) => slug === ev.target.value);
+    <SelectDropdown<SelectOption>
+      id="workspace-selector"
+      options={options}
+      defaultValue={{
+        label: selectedWorkspace?.name,
+        value: selectedWorkspace?.slug,
+      }}
+      onSelect={(option) => {
+        if (!option) return;
+        const workspace = workspaces.find(({slug}) => slug === option.value);
         if (workspace) onChange(workspace);
       }}
-    >
-      {workspaces.map(({name, slug}) => (
-        <option key={slug} value={slug} label={name} />
-      ))}
-    </select>
+      LocalSingleValue={SingleValue}
+      className={c(
+        "w-full rounded mb-2 bg-sapphire text-white cursor-pointer border border-sapphire hover:border-solitude",
+        className,
+      )}
+    />
   );
 };
 

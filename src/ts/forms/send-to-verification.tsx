@@ -5,7 +5,7 @@ import * as Yup from "yup";
 
 import {listInvestigations} from "../lib/http";
 import {FormProps, Investigation} from "../types";
-import InvestigationSelect from "../components/investigation-select";
+import DescriptionSelect from "../components/description-select";
 import FormActions from "../components/form-actions";
 
 type SendToVerificationFormProps<
@@ -44,6 +44,14 @@ const SendToVerificationForm = ({
     fetchData();
   }, [workspace]);
 
+  const options = investigationsData.map(
+    ({title: label, slug: value, description}) => ({
+      label,
+      value,
+      description,
+    }),
+  );
+
   return (
     <Formik
       initialValues={formValues}
@@ -55,9 +63,10 @@ const SendToVerificationForm = ({
 
         return (
           <Form>
-            <InvestigationSelect
+            <DescriptionSelect
+              label="Choose an investigation"
               name="investigation"
-              investigations={investigationsData}
+              options={options}
             />
 
             <FormActions

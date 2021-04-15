@@ -1,9 +1,9 @@
 import {useField, useFormikContext} from "formik";
 import React from "react";
-import S, {OptionTypeBase as Option} from "react-select";
 
-import styles from "./select-styles";
+import {SelectOption} from "../types";
 import FormLabel from "./form-label";
+import SelectDropdown from "./select-dropdown";
 
 interface SelectProps {
   label: string;
@@ -12,20 +12,20 @@ interface SelectProps {
   isClearable?: boolean;
 }
 
-const YES: Option = {value: "yes", label: "Yes"};
-const NO: Option = {value: "no", label: "No"};
+const YES: SelectOption = {value: "yes", label: "Yes"};
+const NO: SelectOption = {value: "no", label: "No"};
 
-const options: Option[] = [YES, NO];
+const options: SelectOption[] = [YES, NO];
 
-const BooleanSelect = ({label, isClearable = true, ...props}: SelectProps) => {
+const BooleanSelect = ({label, isClearable = false, ...props}: SelectProps) => {
   const {setFieldValue} = useFormikContext();
   const [field, meta] = useField(props);
 
-  const {name, value, onBlur} = field;
+  const {name, value} = field;
   const {touched, error} = meta;
   const hasError = touched && error;
 
-  let optionValue: Option | undefined;
+  let optionValue: SelectOption | undefined;
 
   if (value) {
     optionValue = YES;
@@ -37,12 +37,12 @@ const BooleanSelect = ({label, isClearable = true, ...props}: SelectProps) => {
     <div>
       <FormLabel name={name} label={label} />
 
-      <S
-        styles={styles}
+      <SelectDropdown<SelectOption>
+        id="workspace-selector"
         options={options}
-        name={name}
-        value={optionValue}
-        onChange={(option: Option) => {
+        defaultValue={optionValue}
+        onSelect={(option) => {
+          if (!option) return;
           let val;
 
           if (option?.value === "yes") {
@@ -55,8 +55,8 @@ const BooleanSelect = ({label, isClearable = true, ...props}: SelectProps) => {
 
           setFieldValue(field.name, val);
         }}
-        onBlur={onBlur}
         isClearable={isClearable}
+        className={"w-full rounded mb-2 cursor-pointer border border-solitude"}
       />
 
       {hasError ? <div className="text-error">{meta.error}</div> : undefined}

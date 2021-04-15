@@ -10,9 +10,9 @@ interface WorkspacesProps {
 }
 
 const Workspaces = ({workspaces, onNext}: WorkspacesProps) => {
-  const [selectedWorkspace, setSelectedWorkspace] = useState<
-    Workspace | undefined
-  >(workspaces[0]);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace>(
+    workspaces[0],
+  );
 
   return (
     <div className="flex flex-column">

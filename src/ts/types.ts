@@ -30,6 +30,15 @@ export interface FormProps<T> {
   workspace?: Workspace;
 }
 
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
+export interface DescriptionOption extends SelectOption {
+  description?: string;
+}
+
 export interface ConfigSetting {
   name: string;
   value?: string;

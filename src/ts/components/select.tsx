@@ -2,8 +2,6 @@ import {useField, useFormikContext} from "formik";
 import React from "react";
 import S, {OptionTypeBase as Option} from "react-select";
 
-import styles from "./select-styles";
-
 interface SelectProps {
   label: string;
   name: string;
@@ -24,7 +22,6 @@ const Select = ({label, options, ...props}: SelectProps) => {
         {label}
       </label>
       <S
-        styles={styles}
         options={options}
         name={name}
         value={options ? options.find((option) => option?.value === value) : ""}

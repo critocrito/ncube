@@ -6,7 +6,7 @@ import Input from "../components/input";
 import Textarea from "../components/text-area";
 import {listMethodologies} from "../lib/http";
 import {FormProps, Methodology} from "../types";
-import MethodologySelect from "./methodology-select";
+import DescriptionSelect from "../components/description-select";
 import FormActions from "../components/form-actions";
 
 type CreateInvestigationFormProps<
@@ -60,13 +60,25 @@ const CreateInvestigationForm = ({
       {({isValid, isSubmitting}) => {
         const disableSubmit = !isValid || isSubmitting;
 
+        const options = methodologiesData.map(
+          ({title: label, slug: value, description}) => ({
+            label,
+            value,
+            description,
+          }),
+        );
+
         return (
           <Form>
             <Input label="Investigation Title" name="title" placeholder="" />
 
             <Textarea label="Description" name="description" placeholder="" />
 
-            <MethodologySelect methodologies={methodologiesData} />
+            <DescriptionSelect
+              label="Choose a methodology"
+              name="methodology"
+              options={options}
+            />
 
             <FormActions
               submitLabel="Create Investigation"

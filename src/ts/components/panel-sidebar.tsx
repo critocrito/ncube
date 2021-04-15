@@ -42,7 +42,7 @@ const PanelSidebar = () => {
             <WorkspaceSelector
               workspaces={workspaces}
               selectedWorkspace={workspaceState.context.workspace}
-              className="rounded px-2 py-3 mr-2 mb-2 bg-sapphire border border-sapphire text-white cursor-pointer hover:border-solitude"
+              className="w-full"
               onChange={(workspace) => ncubeSend("SHOW_WORKSPACE", {workspace})}
             />
           </div>

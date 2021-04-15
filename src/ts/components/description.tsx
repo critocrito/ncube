@@ -1,6 +1,6 @@
 import React from "react";
 
-type DescriptionItem = {label: string; value: string};
+type DescriptionItem = {label: string; value?: string};
 
 interface DescriptionProps {
   items: DescriptionItem[];
