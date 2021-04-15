@@ -1,9 +1,9 @@
 import React from "react";
 
-import {useNcubeCtx, useWorkspaceCtx} from "../lib/context";
-import Navbar from "./navbar";
+import PanelProcessConsole from "./panel-process-console";
+import PanelBreadcrumbs from "./panel-breadcrumbs";
+import PanelSidebar from "./panel-sidebar";
 import PanelHeader from "./panel-header";
-import Sidebar from "./sidebar";
 
 interface PanelProps {
   header: string;
@@ -12,34 +12,19 @@ interface PanelProps {
 }
 
 const Panel = ({children, header, description}: PanelProps) => {
-  const [
-    {
-      context: {workspaces},
-    },
-  ] = useNcubeCtx();
-
-  const [
-    {
-      context: {workspace},
-    },
-  ] = useWorkspaceCtx();
-
   return (
     <div className="flex">
-      <Sidebar workspaces={workspaces} />
-      <div className="w-100 flex flex-column">
-        <Navbar />
-        <div className="ml4 mr4">
-          <div className="ph4 pv3 center">
-            <PanelHeader workspace={workspace} />
+      <PanelSidebar />
 
-            <div>
-              <h1 className="header1">{header}</h1>
-              <p className="text-md">{description}</p>
-            </div>
+      <div className="flex flex-column w-full">
+        <PanelProcessConsole />
 
-            <div className="cf w-100 pv3">{children}</div>
-          </div>
+        <div className="px-16 py-8 space-y-8">
+          <PanelBreadcrumbs />
+
+          <PanelHeader header={header} description={description} />
+
+          <div>{children}</div>
         </div>
       </div>
     </div>

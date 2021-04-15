@@ -71,7 +71,7 @@ const WorkspacePanel = ({workspaceRef}: WorkspaceProps) => {
 
     return (
       <WorkspaceProvider value={[state, send]}>
-        <Panel header="" description="">
+        <Panel header="">
           <Error
             msg={error || "Failed to fetch stats."}
             recover={() => send({type: "RETRY"})}

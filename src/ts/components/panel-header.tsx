@@ -1,27 +1,15 @@
 import React from "react";
 
-import {useWorkspaceCtx} from "../lib/context";
-import {Workspace} from "../types";
-import WorkspaceTag from "./workspace-tag";
-
 interface PanelHeaderProps {
-  workspace: Workspace;
+  header: string;
+  description?: string;
 }
 
-const PanelHeader = ({workspace}: PanelHeaderProps) => {
-  const [, workspaceSend] = useWorkspaceCtx();
-
+const PanelHeader = ({header, description}: PanelHeaderProps) => {
   return (
-    <div className="bb b--sapphire w-100 flex justify-between items-center pb2">
-      <div className="b text-md text-sapphire ttu w-30">
-        <button
-          className="b--none bg-transparent pointer b text-sapphire ttu ma0 pa0 dim"
-          onClick={() => workspaceSend({type: "OVERVIEW"})}
-        >
-          {`Workspace: ${workspace.name}`}
-        </button>
-      </div>
-      <WorkspaceTag kind={workspace.kind} />
+    <div>
+      <h1 className="header1">{header}</h1>
+      {description && <p className="my-4">{description}</p>}
     </div>
   );
 };

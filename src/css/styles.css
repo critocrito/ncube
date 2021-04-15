@@ -284,6 +284,6 @@ tr:hover .trash {
   }
 
   .dim {
-    @apply transition duration-150 ease-in-out hover:opacity-75;
+    @apply transition-opacity duration-150 ease-in-out;
   }
 }

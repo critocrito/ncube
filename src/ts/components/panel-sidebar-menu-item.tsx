@@ -6,12 +6,12 @@ import processIcon from "../svg/process.svg";
 import sourceIcon from "../svg/source.svg";
 import {unreachable} from "../lib/utils";
 
-interface SidebarMenuItemProps {
+interface PanelSidebarMenuItemProps {
   kind: "source" | "data" | "process" | "investigation";
   onClick: () => void;
 }
 
-const SidebarMenuItem = ({kind, onClick}: SidebarMenuItemProps) => {
+const PanelSidebarMenuItem = ({kind, onClick}: PanelSidebarMenuItemProps) => {
   let icon;
   let label;
   let desc;
@@ -55,4 +55,4 @@ const SidebarMenuItem = ({kind, onClick}: SidebarMenuItemProps) => {
   );
 };
 
-export default SidebarMenuItem;
+export default PanelSidebarMenuItem;

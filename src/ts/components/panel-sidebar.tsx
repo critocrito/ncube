@@ -4,31 +4,31 @@ import React, {useState} from "react";
 import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
 import settingsIcon from "../../../resources/public/images/settings.svg";
 import {useNcubeCtx, useWorkspaceCtx} from "../lib/context";
-import {Workspace} from "../types";
 import WorkspaceSelector from "./workspace-selector";
-import SidebarButton from "./sidebar-button";
-import SidebarMenuItem from "./sidebar-menu-item";
+import PanelSidebarButton from "./panel-sidebar-button";
+import PanelSidebarMenuItem from "./panel-sidebar-menu-item";
 
-interface SidebarProps {
-  workspaces: Workspace[];
-}
-
-const Sidebar = ({workspaces}: SidebarProps) => {
+const PanelSidebar = () => {
   const [expanded, setExpanded] = useState(true);
-  const [, ncubeSend] = useNcubeCtx();
+  const [
+    {
+      context: {workspaces},
+    },
+    ncubeSend,
+  ] = useNcubeCtx();
   const [workspaceState, workspaceSend] = useWorkspaceCtx();
 
   const toggleExpanded = () => setExpanded(!expanded);
 
   return (
-    <div className="relative w-72 h-screen">
+    <div className={c("relative h-screen", {"w-72": expanded})}>
       <div
         className={c("absolute inset-y-1/2", {
           "-right-4": expanded,
           "left-0": !expanded,
         })}
       >
-        <SidebarButton isExpanded={expanded} onClick={toggleExpanded} />
+        <PanelSidebarButton isExpanded={expanded} onClick={toggleExpanded} />
       </div>
 
       <div
@@ -45,19 +45,19 @@ const Sidebar = ({workspaces}: SidebarProps) => {
           </div>
 
           <nav className="mt-5 flex-1 px-4 space-y-4" aria-label="Sidebar">
-            <SidebarMenuItem
+            <PanelSidebarMenuItem
               kind="source"
               onClick={() => workspaceSend({type: "SOURCE"})}
             />
-            <SidebarMenuItem
+            <PanelSidebarMenuItem
               kind="data"
               onClick={() => workspaceSend({type: "DATA"})}
             />
-            <SidebarMenuItem
+            <PanelSidebarMenuItem
               kind="process"
               onClick={() => workspaceSend({type: "PROCESS"})}
             />
-            <SidebarMenuItem
+            <PanelSidebarMenuItem
               kind="investigation"
               onClick={() => workspaceSend({type: "INVESTIGATION"})}
             />
@@ -78,4 +78,4 @@ const Sidebar = ({workspaces}: SidebarProps) => {
   );
 };
 
-export default Sidebar;
+export default PanelSidebar;

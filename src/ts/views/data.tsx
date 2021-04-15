@@ -273,7 +273,7 @@ export default () => {
   ] = useWorkspaceCtx();
 
   return (
-    <Panel header={header} description="">
+    <Panel header={header}>
       <>
         <IntroText>
           <DataIntroduction />
