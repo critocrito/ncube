@@ -11,7 +11,8 @@ interface SourceTagProps {
 const SourceTag = ({kind = "http", className}: SourceTagProps) => {
   let label;
   let classes;
-  const baseClasses = "short-tag flex flex-column justify-around items-center";
+  const baseClasses =
+    "w-14 text-sm text-white text-center px-3 py-0.5 rounded-full";
 
   switch (kind) {
     case "youtube": {
@@ -31,11 +32,7 @@ const SourceTag = ({kind = "http", className}: SourceTagProps) => {
     }
   }
 
-  return (
-    <div className={classes}>
-      <span>{label}</span>
-    </div>
-  );
+  return <span className={classes}>{label}</span>;
 };
 
 export default SourceTag;

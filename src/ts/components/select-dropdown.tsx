@@ -29,7 +29,6 @@ export const LargeInput = (props: InputProps) => {
 export const SingleValue = <T extends SelectOption>(
   props: SingleValueProps<T>,
 ) => {
-  console.log(props);
   return <components.SingleValue {...props} className="font-bold text-white" />;
 };
 

@@ -3,6 +3,7 @@ import React from "react";
 import {SourceReq} from "../types";
 import Button from "./button";
 import LabeledSourceTag from "./labeled-source-tag";
+import Description from "./description";
 
 interface IntroductionProps {
   onNext: () => void;
@@ -10,15 +11,18 @@ interface IntroductionProps {
 }
 
 const Introduction = ({onNext, sourceReq}: IntroductionProps) => {
+  const items = [{label: "Term", value: sourceReq.term}];
+
   return (
     <div className="flex flex-column">
-      <p className="mb2">Type of source detected</p>
-      <LabeledSourceTag label={sourceReq.type} className="ba b--solitude pa3" />
+      <Description items={items} />
 
-      <p className="mb1">Term</p>
-      <div className="underline">{sourceReq.term}</div>
+      <LabeledSourceTag
+        label={sourceReq.type}
+        className="border border-solitude p-3"
+      />
 
-      <Button className="mt4" size="large" onClick={onNext}>
+      <Button className="mt-3 ml-auto" size="large" onClick={onNext}>
         Preserve
       </Button>
     </div>

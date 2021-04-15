@@ -20,27 +20,26 @@ const DataSearchBar = ({
   };
 
   return (
-    <div className="search-bar flex items-center w-90">
+    <div className="mt-1 relative w-96">
       <input
-        className="w-90"
-        id="search-bar"
-        name="search-bar"
         type="text"
-        value={query}
-        disabled={isDisabled}
+        name="search-bar"
+        id="search-bar"
         onChange={(ev) => onChange(ev.target.value)}
         onKeyPress={onEnter}
+        className="block w-full pr-10 sm:text-sm border-solitude rounded-md"
       />
-
-      <button
-        type="button"
-        className="b--none bg-white"
-        aria-label="toggle menu"
-        disabled={isDisabled}
-        onClick={() => onSearch(query)}
-      >
-        <img src={iconSearch} width="30px" height="30px" alt="Do a search." />
-      </button>
+      <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+        <button
+          type="button"
+          className="bg-white"
+          aria-label="toggle menu"
+          disabled={isDisabled}
+          onClick={() => onSearch(query)}
+        >
+          <img src={iconSearch} className="w-6 h-6" alt="Do a search." />
+        </button>
+      </div>
     </div>
   );
 };

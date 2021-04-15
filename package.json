@@ -61,6 +61,7 @@
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
     "@mdx-js/loader": "^1.6.22",
+    "@tailwindcss/forms": "^0.3.2",
     "@testing-library/react": "^11.2.5",
     "@types/classnames": "^2.2.11",
     "@types/d3-dsv": "^2.0.1",

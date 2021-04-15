@@ -186,22 +186,6 @@ tr:hover .trash {
   right: 3px;
 }
 
-/* Other elements  */
-.base-tag {
-  @apply py-3 h-6 rounded-full text-center font-bold uppercase;
-}
-
-.tag {
-  @apply base-tag;
-  width: auto;
-}
-
-.short-tag {
-  @apply base-tag;
-  width: 3.5rem;
-  color: white;
-}
-
 .fade-in {
   visibility: visible;
   opacity: 1;

@@ -21,7 +21,7 @@ const Button = ({
   className,
 }: ButtonProps) => {
   const classes = c(
-    "items-center rounded-sm border border-transparent",
+    "items-center text-center rounded-sm border border-transparent",
     "text-white font-bold leading-tight no-underline uppercase whitespace-nowrap",
     "px-3 py-2 min-w-min",
     {

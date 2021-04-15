@@ -68,7 +68,7 @@ export default createMachine<DiscoveryContext, DiscoveryEvent, DiscoveryState>(
         invoke: {
           id: "health",
           src: "healthCheck",
-          onDone: "workspaces",
+          onDone: "introduction",
           onError: {
             target: "error",
             actions: "fail",
@@ -107,7 +107,7 @@ export default createMachine<DiscoveryContext, DiscoveryEvent, DiscoveryState>(
 
       introduction: {
         on: {
-          PRESERVE: "list_workspaces",
+          PRESERVE: "workspaces",
         },
       },
 

@@ -10,18 +10,11 @@ interface QueryTagProps {
 }
 
 const QueryTag = ({label, className}: QueryTagProps) => {
-  return (
-    <div
-      className={c(
-        "tag mw5 flex justify-between items-center bg-solitude nowrap",
-        className,
-      )}
-    >
-      <div className="w-90 tc text-sapphire">
-        <span>{label}</span>
-      </div>
-    </div>
+  const classes = c(
+    "w-20 text-sm text-center bg-solitude px-3 py-0.5 rounded-full truncate",
+    className,
   );
+  return <span className={classes}>{label}</span>;
 };
 
 export default QueryTag;

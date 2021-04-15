@@ -9,7 +9,7 @@ import {listSourceTags} from "../lib/http";
 import {sourceTags} from "../lib/validations";
 import {FormProps, SourceTag} from "../types";
 import SourceTagMultiSelect from "./source-tag-multi-select";
-import SourceTypeSelect from "./source-type-select";
+import SourceTypeSelect from "../components/source-type-select";
 
 type CreateSourceFormProps<
   CreateSourceFormValues
@@ -59,7 +59,6 @@ const CreateSourceForm = ({
     >
       {({isValid, isSubmitting, values}) => {
         const disableSubmit = !isValid || isSubmitting;
-        const selectedItem = sourceType(formValues.term);
 
         return (
           <Form>
@@ -69,7 +68,11 @@ const CreateSourceForm = ({
               placeholder="e.g. http://youtube.com/watch?v=abcdef"
             />
 
-            <SourceTypeSelect initial={selectedItem} />
+            <SourceTypeSelect
+              label="Select the source type"
+              name="type"
+              isClearable={false}
+            />
 
             <FieldArray
               name="tags"

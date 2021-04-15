@@ -48,10 +48,7 @@ const WorkspaceSelector = ({
         if (workspace) onChange(workspace);
       }}
       LocalSingleValue={SingleValue}
-      className={c(
-        "w-full rounded mb-2 bg-sapphire text-white cursor-pointer border border-sapphire hover:border-solitude",
-        className,
-      )}
+      className={c("w-full rounded mb-2", className)}
     />
   );
 };

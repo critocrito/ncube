@@ -3,6 +3,7 @@ import React, {useState} from "react";
 import {Workspace} from "../types";
 import Button from "./button";
 import WorkspaceSelector from "./workspace-selector";
+import FormLabel from "./form-label";
 
 interface WorkspacesProps {
   onNext: (workspace: Workspace) => void;
@@ -16,20 +17,20 @@ const Workspaces = ({workspaces, onNext}: WorkspacesProps) => {
 
   return (
     <div className="flex flex-column">
-      <p className="mb2">Select workspace</p>
+      <FormLabel name="workspace" label="Select workspace" />
+
       <WorkspaceSelector
-        className="workspace-select pa2 mt3 mb5 bg-white ba b--solitude black"
+        className="border border-solitude text-black"
         selectedWorkspace={selectedWorkspace}
         workspaces={workspaces}
-        onChange={(workspace: Workspace) => {
-          setSelectedWorkspace(workspace);
-        }}
+        onChange={(workspace) => setSelectedWorkspace(workspace)}
       />
 
       <Button
-        className="mt5"
+        className="mt-3 ml-auto"
         size="large"
-        onClick={() => selectedWorkspace && onNext(selectedWorkspace)}
+        disabled={!selectedWorkspace}
+        onClick={() => onNext(selectedWorkspace)}
       >
         Select
       </Button>
