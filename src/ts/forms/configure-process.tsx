@@ -2,8 +2,8 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
 import Input from "../components/input";
+import FormActions from "../components/form-actions";
 
 interface ConfigureProcessFormProps {
   template: Record<string, string>;
@@ -45,24 +45,11 @@ const ConfigureProcessForm = ({
               return <Input key={key} label={label} name={key} />;
             })}
 
-            <div className="flex">
-              <Button
-                className="ml-auto"
-                size="normal"
-                kind="secondary"
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="ml2"
-                size="normal"
-                type="submit"
-                disabled={disableSubmit}
-              >
-                Set up
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Set up"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}

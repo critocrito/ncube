@@ -2,9 +2,9 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
 import Input from "../components/input";
 import {FormProps} from "../types";
+import FormActions from "../components/form-actions";
 
 export type CreateSegmentFormValues = {
   title: string;
@@ -50,25 +50,11 @@ const CreateSegmentForm = ({
               disabled
             />
 
-            <div className="flex justify-between ml-auto w-80 pv3  pv2">
-              <Button
-                type="reset"
-                size="large"
-                kind="secondary"
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                className="fr"
-                type="submit"
-                size="large"
-                disabled={disableSubmit}
-              >
-                Create Segment
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Create Segment"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}

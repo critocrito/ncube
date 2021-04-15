@@ -2,9 +2,9 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
 import Input from "../components/input";
 import {FormProps} from "../types";
+import FormActions from "../components/form-actions";
 
 type BootstrapFormProps<BootstrapFormValues> = FormProps<BootstrapFormValues>;
 
@@ -40,7 +40,8 @@ const BootstrapForm = ({
       onSubmit={onSubmit}
     >
       {(formik) => {
-        const disableSubmit = !formik.isValid || formik.isSubmitting;
+        const disableSubmit =
+          !formik.isValid || formik.isSubmitting || disabled;
 
         return (
           <Form>
@@ -63,16 +64,7 @@ const BootstrapForm = ({
               placeholder="jane@example.org"
             />
 
-            <div>
-              <Button
-                className="fr"
-                type="submit"
-                size="large"
-                disabled={disableSubmit || disabled}
-              >
-                Continue
-              </Button>
-            </div>
+            <FormActions submitLabel="Continue" isDisabled={disableSubmit} />
           </Form>
         );
       }}

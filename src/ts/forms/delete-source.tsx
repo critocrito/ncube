@@ -1,8 +1,8 @@
 import {Form, Formik} from "formik";
 import React from "react";
 
-import Button from "../components/button";
 import {FormProps} from "../types";
+import FormActions from "../components/form-actions";
 
 type DeleteSourceFormProps<
   DeleteSourceFormValues
@@ -26,14 +26,11 @@ const DeleteSourceForm = ({
 
         return (
           <Form>
-            <div className="flex justify-between ml-auto w-40 mt3">
-              <Button type="reset" kind="secondary" onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button className="ml2" type="submit" disabled={disableSubmit}>
-                Remove
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Delete Source"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}

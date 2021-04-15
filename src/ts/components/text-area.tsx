@@ -2,6 +2,8 @@ import c from "clsx";
 import {useField} from "formik";
 import React from "react";
 
+import FormLabel from "./form-label";
+
 interface TextareaProps {
   label: string;
   name: string;
@@ -28,13 +30,15 @@ const Textarea = ({
   const {touched, error} = meta;
 
   const hasError = touched && error;
-  const classes = c("fb1 pa2 ba", hasError ? "b--error" : "b--solitude");
+  const classes = c("block w-full pr-10 sm:text-sm p-2 border", {
+    "border-error focus:outline-none focus:ring-error focus:border-error": hasError,
+    "border-solitude": !hasError,
+  });
 
   return (
-    <div className="flex flex-column fb1 mt3 mb2">
-      <label htmlFor={name} className="mb1">
-        {label}
-      </label>
+    <div>
+      <FormLabel name={name} label={label} />
+
       <textarea
         className={classes}
         name={name}
@@ -43,8 +47,9 @@ const Textarea = ({
         disabled={disabled}
         onChange={onChange}
         onBlur={onBlur}
+        rows={3}
       />
-      {hasError ? <div className="error">{meta.error}</div> : undefined}
+      {hasError && <div className="text-error">{meta.error}</div>}
     </div>
   );
 };

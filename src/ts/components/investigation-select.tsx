@@ -45,7 +45,7 @@ const InvestigationSelect = ({
   const {onClick: onToggle, ...toggleButtonProps} = getToggleButtonProps();
 
   return (
-    <div className="flex flex-column fb1 mt3 mb2">
+    <div className="flex flex-column fb1 mt-3 mb-2">
       <div className="mb1" {...getLabelProps()}>
         Choose a investigation:
       </div>
@@ -86,7 +86,7 @@ const InvestigationSelect = ({
       <div {...getMenuProps()}>
         {isOpen && (
           <ul
-            className="pl0 mt0 mb0 pl0 ba b--solitude bg-white"
+            className="pl0 mt0 mb0 pl0 border border-solitude bg-white"
             style={{maxHeight: "225px", overflowY: "auto"}}
           >
             {investigations.map((item, index) => {
@@ -99,7 +99,7 @@ const InvestigationSelect = ({
                 <li
                   key={`source-tag-item-${item.slug}`}
                   className={c(
-                    "mt2 mb2 pa1",
+                    "mt-2 mb-2 p-1",
                     highlightedIndex === index ? "bg-fair-pink" : undefined,
                   )}
                   {...itemProps}
@@ -115,10 +115,9 @@ const InvestigationSelect = ({
                     }}
                     tabIndex={0}
                     role="button"
-                    className={c(
-                      "b--none bg-white",
-                      highlightedIndex === index ? "bg-fair-pink" : undefined,
-                    )}
+                    className={c("bg-white", {
+                      "bg-fair-pink": highlightedIndex === index,
+                    })}
                   >
                     <InvestigationSelectItem item={item} />
                   </div>

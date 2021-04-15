@@ -3,7 +3,6 @@ import {FieldArray, Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
 import FormActions from "../components/form-actions";
 import Input from "../components/input";
 import {listSourceTags} from "../lib/http";

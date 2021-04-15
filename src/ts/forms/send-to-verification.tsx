@@ -3,10 +3,10 @@ import {Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
 import {listInvestigations} from "../lib/http";
 import {FormProps, Investigation} from "../types";
-import InvestigationSelect from "./investigation-select";
+import InvestigationSelect from "../components/investigation-select";
+import FormActions from "../components/form-actions";
 
 type SendToVerificationFormProps<
   SendToVerificationFormValues
@@ -60,25 +60,11 @@ const SendToVerificationForm = ({
               investigations={investigationsData}
             />
 
-            <div className="flex justify-between ml-auto w-80 pv3 ">
-              <Button
-                type="reset"
-                size="large"
-                kind="secondary"
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                className="fr"
-                type="submit"
-                size="large"
-                disabled={disableSubmit}
-              >
-                Send To Verify
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Send To Verify"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}

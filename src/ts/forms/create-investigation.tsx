@@ -2,12 +2,12 @@ import {Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
 import Input from "../components/input";
 import Textarea from "../components/text-area";
 import {listMethodologies} from "../lib/http";
 import {FormProps, Methodology} from "../types";
 import MethodologySelect from "./methodology-select";
+import FormActions from "../components/form-actions";
 
 type CreateInvestigationFormProps<
   CreateInvestigationFormValues
@@ -68,25 +68,11 @@ const CreateInvestigationForm = ({
 
             <MethodologySelect methodologies={methodologiesData} />
 
-            <div className="flex justify-between ml-auto w-80 pv3 ">
-              <Button
-                type="reset"
-                size="large"
-                kind="secondary"
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-
-              <Button
-                className="fr"
-                type="submit"
-                size="large"
-                disabled={disableSubmit}
-              >
-                Create Investigation
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Create Investigation"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}
