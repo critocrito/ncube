@@ -18,11 +18,11 @@ const StatsTable = ({stats}: StatsTableProps) => {
   }, Array.from({length: 3}).fill(undefined) as string[]);
 
   return (
-    <table className="w-100 collapse bn ml3 mr3 no-hover">
+    <table className="w-full h-full pointer-events-none">
       <colgroup>
-        <col className="w-third" />
-        <col className="w-third" />
-        <col className="w-third" />
+        <col className="w-1/3" />
+        <col className="w-1/3" />
+        <col className="w-1/3" />
       </colgroup>
 
       <thead>
@@ -31,13 +31,13 @@ const StatsTable = ({stats}: StatsTableProps) => {
             key === undefined ? (
               <th
                 key={`header-${index}`}
-                className="bn"
+                className="border-none h-1/2"
                 aria-label="Empty header cell."
               />
             ) : (
               <th
                 key={`${key}-header`}
-                className="ba b--fair-pink tc b text-sapphire"
+                className="border border-fair-pink text-center font-bold text-sapphire p-2"
               >
                 {capitalize(key)}
               </th>
@@ -50,11 +50,11 @@ const StatsTable = ({stats}: StatsTableProps) => {
         <tr>
           {((keys as unknown) as (keyof typeof stats)[]).map((key, index) =>
             stats[key] === undefined ? (
-              <td key={`row-${index}`} className="bn" />
+              <td key={`row-${index}`} className="border-none" />
             ) : (
               <td
                 key={`${key}-row`}
-                className="ba b--fair-pink tc text-sapphire"
+                className="border border-fair-pink text-center text-sapphire"
               >
                 {stats[key]}
               </td>

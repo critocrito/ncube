@@ -14,7 +14,7 @@ const WorkspacesHome = () => {
 
   return (
     <Panel header={header} description={workspace.description}>
-      <>
+      <div className="space-y-8">
         <WorkspacesCard
           onShow={() => send({type: "SOURCE"})}
           kind="source"
@@ -30,7 +30,7 @@ const WorkspacesHome = () => {
           onShow={() => send({type: "INVESTIGATION"})}
           kind="investigation"
         />
-      </>
+      </div>
     </Panel>
   );
 };

@@ -28,7 +28,7 @@ const InvestigationsSegmentCard = ({
   return (
     <div className="flex justify-between">
       <div className="w-80">
-        <table className="w-100 h-100 collapse bn no-hover">
+        <table className="w-100 h-100 collapse bn pointer-events-none">
           <colgroup>
             <col className="w-40" />
             <col className="w-20" />

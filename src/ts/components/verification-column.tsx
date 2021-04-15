@@ -48,7 +48,7 @@ const VerificationColumn = ({
         <button
           className={c(
             "pointer b--none bg-transparent",
-            cntUnits === 0 ? "no-hover o-50" : undefined,
+            cntUnits === 0 ? "pointer-events-none o-50" : undefined,
           )}
           onClick={onDownload}
         >

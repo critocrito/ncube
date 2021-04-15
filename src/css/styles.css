@@ -152,10 +152,6 @@ tr:hover .trash {
   display: block;
 }
 
-.no-hover {
-  pointer-events: none;
-}
-
 /* Multi Select */
 .select {
   position: relative;

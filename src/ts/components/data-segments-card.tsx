@@ -36,7 +36,7 @@ const DataSegmentsCard = ({
         </div>
 
         <div className="w-70 h-100">
-          <table className="w-100 h4 collapse bn no-hover">
+          <table className="w-100 h4 collapse bn pointer-events-none">
             <colgroup>
               <col className="w-third" />
               <col className="w-third" />

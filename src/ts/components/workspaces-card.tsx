@@ -43,24 +43,24 @@ const WorkspacesCard = ({kind, stats, onShow}: WorkspacesCardProps) => {
   }
 
   return (
-    <div className="h4 bg-white pa3 shadow-4 flex items-center justify-between mb4">
-      <div className="w-40 pa2">
-        <div className="flex flex-column pl2">
-          <div className="flex h3 items-center w-100">
-            <img
-              src={icon}
-              className="h2 w2"
-              alt={`Icon for the ${kind} section.`}
-            />
-            <h4 className="header4 pl2">{title}</h4>
-          </div>
-          <p className="text-xs">{description}</p>
+    <div className="h-36 bg-white p-8 shadow-4 flex items-center">
+      <div className="w-64 flex flex-col justify-between h-full">
+        <div className="flex items-center pb-1.5">
+          <img
+            src={icon}
+            className="h-8 w-8"
+            alt={`Icon for the ${kind} section.`}
+          />
+          <h4 className="header4 pl-2">{title}</h4>
         </div>
+        <p className="text-sm">{description}</p>
       </div>
 
-      <div className="w-40">{stats && <StatsTable stats={stats} />}</div>
+      <div className="w-72 h-full ml-4">
+        {stats && <StatsTable stats={stats} />}
+      </div>
 
-      <div className="pr3 mt3 h-100 flex flex-column">
+      <div className="pr-3 h-full ml-auto">
         <Button onClick={onShow}>{label}</Button>
       </div>
     </div>
