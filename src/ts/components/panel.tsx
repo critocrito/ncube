@@ -13,13 +13,13 @@ interface PanelProps {
 
 const Panel = ({children, header, description}: PanelProps) => {
   return (
-    <div className="flex">
+    <div className="flex h-screen overflow-x-hidden">
       <PanelSidebar />
 
-      <div className="flex flex-column w-full">
+      <div className="flex-1">
         <PanelProcessConsole />
 
-        <div className="px-16 py-8 space-y-8">
+        <div className="px-16 py-8 space-y-8 h-full overflow-y-auto">
           <PanelBreadcrumbs />
 
           <PanelHeader header={header} description={description} />

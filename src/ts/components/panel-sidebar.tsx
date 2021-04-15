@@ -21,7 +21,7 @@ const PanelSidebar = () => {
   const toggleExpanded = () => setExpanded(!expanded);
 
   return (
-    <div className={c("relative h-screen", {"w-72": expanded})}>
+    <aside className="relative  h-screen">
       <div
         className={c("absolute inset-y-1/2", {
           "-right-4": expanded,
@@ -32,7 +32,10 @@ const PanelSidebar = () => {
       </div>
 
       <div
-        className={c("bg-white border-r border-solitude", {hidden: !expanded})}
+        className={c(
+          "flex-shrink-0 w-72 bg-white border-r border-solitude transition-all duration-300",
+          {"-ml-72": !expanded},
+        )}
       >
         <div className="h-screen flex flex-col">
           <div className="flex items-end flex-shrink-0 bg-sapphire h-24 px-2">
@@ -74,7 +77,7 @@ const PanelSidebar = () => {
           </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };
 
