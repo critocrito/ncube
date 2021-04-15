@@ -5,6 +5,7 @@ import {deleteWorkspace} from "../lib/http";
 import {DeleteEventYes} from "../machines/delete";
 import {Workspace} from "../types";
 import ConfirmDelete from "./confirm-delete";
+import Description from "./description";
 
 interface DashboardDeleteWorkspaceProps {
   workspace: Workspace;
@@ -17,6 +18,11 @@ const DashboardDeleteWorkspace = ({
 }: DashboardDeleteWorkspaceProps) => {
   const {name, description, location} = workspace;
 
+  const items = [
+    {label: "Name", value: name},
+    {label: "Description", value: description},
+    {label: "Location", value: location},
+  ];
   return (
     <ConfirmDelete<{removeLocation: boolean}>
       onDelete={async (_ctx, ev): Promise<void> => {
@@ -31,31 +37,21 @@ const DashboardDeleteWorkspace = ({
     >
       {({onSubmit, onCancel}) => {
         return (
-          <div className="flex flex-column">
-            <h3 className="header3">
-              Are you sure you want to delete this workspace?
-            </h3>
-
-            <p className="mb2 b sapphire">Name</p>
-            <div className="flex items-start justify-between">
-              <span className="w-90">{name}</span>
+          <div>
+            <div className="pb-5">
+              <h3 className="header3">
+                Are you sure you want to delete this workspace?
+              </h3>
+              <p className="mt-2 max-w-2xl">
+                Deleting a workspace will permanently remove this workspace from
+                Ncube. Selecting "Yes" to delete the workspace location will
+                delete the workspace directory and all downloads as well.
+              </p>
             </div>
 
-            {description && (
-              <>
-                <p className="mb2 b sapphire">Description</p>
-                <div className="flex items-start justify-between">
-                  <span className="w-90">{description}</span>
-                </div>
-              </>
-            )}
+            <Description items={items} />
 
-            <p className="mb2 b sapphire">Location</p>
-            <div className="flex items-start justify-between">
-              <span className="w-90">{location}</span>
-            </div>
-
-            <div className="mt4">
+            <div className="mt-3">
               <DeleteWorkspace
                 onCancel={onCancel}
                 onSubmit={({delete_location: removeLocation}) =>

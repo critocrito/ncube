@@ -2,8 +2,8 @@ import {Form, Formik} from "formik";
 import React from "react";
 
 import BooleanSelect from "../components/boolean-select";
-import Button from "../components/button";
 import {FormProps} from "../types";
+import FormActions from "../components/form-actions";
 
 type DeleteWorkspaceFormProps<
   DeleteWorkspaceFormValues
@@ -34,19 +34,15 @@ const DeleteWorkspaceForm = ({
             <BooleanSelect
               label="Delete workspace location?"
               name="delete_location"
-              description="This will not only remove the workspace configuration, but any downloaded media and the database of this workspace as well."
               placeholder="no"
               isClearable={false}
             />
 
-            <div className="flex justify-between ml-auto w-40 mt3">
-              <Button type="reset" kind="secondary" onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button className="ml2" type="submit" disabled={disableSubmit}>
-                Remove
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Remove Workspace"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}

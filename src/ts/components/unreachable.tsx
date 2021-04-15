@@ -3,6 +3,7 @@ import {StateValue} from "xstate";
 
 import {useNcubeCtx} from "../lib/context";
 import Fatal from "./fatal";
+import {capitalize} from "../lib/utils";
 
 interface UnreachableProps {
   machine: string;
@@ -15,7 +16,9 @@ const Unreachable = ({machine, state, reset}: UnreachableProps) => {
 
   return (
     <Fatal
-      msg={`${machine} machine didn't match any valid state: ${state}`}
+      msg={`${capitalize(
+        machine,
+      )} machine didn't match any valid state: ${state}`}
       reset={reset || (() => send("RESTART_APP"))}
     />
   );

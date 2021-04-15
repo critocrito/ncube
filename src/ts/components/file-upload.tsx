@@ -44,8 +44,8 @@ const FileUpload = ({handleUpload, handleError}: FileUploadProps) => {
     <div {...getRootProps()}>
       <input {...getInputProps()} />
 
-      <div className="h4 ba br2 shadow-1 b--solitude b--dashed flex justify-around items-center o-50">
-        <div className="w-50 tc">
+      <div className="h-32 border rounded-md shadow-sm border-solitude flex justify-around items-center opacity-50 cursor-pointer">
+        <div className="w-1/2 text-center">
           {isDragActive ? (
             <p>Drop your file here</p>
           ) : (

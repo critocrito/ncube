@@ -17,7 +17,7 @@ const Error = ({msg, recover}: ErrorProps) => {
           error message:
         </p>
 
-        <p className="error b bg-fair-pink pa4">{msg}</p>
+        <p className="text-error bg-fair-pink p-12">{msg}</p>
 
         <p>
           You can try to recover from the error. If the error keeps on happening

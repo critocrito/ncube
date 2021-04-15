@@ -6,6 +6,7 @@ import Button from "../components/button";
 import Input from "../components/input";
 import * as v from "../lib/validations";
 import {ConnectionDetails, FormProps} from "../types";
+import FormActions from "../components/form-actions";
 
 export type LinkWorkspaceFormValues = ConnectionDetails & {
   password: string;
@@ -103,20 +104,11 @@ const LinkWorkspaceForm = ({
             <input name="database" type="hidden" value="http" />
             <input name="kind" type="hidden" value="remote" />
 
-            <div className="flex justify-between ml-auto w-80 pv3 ">
-              <Button
-                type="reset"
-                size="large"
-                kind="secondary"
-                onClick={onCancel}
-              >
-                Cancel
-              </Button>
-
-              <Button type="submit" size="large" disabled={disableSubmit}>
-                Link Workspace
-              </Button>
-            </div>
+            <FormActions
+              submitLabel="Link Workspace"
+              onCancel={onCancel}
+              isDisabled={disableSubmit}
+            />
           </Form>
         );
       }}

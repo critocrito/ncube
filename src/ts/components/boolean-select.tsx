@@ -3,11 +3,11 @@ import React from "react";
 import S, {OptionTypeBase as Option} from "react-select";
 
 import styles from "./select-styles";
+import FormLabel from "./form-label";
 
 interface SelectProps {
   label: string;
   name: string;
-  description?: string;
   placeholder?: string;
   isClearable?: boolean;
 }
@@ -17,12 +17,7 @@ const NO: Option = {value: "no", label: "No"};
 
 const options: Option[] = [YES, NO];
 
-const BooleanSelect = ({
-  label,
-  description,
-  isClearable = true,
-  ...props
-}: SelectProps) => {
+const BooleanSelect = ({label, isClearable = true, ...props}: SelectProps) => {
   const {setFieldValue} = useFormikContext();
   const [field, meta] = useField(props);
 
@@ -39,12 +34,8 @@ const BooleanSelect = ({
   }
 
   return (
-    <div className="flex flex-column fb1 mt3 mb2">
-      <label htmlFor={name} className="mb1 b sapphire">
-        {label}
-      </label>
-
-      {description && <span className="text-md mb2">{description}</span>}
+    <div>
+      <FormLabel name={name} label={label} />
 
       <S
         styles={styles}
@@ -68,7 +59,7 @@ const BooleanSelect = ({
         isClearable={isClearable}
       />
 
-      {hasError ? <div className="error">{meta.error}</div> : undefined}
+      {hasError ? <div className="text-error">{meta.error}</div> : undefined}
     </div>
   );
 };

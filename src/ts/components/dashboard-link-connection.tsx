@@ -17,7 +17,7 @@ const DashboardLinkConnection = ({
   onCancel,
 }: DashboardLinkConnectionProps) => {
   return (
-    <div>
+    <>
       <FileUpload
         handleUpload={(details) => {
           try {
@@ -30,12 +30,16 @@ const DashboardLinkConnection = ({
         }}
         handleError={onError}
       />
-      <div className="flex justify-between ml-auto fr mt2">
-        <Button kind="secondary" size="large" onClick={onCancel}>
-          Cancel
-        </Button>
-      </div>
-    </div>
+
+      <Button
+        className="float-right mt-3"
+        kind="secondary"
+        size="large"
+        onClick={onCancel}
+      >
+        Cancel
+      </Button>
+    </>
   );
 };
 

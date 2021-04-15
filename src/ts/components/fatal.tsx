@@ -11,13 +11,13 @@ interface FatalProps {
 const Fatal = ({msg, reset}: FatalProps) => {
   return (
     <PanelBasic header="Fatal error.">
-      <div className="flex flex-column">
+      <>
         <p>
           Unfortunately something went wrong and this app does not know how to
           proceed. All I got was the following error message:
         </p>
 
-        <p className="error b bg-fair-pink pa4">{msg}</p>
+        <p className="text-error bg-fair-pink p-12">{msg}</p>
 
         <p>
           This should not have happened. Unfortunately I don&apos;t know how to
@@ -25,11 +25,11 @@ const Fatal = ({msg, reset}: FatalProps) => {
           hope for the best.
         </p>
         {reset && (
-          <Button onClick={reset} size="large">
+          <Button className="float-right mt-3" onClick={reset} size="large">
             Restart Application
           </Button>
         )}
-      </div>
+      </>
     </PanelBasic>
   );
 };

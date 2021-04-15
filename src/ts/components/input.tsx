@@ -3,6 +3,7 @@ import {useField} from "formik";
 import React from "react";
 
 import exclamationMark from "../svg/exclamation_mark.svg";
+import FormLabel from "./form-label";
 
 interface InputProps {
   label: string;
@@ -41,35 +42,31 @@ const Input = ({
   // FIXME: When I change the SVG implementation use text-error for the exclamation mark.
   return (
     <div>
-      <div>
-        <label htmlFor={name} className="block text-sm mb-1">
-          {label}
-        </label>
-        <div className="mt-1 relative rounded-md shadow-sm">
-          <input
-            name={name}
-            value={value}
-            type={type}
-            className={classes}
-            placeholder={placeholder}
-            disabled={disabled}
-            onChange={onChange}
-            onBlur={onBlur}
-            aria-invalid="true"
-            aria-describedby="email-error"
-          />
-          {hasError && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-              <img
-                src={exclamationMark}
-                className="h-5 w-5 text-error fill-current"
-                aria-hidden="true"
-              />
-            </div>
-          )}
-        </div>
-        {hasError && <p className="mt-2 text-sm text-error">{meta.error}</p>}
+      <FormLabel name={name} label={label} />
+      <div className="mt-1 relative rounded-md shadow-sm">
+        <input
+          name={name}
+          value={value}
+          type={type}
+          className={classes}
+          placeholder={placeholder}
+          disabled={disabled}
+          onChange={onChange}
+          onBlur={onBlur}
+          aria-invalid="true"
+          aria-describedby="email-error"
+        />
+        {hasError && (
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+            <img
+              src={exclamationMark}
+              className="h-5 w-5 text-error fill-current"
+              aria-hidden="true"
+            />
+          </div>
+        )}
       </div>
+      {hasError && <p className="mt-2 text-sm text-error">{meta.error}</p>}
     </div>
   );
 };
