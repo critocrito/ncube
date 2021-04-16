@@ -4,6 +4,7 @@ import DeleteSegment from "../forms/delete-segment";
 import {deleteSegment} from "../lib/http";
 import {Segment, Workspace} from "../types";
 import ConfirmDelete from "./confirm-delete";
+import Description from "./description";
 
 interface DataDeleteSegmentProps {
   workspace: Workspace;
@@ -18,6 +19,11 @@ const DataDeleteSegment = ({
 }: DataDeleteSegmentProps) => {
   const {title, query} = segment;
 
+  const items = [
+    {label: "Title", value: title},
+    {label: "Query", value: query},
+  ];
+
   return (
     <ConfirmDelete<Record<string, unknown>>
       onDelete={async (): Promise<void> => {
@@ -27,22 +33,14 @@ const DataDeleteSegment = ({
     >
       {({onSubmit, onCancel}) => {
         return (
-          <div className="flex flex-column">
+          <div className="flex flex-col">
             <h3 className="header3">
               Are you sure you want to delete this Segment?
             </h3>
 
-            <p className="mb2 b text-sapphire">Title</p>
-            <div className="flex items-start justify-between">
-              <span className="w-90">{title}</span>
-            </div>
+            <Description items={items} />
 
-            <p className="mb2 b text-sapphire">Query</p>
-            <div className="flex items-start justify-between">
-              <span className="w-90">{query}</span>
-            </div>
-
-            <div className="mt4">
+            <div className="mt-3">
               <DeleteSegment onCancel={onCancel} onSubmit={onSubmit} />
             </div>
           </div>

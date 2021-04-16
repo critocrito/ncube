@@ -186,18 +186,6 @@ tr:hover .trash {
   right: 3px;
 }
 
-.fade-in {
-  visibility: visible;
-  opacity: 1;
-  transition: opacity 1s ease;
-}
-
-.fade-out {
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0s 1s, opacity 1s ease;
-}
-
 @tailwind utilities;
 
 @layer base {
@@ -265,5 +253,15 @@ tr:hover .trash {
 
   .dim {
     @apply transition-opacity duration-150 ease-in-out;
+  }
+  .fade-in {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 1s ease;
+  }
+  .fade-out {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 1s, opacity 1s ease;
   }
 }

@@ -16,7 +16,7 @@ const DataActions = ({
   onUpdateSegment,
 }: DataActionsProps) => {
   return (
-    <div className="flex items-center mb3 ml-auto">
+    <div className="flex items-center mb-3 ml-auto">
       {hasSegment ? (
         <Button onClick={onUpdateSegment} size="large" disabled={isDisabled}>
           Update Segment

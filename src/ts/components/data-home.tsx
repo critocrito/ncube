@@ -41,8 +41,8 @@ const DataHome = ({
     : query === "" || units.length === 0;
 
   return (
-    <div className="flex flex-column">
-      <div className="flex items-center w-50 mt2 mb2">
+    <div className="flex flex-col">
+      <div className="flex items-center w-1/2 my-3">
         <DataSearchBar
           query={query}
           onChange={onSearchQuery}
