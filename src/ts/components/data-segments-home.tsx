@@ -2,7 +2,7 @@ import React from "react";
 
 import SegmentsEmpty from "../../mdx/segments-empty.mdx";
 import {voidFn} from "../lib/utils";
-import {Segment, Workspace} from "../types";
+import {Segment, Workspace, DataStats} from "../types";
 import DataCard from "./data-card";
 import DataSegmentsTable from "./data-segments-table";
 import IntroText from "./intro-text";
@@ -10,6 +10,7 @@ import IntroText from "./intro-text";
 interface DataSegmentsHomeProps {
   workspace: Workspace;
   segments: Segment[];
+  stats: DataStats;
   onShow?: () => void;
   onShowSegment?: (s: Segment) => void;
   onVerifySegment?: (s: Segment) => void;
@@ -19,14 +20,15 @@ interface DataSegmentsHomeProps {
 const DataSegmentsHome = ({
   workspace,
   segments,
+  stats,
   onShow = voidFn,
   onShowSegment = voidFn,
   onVerifySegment = voidFn,
   onDeleteSegment = voidFn,
 }: DataSegmentsHomeProps) => {
   return (
-    <>
-      <DataCard workspace={workspace} onShow={onShow} />
+    <div className="space-y-8">
+      <DataCard workspace={workspace} stats={stats} onShow={onShow} />
 
       {segments.length > 0 ? (
         <DataSegmentsTable
@@ -41,7 +43,7 @@ const DataSegmentsHome = ({
           <SegmentsEmpty />
         </IntroText>
       )}
-    </>
+    </div>
   );
 };
 

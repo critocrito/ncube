@@ -131,14 +131,6 @@ tr {
   @apply bg-white;
 }
 
-tr:hover {
-  @apply bg-canvas;
-}
-
-.card tr:hover {
-  @apply bg-white;
-}
-
 .trash {
   cursor: pointer;
   display: none;

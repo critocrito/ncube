@@ -19,17 +19,19 @@ const ProcessConfig = ({
       {config.map(({key, name, description, template, value}) => {
         return (
           <div key={name}>
-            <h4>{name}</h4>
-            <p>{description}</p>
+            <h4 className="header4">{name}</h4>
+            <p className="mt-2 mb-4">{description}</p>
 
-            <ProcessForm
-              template={template}
-              values={value || {}}
-              onSubmit={(v: Record<string, string>) => {
-                onDone({key, value: v});
-              }}
-              onCancel={onCancel}
-            />
+            <div className="border-t border-solitude py-5">
+              <ProcessForm
+                template={template}
+                values={value || {}}
+                onSubmit={(v: Record<string, string>) => {
+                  onDone({key, value: v});
+                }}
+                onCancel={onCancel}
+              />
+            </div>
           </div>
         );
       })}

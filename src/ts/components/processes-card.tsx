@@ -41,43 +41,51 @@ const ProcessesCard = ({
   }, true);
 
   return (
-    <section className="h4 bg-white pa3 shadow-4 flex items-center justify-between mb4">
-      <div className="flex w-80">
-        <table className="w-100 collapse bn card">
-          <colgroup>
-            <col className="w-40" />
-            <col className="w-20" />
-            <col className="w-20" />
-            <col className="w-20" />
-          </colgroup>
+    <section className="h-36 bg-white p-8 shadow-md flex items-center">
+      <table className="w-full h-full">
+        <colgroup>
+          <col className="w-2/5" />
+          <col className="w-1/5" />
+          <col className="w-1/5" />
+          <col className="w-1/5" />
+        </colgroup>
 
-          <thead>
-            <tr>
-              <th className="bl br bt b--fair-pink tc b sapphire tl">
-                <h4 className="header4 mt0 mb0 tl">{name}</h4>
-              </th>
-              <th className="ba b--fair-pink tc b sapphire">Selected</th>
-              <th className="ba b--fair-pink tc b sapphire">All</th>
-              <th className="ba b--fair-pink tc b sapphire">New</th>
-            </tr>
-          </thead>
+        <thead>
+          <tr>
+            <th className="border border-fair-pink font-bold text-sapphire p-2">
+              <h4 className="header4 text-left">{name}</h4>
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              Selected
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              All
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              New
+            </th>
+          </tr>
+        </thead>
 
-          <tbody>
-            <tr>
-              <td className="bl br bb b--fair-pink tc sapphire tl">
-                <ProcessesInfoBox isSetup={isSetup} onSetup={onShow} />
-              </td>
-              <td className="ba b--fair-pink tc sapphire">&mdash;</td>
-              <td className="ba b--fair-pink tc sapphire">
-                {processesAll === 0 ? <>&mdash;</> : `${processesAll} sources`}
-              </td>
-              <td className="ba b--fair-pink tc sapphire">&mdash;</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <tbody>
+          <tr>
+            <td className="border-l border-b border-r border-fair-pink text-sapphire">
+              <ProcessesInfoBox isSetup={isSetup} onSetup={onShow} />
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              &mdash;
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              {processesAll === 0 ? <>&mdash;</> : `${processesAll} sources`}
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              &mdash;
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div className="pr3 h-100 flex flex-column">
+      <div className="pr-3 h-full ml-auto">
         <ProcessesActions onRun={onRun} />
       </div>
     </section>

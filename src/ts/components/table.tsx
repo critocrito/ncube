@@ -144,7 +144,7 @@ const Table = <T extends {id: number}>({
             const restCells = row.cells.slice(1);
 
             return (
-              <tr {...row.getRowProps()}>
+              <tr {...row.getRowProps()} className="hover:bg-canvas">
                 <td className={cellClass} {...firstCell.getCellProps()}>
                   <div className="flex items-center">
                     {onDelete && (

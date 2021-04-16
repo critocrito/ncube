@@ -38,6 +38,7 @@ const Data = ({databaseRef}: DataProps) => {
     workspace,
     segments,
     tableRef,
+    dataStats,
     total,
   } = state.context as DatabaseContext & {tableRef: TableMachineInterpreter};
 
@@ -46,6 +47,7 @@ const Data = ({databaseRef}: DataProps) => {
       <DataSegmentsHome
         workspace={workspace}
         segments={segments}
+        stats={dataStats}
         onShow={() => send({type: "SHOW_DATA"})}
         onShowSegment={(segment) => send({type: "SHOW_SEGMENT", segment})}
         onVerifySegment={(segment) => send({type: "SEND_TO_VERIFY", segment})}

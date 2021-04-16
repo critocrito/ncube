@@ -11,7 +11,7 @@ interface ProcessesTableProps {
 
 const ProcessesTable = ({processes, onShow, onRun}: ProcessesTableProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col space-y-8">
       {processes.map((process) => (
         <ProcessesCard
           key={process.id}
