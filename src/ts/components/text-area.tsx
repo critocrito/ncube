@@ -11,12 +11,14 @@ interface TextareaProps {
   onBlur?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   placeholder?: string;
   disabled?: boolean;
+  className?: string;
 }
 
 const Textarea = ({
   label,
   placeholder = "",
   disabled = false,
+  className,
   ...props
 }: TextareaProps) => {
   const fieldProps = {
@@ -36,7 +38,7 @@ const Textarea = ({
   });
 
   return (
-    <div>
+    <div className={c(className)}>
       <FormLabel name={name} label={label} />
 
       <textarea

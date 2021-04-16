@@ -3,10 +3,10 @@ import React from "react";
 
 import {capitalize} from "../lib/utils";
 import {Download, Unit} from "../types";
-import DefinitionItem from "./definition-item";
 import MediaViewer from "./media-viewer";
 import QueryTagList from "./query-tag-list";
 import SourceTag from "./source-tag";
+import Description from "./description";
 
 interface DataDetailsProps {
   unit: Unit;
@@ -42,45 +42,49 @@ const DataDetails = ({unit}: DataDetailsProps) => {
     : "";
   const fetchedAt = format(parseISO(unit.fetched_at), "yyyy-MM-dd");
 
+  const items = [
+    {
+      label: "Type of unit",
+      value: (
+        <div className="flex items-center">
+          <SourceTag kind={kind} />
+          <span className="ml-3">{unit.source}</span>
+        </div>
+      ),
+    },
+    {label: "Title", value: unit.title},
+    {label: "URL", value: unit.href},
+    {label: "Publish date", value: createdAt},
+    {label: "Media", value: mediaCounts(unit.downloads)},
+    {label: "Author", value: unit.author},
+    {label: "Description", value: unit.description},
+  ];
   return (
     <div className="flex flex-column">
       <h4 className="header4">Details</h4>
 
       <MediaViewer downloads={unit.downloads} />
 
-      <div className="flex justify-between items-center mt3">
-        <span className="ttu w-10 b text-md">Unit</span>
-        <hr className="w-80" />
-      </div>
+      <h5 className="header5 font-bold text-sapphire uppercase mt-4">Unit</h5>
 
-      <DefinitionItem
-        item="Type of Unit"
-        value={
-          <div className="flex">
-            <SourceTag kind={kind} />
-            <span className="ml2">{unit.source}</span>
+      <Description items={items} />
+
+      <h5 className="header5 font-bold text-sapphire uppercase mt-4">
+        Fetch Info
+      </h5>
+
+      <Description items={[{label: "Fetch date", value: fetchedAt}]} />
+
+      {unit.tags.length > 0 && (
+        <>
+          <h5 className="header5 font-bold text-sapphire uppercase mt-4">
+            Tags
+          </h5>
+          <div className="border-t border-solitude py-5">
+            <QueryTagList tags={unit.tags} />
           </div>
-        }
-      />
-
-      <DefinitionItem item="Title" value={unit.title || ""} />
-      <DefinitionItem item="URL" value={unit.href || ""} />
-      <DefinitionItem item="Publish Date" value={createdAt} />
-      <DefinitionItem item="Media" value={mediaCounts(unit.downloads)} />
-      <DefinitionItem item="Author" value={unit.author || ""} />
-      <DefinitionItem item="Description" value={unit.description || ""} />
-
-      <div className="flex justify-between items-center mt3">
-        <span className="ttu w-10 b text-md nowrap">Fetch Info</span>
-        <hr className="w-80" />
-      </div>
-      <DefinitionItem item="Publish Date" value={fetchedAt} />
-
-      <div className="flex justify-between items-center mt3">
-        <span className="ttu w-10 b text-md">Tags</span>
-        <hr className="w-80" />
-      </div>
-      <QueryTagList tags={unit.tags} />
+        </>
+      )}
     </div>
   );
 };

@@ -9,12 +9,12 @@ interface QueryTagListProps {
 
 const QueryTagList = ({tags}: QueryTagListProps) => {
   return (
-    <ul className="list pl0">
+    <ul>
       {tags.map(({label, description}) => (
-        <li key={label} className="mt2 mb2">
+        <li key={label} className="my-3">
           <div className="flex">
             <QueryTag label={label} />
-            <span className="ml2 solitude text-md">{description}</span>
+            <span className="ml-3">{description}</span>
           </div>
         </li>
       ))}

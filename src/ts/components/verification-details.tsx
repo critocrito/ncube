@@ -8,8 +8,8 @@ import {
   Unit,
 } from "../types";
 import DataDetails from "./data-details";
-import DefinitionItem from "./definition-item";
 import VerificationAnnotations from "./verification-annotations";
+import Description from "./description";
 
 interface VerificationDetailsProps {
   segmentUnit: SegmentUnit;
@@ -29,37 +29,31 @@ const VerificationDetails = ({
     [] as AnnotationSchema[],
   );
 
+  const items = annotations.map(({name: label, value, key}) => {
+    if (typeof value === "boolean") {
+      return {label, key, value: value ? "Yes" : "No"};
+    }
+    return {label, key, value: value as string};
+  });
+
   return (
-    <div className="flex">
-      <div className="w-50">
+    <div className="flex space-x-3">
+      <div className="w-1/2">
         <DataDetails unit={unit} />
 
-        <div className="flex justify-between items-center mt3">
-          <span className="ttu w-10 b text-md">VerificationAnnotations</span>
-          <hr className="w-80" />
-        </div>
+        <h5 className="header5 font-bold text-sapphire uppercase mt-4">
+          Annotations
+        </h5>
 
-        <ul className="pl0 list">
-          {annotations.map((a) => {
-            let {value} = a;
-
-            if (typeof value === "boolean" && value) {
-              value = "Yes";
-            } else if (typeof value === "boolean" && !value) {
-              value = "No";
-            }
-
-            return (
-              <li key={a.key}>
-                <DefinitionItem item={a.name} value={value as string} />
-              </li>
-            );
-          })}
-        </ul>
+        <Description items={items} />
       </div>
 
-      <div className="w-50">
-        <h4 className="header4">Edit VerificationAnnotations</h4>
+      <div className="w-1/2">
+        <h4 className="header4">Edit Annotations</h4>
+
+        <h5 className="header5 font-bold text-sapphire uppercase mt-4">
+          &nbsp;
+        </h5>
 
         <VerificationAnnotations
           schemas={schemas}
