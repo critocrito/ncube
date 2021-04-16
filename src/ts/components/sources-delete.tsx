@@ -4,6 +4,7 @@ import DeleteSource from "../forms/delete-source";
 import {removeSource} from "../lib/http";
 import {Source, Workspace} from "../types";
 import ConfirmDelete from "./confirm-delete";
+import Description from "./description";
 
 interface SourcesDeleteProps {
   workspace: Workspace;
@@ -14,6 +15,11 @@ interface SourcesDeleteProps {
 const SourcesDelete = ({workspace, source, onDone}: SourcesDeleteProps) => {
   const {type, term} = source;
 
+  const items = [
+    {label: "Type", value: type},
+    {label: "Term", value: term},
+  ];
+
   return (
     <ConfirmDelete<Record<string, unknown>>
       onDelete={async (): Promise<void> => {
@@ -23,22 +29,14 @@ const SourcesDelete = ({workspace, source, onDone}: SourcesDeleteProps) => {
     >
       {({onSubmit, onCancel}) => {
         return (
-          <div className="flex flex-column">
+          <div className="flex flex-col">
             <h3 className="header3">
               Are you sure you want to delete this source?
             </h3>
 
-            <p className="mb2 b text-sapphire">Title</p>
-            <div className="flex items-start justify-between">
-              <dl className="pa4 mt0 text-sapphire">
-                <dt className="f6 b">Type</dt>
-                <dd className="ml0">{type}</dd>
-                <dt className="f6 b mt2">Term</dt>
-                <dd className="ml0">{term}</dd>
-              </dl>
-            </div>
+            <Description items={items} />
 
-            <div className="mt4">
+            <div className="mt-">
               <DeleteSource onCancel={onCancel} onSubmit={onSubmit} />
             </div>
           </div>

@@ -19,7 +19,7 @@ const DataSegmentsCreate = ({
   onDone,
 }: DataSegmentsCreateProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <p>Add a new segment for your workspace.</p>
 
       <FormHandler

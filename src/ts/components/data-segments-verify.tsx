@@ -18,7 +18,7 @@ const DataSegmentsVerify = ({
   onDone,
 }: DataSegmentsVerifyProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <p>Send a segment to an investigation for verification.</p>
 
       <FormHandler

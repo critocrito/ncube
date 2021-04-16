@@ -21,7 +21,7 @@ const DataSegmentsUpdate = ({
   onDone,
 }: DataSegmentsUpdateProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <p>Modify this segment.</p>
 
       <FormHandler

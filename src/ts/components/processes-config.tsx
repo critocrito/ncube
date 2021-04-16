@@ -15,7 +15,7 @@ const ProcessConfig = ({
   onCancel,
 }: ProcessConfigProps) => {
   return (
-    <div>
+    <>
       {config.map(({key, name, description, template, value}) => {
         return (
           <div key={name}>
@@ -33,7 +33,7 @@ const ProcessConfig = ({
           </div>
         );
       })}
-    </div>
+    </>
   );
 };
 

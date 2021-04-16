@@ -18,7 +18,7 @@ const InvestigationsCreate = ({
   onDone,
 }: InvestigationsCreateProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <h3>Add a new investigation to your workspace.</h3>
 
       <FormHandler

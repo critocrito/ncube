@@ -12,7 +12,7 @@ interface SourcesCreateProps {
 
 const SourcesCreate = ({workspace, onDone}: SourcesCreateProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <h3 className="text-sapphire">
         Add a new data source for your workspace.
       </h3>
