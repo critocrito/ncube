@@ -94,7 +94,7 @@ const Sources = ({sourcesRef}: SourcesProps) => {
     const {source} = state.context as SourceContext & {source: Source};
 
     return (
-      <div className="fl w-100 pa3">
+      <>
         <Modal
           onCancel={() => send({type: "HOME"})}
           title="Delete Segment"
@@ -108,7 +108,7 @@ const Sources = ({sourcesRef}: SourcesProps) => {
         </Modal>
 
         <SourcesHome sources={sources} table={tableRef} total={total} />
-      </div>
+      </>
     );
   }
 

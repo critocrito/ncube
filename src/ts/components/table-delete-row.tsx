@@ -1,6 +1,6 @@
 import React from "react";
 
-import icon from "../../../resources/public/images/icon_trash.svg";
+import icon from "../svg/trash.svg";
 
 interface TableDeleteRowProps {
   onDelete: () => void;
@@ -16,7 +16,7 @@ const TableDeleteRow = ({onDelete}: TableDeleteRowProps) => {
       tabIndex={0}
     >
       <img
-        className="gray-25"
+        className="text-gray-light"
         height="100%"
         width="100%"
         src={icon}

@@ -76,8 +76,8 @@ const Table = <T extends {id: number}>({
   const [state, send] = useActor(table);
   const controlledPageCount = Math.ceil(total / state.context.pageSize);
 
-  const baseClass = "br bb b--gray-25";
-  const cellClass = c(baseClass, "text-md");
+  const baseClass = "border border-gray-light";
+  const cellClass = baseClass;
 
   const {
     getTableProps,
@@ -118,7 +118,7 @@ const Table = <T extends {id: number}>({
 
   return (
     <div>
-      <table className="w-100 collapse ba b--sapphire" {...getTableProps()}>
+      <table className="w-full border border-sapphire" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()} className="bg-canvas">
