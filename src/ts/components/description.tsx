@@ -12,7 +12,7 @@ interface DescriptionProps {
 
 const Description = ({items}: DescriptionProps) => {
   return (
-    <div className="border-t border-solitude py-5">
+    <div className="py-5">
       <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
         {items
           .filter(

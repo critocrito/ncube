@@ -85,7 +85,7 @@ export const Group = <T extends SelectOption, K extends boolean>({
   };
 
   return (
-    <div className="p-2 canvas">
+    <div className="p-2 text-canvas">
       <Heading {...props} />
       <div className={c("bg-canvas mt-1", className)}>{children}</div>
     </div>

@@ -1,6 +1,9 @@
 import c from "clsx";
 import React, {useState} from "react";
 
+import Button from "./button";
+import {useOnOutsideClick} from "../lib/hooks";
+
 interface ExpansionItemProps {
   onClick?: () => void;
   children?: React.ReactNode;
@@ -14,25 +17,26 @@ const ExpansionItem = ({
   className,
   disabled = false,
 }: ExpansionItemProps) => {
+  const classes = c(
+    "text-sapphire text-left px-4 py-2 bg-white w-full",
+    {
+      "cursor-not-allowed opacity-40": disabled,
+      "hover:bg-canvas": !disabled,
+    },
+    className,
+  );
+
   return (
-    <li className="bt bb b--fair-pink pt2 pb2 pl1 pr1">
-      {onClick ? (
-        <button
-          className={c(
-            "b--transparent bg-white pa2 w-100",
-            disabled ? "o-40" : "pointer",
-          )}
-          onClick={onClick}
-          disabled={disabled}
-        >
-          <div className="fl b text-sapphire">
-            <div className={c(className)}> {children}</div>
-          </div>
-        </button>
-      ) : (
+    <div className="border border-sapphire table-row">
+      <button
+        onClick={onClick}
+        disabled={disabled}
+        className={classes}
+        role="menuitem"
+      >
         {children}
-      )}
-    </li>
+      </button>
+    </div>
   );
 };
 
@@ -45,17 +49,6 @@ interface ExpandButtonProps {
   disabled?: boolean;
 }
 
-const styles = {
-  primary: "btn-bittersweet",
-  secondary: "btn-sapphire",
-  caution: "btn-link",
-};
-
-const sizes = {
-  normal: "btn-regular",
-  large: "btn-large",
-};
-
 const ExpandButton = ({
   label,
   kind = "primary",
@@ -65,29 +58,52 @@ const ExpandButton = ({
   className,
 }: ExpandButtonProps) => {
   const [expanded, setExpanded] = useState(false);
-
-  const classes = c(
-    "fr",
-    styles[kind] !== undefined && !disabled ? styles[kind] : undefined,
-    sizes[size] !== undefined ? sizes[size] : undefined,
-    disabled ? "btn-disabled" : "btn-active",
-    className,
-  );
+  const ref = useOnOutsideClick<HTMLDivElement>(() => setExpanded(false));
 
   const onClick = () => {
     setExpanded(!expanded);
   };
 
   return (
-    <div className="flex flex-column">
-      <div className="w5">
-        <button disabled={disabled} className={classes} onClick={onClick}>
-          {label}
-        </button>
-      </div>
+    <div className="relative inline-block text-left">
+      <Button
+        className={c("flex", className)}
+        kind={kind}
+        size={size}
+        disabled={disabled}
+        onClick={onClick}
+        ariaExpanded={true}
+        ariaHaspopup={true}
+      >
+        {label}
+
+        <svg
+          className="-mr-1 ml-auto h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </Button>
+
       {expanded && children && (
-        <div className="w5 bg-white ba b--sapphire mt1 fr z-999">
-          <ul className="list pl0 mt0 mb0">{children(ExpansionItem)}</ul>
+        <div
+          ref={ref}
+          className="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+          role="menu"
+          aria-orientation="vertical"
+          aria-labelledby="menu-button"
+          tabIndex={-1}
+        >
+          <div className="table collapse w-full" role="none">
+            {children(ExpansionItem)}
+          </div>
         </div>
       )}
     </div>

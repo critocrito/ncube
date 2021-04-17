@@ -18,7 +18,9 @@ const InvestigationsHome = ({
 }: InvestigationsHomeProps) => {
   return (
     <div className="flex flex-col">
-      <InvestigationsActions onCreate={onCreate} />
+      <div className="ml-auto mb-3">
+        <InvestigationsActions onCreate={onCreate} />
+      </div>
 
       <InvestigationsTable onShow={onShow} investigations={investigations} />
     </div>

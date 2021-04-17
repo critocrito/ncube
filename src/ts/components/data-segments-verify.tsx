@@ -19,7 +19,9 @@ const DataSegmentsVerify = ({
 }: DataSegmentsVerifyProps) => {
   return (
     <div className="flex flex-col">
-      <p>Send a segment to an investigation for verification.</p>
+      <h4 className="header4 mb-3">
+        Send a segment to an investigation for verification.
+      </h4>
 
       <FormHandler
         onSave={onCreate}

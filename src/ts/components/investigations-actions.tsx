@@ -8,11 +8,9 @@ interface InvestigationsActionsProps {
 
 const InvestigationsActions = ({onCreate}: InvestigationsActionsProps) => {
   return (
-    <div className="flex mb3">
-      <Button className="ml-auto" size="large" onClick={onCreate}>
-        Create New
-      </Button>
-    </div>
+    <Button size="large" onClick={onCreate}>
+      Create New
+    </Button>
   );
 };
 

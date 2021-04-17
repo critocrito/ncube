@@ -19,7 +19,9 @@ const InvestigationsCreate = ({
 }: InvestigationsCreateProps) => {
   return (
     <div className="flex flex-col">
-      <h3>Add a new investigation to your workspace.</h3>
+      <h4 className="header4 mb-3">
+        Add a new investigation to your workspace.
+      </h4>
 
       <FormHandler
         onSave={onCreate}

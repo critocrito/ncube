@@ -58,8 +58,8 @@ const Popup = () => {
 
   if (state.matches("success"))
     return (
-      <div className="mt4 pa4 bg-washed-green">
-        <span className="b success">Success</span>
+      <div className="inset-1/2 p-8 mt-3 flex justify-around bg-washed-green">
+        <span className="font-boldb text-success">Success</span>
       </div>
     );
 

@@ -9,6 +9,8 @@ interface ButtonProps {
   size?: "normal" | "large" | "small";
   disabled?: boolean;
   type?: "submit" | "button" | "reset";
+  ariaExpanded?: boolean;
+  ariaHaspopup?: boolean;
 }
 
 const Button = ({
@@ -19,6 +21,8 @@ const Button = ({
   type = "button",
   children,
   className,
+  ariaExpanded = false,
+  ariaHaspopup = false,
 }: ButtonProps) => {
   const classes = c(
     "items-center text-center rounded-sm border border-transparent",
@@ -43,6 +47,8 @@ const Button = ({
       disabled={disabled}
       className={classes}
       onClick={onClick}
+      aria-expanded={ariaExpanded}
+      aria-haspopup={ariaHaspopup}
     >
       {children}
     </button>

@@ -1,7 +1,7 @@
-import React, {useEffect, useRef} from "react";
+import React, {useEffect} from "react";
 
 import closeIcon from "../../../resources/public/images/icon_close.svg";
-import {isMouseEvent} from "../lib/utils";
+import {useOnOutsideClick} from "../lib/hooks";
 
 interface ModalProps {
   title: string;
@@ -12,37 +12,7 @@ interface ModalProps {
 }
 
 const Modal = ({title, description, onCancel, children}: ModalProps) => {
-  // eslint-disable-next-line unicorn/no-null
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Collapse the modal when we click outside the menu.
-  useEffect(() => {
-    const handleClickOutside = (ev: Event) => {
-      if (isMouseEvent(ev) && !ref.current?.contains(ev.target as Node)) {
-        onCancel();
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside, true);
-    return () => {
-      document.removeEventListener("click", handleClickOutside, true);
-    };
-  }, [onCancel]);
-
-  // Collapse the modal when we press the escape key.
-  useEffect(() => {
-    const handleEscapeKey = (ev: KeyboardEvent) => {
-      const key = ev.key || ev.keyCode;
-      if (key === "Escape" || key === "Esc" || key === 27) {
-        onCancel();
-      }
-    };
-
-    document.addEventListener("keydown", handleEscapeKey, false);
-    return () => {
-      document.removeEventListener("keydown", handleEscapeKey, false);
-    };
-  }, [onCancel]);
+  const ref = useOnOutsideClick<HTMLDivElement>(onCancel);
 
   // Disable background scrolling.
   useEffect(() => {

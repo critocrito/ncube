@@ -17,7 +17,7 @@ export const SingleValue = ({
   data,
 }: SingleValueProps<SelectOption>) => {
   return (
-    <div className="font-bold text-white" {...innerProps}>
+    <div className="font-bold" {...innerProps}>
       {data.label}
     </div>
   );

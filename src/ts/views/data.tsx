@@ -206,7 +206,7 @@ const Data = ({databaseRef}: DataProps) => {
     const {segment} = state.context as DatabaseContext & {segment: Segment};
 
     return (
-      <div className="fl w-100 pa3">
+      <>
         <Modal
           onCancel={() => send({type: "RELOAD"})}
           title="Delete Segment"
@@ -219,8 +219,12 @@ const Data = ({databaseRef}: DataProps) => {
           />
         </Modal>
 
-        <DataSegmentsHome workspace={workspace} segments={segments} />
-      </div>
+        <DataSegmentsHome
+          workspace={workspace}
+          segments={segments}
+          stats={dataStats}
+        />
+      </>
     );
   }
 
@@ -248,7 +252,11 @@ const Data = ({databaseRef}: DataProps) => {
           />
         </Modal>
 
-        <DataSegmentsHome workspace={workspace} segments={segments} />
+        <DataSegmentsHome
+          workspace={workspace}
+          segments={segments}
+          stats={dataStats}
+        />
       </>
     );
   }

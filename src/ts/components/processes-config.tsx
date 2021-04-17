@@ -22,7 +22,7 @@ const ProcessConfig = ({
             <h4 className="header4">{name}</h4>
             <p className="mt-2 mb-4">{description}</p>
 
-            <div className="border-t border-solitude py-5">
+            <div className="py-5">
               <ProcessForm
                 template={template}
                 values={value || {}}

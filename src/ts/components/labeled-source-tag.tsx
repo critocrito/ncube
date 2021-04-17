@@ -30,7 +30,7 @@ const LabeledSourceTag = ({label, className}: LabeledSourceTagProps) => {
   return (
     <div className={c("flex items-center", className)}>
       <SourceTag kind={platform} />
-      <span className="ml3">{label}</span>
+      <span className="ml-3">{label}</span>
     </div>
   );
 };

@@ -22,7 +22,7 @@ const DataSegmentsUpdate = ({
 }: DataSegmentsUpdateProps) => {
   return (
     <div className="flex flex-col">
-      <p>Modify this segment.</p>
+      <h4 className="header4 mb-3">Modify this segment.</h4>
 
       <FormHandler
         onSave={(values) => updateSegment(workspace, segment, values)}

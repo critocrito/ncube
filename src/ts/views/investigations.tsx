@@ -172,7 +172,6 @@ const Investigations = ({investigationRef}: InvestigationProps) => {
           onCancel={() => send({type: "SHOW_HOME"})}
           title="Data annotations."
           description="Annotate and verify units of data.."
-          className="w-80"
         >
           <VerificationDetails
             unit={unit}

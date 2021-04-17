@@ -34,9 +34,9 @@ const DataDeleteSegment = ({
       {({onSubmit, onCancel}) => {
         return (
           <div className="flex flex-col">
-            <h3 className="header3">
+            <h4 className="header4 mb-3">
               Are you sure you want to delete this Segment?
-            </h3>
+            </h4>
 
             <Description items={items} />
 

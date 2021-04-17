@@ -80,7 +80,7 @@ const DataDetails = ({unit}: DataDetailsProps) => {
           <h5 className="header5 font-bold text-sapphire uppercase mt-4">
             Tags
           </h5>
-          <div className="border-t border-solitude py-5">
+          <div className="py-5">
             <QueryTagList tags={unit.tags} />
           </div>
         </>

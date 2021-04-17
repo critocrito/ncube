@@ -13,9 +13,9 @@ interface SourcesCreateProps {
 const SourcesCreate = ({workspace, onDone}: SourcesCreateProps) => {
   return (
     <div className="flex flex-col">
-      <h3 className="text-sapphire">
+      <h4 className="header4 mb-3">
         Add a new data source for your workspace.
-      </h3>
+      </h4>
 
       <FormHandler
         onSave={(values) => saveSource(workspace.slug, values)}

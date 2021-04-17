@@ -20,7 +20,7 @@ const DataSegmentsCreate = ({
 }: DataSegmentsCreateProps) => {
   return (
     <div className="flex flex-col">
-      <p>Add a new segment for your workspace.</p>
+      <h4 className="header4 mb-3">Add a new segment for your workspace.</h4>
 
       <FormHandler
         onSave={(values) => createSegment(workspace, values)}

@@ -127,10 +127,7 @@ export default createMachine<DiscoveryContext, DiscoveryEvent, DiscoveryState>(
 
       source: {
         on: {
-          STORE_SOURCE: {
-            target: "store_source",
-            actions: "setSourceReq",
-          },
+          STORE_SOURCE: "store_source",
 
           CLOSE: {
             target: "introduction",

@@ -22,8 +22,8 @@ const WorkspacePanel = ({workspaceRef}: WorkspaceProps) => {
 
   if (state.matches("stats"))
     return (
-      <div className="vh-100 w-100 flex flex-column justify-around items-center">
-        <div>
+      <div className="flex h-screen">
+        <div className="m-auto">
           <LoadingSpinner />
         </div>
       </div>
