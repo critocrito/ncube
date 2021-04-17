@@ -21,7 +21,7 @@ const PanelSidebar = () => {
   const toggleExpanded = () => setExpanded(!expanded);
 
   return (
-    <aside className="relative  h-screen">
+    <aside className="relative h-screen">
       <div
         className={c("absolute inset-y-1/2", {
           "-right-4": expanded,

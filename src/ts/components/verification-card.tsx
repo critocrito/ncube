@@ -26,11 +26,11 @@ const VerificationCard = ({unit}: VerificationCardProps) => {
   }
 
   return (
-    <div className="ba b--solitude ma2 flex flex-column justify-between bg-white">
-      <div className="pa2">{unit.title}</div>
+    <div className="border border-solitude flex flex-col justify-between bg-white">
+      <div className="p-2">{unit.title}</div>
 
-      <div className="flex items-center justify-between bg-canvas h2 pa2">
-        <SourceTag kind={platform} className="br b--solitude mv2" />
+      <div className="flex items-center justify-between bg-canvas h-12 p-1.5">
+        <SourceTag kind={platform} className="border-r border-solitude my-3" />
         <div>&nbsp;</div>
       </div>
     </div>

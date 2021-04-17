@@ -1,3 +1,4 @@
+import c from "clsx";
 import React, {useEffect} from "react";
 
 import closeIcon from "../../../resources/public/images/icon_close.svg";
@@ -8,10 +9,17 @@ interface ModalProps {
   description: string;
   children: JSX.Element;
   onCancel: () => void;
+  size?: "normal" | "large";
   className?: string;
 }
 
-const Modal = ({title, description, onCancel, children}: ModalProps) => {
+const Modal = ({
+  title,
+  description,
+  onCancel,
+  children,
+  size = "normal",
+}: ModalProps) => {
   const ref = useOnOutsideClick<HTMLDivElement>(onCancel);
 
   // Disable background scrolling.
@@ -45,14 +53,22 @@ const Modal = ({title, description, onCancel, children}: ModalProps) => {
 
         <div
           ref={ref}
-          className="inline-block align-bottom bg-white rounded-sm px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6"
+          className={c(
+            "inline-block align-bottom bg-white rounded-sm px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all",
+            {
+              "sm:my-8 sm:align-middle sm:p-6 sm:max-w-lg sm:w-full":
+                size === "normal",
+              "md:my-8 md:align-middle md:p-6 md:max-w-4xl md:w-full":
+                size === "large",
+            },
+          )}
         >
           <div className="hidden sm:block absolute top-0 right-0 pt-4 pr-4">
             <button
               type="button"
               onClick={onCancel}
               aria-label="Close Modal"
-              className="bg-white rounded-md text-gray-400 hover:text-gray-500"
+              className="bg-white rounded-md text-sapphire dim"
             >
               <span className="sr-only">Close</span>
               <img src={closeIcon} className="w-4 h-4" alt="Close modal." />

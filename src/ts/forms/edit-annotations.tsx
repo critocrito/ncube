@@ -5,10 +5,10 @@ import {Form, Formik} from "formik";
 
 import {Annotation, AnnotationSchema} from "../types";
 import BooleanSelect from "../components/boolean-select";
+import OptionsSelect from "../components/options-select";
 import Button from "../components/button";
 import DatePicker from "../components/date-picker";
 import Input from "../components/input";
-import Select from "../components/select";
 import TextArea from "../components/text-area";
 
 interface EditAnnotationProps {
@@ -77,15 +77,13 @@ export const EditAnnotation = ({
 
           case "selection": {
             widget = (
-              <Select
+              <OptionsSelect
                 label={schema.name}
                 name={schema.key}
-                options={
-                  (schema.selections || []).map((opt) => ({
-                    value: opt,
-                    label: opt,
-                  })) || []
-                }
+                options={(schema.selections || []).map((opt) => ({
+                  value: opt,
+                  label: opt,
+                }))}
               />
             );
             break;

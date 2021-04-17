@@ -86,10 +86,10 @@ const VerificationCanvas = ({
   if (!methodology) return <Placeholder />;
 
   return (
-    <div>
+    <div className="overflow-x-auto">
       <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        <div className="overflow-x-scroll">
-          <div className="flex w-100 h-100">
+        <div>
+          <div className="flex space-x-6">
             {[...units.keys()].map((name, i) => {
               const isDroppable =
                 allowedColumns.length === 0 || allowedColumns.includes(name);
@@ -98,13 +98,8 @@ const VerificationCanvas = ({
               return (
                 <Droppable key={name} droppableId={name}>
                   {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className="h-100"
-                    >
+                    <div ref={provided.innerRef} {...provided.droppableProps}>
                       <VerificationColumn
-                        className={c("vh-80", i === 0 ? "mr3" : "mh3")}
                         name={name}
                         cntUnits={data.length}
                         isHighlighted={snapshot.isDraggingOver}
@@ -166,7 +161,7 @@ const VerificationCanvas = ({
                           a.click();
                         }}
                       >
-                        <>
+                        <div className="space-y-4">
                           {data.map((unit, index) => (
                             <Draggable
                               key={unit.id}
@@ -188,7 +183,7 @@ const VerificationCanvas = ({
                               )}
                             </Draggable>
                           ))}
-                        </>
+                        </div>
                       </VerificationColumn>
                       {provided.placeholder}
                     </div>

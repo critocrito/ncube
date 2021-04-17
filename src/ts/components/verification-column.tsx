@@ -30,33 +30,35 @@ const VerificationColumn = ({
 
   return (
     <div
-      style={{width: "20rem"}}
       className={c(
-        "ba b--solitude flex flex-column",
+        "w-80 border border-solitude flex flex-col",
+        {
+          "bg-white": !isRequiredColumn,
+          "bg-canvas": isRequiredColumn,
+          "opacity-40": !isDroppable,
+          "shadow-md": isHighlighted && isDroppable,
+        },
         className,
-        isRequiredColumn ? "bg-canvas" : "bg-white",
-        isDroppable ? undefined : "o-40",
-        isHighlighted && isDroppable ? "shadow-4" : undefined,
       )}
     >
-      <div className="bb b--solitude h3 ttu center w-100 pa2 mv2 flex items-center">
-        <span className="text-md b text-sapphire">{name}</span>
+      <div className="border-b border-solitude uppercase text-center w-full px-1.5 py-3 flex items-center">
+        <h4 className="header4 font-bold">{name}</h4>
       </div>
 
-      <div className="pa2 mv2 flex items-center justify-between">
+      <div className="px-1.5 my-3 flex items-center justify-between">
         <div>ALL: {cntUnits}</div>
         <button
           className={c(
-            "pointer b--none bg-transparent",
-            cntUnits === 0 ? "pointer-events-none o-50" : undefined,
+            "cursor-pointer border-none bg-transparent",
+            cntUnits === 0 ? "pointer-events-none opacity-50" : undefined,
           )}
           onClick={onDownload}
         >
-          <img src={iconDownload} className="h2 w2" alt="download" />
+          <img src={iconDownload} className="h-5 w-5" alt="download" />
         </button>
       </div>
 
-      <div className="pa2 h-100">{children}</div>
+      <div className="p-1.5 h-full">{children}</div>
     </div>
   );
 };
