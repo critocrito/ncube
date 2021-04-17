@@ -3,6 +3,7 @@ import React from "react";
 import {statSegmentsUnits} from "../lib/http";
 import {Segment, Workspace} from "../types";
 import Button from "./button";
+import DataSegmentsActions from "./data-segments-actions";
 import Stat from "./stat";
 
 interface DataSegmentsCardProps {
@@ -21,59 +22,54 @@ const DataSegmentsCard = ({
   onDelete,
 }: DataSegmentsCardProps) => {
   return (
-    <section className="w-100 flex justify-between">
-      <div className="flex w-80">
-        <div className="w-30 flex flex-column justify-between pb1 pl2 pt1 bt bl bb b--fair-pink">
-          <h4 className="header4 ml1 mt1 mb2">{title}</h4>
-          <Button
-            className="mb2 ml3"
-            kind="secondary"
-            size="small"
-            onClick={onShow}
-          >
-            Explore
-          </Button>
-        </div>
+    <section className="bg-white p-8 shadow-md flex items-start">
+      <table className="w-full h-full max-w-xl">
+        <colgroup>
+          <col className="w-2/5" />
+          <col className="w-1/5" />
+          <col className="w-1/5" />
+          <col className="w-1/5" />
+        </colgroup>
 
-        <div className="w-70 h-100">
-          <table className="w-100 h4 collapse bn pointer-events-none">
-            <colgroup>
-              <col className="w-third" />
-              <col className="w-third" />
-              <col className="w-third" />
-            </colgroup>
+        <thead>
+          <tr>
+            <th className="border-l border-r border-t border-fair-pink font-bold text-sapphire p-2">
+              <h4 className="header4 text-left">{title}</h4>
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              Query
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              Units
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              New
+            </th>
+          </tr>
+        </thead>
 
-            <thead>
-              <tr>
-                <th className="ba b--fair-pink tc b text-sapphire">Query</th>
-                <th className="ba b--fair-pink tc b text-sapphire">Units</th>
-                <th className="ba b--fair-pink tc b text-sapphire">New</th>
-              </tr>
-            </thead>
+        <tbody>
+          <tr>
+            <td className="border-l border-r border-fair-pink text-sapphire py-4">
+              <Button kind="secondary" size="small" onClick={onShow}>
+                Explore
+              </Button>
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              {query}
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              <Stat fetchStat={() => statSegmentsUnits(workspace.slug, slug)} />
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              &mdash;
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-            <tbody>
-              <tr>
-                <td className="ba b--fair-pink tc text-sapphire">{query}</td>
-                <td className="ba b--fair-pink tc text-sapphire">
-                  <Stat
-                    fetchStat={() => statSegmentsUnits(workspace.slug, slug)}
-                  />
-                </td>
-                <td className="ba b--fair-pink tc text-sapphire">&mdash;</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="pr3 h-100 flex flex-column">
-        <Button size="small" onClick={onVerify}>
-          Verify
-        </Button>
-
-        <Button className="mt1" kind="caution" onClick={onDelete}>
-          Remove
-        </Button>
+      <div className="h-full ml-auto">
+        <DataSegmentsActions onVerify={onVerify} onDelete={onDelete} />
       </div>
     </section>
   );

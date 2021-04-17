@@ -41,7 +41,7 @@ const DataHome = ({
     : query === "" || units.length === 0;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col space-y-3">
       <div className="flex items-center w-1/2 my-3">
         <DataSearchBar
           query={query}
@@ -52,12 +52,14 @@ const DataHome = ({
         <ButtonHelp className="ml-2" onClick={onHelp} />
       </div>
 
-      <DataActions
-        hasSegment={segment !== undefined}
-        isDisabled={isActionsDisabled}
-        onCreateSegment={onCreateSegment}
-        onUpdateSegment={onUpdateSegment}
-      />
+      <div className="ml-auto">
+        <DataActions
+          hasSegment={segment !== undefined}
+          isDisabled={isActionsDisabled}
+          onCreateSegment={onCreateSegment}
+          onUpdateSegment={onUpdateSegment}
+        />
+      </div>
 
       <DataTable units={units} onClick={onShow} table={table} total={total} />
     </div>

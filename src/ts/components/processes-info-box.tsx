@@ -11,9 +11,9 @@ interface ProcessesInfoBoxProps {
 
 const ProcessesInfoBox = ({isSetup, onSetup}: ProcessesInfoBoxProps) => {
   return isSetup ? (
-    <div className="flex items-start">
+    <div className="flex justify-around md:justify-left items-start">
       <img src={successIcon} alt="Process is configured." className="h-5 w-5" />
-      <span className="ml-3 leading-tight">
+      <span className="ml-3 leading-tight hidden md:inline">
         All requirements for this process are fulfilled.
       </span>
     </div>

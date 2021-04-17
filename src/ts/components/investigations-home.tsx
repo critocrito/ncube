@@ -17,7 +17,7 @@ const InvestigationsHome = ({
   onShow = voidFn,
 }: InvestigationsHomeProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <InvestigationsActions onCreate={onCreate} />
 
       <InvestigationsTable onShow={onShow} investigations={investigations} />

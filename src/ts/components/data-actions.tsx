@@ -15,18 +15,14 @@ const DataActions = ({
   onCreateSegment,
   onUpdateSegment,
 }: DataActionsProps) => {
-  return (
-    <div className="flex items-center mb-3 ml-auto">
-      {hasSegment ? (
-        <Button onClick={onUpdateSegment} size="large" disabled={isDisabled}>
-          Update Segment
-        </Button>
-      ) : (
-        <Button onClick={onCreateSegment} size="large" disabled={isDisabled}>
-          Save Segment
-        </Button>
-      )}
-    </div>
+  return hasSegment ? (
+    <Button onClick={onUpdateSegment} size="large" disabled={isDisabled}>
+      Update Segment
+    </Button>
+  ) : (
+    <Button onClick={onCreateSegment} size="large" disabled={isDisabled}>
+      Save Segment
+    </Button>
   );
 };
 

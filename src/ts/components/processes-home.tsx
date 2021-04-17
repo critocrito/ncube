@@ -2,7 +2,7 @@ import React from "react";
 
 import {voidFn} from "../lib/utils";
 import {Process} from "../types";
-import ProcessesTable from "./processes-table";
+import ProcessesCard from "./processes-card";
 
 interface ProcessesHomeProps {
   processes: Process[];
@@ -15,7 +15,18 @@ const ProcessesHome = ({
   onShow = voidFn,
   onRun = voidFn,
 }: ProcessesHomeProps) => {
-  return <ProcessesTable processes={processes} onShow={onShow} onRun={onRun} />;
+  return (
+    <div className="flex flex-col space-y-8">
+      {processes.map((process) => (
+        <ProcessesCard
+          key={process.id}
+          process={process}
+          onShow={() => onShow(process)}
+          onRun={() => onRun(process)}
+        />
+      ))}
+    </div>
+  );
 };
 
 export default ProcessesHome;

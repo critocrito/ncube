@@ -1,6 +1,7 @@
-import React from "react";
+import React, {useState} from "react";
 
 import {Segment, Workspace} from "../types";
+import Tabs from "./tabs";
 import DataSegmentsCard from "./data-segments-card";
 
 interface DataSegmentsTableProps {
@@ -18,21 +19,21 @@ const DataSegmentsTable = ({
   onVerify,
   onDelete,
 }: DataSegmentsTableProps) => {
-  return (
-    <div className="flex flex-column">
-      <div className="flex">
-        <div className="flex flex-column justify-around items-center bg-white br--top br3 w-20 ttu tc h2 text-sapphire b">
-          <span>Segments</span>
-        </div>
-        <div className="flex flex-column justify-around items-center br--top br3 w-20 ttu tc h2 text-sapphire b">
-          <span>In Verification</span>
-        </div>
-      </div>
+  const items = [
+    {label: "Segments", value: "segments"},
+    // {label: "In Verification", value: "verification"},
+  ];
 
-      <ul className="list pl0 bg-white mt0 pt3">
+  const [selected, setSelected] = useState(items[0]);
+
+  return (
+    <div className="flex flex-col">
+      <Tabs items={items} selected={selected} onClick={setSelected} />
+
+      <ul className="bg-white space-y-8 p-6">
         {segments.map((segment) => {
           return (
-            <li key={segment.id} className="ml2 mr2 mt3 mb3">
+            <li key={segment.id}>
               <DataSegmentsCard
                 workspace={workspace}
                 onShow={() => onShow(segment)}

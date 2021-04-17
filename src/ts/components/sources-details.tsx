@@ -30,7 +30,7 @@ const SourceDetails = ({source, onDelete}: SourceDetailsProps) => {
   }
 
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <h3 className="header3">Source Details</h3>
 
       <p className="mb2">Term</p>

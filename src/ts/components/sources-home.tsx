@@ -24,7 +24,7 @@ const SourcesHome = ({
   onDelete = voidFn,
 }: SourcesHomeProps) => {
   return (
-    <>
+    <div className="space-y-3">
       <SourcesActions onCreate={onCreate} />
 
       <SourcesTable
@@ -36,7 +36,7 @@ const SourcesHome = ({
         onDelete={onDelete}
         onSelect={voidFn}
       />
-    </>
+    </div>
   );
 };
 

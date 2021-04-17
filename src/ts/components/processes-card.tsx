@@ -41,8 +41,8 @@ const ProcessesCard = ({
   }, true);
 
   return (
-    <section className="h-36 bg-white p-8 shadow-md flex items-center">
-      <table className="w-full h-full">
+    <section className="bg-white p-8 shadow-md flex items-start">
+      <table className="w-full h-full max-w-xl">
         <colgroup>
           <col className="w-2/5" />
           <col className="w-1/5" />
@@ -69,14 +69,14 @@ const ProcessesCard = ({
 
         <tbody>
           <tr>
-            <td className="border-l border-b border-r border-fair-pink text-sapphire">
+            <td className="border-l border-b border-r border-fair-pink text-sapphire py-4">
               <ProcessesInfoBox isSetup={isSetup} onSetup={onShow} />
             </td>
             <td className="border border-fair-pink text-center text-sapphire">
               &mdash;
             </td>
             <td className="border border-fair-pink text-center text-sapphire">
-              {processesAll === 0 ? <>&mdash;</> : `${processesAll} sources`}
+              {processesAll === 0 ? <>&mdash;</> : processesAll}
             </td>
             <td className="border border-fair-pink text-center text-sapphire">
               &mdash;
@@ -85,7 +85,7 @@ const ProcessesCard = ({
         </tbody>
       </table>
 
-      <div className="pr-3 h-full ml-auto">
+      <div className="ml-auto">
         <ProcessesActions onRun={onRun} />
       </div>
     </section>

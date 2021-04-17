@@ -26,60 +26,63 @@ const InvestigationsSegmentCard = ({
   ] = useWorkspaceCtx();
 
   return (
-    <div className="flex justify-between">
-      <div className="w-80">
-        <table className="w-100 h-100 collapse bn pointer-events-none">
-          <colgroup>
-            <col className="w-40" />
-            <col className="w-20" />
-            <col className="w-20" />
-            <col className="w-20" />
-          </colgroup>
+    <section className="bg-white p-8 shadow-md flex items-start">
+      <table className="w-full h-full max-w-xl">
+        <colgroup>
+          <col className="w-2/5" />
+          <col className="w-1/5" />
+          <col className="w-1/5" />
+          <col className="w-1/5" />
+        </colgroup>
 
-          <thead>
-            <tr>
-              <th className="bl br bt b--fair-pink tl b text-sapphire">
-                {segment.title}
-              </th>
-              <th className="ba b--fair-pink tc b text-sapphire">New Data</th>
-              <th className="ba b--fair-pink tc b text-sapphire">
-                Data In Progress
-              </th>
-              <th className="ba b--fair-pink tc b text-sapphire">
-                Verified Data
-              </th>
-            </tr>
-          </thead>
+        <thead>
+          <tr>
+            <th className="border border-fair-pink font-bold text-sapphire p-2">
+              <h4 className="header4 text-left">{segment.title}</h4>
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              New Data
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              Data In Progress
+            </th>
+            <th className="border border-fair-pink text-center text-sapphire">
+              Verified Data
+            </th>
+          </tr>
+        </thead>
 
-          <tbody>
-            <tr>
-              <td className="bl br bb b--fair-pink tl text-sapphire">&nbsp;</td>
-              <td className="ba b--fair-pink tc text-sapphire">&mdash;</td>
-              <td className="ba b--fair-pink tc text-sapphire">
-                <Stat
-                  fetchStat={() =>
-                    statSegmentsProgress(slug, investigation.slug, segment.slug)
-                  }
-                />
-              </td>
-              <td className="ba b--fair-pink tc text-sapphire">
-                <Stat
-                  fetchStat={() =>
-                    statSegmentsVerified(slug, investigation.slug, segment.slug)
-                  }
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <tbody>
+          <tr>
+            <td className="border-l border-b border-r border-fair-pink text-sapphire py-4">
+              &nbsp;
+            </td>
+
+            <td className="border border-fair-pink text-center text-sapphire">
+              &nbsp;
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              <Stat
+                fetchStat={() =>
+                  statSegmentsProgress(slug, investigation.slug, segment.slug)
+                }
+              />
+            </td>
+            <td className="border border-fair-pink text-center text-sapphire">
+              <Stat
+                fetchStat={() =>
+                  statSegmentsVerified(slug, investigation.slug, segment.slug)
+                }
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div className="ml-auto">
+        <Button onClick={onVerify}>Verify</Button>
       </div>
-
-      <div>
-        <Button onClick={onVerify} size="large">
-          Verify
-        </Button>
-      </div>
-    </div>
+    </section>
   );
 };
 

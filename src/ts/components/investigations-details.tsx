@@ -17,26 +17,21 @@ const InvestigationsDetails = ({
 }: InvestigationsDetailsProps) => {
   return (
     <div>
-      <div className="flex items-center pb2">
-        <h4 className="header4">Segments</h4>
-        <div className="ml3 h1 w-100">
-          <hr className="text-sapphire" />
-        </div>
-      </div>
+      <h4 className="header4 border-b border-sapphire py-4 mb-4">Segments</h4>
 
-      <div className="bg-white shadow-4">
+      <ul className="bg-white space-y-8 p-6">
         {segments.map((segment) => {
           return (
-            <div key={segment.id} className="pv4 ph3">
+            <li key={segment.id}>
               <InvestigationsSegmentCard
                 investigation={investigation}
                 segment={segment}
                 onVerify={() => onVerify(segment)}
               />
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ul>
     </div>
   );
 };

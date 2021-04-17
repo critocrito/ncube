@@ -28,7 +28,7 @@ const DataSegmentsHome = ({
 }: DataSegmentsHomeProps) => {
   return (
     <div className="space-y-8">
-      <DataCard workspace={workspace} stats={stats} onShow={onShow} />
+      <DataCard stats={stats} onShow={onShow} />
 
       {segments.length > 0 ? (
         <DataSegmentsTable

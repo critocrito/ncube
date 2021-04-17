@@ -6,14 +6,13 @@ import Button from "./button";
 import StatsTable from "./stats-table";
 
 interface DataCardProps {
-  workspace: Workspace;
   onShow: () => void;
   stats: DataStats;
 }
 
-const DataCard = ({workspace: {slug}, stats, onShow}: DataCardProps) => {
+const DataCard = ({stats, onShow}: DataCardProps) => {
   return (
-    <div className="h-36 bg-white p-8 shadow-md flex items-center">
+    <div className="bg-white p-8 shadow-md flex items-center">
       <div className="w-64 flex flex-col justify-between h-full">
         <div className="flex items-center pb-1.5">
           <img
@@ -30,7 +29,7 @@ const DataCard = ({workspace: {slug}, stats, onShow}: DataCardProps) => {
         {stats && <StatsTable stats={stats} />}
       </div>
 
-      <div className="pr-3 h-full ml-auto">
+      <div className="ml-auto">
         <Button onClick={onShow}>Explore</Button>
       </div>
     </div>

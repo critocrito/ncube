@@ -13,7 +13,7 @@ const InvestigationsTable = ({
   onShow,
 }: InvestigationsTableProps) => {
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       {investigations.map((investigation) => (
         <InvestigationsCard
           key={investigation.id}
