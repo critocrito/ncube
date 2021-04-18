@@ -52,7 +52,7 @@ const DescriptionSelect = ({
   const hasError = touched && error;
 
   return (
-    <div className="flex flex-column fb1 mt3 mb2">
+    <div>
       <FormLabel name={name} label={label} />
 
       <SelectDropdown<DescriptionOption>
@@ -65,7 +65,7 @@ const DescriptionSelect = ({
         }}
         isClearable={isClearable}
         LocalOption={Option}
-        className={"w-full rounded mb-2 cursor-pointer border border-solitude"}
+        className={"w-full rounded cursor-pointer border border-solitude"}
       />
 
       {hasError ? <div className="text-error">{meta.error}</div> : undefined}

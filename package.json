@@ -34,7 +34,6 @@
     "copy-to-clipboard": "^3.3.1",
     "d3-dsv": "^2.0.0",
     "date-fns": "2.19.0",
-    "downshift": "^6.1.0",
     "formik": "^2.2.6",
     "humanize-plus": "^1.8.2",
     "match-sorter": "^6.3.0",

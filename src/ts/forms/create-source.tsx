@@ -1,4 +1,3 @@
-import {sourceType} from "@sugarcube/source-types";
 import {FieldArray, Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
@@ -8,7 +7,7 @@ import Input from "../components/input";
 import {listSourceTags} from "../lib/http";
 import {sourceTags} from "../lib/validations";
 import {FormProps, SourceTag} from "../types";
-import SourceTagMultiSelect from "./source-tag-multi-select";
+import SourceTagSelect from "../components/source-tag-select";
 import SourceTypeSelect from "../components/source-type-select";
 
 type CreateSourceFormProps<
@@ -76,20 +75,16 @@ const CreateSourceForm = ({
 
             <FieldArray
               name="tags"
-              render={(helpers) => {
+              render={() => {
                 return (
-                  <SourceTagMultiSelect
-                    className="mt3"
-                    data={sourceTagsData}
-                    onRemove={(tag: SourceTag) => {
-                      const index = values.tags.findIndex(
-                        (t) => t.label === tag.label,
-                      );
-                      helpers.remove(index);
-                    }}
-                    onAdd={(tag: SourceTag) => {
-                      helpers.push(tag);
-                    }}
+                  <SourceTagSelect
+                    options={sourceTagsData.map(({label, description}) => ({
+                      label,
+                      description,
+                      value: label,
+                    }))}
+                    name="tags"
+                    label="Source Tags"
                   />
                 );
               }}

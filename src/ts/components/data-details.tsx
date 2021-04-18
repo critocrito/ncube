@@ -60,7 +60,7 @@ const DataDetails = ({unit}: DataDetailsProps) => {
     {label: "Description", value: unit.description},
   ];
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <h4 className="header4">Details</h4>
 
       <MediaViewer downloads={unit.downloads} />

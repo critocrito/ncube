@@ -14,7 +14,7 @@ const Introduction = ({onNext, sourceReq}: IntroductionProps) => {
   const items = [{label: "Term", value: sourceReq.term}];
 
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <Description items={items} />
 
       <LabeledSourceTag

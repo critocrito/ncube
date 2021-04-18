@@ -54,7 +54,7 @@ const Modal = ({
         <div
           ref={ref}
           className={c(
-            "inline-block align-bottom bg-white rounded-sm px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all",
+            "inline-block align-bottom bg-white rounded-sm px-4 pt-5 pb-4 text-left shadow-xl transform transition-all",
             {
               "sm:my-8 sm:align-middle sm:p-6 sm:max-w-lg sm:w-full":
                 size === "normal",

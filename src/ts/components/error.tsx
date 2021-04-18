@@ -11,7 +11,7 @@ interface ErrorProps {
 const Error = ({msg, recover}: ErrorProps) => {
   return (
     <PanelBasic header="Something went wrong.">
-      <div className="flex flex-column">
+      <div className="flex flex-col">
         <p>
           The last operation didn&apos;t succeed. All I got was the following
           error message:

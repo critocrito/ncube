@@ -51,7 +51,7 @@ const DashboardDeleteWorkspace = ({
 
             <Description items={items} />
 
-            <div className="mt-3">
+            <div className="mt-1">
               <DeleteWorkspace
                 onCancel={onCancel}
                 onSubmit={({delete_location: removeLocation}) =>

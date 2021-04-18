@@ -4,7 +4,7 @@ import React, {useState} from "react";
 import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
 import settingsIcon from "../../../resources/public/images/settings.svg";
 import {useNcubeCtx, useWorkspaceCtx} from "../lib/context";
-import WorkspaceSelector from "./workspace-selector";
+import WorkspaceSelect from "./workspace-select";
 import PanelSidebarButton from "./panel-sidebar-button";
 import PanelSidebarMenuItem from "./panel-sidebar-menu-item";
 
@@ -39,7 +39,7 @@ const PanelSidebar = () => {
       >
         <div className="h-screen flex flex-col">
           <div className="flex items-end flex-shrink-0 bg-sapphire h-24 px-2">
-            <WorkspaceSelector
+            <WorkspaceSelect
               workspaces={workspaces}
               selectedWorkspace={workspaceState.context.workspace}
               className="bg-sapphire text-white border border-sapphire hover:border-solitude"

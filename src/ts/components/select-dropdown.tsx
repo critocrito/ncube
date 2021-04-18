@@ -5,7 +5,6 @@ import Select, {
   components,
   ControlProps,
   GroupProps,
-  InputProps,
   OptionProps,
   PlaceholderProps,
   SingleValueProps,
@@ -16,20 +15,10 @@ import Select, {
 
 import {SelectOption} from "../types";
 
-export const Input = (props: InputProps) => {
-  return <components.Input {...props} className="text-base text-white" />;
-};
-
-export const LargeInput = (props: InputProps) => {
-  return (
-    <components.Input {...props} className="text-lg leading-none text-white" />
-  );
-};
-
 export const SingleValue = <T extends SelectOption>(
   props: SingleValueProps<T>,
 ) => {
-  return <components.SingleValue {...props} className="font-bold text-white" />;
+  return <components.SingleValue {...props} />;
 };
 
 export const LargeSingleValue = <T extends SelectOption>({
@@ -166,7 +155,6 @@ const SelectDropdown = <T extends SelectOption>({
       isSearchable={isSearchable}
       isClearable={isClearable}
       components={{
-        Input,
         IndicatorSeparator,
         Placeholder,
         Control,

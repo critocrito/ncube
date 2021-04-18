@@ -107,11 +107,6 @@
   border-color: var(--color-url);
 }
 
-/* Global elements */
-form {
-  @apply flex flex-col max-w-lg;
-}
-
 ::placeholder {
   @apply gray-25 opacity-100;
 }
@@ -161,23 +156,6 @@ tr:hover .trash {
   right: 3px;
 }
 
-/* Search Bar Input */
-.search-bar {
-  position: relative;
-}
-.search-bar > input {
-  height: 40px;
-  margin: 0;
-  width: 100%;
-  padding-right: 26px;
-  border-radius: 0px;
-  border: 1px solid #dfe2ec;
-}
-.search-bar > button {
-  position: absolute;
-  right: 3px;
-}
-
 @tailwind utilities;
 
 @layer base {
@@ -213,6 +191,10 @@ tr:hover .trash {
   body:not(.user-is-tabbing) select:focus,
   body:not(.user-is-tabbing) textarea:focus {
     outline: none;
+  }
+
+  form {
+    @apply flex flex-col max-w-lg space-y-4;
   }
 }
 

@@ -74,7 +74,7 @@ const SourceTypeSelect = ({
   const hasError = touched && error;
 
   return (
-    <div className="flex flex-column fb1 mt3 mb2">
+    <div>
       <FormLabel name={name} label={label} />
 
       <SelectDropdown<SelectOption>
@@ -89,7 +89,7 @@ const SourceTypeSelect = ({
         LocalOption={Option}
         LocalSingleValue={SingleValue}
         className={
-          "w-full rounded mb-2 cursor-pointer text-white border border-solitude"
+          "w-full rounded cursor-pointer text-white border border-solitude"
         }
       />
 

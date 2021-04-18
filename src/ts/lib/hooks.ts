@@ -152,7 +152,7 @@ export const useOnOutsideClick = <T extends HTMLElement>(
     };
   }, [onClose]);
 
-  // Collapse the modal when we press the escape key.
+  // // Collapse the modal when we press the escape key.
   useEffect(() => {
     const handleEscapeKey = (ev: KeyboardEvent) => {
       const key = ev.key || ev.keyCode;

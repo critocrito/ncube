@@ -2,7 +2,7 @@ import React, {useState} from "react";
 
 import {Workspace} from "../types";
 import Button from "./button";
-import WorkspaceSelector from "./workspace-selector";
+import WorkspaceSelect from "./workspace-select";
 import FormLabel from "./form-label";
 
 interface WorkspacesProps {
@@ -16,10 +16,10 @@ const Workspaces = ({workspaces, onNext}: WorkspacesProps) => {
   );
 
   return (
-    <div className="flex flex-column">
+    <div className="flex flex-col">
       <FormLabel name="workspace" label="Select workspace" />
 
-      <WorkspaceSelector
+      <WorkspaceSelect
         className="border border-solitude text-black"
         selectedWorkspace={selectedWorkspace}
         workspaces={workspaces}

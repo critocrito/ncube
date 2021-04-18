@@ -5,7 +5,7 @@ import {SingleValueProps} from "react-select";
 import {SelectOption, Workspace} from "../types";
 import SelectDropdown from "./select-dropdown";
 
-interface WorkspaceSelectorProps {
+interface WorkspaceSelectProps {
   workspaces: Workspace[];
   onChange: (w: Workspace) => void;
   selectedWorkspace: Workspace;
@@ -17,18 +17,18 @@ export const SingleValue = ({
   data,
 }: SingleValueProps<SelectOption>) => {
   return (
-    <div className="font-bold" {...innerProps}>
+    <div className="font-bold text-white" {...innerProps}>
       {data.label}
     </div>
   );
 };
 
-const WorkspaceSelector = ({
+const WorkspaceSelect = ({
   workspaces,
   selectedWorkspace,
   onChange,
   className,
-}: WorkspaceSelectorProps) => {
+}: WorkspaceSelectProps) => {
   const options = workspaces.map(({name: label, slug: value}) => ({
     label,
     value,
@@ -53,4 +53,4 @@ const WorkspaceSelector = ({
   );
 };
 
-export default WorkspaceSelector;
+export default WorkspaceSelect;
