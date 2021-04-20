@@ -8,6 +8,6 @@ edition = "2018"
 
 [dependencies]
 thiserror = "1.0"
-warp = "0.3.0"
+warp = "0.3.1"
 
 ncube-crypto = { path = "../ncube-crypto" }

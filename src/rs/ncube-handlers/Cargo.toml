@@ -22,7 +22,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 rand = "0.7.3"
 chrono = { version = "0.4", features = ["serde"] }
-warp = "0.3.0"
+warp = "0.3.1"
 
 ncube-data = { path = "../ncube-data" }
 ncube-errors = { path = "../ncube-errors" }
