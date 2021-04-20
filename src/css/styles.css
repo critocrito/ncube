@@ -66,6 +66,15 @@
   tr:hover .trash {
     display: block;
   }
+
+  .mdx h4 {
+    @apply header4;
+  }
+
+  .mdx p,
+  .mdx pre {
+    @apply my-6;
+  }
 }
 
 @layer utilities {

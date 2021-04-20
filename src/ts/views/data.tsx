@@ -130,7 +130,9 @@ const Data = ({databaseRef}: DataProps) => {
           title="Data Details"
           description="Describing this modal"
         >
-          <HelpText />
+          <div className="mdx">
+            <HelpText />
+          </div>
         </Modal>
 
         <DataHome

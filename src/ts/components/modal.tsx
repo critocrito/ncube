@@ -73,7 +73,7 @@ const Modal = ({
               <img src={closeIcon} className="w-4 h-4" alt="Close modal." />
             </button>
           </div>
-          <div className="sm:flex sm:items-start">{children}</div>
+          <div>{children}</div>
         </div>
       </div>
     </div>
