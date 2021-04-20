@@ -1,6 +1,7 @@
 import React from "react";
 
 import Button from "./button";
+import ActionsLayout from "./actions-layout";
 
 interface FormActionsProps {
   submitLabel: string;
@@ -14,7 +15,7 @@ const FormActionsProps = ({
   onCancel,
 }: FormActionsProps) => {
   return (
-    <div className="flex space-x-4 mt-3 ml-auto">
+    <ActionsLayout align="right">
       {onCancel && (
         <Button type="reset" size="large" kind="secondary" onClick={onCancel}>
           Cancel
@@ -23,7 +24,7 @@ const FormActionsProps = ({
       <Button type="submit" size="large" disabled={isDisabled}>
         {submitLabel}
       </Button>
-    </div>
+    </ActionsLayout>
   );
 };
 

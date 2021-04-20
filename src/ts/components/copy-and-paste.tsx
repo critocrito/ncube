@@ -26,7 +26,7 @@ const CopyAndPaste = ({value}: CopyAndPasteProps) => {
     <div className="flex items-center">
       <span className={copyLabelStyle}>Copied!</span>
       <button onClick={copyHandler} className="ml-1.5 dim">
-        <img src={icon} alt="copy to clipboard." className="h-6 w-6" />
+        <img src={icon} alt="copy to clipboard." className="h-5 w-5" />
       </button>
     </div>
   );

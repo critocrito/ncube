@@ -46,7 +46,6 @@
     "react-responsive-carousel": "^3.2.13",
     "react-select": "^4.2.1",
     "react-table": "^7.6.3",
-    "tachyons": "^4.12.0",
     "video.js": "^7.11.4",
     "webextension-polyfill": "^0.7.0",
     "xstate": "^4.17.1",

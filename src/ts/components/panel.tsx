@@ -24,7 +24,7 @@ const Panel = ({children, header, description}: PanelProps) => {
 
           <PanelHeader header={header} description={description} />
 
-          <div>{children}</div>
+          <main>{children}</main>
         </div>
       </div>
     </div>

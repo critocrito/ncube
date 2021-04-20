@@ -5,6 +5,7 @@ import {Segment, Workspace} from "../types";
 import Button from "./button";
 import DataSegmentsActions from "./data-segments-actions";
 import Stat from "./stat";
+import Card from "./card";
 
 interface DataSegmentsCardProps {
   workspace: Workspace;
@@ -22,7 +23,7 @@ const DataSegmentsCard = ({
   onDelete,
 }: DataSegmentsCardProps) => {
   return (
-    <section className="bg-white p-8 shadow-md flex items-start">
+    <Card>
       <table className="w-full h-full max-w-xl">
         <colgroup>
           <col className="w-2/5" />
@@ -71,7 +72,7 @@ const DataSegmentsCard = ({
       <div className="h-full ml-auto">
         <DataSegmentsActions onVerify={onVerify} onDelete={onDelete} />
       </div>
-    </section>
+    </Card>
   );
 };
 

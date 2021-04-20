@@ -7,6 +7,7 @@ import ButtonHelp from "./button-help";
 import DataActions from "./data-actions";
 import DataSearchBar from "./data-search-bar";
 import DataTable from "./data-table";
+import ActionsLayout from "./actions-layout";
 
 interface DataHomeProps {
   units: Unit[];
@@ -52,14 +53,14 @@ const DataHome = ({
         <ButtonHelp className="ml-2" onClick={onHelp} />
       </div>
 
-      <div className="ml-auto">
+      <ActionsLayout align="right">
         <DataActions
           hasSegment={segment !== undefined}
           isDisabled={isActionsDisabled}
           onCreateSegment={onCreateSegment}
           onUpdateSegment={onUpdateSegment}
         />
-      </div>
+      </ActionsLayout>
 
       <DataTable units={units} onClick={onShow} table={table} total={total} />
     </div>

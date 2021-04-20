@@ -5,6 +5,7 @@ import {statProcessesAll} from "../lib/http";
 import {Process} from "../types";
 import ProcessesActions from "./processes-actions";
 import ProcessesInfoBox from "./processes-info-box";
+import Card from "./card";
 
 interface ProcessesCardProps {
   process: Process;
@@ -41,7 +42,7 @@ const ProcessesCard = ({
   }, true);
 
   return (
-    <section className="bg-white p-8 shadow-md flex items-start">
+    <Card>
       <table className="w-full h-full max-w-xl">
         <colgroup>
           <col className="w-2/5" />
@@ -85,10 +86,10 @@ const ProcessesCard = ({
         </tbody>
       </table>
 
-      <div className="ml-auto">
+      <div className="self-start ml-auto">
         <ProcessesActions onRun={onRun} />
       </div>
-    </section>
+    </Card>
   );
 };
 

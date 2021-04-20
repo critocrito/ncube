@@ -9,6 +9,7 @@ import {
 import {Investigation} from "../types";
 import Button from "./button";
 import Stat from "./stat";
+import Card from "./card";
 
 interface InvestigationsCardProps {
   investigation: Investigation;
@@ -28,7 +29,7 @@ const InvestigationsCard = ({
   ] = useWorkspaceCtx();
 
   return (
-    <section className="bg-white p-8 shadow-md flex items-start">
+    <Card>
       <table className="w-full h-full max-w-xl">
         <colgroup>
           <col className="w-2/5" />
@@ -85,10 +86,10 @@ const InvestigationsCard = ({
         </tbody>
       </table>
 
-      <div className="ml-auto">
+      <div className="self-start ml-auto">
         <Button onClick={onShow}>Open</Button>
       </div>
-    </section>
+    </Card>
   );
 };
 

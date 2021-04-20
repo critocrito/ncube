@@ -4,6 +4,7 @@ import dataIcon from "../../../resources/public/images/icon_data.svg";
 import {DataStats, Workspace} from "../types";
 import Button from "./button";
 import StatsTable from "./stats-table";
+import Card from "./card";
 
 interface DataCardProps {
   onShow: () => void;
@@ -12,7 +13,7 @@ interface DataCardProps {
 
 const DataCard = ({stats, onShow}: DataCardProps) => {
   return (
-    <div className="bg-white p-8 shadow-md flex items-center">
+    <Card>
       <div className="w-64 flex flex-col justify-between h-full">
         <div className="flex items-center pb-1.5">
           <img
@@ -32,7 +33,7 @@ const DataCard = ({stats, onShow}: DataCardProps) => {
       <div className="ml-auto">
         <Button onClick={onShow}>Explore</Button>
       </div>
-    </div>
+    </Card>
   );
 };
 

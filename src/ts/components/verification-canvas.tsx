@@ -88,110 +88,108 @@ const VerificationCanvas = ({
   return (
     <div className="overflow-x-auto">
       <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
-        <div>
-          <div className="flex space-x-6">
-            {[...units.keys()].map((name, i) => {
-              const isDroppable =
-                allowedColumns.length === 0 || allowedColumns.includes(name);
-              const data = units.get(name) || [];
+        <div className="flex space-x-6">
+          {[...units.keys()].map((name, i) => {
+            const isDroppable =
+              allowedColumns.length === 0 || allowedColumns.includes(name);
+            const data = units.get(name) || [];
 
-              return (
-                <Droppable key={name} droppableId={name}>
-                  {(provided, snapshot) => (
-                    <div ref={provided.innerRef} {...provided.droppableProps}>
-                      <VerificationColumn
-                        name={name}
-                        cntUnits={data.length}
-                        isHighlighted={snapshot.isDraggingOver}
-                        isDroppable={isDroppable}
-                        onDownload={async () => {
-                          // FIXME: I know this is messy code. I want to
-                          // revisit the CSV generation and push it into the
-                          // backend. I believe this will be much more efficient
-                          // than doing it in the UI. I also need to extend the CSV
-                          // download with downloads, tags and annotations.
-                          const ids = data.map(({id}) => id);
-                          const csvUnits = await listUnitsByIds(
-                            workspaceSlug,
-                            ids,
-                          );
+            return (
+              <Droppable key={name} droppableId={name}>
+                {(provided, snapshot) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                    <VerificationColumn
+                      name={name}
+                      cntUnits={data.length}
+                      isHighlighted={snapshot.isDraggingOver}
+                      isDroppable={isDroppable}
+                      onDownload={async () => {
+                        // FIXME: I know this is messy code. I want to
+                        // revisit the CSV generation and push it into the
+                        // backend. I believe this will be much more efficient
+                        // than doing it in the UI. I also need to extend the CSV
+                        // download with downloads, tags and annotations.
+                        const ids = data.map(({id}) => id);
+                        const csvUnits = await listUnitsByIds(
+                          workspaceSlug,
+                          ids,
+                        );
 
-                          const filename = `${segmentSlug}-${name}.csv`;
-                          const csv = csvFormat(
-                            csvUnits.map(
-                              ({
-                                id,
-                                id_hash,
-                                source,
-                                unit_id,
-                                body,
-                                href,
-                                author,
-                                title,
-                                description,
-                                created_at,
-                                fetched_at,
-                              }) => ({
-                                id,
-                                id_hash,
-                                source,
-                                unit_id,
-                                body,
-                                href,
-                                author,
-                                title,
-                                description,
-                                created_at,
-                                fetched_at,
-                              }),
-                            ),
-                          );
-                          const blob = new Blob([csv], {type: "text/csv"});
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = filename || "download.csv";
-                          const clickHandler = () => {
-                            setTimeout(() => {
-                              URL.revokeObjectURL(url);
-                              a.removeEventListener("click", clickHandler);
-                            }, 150);
-                          };
-                          a.addEventListener("click", clickHandler, false);
-                          a.click();
-                        }}
-                      >
-                        <div className="space-y-4">
-                          {data.map((unit, index) => (
-                            <Draggable
-                              key={unit.id}
-                              draggableId={unit.id.toString()}
-                              index={index}
-                            >
-                              {(unitProvided, _snapshot) => (
-                                <div
-                                  onClick={() => onDetails(unit)}
-                                  onKeyPress={() => onDetails(unit)}
-                                  tabIndex={0}
-                                  role="button"
-                                  ref={unitProvided.innerRef}
-                                  {...unitProvided.draggableProps}
-                                  {...unitProvided.dragHandleProps}
-                                >
-                                  <VerificationCard unit={unit} />
-                                </div>
-                              )}
-                            </Draggable>
-                          ))}
-                        </div>
-                      </VerificationColumn>
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              );
-            })}
-          </div>
+                        const filename = `${segmentSlug}-${name}.csv`;
+                        const csv = csvFormat(
+                          csvUnits.map(
+                            ({
+                              id,
+                              id_hash,
+                              source,
+                              unit_id,
+                              body,
+                              href,
+                              author,
+                              title,
+                              description,
+                              created_at,
+                              fetched_at,
+                            }) => ({
+                              id,
+                              id_hash,
+                              source,
+                              unit_id,
+                              body,
+                              href,
+                              author,
+                              title,
+                              description,
+                              created_at,
+                              fetched_at,
+                            }),
+                          ),
+                        );
+                        const blob = new Blob([csv], {type: "text/csv"});
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = filename || "download.csv";
+                        const clickHandler = () => {
+                          setTimeout(() => {
+                            URL.revokeObjectURL(url);
+                            a.removeEventListener("click", clickHandler);
+                          }, 150);
+                        };
+                        a.addEventListener("click", clickHandler, false);
+                        a.click();
+                      }}
+                    >
+                      <div className="space-y-4">
+                        {data.map((unit, index) => (
+                          <Draggable
+                            key={unit.id}
+                            draggableId={unit.id.toString()}
+                            index={index}
+                          >
+                            {(unitProvided, _snapshot) => (
+                              <div
+                                onClick={() => onDetails(unit)}
+                                onKeyPress={() => onDetails(unit)}
+                                tabIndex={0}
+                                role="button"
+                                ref={unitProvided.innerRef}
+                                {...unitProvided.draggableProps}
+                                {...unitProvided.dragHandleProps}
+                              >
+                                <VerificationCard unit={unit} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                      </div>
+                    </VerificationColumn>
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            );
+          })}
         </div>
       </DragDropContext>
     </div>

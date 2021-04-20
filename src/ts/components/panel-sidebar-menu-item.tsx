@@ -50,7 +50,7 @@ const PanelSidebarMenuItem = ({kind, onClick}: PanelSidebarMenuItemProps) => {
   return (
     <button className="flex items-center dim" onClick={onClick}>
       <img className="w-5 h-5" src={icon} alt={desc} />
-      <span className="ml2">{label}</span>
+      <span className="ml-3">{label}</span>
     </button>
   );
 };

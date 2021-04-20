@@ -7,6 +7,7 @@ import sourceIcon from "../../../resources/public/images/icon_source.svg";
 import {DataStats, SourceStats} from "../types";
 import Button from "./button";
 import StatsTable from "./stats-table";
+import Card from "./card";
 
 interface WorkspacesCardProps {
   kind: "source" | "data" | "process" | "investigation";
@@ -43,7 +44,7 @@ const WorkspacesCard = ({kind, stats, onShow}: WorkspacesCardProps) => {
   }
 
   return (
-    <div className="h-36 bg-white p-8 shadow-4 flex items-center">
+    <Card>
       <div className="w-64 flex flex-col justify-between h-full">
         <div className="flex items-center pb-1.5">
           <img
@@ -63,7 +64,7 @@ const WorkspacesCard = ({kind, stats, onShow}: WorkspacesCardProps) => {
       <div className="pr-3 h-full ml-auto">
         <Button onClick={onShow}>{label}</Button>
       </div>
-    </div>
+    </Card>
   );
 };
 

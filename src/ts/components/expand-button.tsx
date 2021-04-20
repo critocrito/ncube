@@ -27,15 +27,17 @@ const ExpansionItem = ({
   );
 
   return (
-    <div className="border border-sapphire table-row">
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className={classes}
-        role="menuitem"
-      >
-        {children}
-      </button>
+    <div className="table-row">
+      <div className="border border-sapphire table-cell">
+        <button
+          onClick={onClick}
+          disabled={disabled}
+          className={classes}
+          role="menuitem"
+        >
+          {children}
+        </button>
+      </div>
     </div>
   );
 };
@@ -101,7 +103,7 @@ const ExpandButton = ({
           aria-labelledby="menu-button"
           tabIndex={-1}
         >
-          <div className="table collapse w-full" role="none">
+          <div className="table border-collapse w-full" role="none">
             {children(ExpansionItem)}
           </div>
         </div>

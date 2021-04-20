@@ -1,161 +1,5 @@
-@import "tachyons";
-
 @tailwind base;
 @tailwind components;
-
-:root {
-  /* Main colors. Headers, infotext, buttons, borders */
-
-  --color-canvas: #faf8f7;
-  --color-bittersweet: #fd7268;
-  --color-sapphire: #0a2463;
-  --color-fair-pink: #f8ece8;
-  --color-solitude: #dfe2ec;
-
-  /* Gray scale. Secondary text, disable status, borders */
-
-  --color-gray-75: #474747;
-  --color-gray-25: #c0bfbf;
-
-  /* Feedback Colors */
-
-  --color-success: #78d397;
-  --color-error: #c94d07;
-
-  /* Sources Colors */
-
-  --color-youtube: #e52d27;
-  --color-twitter: #08a0e9;
-  --color-http: #463764;
-
-  /* Random Colors */
-
-  --color-washed-red: #e19f9f;
-  --color-washed-purple: #c4ccea;
-  --color-washed-blue: #a2cae0;
-  --color-washed-green: #b6ddb0;
-  --color-washed-yellow: #e4d976;
-}
-
-.fair-pink {
-  color: var(--color-fair-pink);
-}
-
-.solitude {
-  color: var(--color-solitude);
-}
-
-.gray-25 {
-  color: var(--color-gray-25);
-}
-
-.gray-75 {
-  color: var(--color-gray-75);
-}
-
-.success {
-  color: var(--color-success);
-}
-
-.error {
-  color: var(--color-error);
-}
-
-/* Borders */
-
-.b--canvas {
-  border-color: var(--color-canvas);
-}
-
-.b--bittersweet {
-  border-color: var(--color-bittersweet);
-}
-
-.b--sapphire {
-  border-color: var(--color-sapphire);
-}
-
-.b--fair-pink {
-  border-color: var(--color-fair-pink);
-}
-
-.b--solitude {
-  border-color: var(--color-solitude);
-}
-
-.b--gray-25 {
-  border-color: var(--color-gray-25);
-}
-
-.b--gray-75 {
-  border-color: var(--color-gray-75);
-}
-
-.b--error {
-  border-color: var(--color-error);
-}
-
-.b--youtube {
-  border-color: var(--color-youtube);
-}
-
-.b--twitter {
-  border-color: var(--color-twitter);
-}
-
-.b--url {
-  border-color: var(--color-url);
-}
-
-::placeholder {
-  @apply gray-25 opacity-100;
-}
-
-/* Tables */
-
-th {
-  @apply p-2;
-}
-
-td {
-  @apply border-r border-b b--sapphire p-2;
-  position: relative;
-}
-
-tr {
-  @apply bg-white;
-}
-
-.trash {
-  cursor: pointer;
-  display: none;
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  left: -40px;
-}
-
-tr:hover .trash {
-  display: block;
-}
-
-/* Multi Select */
-.select {
-  position: relative;
-}
-.select > input {
-  height: 35px;
-  margin: 0;
-  width: 100%;
-  padding-right: 26px;
-  border-radius: 0px;
-  border: 1px solid #dfe2ec;
-}
-.select > button {
-  position: absolute;
-  right: 3px;
-}
-
 @tailwind utilities;
 
 @layer base {
@@ -195,6 +39,32 @@ tr:hover .trash {
 
   form {
     @apply flex flex-col max-w-lg space-y-4;
+  }
+
+  th {
+    @apply p-2;
+  }
+
+  td {
+    @apply border-r border-b border-sapphire p-2;
+    position: relative;
+  }
+
+  tr {
+    @apply bg-white;
+  }
+
+  .trash {
+    cursor: pointer;
+    display: none;
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    left: -40px;
+  }
+
+  tr:hover .trash {
+    display: block;
   }
 }
 

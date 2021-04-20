@@ -15,9 +15,9 @@ const PanelSidebarButton = ({isExpanded, onClick}: PanelSidebarButtonProps) => {
       onClick={onClick}
     >
       {isExpanded ? (
-        <img src={chevronLeft} alt="close sidebar" className="h1 w1" />
+        <img src={chevronLeft} alt="close sidebar" className="h-5 w-5" />
       ) : (
-        <img src={chevronRight} alt="open sidebar" className="h1 w1" />
+        <img src={chevronRight} alt="open sidebar" className="h-5 w-5" />
       )}
     </button>
   );

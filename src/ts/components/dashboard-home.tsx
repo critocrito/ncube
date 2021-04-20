@@ -5,6 +5,7 @@ import {Workspace} from "../types";
 import DashboardActions from "./dashboard-actions";
 import DashboardHeader from "./dashboard-header";
 import DashboardTable from "./dashboard-table";
+import ActionsLayout from "./actions-layout";
 
 interface DashboardHomeProps {
   workspaces: Workspace[];
@@ -31,9 +32,9 @@ const DashboardHome = ({
         onDelete={onDelete}
       />
 
-      <div className="mt-3 flex justify-end space-x-4">
+      <ActionsLayout align="right">
         <DashboardActions onLink={onLink} onCreate={onCreate} />
-      </div>
+      </ActionsLayout>
     </>
   );
 };

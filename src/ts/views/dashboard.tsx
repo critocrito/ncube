@@ -10,6 +10,7 @@ import Error from "../components/error";
 import Modal from "../components/modal";
 import BasicPanel from "../components/panel-basic";
 import Unreachable from "../components/unreachable";
+import Loading from "../components/loading";
 import machine, {
   DashboardContext,
   DashboardMachineInterpreter,
@@ -25,8 +26,18 @@ const Dashboard = ({dashboardRef}: DashboardProps) => {
 
   const {workspaces} = state.context;
 
+  if (state.matches("workspaces")) {
+    return (
+      <>
+        <Loading />
+        <BasicPanel>
+          <DashboardHome workspaces={workspaces} />
+        </BasicPanel>
+      </>
+    );
+  }
+
   if (
-    state.matches("workspaces") ||
     state.matches("workspace") ||
     state.matches("dashboard") ||
     state.matches("details")

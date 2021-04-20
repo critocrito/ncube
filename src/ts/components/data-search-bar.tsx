@@ -27,7 +27,7 @@ const DataSearchBar = ({
         id="search-bar"
         onChange={(ev) => onChange(ev.target.value)}
         onKeyPress={onEnter}
-        className="block w-full pr-10 sm:text-sm border-solitude rounded-md"
+        className="block w-full pr-10 sm:text-sm border-solitude"
       />
       <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
         <button

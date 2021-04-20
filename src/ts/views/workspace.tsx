@@ -3,6 +3,7 @@ import React from "react";
 
 import Error from "../components/error";
 import LoadingSpinner from "../components/loading-spinner";
+import Loading from "../components/loading";
 import Panel from "../components/panel";
 import Unreachable from "../components/unreachable";
 import {WorkspaceProvider} from "../lib/context";
@@ -20,14 +21,7 @@ interface WorkspaceProps {
 const WorkspacePanel = ({workspaceRef}: WorkspaceProps) => {
   const [state, send] = useActor(workspaceRef);
 
-  if (state.matches("stats"))
-    return (
-      <div className="flex h-screen">
-        <div className="m-auto">
-          <LoadingSpinner />
-        </div>
-      </div>
-    );
+  if (state.matches("stats")) return <Loading />;
 
   if (state.matches("overview"))
     return (

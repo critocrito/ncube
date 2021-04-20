@@ -5,6 +5,7 @@ import {statSegmentsProgress, statSegmentsVerified} from "../lib/http";
 import {Investigation, Segment} from "../types";
 import Button from "./button";
 import Stat from "./stat";
+import Card from "./card";
 
 interface InvestigationsSegmentCardProps {
   investigation: Investigation;
@@ -26,7 +27,7 @@ const InvestigationsSegmentCard = ({
   ] = useWorkspaceCtx();
 
   return (
-    <section className="bg-white p-8 shadow-md flex items-start">
+    <Card>
       <table className="w-full h-full max-w-xl">
         <colgroup>
           <col className="w-2/5" />
@@ -79,10 +80,10 @@ const InvestigationsSegmentCard = ({
         </tbody>
       </table>
 
-      <div className="ml-auto">
+      <div className="self-start ml-auto">
         <Button onClick={onVerify}>Verify</Button>
       </div>
-    </section>
+    </Card>
   );
 };
 

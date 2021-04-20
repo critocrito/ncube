@@ -5,6 +5,8 @@ import Button from "./button";
 import CopyAndPaste from "./copy-and-paste";
 import QueryTagList from "./query-tag-list";
 import SourceTag from "./source-tag";
+import Description from "./description";
+import LabeledSourceTag from "./labeled-source-tag";
 
 interface SourceDetailsProps {
   source: Source;
@@ -29,32 +31,36 @@ const SourceDetails = ({source, onDelete}: SourceDetailsProps) => {
       platform = "http";
   }
 
-  return (
-    <div className="flex flex-col">
-      <h3 className="header3">Source Details</h3>
-
-      <p className="mb2">Term</p>
-      <div className="flex items-start justify-between">
-        <span className="w-90">{source.term}</span>
-        <CopyAndPaste value={source.term} />
-      </div>
-
-      <p className="mb2">Type</p>
-      <div className="flex items-center">
-        <SourceTag kind={platform} />
-        <span className="ml3">{source.type}</span>
-      </div>
-
-      {source.tags.length > 0 && (
-        <div>
-          <p className="mb1">Tags</p>
-          <QueryTagList tags={source.tags} />
+  const items = [
+    {
+      label: "Term",
+      value: (
+        <div className="flex items-center space-x-5">
+          <span>{source.term}</span>
+          <CopyAndPaste value={source.term} />
         </div>
-      )}
+      ),
+    },
+    {
+      label: "Type",
+      value: <LabeledSourceTag label={platform} />,
+    },
+    {
+      label: "Tags",
+      value: <QueryTagList tags={source.tags} />,
+    },
+  ];
+  return (
+    <div className="flex flex-col w-full">
+      <h4 className="header4">Source Details</h4>
 
-      <Button className="mt4 ml-auto" size="large" onClick={onDelete}>
-        Delete Source
-      </Button>
+      <Description items={items} />
+
+      <div className="flex mt-3 ml-auto">
+        <Button size="large" onClick={onDelete}>
+          Delete Source
+        </Button>
+      </div>
     </div>
   );
 };

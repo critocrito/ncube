@@ -5,6 +5,7 @@ import {TableMachineInterpreter} from "../machines/table";
 import {Source} from "../types";
 import SourcesActions from "./sources-actions";
 import SourcesTable from "./sources-table";
+import ActionsLayout from "./actions-layout";
 
 interface SourcesHomeProps {
   sources: Source[];
@@ -25,7 +26,9 @@ const SourcesHome = ({
 }: SourcesHomeProps) => {
   return (
     <div className="space-y-3">
-      <SourcesActions onCreate={onCreate} />
+      <ActionsLayout>
+        <SourcesActions onCreate={onCreate} />
+      </ActionsLayout>
 
       <SourcesTable
         sources={sources}

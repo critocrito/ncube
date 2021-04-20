@@ -104,7 +104,7 @@ const DashboardWorkspaceItem = ({
   return (
     <li className="border-b">
       <div className="flex items-center justify-between">
-        <div className="flex flex-col justify-around h-36 my-1 md:my-4">
+        <div className="flex flex-col justify-around h-32 my-1 md:my-4">
           <div className="flex items-center space-x-4">
             <WorkspaceTag kind={kind} />
 
