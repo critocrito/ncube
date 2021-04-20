@@ -3,9 +3,9 @@ import React, {useEffect, useState} from "react";
 import {useWorkspaceCtx} from "../lib/context";
 import {statProcessesAll} from "../lib/http";
 import {Process} from "../types";
+import Card from "./card";
 import ProcessesActions from "./processes-actions";
 import ProcessesInfoBox from "./processes-info-box";
-import Card from "./card";
 
 interface ProcessesCardProps {
   process: Process;

@@ -3,11 +3,11 @@ import React from "react";
 import {voidFn} from "../lib/utils";
 import {TableMachineInterpreter} from "../machines/table";
 import {Segment, Unit} from "../types";
+import ActionsLayout from "./actions-layout";
 import ButtonHelp from "./button-help";
 import DataActions from "./data-actions";
 import DataSearchBar from "./data-search-bar";
 import DataTable from "./data-table";
-import ActionsLayout from "./actions-layout";
 
 interface DataHomeProps {
   units: Unit[];

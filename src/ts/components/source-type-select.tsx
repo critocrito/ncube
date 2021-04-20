@@ -6,8 +6,8 @@ import {components, OptionProps, SingleValueProps} from "react-select";
 
 import {SelectOption, SourceType} from "../types";
 import FormLabel from "./form-label";
-import SelectDropdown from "./select-dropdown";
 import LabeledSourceTag from "./labeled-source-tag";
+import SelectDropdown from "./select-dropdown";
 
 interface SourceTypeSelectProps {
   label: string;
@@ -88,9 +88,7 @@ const SourceTypeSelect = ({
         isClearable={isClearable}
         LocalOption={Option}
         LocalSingleValue={SingleValue}
-        className={
-          "w-full rounded cursor-pointer text-white border border-solitude"
-        }
+        className="w-full rounded cursor-pointer text-white border border-solitude"
       />
 
       {hasError ? <div className="text-error">{meta.error}</div> : undefined}

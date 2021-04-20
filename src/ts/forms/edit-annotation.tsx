@@ -1,15 +1,15 @@
 import c from "clsx";
-import React from "react";
 import parseISO from "date-fns/parseISO";
 import {Form, Formik} from "formik";
+import React from "react";
 
-import {Annotation, AnnotationSchema} from "../types";
 import BooleanSelect from "../components/boolean-select";
-import OptionsSelect from "../components/options-select";
 import Button from "../components/button";
 import DatePicker from "../components/date-picker";
 import Input from "../components/input";
+import OptionsSelect from "../components/options-select";
 import TextArea from "../components/text-area";
+import {Annotation, AnnotationSchema} from "../types";
 
 interface EditAnnotationProps {
   schema: AnnotationSchema;
@@ -17,7 +17,7 @@ interface EditAnnotationProps {
   onSubmit: (annotation: Annotation) => Promise<void>;
 }
 
-export const EditAnnotation = ({
+const EditAnnotation = ({
   schema,
   onSubmit,
   annotation,

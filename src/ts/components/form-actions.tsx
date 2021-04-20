@@ -1,7 +1,7 @@
 import React from "react";
 
-import Button from "./button";
 import ActionsLayout from "./actions-layout";
+import Button from "./button";
 
 interface FormActionsProps {
   submitLabel: string;
@@ -9,7 +9,7 @@ interface FormActionsProps {
   isDisabled?: boolean;
 }
 
-const FormActionsProps = ({
+const FormActions = ({
   submitLabel,
   isDisabled = false,
   onCancel,
@@ -28,4 +28,4 @@ const FormActionsProps = ({
   );
 };
 
-export default FormActionsProps;
+export default FormActions;

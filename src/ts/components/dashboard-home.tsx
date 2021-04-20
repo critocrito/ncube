@@ -2,10 +2,10 @@ import React from "react";
 
 import {voidFn} from "../lib/utils";
 import {Workspace} from "../types";
+import ActionsLayout from "./actions-layout";
 import DashboardActions from "./dashboard-actions";
 import DashboardHeader from "./dashboard-header";
 import DashboardTable from "./dashboard-table";
-import ActionsLayout from "./actions-layout";
 
 interface DashboardHomeProps {
   workspaces: Workspace[];

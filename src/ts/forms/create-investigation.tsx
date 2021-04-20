@@ -2,12 +2,12 @@ import {Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
+import DescriptionSelect from "../components/description-select";
+import FormActions from "../components/form-actions";
 import Input from "../components/input";
 import Textarea from "../components/text-area";
 import {listMethodologies} from "../lib/http";
 import {FormProps, Methodology} from "../types";
-import DescriptionSelect from "../components/description-select";
-import FormActions from "../components/form-actions";
 
 type CreateInvestigationFormProps<
   CreateInvestigationFormValues

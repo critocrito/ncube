@@ -1,8 +1,8 @@
 import c from "clsx";
 import React, {useState} from "react";
 
-import Button from "./button";
 import {useOnOutsideClick} from "../lib/hooks";
+import Button from "./button";
 
 interface ExpansionItemProps {
   onClick?: () => void;
@@ -74,8 +74,8 @@ const ExpandButton = ({
         size={size}
         disabled={disabled}
         onClick={onClick}
-        ariaExpanded={true}
-        ariaHaspopup={true}
+        ariaExpanded
+        ariaHaspopup
       >
         {label}
 

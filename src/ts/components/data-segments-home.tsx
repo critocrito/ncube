@@ -2,7 +2,7 @@ import React from "react";
 
 import SegmentsEmpty from "../../mdx/segments-empty.mdx";
 import {voidFn} from "../lib/utils";
-import {Segment, Workspace, DataStats} from "../types";
+import {DataStats, Segment, Workspace} from "../types";
 import DataCard from "./data-card";
 import DataSegmentsTable from "./data-segments-table";
 import IntroText from "./intro-text";

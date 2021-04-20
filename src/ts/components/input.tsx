@@ -62,6 +62,7 @@ const Input = ({
               src={exclamationMark}
               className="h-5 w-5 text-error fill-current"
               aria-hidden="true"
+              alt="error icon"
             />
           </div>
         )}

@@ -3,9 +3,9 @@ import React from "react";
 import {statSegmentsUnits} from "../lib/http";
 import {Segment, Workspace} from "../types";
 import Button from "./button";
+import Card from "./card";
 import DataSegmentsActions from "./data-segments-actions";
 import Stat from "./stat";
-import Card from "./card";
 
 interface DataSegmentsCardProps {
   workspace: Workspace;

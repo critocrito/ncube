@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 
 import {Segment, Workspace} from "../types";
-import Tabs from "./tabs";
 import DataSegmentsCard from "./data-segments-card";
+import Tabs from "./tabs";
 
 interface DataSegmentsTableProps {
   workspace: Workspace;

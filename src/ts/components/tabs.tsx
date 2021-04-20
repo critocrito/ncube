@@ -15,20 +15,19 @@ const Tabs = ({items, selected, onClick}: TabsProps) => {
   return (
     <div>
       <div className="sm:hidden">
-        <label htmlFor="tabs" className="sr-only">
+        {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+        <label htmlFor="input-tab-selector" className="sr-only">
           Select a tab
         </label>
         <SelectDropdown<SelectOption>
-          id="workspace-selector"
+          id="tab-selector"
           options={items}
           defaultValue={selected}
           onSelect={(option) => {
             if (!option) return;
             onClick(option);
           }}
-          className={
-            "w-full rounded mb-2 cursor-pointer border border-solitude"
-          }
+          className="w-full rounded mb-2 cursor-pointer border border-solitude"
         />
       </div>
 

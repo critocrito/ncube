@@ -2,9 +2,9 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
+import FormActions from "../components/form-actions";
 import Input from "../components/input";
 import {FormProps} from "../types";
-import FormActions from "../components/form-actions";
 
 export type UpdateSegmentFormValues = {
   title: string;

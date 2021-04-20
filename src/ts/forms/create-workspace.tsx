@@ -2,8 +2,8 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Input from "../components/input";
 import FormActions from "../components/form-actions";
+import Input from "../components/input";
 import {FormProps} from "../types";
 
 export type CreateWorkspaceFormValues = {

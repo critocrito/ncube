@@ -7,7 +7,7 @@ import {
   Typestate,
 } from "xstate";
 
-import {voidFn, isMouseEvent} from "./utils";
+import {isMouseEvent, voidFn} from "./utils";
 
 export const useServiceLogger = <
   TContext,
@@ -134,27 +134,27 @@ export const useMobileSize = (breakpoint = 768): boolean => {
 
 export const useOnOutsideClick = <T extends HTMLElement>(
   onClose: () => void,
-) => {
+): React.RefObject<T> => {
   // eslint-disable-next-line unicorn/no-null
   const ref = useRef<T>(null);
 
   // Collapse the modal when we click outside the menu.
   useEffect(() => {
-    const handleClickOutside = (ev: Event) => {
+    const handleClickOutside = (ev: Event): void => {
       if (isMouseEvent(ev) && !ref.current?.contains(ev.target as Node)) {
         onClose();
       }
     };
 
     document.addEventListener("click", handleClickOutside, true);
-    return () => {
+    return (): void => {
       document.removeEventListener("click", handleClickOutside, true);
     };
   }, [onClose]);
 
   // // Collapse the modal when we press the escape key.
   useEffect(() => {
-    const handleEscapeKey = (ev: KeyboardEvent) => {
+    const handleEscapeKey = (ev: KeyboardEvent): void => {
       const key = ev.key || ev.keyCode;
       if (key === "Escape" || key === "Esc" || key === 27) {
         onClose();
@@ -162,7 +162,7 @@ export const useOnOutsideClick = <T extends HTMLElement>(
     };
 
     document.addEventListener("keydown", handleEscapeKey, false);
-    return () => {
+    return (): void => {
       document.removeEventListener("keydown", handleEscapeKey, false);
     };
   }, [onClose]);

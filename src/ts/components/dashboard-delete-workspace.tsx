@@ -44,8 +44,9 @@ const DashboardDeleteWorkspace = ({
               </h3>
               <p className="mt-2 max-w-2xl">
                 Deleting a workspace will permanently remove this workspace from
-                Ncube. Selecting "Yes" to delete the workspace location will
-                delete the workspace directory and all downloads as well.
+                Ncube. Selecting &ldquo;Yes&rdquo; to delete the workspace
+                location will delete the workspace directory and all downloads
+                as well.
               </p>
             </div>
 

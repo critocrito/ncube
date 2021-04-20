@@ -3,10 +3,9 @@ import React from "react";
 import {Source} from "../types";
 import Button from "./button";
 import CopyAndPaste from "./copy-and-paste";
-import QueryTagList from "./query-tag-list";
-import SourceTag from "./source-tag";
 import Description from "./description";
 import LabeledSourceTag from "./labeled-source-tag";
+import QueryTagList from "./query-tag-list";
 
 interface SourceDetailsProps {
   source: Source;

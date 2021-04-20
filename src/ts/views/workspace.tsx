@@ -2,7 +2,6 @@ import {useActor} from "@xstate/react";
 import React from "react";
 
 import Error from "../components/error";
-import LoadingSpinner from "../components/loading-spinner";
 import Loading from "../components/loading";
 import Panel from "../components/panel";
 import Unreachable from "../components/unreachable";

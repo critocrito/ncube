@@ -56,7 +56,7 @@ const BooleanSelect = ({label, isClearable = false, ...props}: SelectProps) => {
           setFieldValue(field.name, val);
         }}
         isClearable={isClearable}
-        className={"w-full rounded cursor-pointer border border-solitude"}
+        className="w-full rounded cursor-pointer border border-solitude"
       />
 
       {hasError ? <div className="text-error">{meta.error}</div> : undefined}

@@ -1,10 +1,10 @@
 import React from "react";
 
+import {unreachable} from "../lib/utils";
 import dataIcon from "../svg/data.svg";
 import investigationIcon from "../svg/investigation.svg";
 import processIcon from "../svg/process.svg";
 import sourceIcon from "../svg/source.svg";
-import {unreachable} from "../lib/utils";
 
 interface PanelSidebarMenuItemProps {
   kind: "source" | "data" | "process" | "investigation";

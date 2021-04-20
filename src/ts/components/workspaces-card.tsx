@@ -6,8 +6,8 @@ import processIcon from "../../../resources/public/images/icon_process.svg";
 import sourceIcon from "../../../resources/public/images/icon_source.svg";
 import {DataStats, SourceStats} from "../types";
 import Button from "./button";
-import StatsTable from "./stats-table";
 import Card from "./card";
+import StatsTable from "./stats-table";
 
 interface WorkspacesCardProps {
   kind: "source" | "data" | "process" | "investigation";

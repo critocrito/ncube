@@ -3,14 +3,14 @@ import c from "clsx";
 import {useField, useFormikContext} from "formik";
 import React from "react";
 import {
-  components,
   ActionMeta,
+  components,
+  ControlProps,
   MenuListComponentProps,
   MultiValueProps,
   OptionProps,
-  ValueType,
   ValueContainerProps,
-  ControlProps,
+  ValueType,
 } from "react-select";
 import CreatableSelect from "react-select/creatable";
 
@@ -22,7 +22,6 @@ interface SourceTagSelectProps {
   options: DescriptionOption[];
   label: string;
   name: string;
-  placeholder?: string;
   isClearable?: boolean;
   className?: string;
 }
@@ -42,7 +41,10 @@ const MultiValue = ({
   return <QueryTag {...innerProps} label={label} />;
 };
 
-const Option = ({children, ...props}: OptionProps<DescriptionOption, true>) => {
+const Option = ({
+  children: _children,
+  ...props
+}: OptionProps<DescriptionOption, true>) => {
   const {
     isSelected,
     isFocused,
@@ -82,7 +84,6 @@ const SourceTagSelect = ({
     value: ValueType<DescriptionOption, true>,
     {action}: ActionMeta<DescriptionOption>,
   ) => {
-    console.log(action, value);
     // eslint-disable-next-line default-case
     switch (action) {
       case "select-option": {
@@ -110,7 +111,7 @@ const SourceTagSelect = ({
   const hasError = touched && error;
 
   const handleCreate = (tag: string) => {
-    setFieldValue(name, field.value.concat([{label: tag, value: tag}]));
+    setFieldValue(name, [...field.value, {label: tag, value: tag}]);
   };
 
   return (

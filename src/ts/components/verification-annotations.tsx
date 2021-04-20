@@ -1,7 +1,7 @@
 import React from "react";
 
+import EditAnnotation from "../forms/edit-annotation";
 import {Annotation, AnnotationSchema} from "../types";
-import EditAnnotation from "../forms/edit-annotations";
 
 interface AnnotationListProps {
   schemas: AnnotationSchema[];

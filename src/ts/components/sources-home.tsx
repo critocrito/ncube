@@ -3,9 +3,9 @@ import React from "react";
 import {voidFn} from "../lib/utils";
 import {TableMachineInterpreter} from "../machines/table";
 import {Source} from "../types";
+import ActionsLayout from "./actions-layout";
 import SourcesActions from "./sources-actions";
 import SourcesTable from "./sources-table";
-import ActionsLayout from "./actions-layout";
 
 interface SourcesHomeProps {
   sources: Source[];

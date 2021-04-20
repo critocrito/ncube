@@ -2,8 +2,8 @@ import React, {useState} from "react";
 
 import {Workspace} from "../types";
 import Button from "./button";
-import WorkspaceSelect from "./workspace-select";
 import FormLabel from "./form-label";
+import WorkspaceSelect from "./workspace-select";
 
 interface WorkspacesProps {
   onNext: (workspace: Workspace) => void;

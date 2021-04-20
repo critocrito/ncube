@@ -4,8 +4,8 @@ import {useWorkspaceCtx} from "../lib/context";
 import {statSegmentsProgress, statSegmentsVerified} from "../lib/http";
 import {Investigation, Segment} from "../types";
 import Button from "./button";
-import Stat from "./stat";
 import Card from "./card";
+import Stat from "./stat";
 
 interface InvestigationsSegmentCardProps {
   investigation: Investigation;

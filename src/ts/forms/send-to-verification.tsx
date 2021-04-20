@@ -3,10 +3,10 @@ import {Form, Formik} from "formik";
 import React, {useEffect, useState} from "react";
 import * as Yup from "yup";
 
-import {listInvestigations} from "../lib/http";
-import {FormProps, Investigation} from "../types";
 import DescriptionSelect from "../components/description-select";
 import FormActions from "../components/form-actions";
+import {listInvestigations} from "../lib/http";
+import {FormProps, Investigation} from "../types";
 
 type SendToVerificationFormProps<
   SendToVerificationFormValues

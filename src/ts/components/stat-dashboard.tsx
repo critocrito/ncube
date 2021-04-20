@@ -4,8 +4,8 @@ import dataIcon from "../../../resources/public/images/icon_data.svg";
 import investigationIcon from "../../../resources/public/images/icon_investigation.svg";
 import processIcon from "../../../resources/public/images/icon_process.svg";
 import sourceIcon from "../../../resources/public/images/icon_source.svg";
-import LoadingSpinner from "./loading-spinner";
 import {useMobileSize} from "../lib/hooks";
+import LoadingSpinner from "./loading-spinner";
 
 interface StatProps {
   kind: "source" | "data" | "process" | "investigation";

@@ -2,8 +2,8 @@ import {Form, Formik} from "formik";
 import React from "react";
 
 import BooleanSelect from "../components/boolean-select";
-import {FormProps} from "../types";
 import FormActions from "../components/form-actions";
+import {FormProps} from "../types";
 
 type DeleteWorkspaceFormProps<
   DeleteWorkspaceFormValues

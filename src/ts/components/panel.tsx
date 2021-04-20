@@ -1,9 +1,9 @@
 import React from "react";
 
-import PanelProcessConsole from "./panel-process-console";
 import PanelBreadcrumbs from "./panel-breadcrumbs";
-import PanelSidebar from "./panel-sidebar";
 import PanelHeader from "./panel-header";
+import PanelProcessConsole from "./panel-process-console";
+import PanelSidebar from "./panel-sidebar";
 
 interface PanelProps {
   header: string;

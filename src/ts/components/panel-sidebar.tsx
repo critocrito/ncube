@@ -4,9 +4,9 @@ import React, {useState} from "react";
 import logoIcon from "../../../resources/public/images/logo_horizontal.svg";
 import settingsIcon from "../../../resources/public/images/settings.svg";
 import {useNcubeCtx, useWorkspaceCtx} from "../lib/context";
-import WorkspaceSelect from "./workspace-select";
 import PanelSidebarButton from "./panel-sidebar-button";
 import PanelSidebarMenuItem from "./panel-sidebar-menu-item";
+import WorkspaceSelect from "./workspace-select";
 
 const PanelSidebar = () => {
   const [expanded, setExpanded] = useState(true);

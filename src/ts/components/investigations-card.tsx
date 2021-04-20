@@ -8,8 +8,8 @@ import {
 } from "../lib/http";
 import {Investigation} from "../types";
 import Button from "./button";
-import Stat from "./stat";
 import Card from "./card";
+import Stat from "./stat";
 
 interface InvestigationsCardProps {
   investigation: Investigation;

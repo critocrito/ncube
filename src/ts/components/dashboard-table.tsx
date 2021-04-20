@@ -10,10 +10,10 @@ import {
 } from "../lib/http";
 import {Notification, Workspace} from "../types";
 import Button from "./button";
+import DashboardStats from "./dashboard-stats";
 import IntroText from "./intro-text";
 import LoadingSpinner from "./loading-spinner";
 import Overline from "./overline";
-import DashboardStats from "./dashboard-stats";
 import WorkspaceTag from "./workspace-tag";
 
 interface DashboardWorkspacesProps {

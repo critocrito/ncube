@@ -2,11 +2,10 @@ import {Form, Formik} from "formik";
 import React from "react";
 import * as Yup from "yup";
 
-import Button from "../components/button";
+import FormActions from "../components/form-actions";
 import Input from "../components/input";
 import * as v from "../lib/validations";
 import {ConnectionDetails, FormProps} from "../types";
-import FormActions from "../components/form-actions";
 
 export type LinkWorkspaceFormValues = ConnectionDetails & {
   password: string;

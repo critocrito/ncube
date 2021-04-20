@@ -2,8 +2,8 @@ import React from "react";
 import {StateValue} from "xstate";
 
 import {useNcubeCtx} from "../lib/context";
-import Fatal from "./fatal";
 import {capitalize} from "../lib/utils";
+import Fatal from "./fatal";
 
 interface UnreachableProps {
   machine: string;

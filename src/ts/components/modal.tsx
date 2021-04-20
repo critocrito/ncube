@@ -10,7 +10,6 @@ interface ModalProps {
   children: JSX.Element;
   onCancel: () => void;
   size?: "normal" | "large";
-  className?: string;
 }
 
 const Modal = ({
@@ -42,7 +41,7 @@ const Modal = ({
         <div
           className="fixed inset-0 bg-gray-light bg-opacity-60 transition-opacity"
           aria-hidden="true"
-        ></div>
+        />
 
         <span
           className="hidden sm:inline-block sm:align-middle sm:h-screen"

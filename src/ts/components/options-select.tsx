@@ -32,8 +32,8 @@ const OptionsSelect = ({label, options, ...props}: SelectProps) => {
           if (!option) return;
           setFieldValue(field.name, option.value);
         }}
-        isClearable={true}
-        className={"w-full mb-2 cursor-pointer border border-solitude"}
+        isClearable
+        className="w-full mb-2 cursor-pointer border border-solitude"
       />
 
       {hasError ? <div className="text-error">{meta.error}</div> : undefined}

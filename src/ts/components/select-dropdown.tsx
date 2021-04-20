@@ -5,12 +5,12 @@ import Select, {
   components,
   ControlProps,
   GroupProps,
+  IndicatorProps,
+  MenuListComponentProps,
   OptionProps,
   PlaceholderProps,
   SingleValueProps,
   ValueType,
-  IndicatorProps,
-  MenuListComponentProps,
 } from "react-select";
 
 import {SelectOption} from "../types";
@@ -148,6 +148,7 @@ const SelectDropdown = <T extends SelectOption>({
   return (
     <Select
       instanceId={id}
+      inputId={`input-${id}`}
       options={options}
       className={c("w-full", className)}
       defaultValue={defaultValue}

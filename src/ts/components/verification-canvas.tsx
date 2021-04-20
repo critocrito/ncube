@@ -1,5 +1,4 @@
 /* eslint react/jsx-props-no-spreading: off */
-import c from "clsx";
 import {csvFormat} from "d3-dsv";
 import React, {useCallback, useState} from "react";
 import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
@@ -89,7 +88,7 @@ const VerificationCanvas = ({
     <div className="overflow-x-auto">
       <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
         <div className="flex space-x-6">
-          {[...units.keys()].map((name, i) => {
+          {[...units.keys()].map((name) => {
             const isDroppable =
               allowedColumns.length === 0 || allowedColumns.includes(name);
             const data = units.get(name) || [];

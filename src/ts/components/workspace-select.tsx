@@ -1,3 +1,4 @@
+/* eslint react/jsx-props-no-spreading: off */
 import c from "clsx";
 import React from "react";
 import {SingleValueProps} from "react-select";

@@ -4,11 +4,11 @@ import * as Yup from "yup";
 
 import FormActions from "../components/form-actions";
 import Input from "../components/input";
+import SourceTagSelect from "../components/source-tag-select";
+import SourceTypeSelect from "../components/source-type-select";
 import {listSourceTags} from "../lib/http";
 import {sourceTags} from "../lib/validations";
 import {FormProps, SourceTag} from "../types";
-import SourceTagSelect from "../components/source-tag-select";
-import SourceTypeSelect from "../components/source-type-select";
 
 type CreateSourceFormProps<
   CreateSourceFormValues
@@ -56,7 +56,7 @@ const CreateSourceForm = ({
       validationSchema={validationSchema}
       onSubmit={onSubmit}
     >
-      {({isValid, isSubmitting, values}) => {
+      {({isValid, isSubmitting}) => {
         const disableSubmit = !isValid || isSubmitting;
 
         return (

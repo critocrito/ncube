@@ -1,10 +1,10 @@
 import React from "react";
 
 import dataIcon from "../../../resources/public/images/icon_data.svg";
-import {DataStats, Workspace} from "../types";
+import {DataStats} from "../types";
 import Button from "./button";
-import StatsTable from "./stats-table";
 import Card from "./card";
+import StatsTable from "./stats-table";
 
 interface DataCardProps {
   onShow: () => void;
@@ -19,7 +19,7 @@ const DataCard = ({stats, onShow}: DataCardProps) => {
           <img
             src={dataIcon}
             className="h-8 w-8"
-            alt={"Icon for the data section."}
+            alt="Icon for the data section."
           />
           <h4 className="header4 pl-2">Data</h4>
         </div>

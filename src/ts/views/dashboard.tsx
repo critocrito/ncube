@@ -7,10 +7,10 @@ import DashboardHome from "../components/dashboard-home";
 import DashboardLinkConnection from "../components/dashboard-link-connection";
 import DashboardLinkWorkspace from "../components/dashboard-link-workspace";
 import Error from "../components/error";
+import Loading from "../components/loading";
 import Modal from "../components/modal";
 import BasicPanel from "../components/panel-basic";
 import Unreachable from "../components/unreachable";
-import Loading from "../components/loading";
 import machine, {
   DashboardContext,
   DashboardMachineInterpreter,

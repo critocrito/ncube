@@ -56,7 +56,7 @@ const DescriptionSelect = ({
       <FormLabel name={name} label={label} />
 
       <SelectDropdown<DescriptionOption>
-        id="workspace-selector"
+        id={`${name}-selector`}
         options={options}
         defaultValue={value}
         onSelect={(option) => {
@@ -65,7 +65,7 @@ const DescriptionSelect = ({
         }}
         isClearable={isClearable}
         LocalOption={Option}
-        className={"w-full rounded cursor-pointer border border-solitude"}
+        className="w-full rounded cursor-pointer border border-solitude"
       />
 
       {hasError ? <div className="text-error">{meta.error}</div> : undefined}

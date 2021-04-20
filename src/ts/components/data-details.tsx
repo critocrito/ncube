@@ -3,10 +3,10 @@ import React from "react";
 
 import {capitalize} from "../lib/utils";
 import {Download, Unit} from "../types";
+import Description from "./description";
 import MediaViewer from "./media-viewer";
 import QueryTagList from "./query-tag-list";
 import SourceTag from "./source-tag";
-import Description from "./description";
 
 interface DataDetailsProps {
   unit: Unit;

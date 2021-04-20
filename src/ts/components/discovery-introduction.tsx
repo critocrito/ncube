@@ -2,8 +2,8 @@ import React from "react";
 
 import {SourceReq} from "../types";
 import Button from "./button";
-import LabeledSourceTag from "./labeled-source-tag";
 import Description from "./description";
+import LabeledSourceTag from "./labeled-source-tag";
 
 interface IntroductionProps {
   onNext: () => void;

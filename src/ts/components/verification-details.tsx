@@ -8,8 +8,8 @@ import {
   Unit,
 } from "../types";
 import DataDetails from "./data-details";
-import VerificationAnnotations from "./verification-annotations";
 import Description from "./description";
+import VerificationAnnotations from "./verification-annotations";
 
 interface VerificationDetailsProps {
   segmentUnit: SegmentUnit;

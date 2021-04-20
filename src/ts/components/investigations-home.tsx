@@ -2,9 +2,9 @@ import React from "react";
 
 import {voidFn} from "../lib/utils";
 import {Investigation} from "../types";
+import ActionsLayout from "./actions-layout";
 import InvestigationsActions from "./investigations-actions";
 import InvestigationsTable from "./investigations-table";
-import ActionsLayout from "./actions-layout";
 
 interface InvestigationsHomeProps {
   investigations: Investigation[];
