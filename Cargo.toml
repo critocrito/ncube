@@ -1,2 +1,5 @@
 [workspace]
 members = ["src/rs/*"]
+
+[profile.dev]
+split-debuginfo = "unpacked"
