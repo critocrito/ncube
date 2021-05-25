@@ -1,13 +1,25 @@
+use futures::TryFutureExt;
+use headers::{AcceptRanges, ContentLength, ContentRange, ContentType, HeaderMapExt, LastModified};
 use ncube_crypto::jwt_verify;
 use ncube_data::{ErrorResponse, ReqCtx};
 use ncube_db::DatabaseError;
 use ncube_errors::HostError;
 use ncube_handlers::{config::show_secret_key, HandlerError};
-use std::convert::Infallible;
-use std::net::{IpAddr, SocketAddr};
-use std::str::FromStr;
+use std::{
+    convert::Infallible,
+    future::Future,
+    net::{IpAddr, SocketAddr},
+    path::Path,
+    str::FromStr,
+};
+use tokio::fs::File as TkFile;
 use tracing::{debug, error};
-use warp::{http::StatusCode, Filter};
+use warp::{http::StatusCode, hyper::Body, reject::Rejection, reply::Response, Filter};
+
+use crate::{
+    fs::{bytes_range, file_metadata, file_stream, optimal_buf_size, File},
+    headers::{HeaderParseError, HttpRange},
+};
 
 pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::Reply, Infallible> {
     let code;
@@ -18,6 +30,9 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
     if err.is_not_found() {
         code = StatusCode::NOT_FOUND;
         message = "NOT_FOUND".into();
+    } else if let Some(HandlerError::Invalid(reason)) = err.find() {
+        code = StatusCode::BAD_REQUEST;
+        message = reason.into();
     } else if let Some(HandlerError::Invalid(reason)) = err.find() {
         code = StatusCode::BAD_REQUEST;
         message = reason.into();
@@ -35,6 +50,9 @@ pub(crate) async fn handle_rejection(err: warp::Rejection) -> Result<impl warp::
         error!("{:?}", reason);
         code = StatusCode::INTERNAL_SERVER_ERROR;
         message = "UNHANDLED_REJECTION".into();
+    } else if let Some(HeaderParseError::HttpRangeError) = err.find() {
+        code = StatusCode::BAD_REQUEST;
+        message = "HTTP range header did not parse".to_string();
     } else if let Some(rejection) = err.find::<warp::reject::MethodNotAllowed>() {
         code = StatusCode::METHOD_NOT_ALLOWED;
         message = rejection.to_string();
@@ -167,5 +185,77 @@ pub(crate) fn authenticate_remote_req(
             ))),
             _ => futures::future::ok(ctx),
         }
+    })
+}
+
+#[derive(Debug)]
+pub(crate) struct Conditionals {
+    range: Option<String>,
+}
+
+impl Conditionals {
+    pub(crate) fn parse_range(&self, size: u64) -> Option<HttpRange> {
+        match &self.range {
+            // Only one range header is supported.
+            Some(header) => HttpRange::parse_first(&header, size).ok(),
+            _ => None,
+        }
+    }
+}
+
+pub(crate) fn conditionals() -> impl Filter<Extract = (Conditionals,), Error = Rejection> + Copy {
+    warp::header::optional::<String>("range").map(|range| Conditionals { range })
+}
+
+pub(crate) fn send_file(
+    f: TkFile,
+    path: String,
+    conditionals: Conditionals,
+) -> impl Future<Output = Result<File, Rejection>> + Send {
+    file_metadata(f).map_ok(move |(file, meta)| {
+        let mut file_size = meta.len();
+        let modified = meta.modified().ok().map(LastModified::from);
+
+        let resp = bytes_range(conditionals, file_size)
+            .map(|(start, end)| {
+                let sub_len = end - start;
+                let buf_size = optimal_buf_size(&meta);
+                let stream = file_stream(file, buf_size, (start, end));
+                let body = Body::wrap_stream(stream);
+
+                let mut resp = Response::new(body);
+
+                if sub_len != file_size {
+                    *resp.status_mut() = StatusCode::PARTIAL_CONTENT;
+                    resp.headers_mut().typed_insert(
+                        ContentRange::bytes(start..end, file_size).expect("valid ContentRange"),
+                    );
+
+                    file_size = sub_len;
+                }
+
+                let file_path = Path::new(&path);
+                let mime = mime_guess::from_path(file_path).first_or_octet_stream();
+
+                resp.headers_mut().typed_insert(ContentLength(file_size));
+                resp.headers_mut().typed_insert(ContentType::from(mime));
+                resp.headers_mut().typed_insert(AcceptRanges::bytes());
+
+                if let Some(last_modified) = modified {
+                    resp.headers_mut().typed_insert(last_modified);
+                }
+
+                resp
+            })
+            .unwrap_or_else(|_| {
+                // bad byte range
+                let mut resp = Response::new(Body::empty());
+                *resp.status_mut() = StatusCode::RANGE_NOT_SATISFIABLE;
+                resp.headers_mut()
+                    .typed_insert(ContentRange::unsatisfied_bytes(file_size));
+                resp
+            });
+
+        File { resp }
     })
 }

@@ -6,13 +6,9 @@ use ncube_handlers::{
 use percent_encoding::percent_decode_str;
 use serde::Deserialize;
 use tracing::instrument;
-use warp::{
-    http::header,
-    hyper::{Body, Response},
-    Filter,
-};
+use warp::Filter;
 
-use crate::http::authenticate_remote_req;
+use crate::http::{authenticate_remote_req, conditionals, send_file, Conditionals};
 
 // The query parameters for list data.
 #[derive(Debug, Deserialize)]
@@ -78,18 +74,11 @@ async fn download(
     unit_id: String,
     kind: String,
     file: String,
+    file_conditionals: Conditionals,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let file_path = format!("{}/{}/{}", &unit_id, &kind, &file);
-    let stream = handlers::show_download(&workspace, &file_path).await?;
-    let s = Body::wrap_stream(stream);
-    let mut response = Response::new(s);
-
-    if file_path.ends_with("mp4") {
-        response.headers_mut().insert(
-            header::CONTENT_TYPE,
-            header::HeaderValue::from_static("video/mp4"),
-        );
-    }
+    let file = handlers::show_download(&workspace, &file_path).await?;
+    let response = send_file(file, file_path.to_string(), file_conditionals).await?;
 
     Ok(response)
 }
@@ -143,5 +132,6 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
                 "workspaces" / String / "data" / String / String / String
             ))
             .and(warp::get())
+            .and(conditionals())
             .and_then(download))
 }

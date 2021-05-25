@@ -7,6 +7,8 @@ use warp::{
 };
 
 mod config;
+mod fs;
+mod headers;
 mod http;
 mod investigation;
 mod methodology;
