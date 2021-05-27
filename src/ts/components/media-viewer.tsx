@@ -3,13 +3,19 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import React from "react";
 import {Carousel} from "react-responsive-carousel";
 
-import VideoPlayer from "../components/video-player";
 import {useWorkspaceCtx} from "../lib/context";
 import {Download} from "../types";
+import VideoPlayer from "./video-player";
 
 interface MediaViewerProps {
   downloads: Download[];
 }
+
+const renderThumb = (children) =>
+  children.map(({props: {src}}) => {
+    const poster = `${src.slice(0, Math.max(0, src.lastIndexOf(".")))}.jpg`;
+    return <img alt="Thumbnail" src={poster} />;
+  });
 
 const MediaViewer = ({downloads}: MediaViewerProps) => {
   const [
@@ -21,12 +27,6 @@ const MediaViewer = ({downloads}: MediaViewerProps) => {
   ] = useWorkspaceCtx();
 
   if (downloads.length === 0) return <div />;
-
-  const renderThumb = (children) =>
-    children.map(({props: {src}}) => {
-      let poster = src.substr(0, src.lastIndexOf(".")) + ".jpg";
-      return <img src={poster} />;
-    });
 
   const views = downloads.map(({id_hash: idHash, type, location}) => {
     const url = `http://127.0.0.1:40666/api/workspaces/${slug}/${location}`;
