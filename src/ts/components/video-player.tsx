@@ -1,40 +1,40 @@
-import React from "react";
-import videojs from "video.js";
+import "video.js/dist/video-js.css";
+
+import React, {useEffect, useState} from "react";
+import videojs, {VideoJsPlayer} from "video.js";
 
 interface VideoPlayerProps {
   src: string;
 }
 
-export default class VideoPlayer extends React.Component<VideoPlayerProps> {
-  player: videojs.Player | undefined = undefined;
+const VideoPlayer = ({src}: VideoPlayerProps) => {
+  const [player, setPlayer] = useState<VideoJsPlayer>();
+  const videoNode = React.createRef<HTMLVideoElement>();
+  const poster = `${src.slice(0, Math.max(0, src.lastIndexOf(".")))}.jpg`;
 
-  private videoNode = React.createRef<HTMLVideoElement>();
+  useEffect(() => {
+    if (videoNode.current)
+      setPlayer(
+        videojs(videoNode.current, {
+          controls: true,
+          fluid: true,
+          sources: [{src}],
+        }),
+      );
 
-  componentDidMount() {
-    // instantiate Video.js
-    this.player = videojs(this.videoNode);
-  }
+    return () => {
+      if (player) player.dispose();
+    };
+  }, [videoNode, player, src]);
 
-  // destroy player on unmount
-  componentWillUnmount() {
-    if (this.player) {
-      this.player.dispose();
-    }
-  }
-
-  // wrap the player in a div with a `data-vjs-player` attribute
-  // so videojs won't create additional wrapper in the DOM
-  // see https://github.com/videojs/video.js/pull/3856
-  render() {
-    const {src} = this.props;
-
-    return (
-      <div>
-        <div data-vjs-player>
-          {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-          <video src={src} ref={this.videoNode} className="video-js" />
-        </div>
+  return (
+    <div>
+      <div data-vjs-player>
+        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        <video poster={poster} ref={videoNode} className="video-js" />
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
+
+export default VideoPlayer;
