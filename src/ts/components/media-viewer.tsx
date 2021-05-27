@@ -1,9 +1,9 @@
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 import React from "react";
 import {Carousel} from "react-responsive-carousel";
 
-// import VideoPlayer from "../components/video-player";
+import VideoPlayer from "../components/video-player";
 import {useWorkspaceCtx} from "../lib/context";
 import {Download} from "../types";
 
@@ -29,8 +29,7 @@ const MediaViewer = ({downloads}: MediaViewerProps) => {
       case "image":
         return <img key={idHash} src={url} alt="Associated media download." />;
       case "video":
-        // return <VideoPlayer src={url} />;
-        return <div key={idHash}>There will be a video here.</div>;
+        return <VideoPlayer key={idHash} src={url} />;
       default:
         return <div key={idHash} />;
     }
