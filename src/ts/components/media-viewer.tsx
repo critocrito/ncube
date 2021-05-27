@@ -11,12 +11,6 @@ interface MediaViewerProps {
   downloads: Download[];
 }
 
-const renderThumb = (children) =>
-  children.map(({props: {src}}) => {
-    const poster = `${src.slice(0, Math.max(0, src.lastIndexOf(".")))}.jpg`;
-    return <img alt="Thumbnail" src={poster} />;
-  });
-
 const MediaViewer = ({downloads}: MediaViewerProps) => {
   const [
     {
@@ -42,7 +36,7 @@ const MediaViewer = ({downloads}: MediaViewerProps) => {
   });
 
   return (
-    <Carousel dynamicHeight showStatus={false} renderThumbs={renderThumb}>
+    <Carousel dynamicHeight showStatus={false}>
       {views}
     </Carousel>
   );
