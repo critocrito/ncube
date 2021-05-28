@@ -5,7 +5,7 @@ import {DragDropContext, Draggable, Droppable} from "react-beautiful-dnd";
 import {Machine} from "xstate";
 
 import {listUnitsByIds} from "../lib/http";
-import {voidFn} from "../lib/utils";
+import {downloadAsFile, voidFn} from "../lib/utils";
 import {Methodology, Segment, SegmentUnit, Workspace} from "../types";
 import Placeholder from "./placeholder";
 import VerificationCard from "./verification-card";
@@ -144,19 +144,7 @@ const VerificationCanvas = ({
                             }),
                           ),
                         );
-                        const blob = new Blob([csv], {type: "text/csv"});
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = filename || "download.csv";
-                        const clickHandler = () => {
-                          setTimeout(() => {
-                            URL.revokeObjectURL(url);
-                            a.removeEventListener("click", clickHandler);
-                          }, 150);
-                        };
-                        a.addEventListener("click", clickHandler, false);
-                        a.click();
+                        downloadAsFile("text/csv", filename, csv);
                       }}
                     >
                       <div className="space-y-4">

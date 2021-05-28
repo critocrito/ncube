@@ -242,3 +242,25 @@ export const truncate = (str: string, length: number): string => {
 export const isMouseEvent = (event: Event): event is MouseEvent => {
   return "detail" in event;
 };
+
+export const downloadAsFile = (
+  contentType: string,
+  filename: string,
+  contents: BlobPart,
+): void => {
+  const blob = new Blob([contents], {type: contentType});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+
+  const clickHandler = (): void => {
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.removeEventListener("click", clickHandler);
+    }, 150);
+  };
+
+  a.addEventListener("click", clickHandler, false);
+  a.click();
+};
