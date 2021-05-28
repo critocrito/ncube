@@ -104,9 +104,13 @@ verify-ui: deps $(dist_dir)
 	yarn lint
 	yarn type-check
 
-verify-backend: $(dist_dir) $(workspace_archive)
+check-backend: $(dist_dir) $(workspace_archive)
 	cargo check --all --all-features
+
+format-backend: $(dist_dir) $(workspace_archive)
 	cargo fmt --all -- --check
+
+verify-backend: check-backend format-backend
 
 verify: verify-ui verify-backend
 
