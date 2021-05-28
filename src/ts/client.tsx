@@ -4,12 +4,16 @@ import {MDXProvider} from "@mdx-js/react";
 import {useMachine} from "@xstate/react";
 import React from "react";
 import ReactDOM from "react-dom";
+import SwiperCore, {Thumbs} from "swiper/core";
 
 import ExternalLink from "./components/external-link";
 import {NcubeProvider} from "./lib/context";
 import {useServiceLogger} from "./lib/hooks";
 import machine from "./machines/ncube";
 import Ncube from "./views/ncube";
+
+// install Swiper's Thumbs component
+SwiperCore.use([Thumbs]);
 
 // enable form focus rings when tabbing
 // see: https://medium.com/hackernoon/removing-that-ugly-focus-ring-and-keeping-it-too-6c8727fefcd2

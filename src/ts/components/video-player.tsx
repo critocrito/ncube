@@ -28,11 +28,9 @@ const VideoPlayer = ({src}: VideoPlayerProps) => {
   }, [videoNode, player, src]);
 
   return (
-    <div>
-      <div data-vjs-player>
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-        <video poster={poster} ref={videoNode} className="video-js" />
-      </div>
+    <div data-vjs-player>
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <video poster={poster} ref={videoNode} className="video-js z-10" />
     </div>
   );
 };
