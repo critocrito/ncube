@@ -14,7 +14,7 @@ connection.json
 .DS_Store
 
 # Rust
-Cargo.lock
+# Cargo.lock
 **/*.rs.bk
 
 # NodeJS
