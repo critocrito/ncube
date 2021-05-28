@@ -108,6 +108,8 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+            ${{ runner.os }}-cargo-
     - name: Save sccache
       uses: actions/cache@v2
       continue-on-error: false
