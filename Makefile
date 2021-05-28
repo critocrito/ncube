@@ -107,7 +107,7 @@ verify-ui: deps $(dist_dir)
 check-backend: $(dist_dir) $(workspace_archive)
 	cargo check --all --all-features
 
-format-backend: $(dist_dir) $(workspace_archive)
+format-backend:
 	cargo fmt --all -- --check
 
 verify-backend: check-backend format-backend
