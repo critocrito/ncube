@@ -1,12 +1,12 @@
 import c from "clsx";
 import React from "react";
 
-import iconDownload from "../../../resources/public/images/icon_download.svg";
+import ButtonDownload from "./button-download";
 
 interface VerificationColumnProps {
   name: string;
   cntUnits: number;
-  onDownload?: () => Promise<void>;
+  onDownload: () => Promise<void>;
   children?: JSX.Element;
   isHighlighted?: boolean;
   isDroppable?: boolean;
@@ -47,15 +47,7 @@ const VerificationColumn = ({
 
       <div className="px-1.5 my-3 flex items-center justify-between">
         <div>ALL: {cntUnits}</div>
-        <button
-          className={c(
-            "cursor-pointer border-none bg-transparent",
-            cntUnits === 0 ? "pointer-events-none opacity-50" : undefined,
-          )}
-          onClick={onDownload}
-        >
-          <img src={iconDownload} className="h-5 w-5" alt="download" />
-        </button>
+        <ButtonDownload onClick={onDownload} disabled={cntUnits === 0} />
       </div>
 
       <div className="p-1.5 h-full">{children}</div>
