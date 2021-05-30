@@ -3,12 +3,12 @@ import {Swiper as SwiperType} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 
 import {useWorkspaceCtx} from "../lib/context";
+import {downloadAsFile} from "../lib/utils";
 import chevronLeft from "../svg/chevron_left.svg";
 import chevronRight from "../svg/chevron_right.svg";
-import {Download, MediaType} from "../types";
-import VideoPlayer from "./video-player";
+import {Download} from "../types";
 import ButtonDownload from "./button-download";
-import {downloadAsFile} from "../lib/utils";
+import VideoPlayer from "./video-player";
 
 interface MediaViewerProps {
   downloads: Download[];
@@ -31,8 +31,9 @@ const downloadMedia = async (url: string): Promise<void> => {
   const resp = await fetch(url, {mode: "no-cors"});
   const blob = await resp.blob();
 
-  const filename = url.substring(url.lastIndexOf("/") + 1);
-  const mimeType = resp.headers.get("Content-Type");
+  const filename = url.slice(Math.max(0, url.lastIndexOf("/") + 1));
+  const mimeType =
+    resp.headers.get("Content-Type") || "application/octet-stream";
 
   downloadAsFile(mimeType, filename, blob);
 };
@@ -101,7 +102,7 @@ const MediaViewer = ({downloads}: MediaViewerProps) => {
         >
           {downloads.map(({id_hash: idHash, location, type}) => {
             const url = `http://127.0.0.1:40666/api/workspaces/${slug}/${location}`;
-            const handleClick = async () => await downloadMedia(url);
+            const handleClick = async () => downloadMedia(url);
 
             return (
               <SwiperSlide key={idHash}>
