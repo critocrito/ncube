@@ -8,6 +8,7 @@ import chevronLeft from "../svg/chevron_left.svg";
 import chevronRight from "../svg/chevron_right.svg";
 import {Download} from "../types";
 import ButtonDownload from "./button-download";
+import ImageViewer from "./image-viewer";
 import VideoPlayer from "./video-player";
 
 interface MediaViewerProps {
@@ -41,7 +42,7 @@ const downloadMedia = async (url: string): Promise<void> => {
 const MediaSlide = ({url, type}: SlideProps) => {
   switch (type) {
     case "image":
-      return <img src={url} alt="Associated media download." />;
+      return <ImageViewer src={url} />;
     case "video":
       return <VideoPlayer src={url} />;
     default:

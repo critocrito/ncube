@@ -1287,6 +1287,11 @@
   resolved "https://registry.yarnpkg.com/@types/d3-dsv/-/d3-dsv-2.0.1.tgz#44ce09b025cf365d27cbe11fc13cd10954369627"
   integrity sha512-wovgiG9Mgkr/SZ/m/c0m+RwrIT4ozsuCWeLxJyoObDWsie2DeQT4wzMdHZPR9Ya5oZLQT3w3uSl0NehG0+0dCA==
 
+"@types/drift-zoom@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@types/drift-zoom/-/drift-zoom-1.4.0.tgz#1006d22fa9fd1ec54c14847952b73ff54b98b89e"
+  integrity sha512-5glODeK0jnE76hKxiv8FwIXxJbml+6MsbiwkOKIyofODl4BBZ85gpVg8V8rhWZ5jNRKGdFcxdoKqJyJL/RAIuQ==
+
 "@types/eslint-scope@^3.7.0":
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-scope/-/eslint-scope-3.7.0.tgz#4792816e31119ebd506902a482caec4951fabd86"
@@ -4124,6 +4129,11 @@ dot-prop@^5.2.0:
   integrity sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==
   dependencies:
     is-obj "^2.0.0"
+
+drift-zoom@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/drift-zoom/-/drift-zoom-1.4.4.tgz#3d25dd480c03a5bd515e7883ba8968ffb56e3696"
+  integrity sha512-YP5lSbGwJ2jHR5gi3C6vJR05+HMeflTGJ7uy/04ZwScSiJ680UJuvDDf2LUN1NjsLZuAb8W+QTOryj94grq+ww==
 
 dtrace-provider@~0.8:
   version "0.8.8"
