@@ -48,7 +48,7 @@ jobs:
           - name: Verify UI
             task: "verify-ui test-ui"
 
-          - name: Verify Web Extensdion
+          - name: Verify Web Extension
             task: "verify-ui verify-web-ext test-ui"
 
           # The backend requires that the ui and the workspace are built. Make sure to
