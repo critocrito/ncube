@@ -18,6 +18,7 @@
     "src/ts/**/*",
     "test/ts/**/*",
     "webpack*.js",
+    "tailwind*.js",
     "test/test-setup.js"
   ],
   "exclude": ["node_modules", "target"]

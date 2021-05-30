@@ -60,19 +60,19 @@ pub(crate) fn router(
 
 pub(crate) fn assets() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path("index.html")
-        .map(|| include_str!("../../../../target/dist/index.html"))
+        .map(|| include_str!("../../../../target/ui/index.html"))
         .map(|reply| warp::reply::with_header(reply, "content-type", "text/html"))
         .or(warp::path("styles.css")
-            .map(|| include_str!("../../../../target/dist/styles.css"))
+            .map(|| include_str!("../../../../target/ui/styles.css"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/css")))
         .or(warp::path("app.js")
-            .map(|| include_str!("../../../../target/dist/app.js"))
+            .map(|| include_str!("../../../../target/ui/app.js"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/javascript")))
         .or(warp::path("styles.css.map")
-            .map(|| include_str!("../../../../target/dist/styles.css.map"))
+            .map(|| include_str!("../../../../target/ui/styles.css.map"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/css")))
         .or(warp::path("app.js.map")
-            .map(|| include_str!("../../../../target/dist/app.js.map"))
+            .map(|| include_str!("../../../../target/ui/app.js.map"))
             .map(|reply| warp::reply::with_header(reply, "content-type", "text/javascript")))
 }
 

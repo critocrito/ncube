@@ -32,19 +32,32 @@ jobs:
           - os: macos-latest
             rust: stable
             make:
+              name: Verify Web Extension
+
+          - os: macos-latest
+            rust: stable
+            make:
+              name: Verify UI
+
+          - os: macos-latest
+            rust: stable
+            make:
               name: Format Backend
 
         make:
           - name: Verify UI
             task: "verify-ui test-ui"
 
+          - name: Verify Web Extensdion
+            task: "verify-ui verify-web-ext test-ui"
+
           # The backend requires that the ui and the workspace are built. Make sure to
           # run this task only after those.
           - name: Verify Backend
-            task: "ui workspace check-backend test-backend"
+            task: "verify-backend test-backend"
 
           - name: Format Backend
-            task: "format-backend"
+            task: "fmt-backend"
 
     steps:
     - uses: actions/checkout@v2

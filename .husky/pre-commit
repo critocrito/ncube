@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-! git rev-parse --abbrev-ref HEAD | grep -q main || (make verify test && lint-staged)
+! git rev-parse --abbrev-ref HEAD | grep -q main || (make verify-ui verify-web-ext verify-backend test && lint-staged)

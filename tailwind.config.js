@@ -1,4 +1,6 @@
+/* eslint @typescript-eslint/no-var-requires: off, global-require: off */
 module.exports = {
+  mode: "jit",
   purge: ["./src/ts/**/*.{js,ts,jsx,tsx}", "./resources/public/**/*.html"],
   darkMode: false, // or 'media' or 'class'
   theme: {

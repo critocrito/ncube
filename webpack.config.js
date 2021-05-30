@@ -9,7 +9,7 @@ module.exports = {
   entry: "./src/ts/client.tsx",
 
   output: {
-    path: path.resolve(__dirname, "target/webpack"),
+    path: path.resolve(__dirname, "target/ui"),
     filename: "app.js",
     // FIXME: ncubed needs to serve hash based assets first
     // filename: "[name].[hash:8].js",
@@ -19,6 +19,10 @@ module.exports = {
 
   devServer: {
     historyApiFallback: true,
+  },
+
+  performance: {
+    hints: false,
   },
 
   module: {
