@@ -84,6 +84,22 @@ async fn download(
 }
 
 #[instrument]
+async fn download_metadata(
+    _ctx: ReqCtx,
+    workspace: String,
+    unit_id: String,
+    kind: String,
+    file: String,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let file_path = format!("{}/{}/{}", &unit_id, &kind, &file);
+    let data = handlers::show_download_meta(&workspace, &file_path).await?;
+
+    let response = SuccessResponse::new(data);
+
+    Ok(warp::reply::json(&response))
+}
+
+#[instrument]
 async fn show(
     _ctx: ReqCtx,
     workspace: String,
@@ -134,4 +150,10 @@ pub(crate) fn routes() -> impl Filter<Extract = impl warp::Reply, Error = warp::
             .and(warp::get())
             .and(conditionals())
             .and_then(download))
+        .or(authenticate_remote_req()
+            .and(warp::path!(
+                "workspaces" / String / "data" / String / String / String / "meta"
+            ))
+            .and(warp::get())
+            .and_then(download_metadata))
 }
