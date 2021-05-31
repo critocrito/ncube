@@ -79,7 +79,7 @@ module.exports = {
             "Content-Security-Policy": {
               "http-equiv": "Content-Security-Policy",
               content:
-                "default-src http://127.0.0.1:40666 'unsafe-eval' 'unsafe-inline'; img-src 'self' data:;",
+                "default-src * 'unsafe-eval' 'unsafe-inline' 'unsafe-dynamic' data: filesystem: about: blob: ws: wss:",
             },
             viewport: "width=device-width, initial-scale=1, shrink-to-fit=no",
           }
