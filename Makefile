@@ -61,8 +61,7 @@ $(pkg_build_macos): $(backend_dir)/ncube
 # error. To make make not choke up on that I force a good return.
 pkg-dmg: $(pkg_build_macos)
 	@mkdir -p  $(pkgs_release_dir)
-	npx create-dmg --overwrite $(pkg_build_macos) $(pkgs_release_dir) | true
-	for f in pkgs/*.dmg; do mv "$$f" "$${f// /_}"; done
+	@scripts/build_dmg.sh -f $(pkg_build_macos) $(pkgs_release_dir)
 
 pkg-bin: $(backend_dir)/ncube
 	@mkdir -p $(pkgs_release_dir)

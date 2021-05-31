@@ -14,14 +14,14 @@ name: release
 on:
   push:
     tags:
-    - '[0-9]+.[0-9]+.[0-9]+'
+      - "[0-9]+.[0-9]+.[0-9]+"
 jobs:
   create-release:
     name: create-release
     runs-on: ubuntu-latest
     # env:
-      # Set to force version number, e.g., when no tag exists.
-      # NCUBE_VERSION: TEST-0.0.0
+    # Set to force version number, e.g., when no tag exists.
+    # NCUBE_VERSION: TEST-0.0.0
     steps:
       - name: Create artifacts directory
         run: mkdir artifacts
@@ -57,200 +57,206 @@ jobs:
 
   build-ncube:
     name: build-ncube
-    needs: ['create-release']
+    needs: ["create-release"]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         build: [bionic, focal, macos]
         include:
-        - build: bionic
-          os: ubuntu-18.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
-        - build: focal
-          os: ubuntu-20.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
-        - build: macos
-          os: macos-latest
-          rust: nightly
-          target: x86_64-apple-darwin
+          - build: bionic
+            os: ubuntu-18.04
+            rust: nightly
+            target: x86_64-unknown-linux-gnu
+          - build: focal
+            os: ubuntu-20.04
+            rust: nightly
+            target: x86_64-unknown-linux-gnu
+          - build: macos
+            os: macos-latest
+            rust: nightly
+            target: x86_64-apple-darwin
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
-    - name: Get release download URL
-      uses: actions/download-artifact@v1
-      with:
-        name: artifacts
-        path: artifacts
+      - name: Get release download URL
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+          path: artifacts
 
-    - name: Install packages (Ubuntu)
-      if: matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
-      run: scripts/ci/ubuntu-install-packages
+      - name: Install packages (Ubuntu)
+        if: matrix.os == 'ubuntu-18.04' || matrix.os == 'ubuntu-20.04'
+        run: scripts/ci/ubuntu-install-packages
 
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
+      - name: Install packages (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install create-dmg
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.rust }}
-        profile: minimal
-        override: true
-        target: ${{ matrix.target }}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
 
-    - name: Install Node dependencies
-      run: yarn config set network-timeout 300000 && yarn install
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+          target: ${{ matrix.target }}
 
-    - name: Set release upload URL and release version
-      shell: bash
-      run: |
-        release_upload_url="$(cat artifacts/release-upload-url)"
-        echo "::set-env name=RELEASE_UPLOAD_URL::$release_upload_url"
-        echo "release upload url: $RELEASE_UPLOAD_URL"
-        release_version="$(cat artifacts/release-version)"
-        echo "::set-env name=RELEASE_VERSION::$release_version"
-        echo "release version: $RELEASE_VERSION"
-        echo "::set-env name=TARGET_FLAGS::--target ${{ matrix.target }}"
+      - name: Install Node dependencies
+        run: yarn config set network-timeout 300000 && yarn install
 
-    - name: Show command used for Cargo
-      run: |
-        echo "release version is: ${{ env.RELEASE_VERSION }}"
-        echo "release upload url is: ${{ env.RELEASE_UPLOAD_URL }}"
-        echo "target flag is: ${{ env.TARGET_FLAGS }}"
+      - name: Set release upload URL and release version
+        shell: bash
+        run: |
+          release_upload_url="$(cat artifacts/release-upload-url)"
+          echo "::set-env name=RELEASE_UPLOAD_URL::$release_upload_url"
+          echo "release upload url: $RELEASE_UPLOAD_URL"
+          release_version="$(cat artifacts/release-version)"
+          echo "::set-env name=RELEASE_VERSION::$release_version"
+          echo "release version: $RELEASE_VERSION"
+          echo "::set-env name=TARGET_FLAGS::--target ${{ matrix.target }}"
 
-    - name: Build Ncube
-      shell: bash
-      run: |
-        make ui workspace
-        cargo build --bin ncube --release ${{ env.TARGET_FLAGS }}
+      - name: Show command used for Cargo
+        run: |
+          echo "release version is: ${{ env.RELEASE_VERSION }}"
+          echo "release upload url is: ${{ env.RELEASE_UPLOAD_URL }}"
+          echo "target flag is: ${{ env.TARGET_FLAGS }}"
 
-    - name: Strip release binary (linux and macos)
-      run: strip "target/${{ matrix.target }}/release/ncube"
+      - name: Build Ncube
+        shell: bash
+        run: |
+          make ui workspace
+          cargo build --bin ncube --release ${{ env.TARGET_FLAGS }}
 
-    - name: Build installable DMG package
-      if: matrix.build == 'macos'
-      shell: bash
-      run: |
-        make pkg-dmg
-        mv pkgs/Ncube_${{ env.RELEASE_VERSION }}.dmg Ncube.dmg
-        echo "::set-env name=ASSET::Ncube.dmg"
+      - name: Strip release binary (linux and macos)
+        run: strip "target/${{ matrix.target }}/release/ncube"
 
-    - name: Build installable DEB package
-      if: matrix.build == 'bionic' || matrix.build == 'focal'
-      shell: bash
-      run: |
-        cargo install cargo-deb
-        make pkg-deb
-        mv pkgs/ncube_${{ env.RELEASE_VERSION }}_amd64.deb ncube_${{ matrix.os }}_amd64.deb
-        echo "::set-env name=ASSET::ncube_${{ matrix.os }}_amd64.deb"
+      - name: Build installable DMG package
+        if: matrix.build == 'macos'
+        shell: bash
+        run: |
+          make pkg-dmg
+          mv pkgs/Ncube_${{ env.RELEASE_VERSION }}.dmg Ncube.dmg
+          echo "::set-env name=ASSET::Ncube.dmg"
 
-    - name: Upload release archive
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ env.RELEASE_UPLOAD_URL }}
-        asset_path: ${{ env.ASSET }}
-        asset_name: ${{ env.ASSET }}
-        asset_content_type: application/octet-stream
+      - name: Build installable DEB package
+        if: matrix.build == 'bionic' || matrix.build == 'focal'
+        shell: bash
+        run: |
+          cargo install cargo-deb
+          make pkg-deb
+          mv pkgs/ncube_${{ env.RELEASE_VERSION }}_amd64.deb ncube_${{ matrix.os }}_amd64.deb
+          echo "::set-env name=ASSET::ncube_${{ matrix.os }}_amd64.deb"
+
+      - name: Upload release archive
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.RELEASE_UPLOAD_URL }}
+          asset_path: ${{ env.ASSET }}
+          asset_name: ${{ env.ASSET }}
+          asset_content_type: application/octet-stream
 
   build-ncubed:
     name: build-ncubed
-    needs: ['create-release']
+    needs: ["create-release"]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         build: [bionic, focal]
         include:
-        - build: bionic
-          os: ubuntu-18.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
-        - build: focal
-          os: ubuntu-20.04
-          rust: nightly
-          target: x86_64-unknown-linux-gnu
+          - build: bionic
+            os: ubuntu-18.04
+            rust: nightly
+            target: x86_64-unknown-linux-gnu
+          - build: focal
+            os: ubuntu-20.04
+            rust: nightly
+            target: x86_64-unknown-linux-gnu
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
 
-    - name: Get release download URL
-      uses: actions/download-artifact@v1
-      with:
-        name: artifacts
-        path: artifacts
+      - name: Get release download URL
+        uses: actions/download-artifact@v1
+        with:
+          name: artifacts
+          path: artifacts
 
-    - name: Install packages (Ubuntu)
-      run: scripts/ci/ubuntu-install-packages
+      - name: Install packages (Ubuntu)
+        run: scripts/ci/ubuntu-install-packages
 
-    - uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
 
-    - name: Install Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        toolchain: ${{ matrix.rust }}
-        profile: minimal
-        override: true
-        target: ${{ matrix.target }}
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          profile: minimal
+          override: true
+          target: ${{ matrix.target }}
 
-    - name: Install Node dependencies
-      run: yarn install
+      - name: Install Node dependencies
+        run: yarn install
 
-    - name: Set release upload URL and release version
-      shell: bash
-      run: |
-        release_upload_url="$(cat artifacts/release-upload-url)"
-        echo "::set-env name=RELEASE_UPLOAD_URL::$release_upload_url"
-        echo "release upload url: $RELEASE_UPLOAD_URL"
-        release_version="$(cat artifacts/release-version)"
-        echo "::set-env name=RELEASE_VERSION::$release_version"
-        echo "release version: $RELEASE_VERSION"
-        echo "::set-env name=TARGET_FLAGS::--target ${{ matrix.target }}"
+      - name: Set release upload URL and release version
+        shell: bash
+        run: |
+          release_upload_url="$(cat artifacts/release-upload-url)"
+          echo "::set-env name=RELEASE_UPLOAD_URL::$release_upload_url"
+          echo "release upload url: $RELEASE_UPLOAD_URL"
+          release_version="$(cat artifacts/release-version)"
+          echo "::set-env name=RELEASE_VERSION::$release_version"
+          echo "release version: $RELEASE_VERSION"
+          echo "::set-env name=TARGET_FLAGS::--target ${{ matrix.target }}"
 
-    - name: Show command used for Cargo
-      run: |
-        echo "release version is: ${{ env.RELEASE_VERSION }}"
-        echo "release upload url is: ${{ env.RELEASE_UPLOAD_URL }}"
-        echo "target flag is: ${{ env.TARGET_FLAGS }}"
+      - name: Show command used for Cargo
+        run: |
+          echo "release version is: ${{ env.RELEASE_VERSION }}"
+          echo "release upload url is: ${{ env.RELEASE_UPLOAD_URL }}"
+          echo "target flag is: ${{ env.TARGET_FLAGS }}"
 
-    - name: Build Ncubed
-      shell: bash
-      run: |
-        make ui workspace
-        cargo build --bin ncubed --release ${{ env.TARGET_FLAGS }}
-        cargo build --bin ncubectl --release ${{ env.TARGET_FLAGS }}
+      - name: Build Ncubed
+        shell: bash
+        run: |
+          make ui workspace
+          cargo build --bin ncubed --release ${{ env.TARGET_FLAGS }}
+          cargo build --bin ncubectl --release ${{ env.TARGET_FLAGS }}
 
-    - name: Strip ncubed release binary
-      run: strip "target/${{ matrix.target }}/release/ncubed"
+      - name: Strip ncubed release binary
+        run: strip "target/${{ matrix.target }}/release/ncubed"
 
-    - name: Strip ncubectl release binary
-      run: strip "target/${{ matrix.target }}/release/ncubectl"
+      - name: Strip ncubectl release binary
+        run: strip "target/${{ matrix.target }}/release/ncubectl"
 
-    - name: Build installable DEB package
-      shell: bash
-      run: |
-        cargo install cargo-deb
-        make pkg-deb-ncubed
-        mv pkgs/ncubed_${{ env.RELEASE_VERSION }}_amd64.deb ncubed_${{ matrix.os }}_amd64.deb
-        echo "::set-env name=ASSET::ncubed_${{ matrix.os }}_amd64.deb"
+      - name: Build installable DEB package
+        shell: bash
+        run: |
+          cargo install cargo-deb
+          make pkg-deb-ncubed
+          mv pkgs/ncubed_${{ env.RELEASE_VERSION }}_amd64.deb ncubed_${{ matrix.os }}_amd64.deb
+          echo "::set-env name=ASSET::ncubed_${{ matrix.os }}_amd64.deb"
 
-    - name: Upload release archive
-      uses: actions/upload-release-asset@v1.0.1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ env.RELEASE_UPLOAD_URL }}
-        asset_path: ${{ env.ASSET }}
-        asset_name: ${{ env.ASSET }}
-        asset_content_type: application/octet-stream
+      - name: Upload release archive
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.RELEASE_UPLOAD_URL }}
+          asset_path: ${{ env.ASSET }}
+          asset_name: ${{ env.ASSET }}
+          asset_content_type: application/octet-stream
