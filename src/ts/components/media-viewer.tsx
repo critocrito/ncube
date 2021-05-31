@@ -11,6 +11,7 @@ import chevronLeft from "../svg/chevron_left.svg";
 import chevronRight from "../svg/chevron_right.svg";
 import {Download} from "../types";
 import ButtonDownload from "./button-download";
+import FileMeta from "./file-meta";
 import ImageViewer from "./image-viewer";
 import VideoPlayer from "./video-player";
 
@@ -110,11 +111,12 @@ const MediaViewer = ({downloads}: MediaViewerProps) => {
 
             return (
               <SwiperSlide key={idHash}>
-                <ButtonDownload
-                  className="ml-auto"
-                  onClick={handleClick}
-                  label="Download Media"
-                />
+                <div className="flex items-center justify-end">
+                  {location && (
+                    <FileMeta workspace={slug} location={location} />
+                  )}
+                  <ButtonDownload onClick={handleClick} />
+                </div>
                 <MediaSlide key={idHash} url={url} type={type} />
               </SwiperSlide>
             );

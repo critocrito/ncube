@@ -774,6 +774,11 @@ pub struct ClientSubscription {
     pub url: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct FileMetadata {
+    pub size_in_bytes: u64,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

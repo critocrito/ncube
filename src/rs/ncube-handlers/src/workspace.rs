@@ -3,8 +3,8 @@ use ncube_actors_host::{HostActor, RequirePool, WorkspaceRootSetting};
 use ncube_actors_task::{RemoveLocation, SetupWorkspace, TaskActor};
 
 use ncube_data::{
-    AccountRequest, DatabaseRequest, Investigation, InvestigationReq, Methodology, MethodologyReq,
-    Segment, SegmentRequest, Unit, Workspace, WorkspaceDatabase, WorkspaceKind,
+    AccountRequest, DatabaseRequest, FileMetadata, Investigation, InvestigationReq, Methodology,
+    MethodologyReq, Segment, SegmentRequest, Unit, Workspace, WorkspaceDatabase, WorkspaceKind,
     WorkspaceKindRequest, WorkspaceRequest,
 };
 use ncube_db::{migrations, sqlite, DatabaseError};
@@ -347,6 +347,37 @@ pub async fn show_download(workspace: &str, file_path: &str) -> Result<File, Han
         WorkspaceKind::Local(location) => {
             match File::open(format!("{}/data/{}", &location, &file_path)).await {
                 Ok(file) => Ok(file),
+                Err(err) => match err.kind() {
+                    std::io::ErrorKind::NotFound => Err(HandlerError::NotFound(file_path.into())),
+                    _ => Err(HandlerError::NotAllowed(file_path.into())),
+                },
+            }
+        }
+        WorkspaceKind::Remote(_) => {
+            // FIXME: Downloads only work on local workspaces right now. To
+            // support remote workspaces as well I will probably need to
+            // refactor to return something else than `File`.
+            todo!()
+        }
+    }
+}
+
+#[instrument]
+pub async fn show_download_meta(
+    workspace: &str,
+    file_path: &str,
+) -> Result<FileMetadata, HandlerError> {
+    let workspace = lookup_workspace(workspace).await?;
+
+    match workspace.kind {
+        WorkspaceKind::Local(location) => {
+            match File::open(format!("{}/data/{}", &location, &file_path)).await {
+                Ok(file) => {
+                    let metadata = file.metadata().await?;
+                    Ok(FileMetadata {
+                        size_in_bytes: metadata.len(),
+                    })
+                }
                 Err(err) => match err.kind() {
                     std::io::ErrorKind::NotFound => Err(HandlerError::NotFound(file_path.into())),
                     _ => Err(HandlerError::NotAllowed(file_path.into())),

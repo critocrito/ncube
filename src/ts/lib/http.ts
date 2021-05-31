@@ -3,6 +3,7 @@ import {EventObject, State} from "xstate";
 import {
   Annotation,
   ConfigSettingReq,
+  FileMetadata,
   HostConfig,
   Investigation,
   InvestigationReq,
@@ -321,6 +322,19 @@ export const showUnit = async (
 ): Promise<Unit> => {
   const url = new URL(
     `http://127.0.0.1:40666/api/workspaces/${workspace}/data/units/${id}`,
+  );
+
+  const resp = await fetch(url.toString());
+
+  return dataResponse(resp);
+};
+
+export const showFileMeta = async (
+  workspace: string,
+  location: string,
+): Promise<FileMetadata> => {
+  const url = new URL(
+    `http://127.0.0.1:40666/api/workspaces/${workspace}/${location}/meta`,
   );
 
   const resp = await fetch(url.toString());

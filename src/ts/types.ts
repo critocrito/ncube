@@ -289,6 +289,10 @@ export type ProcessRunReq = {
   kind: "all" | "new" | "selection";
 };
 
+export type FileMetadata = {
+  size_in_bytes: number;
+};
+
 /*
  * The request types represent request objects to the HTTP API. They are usually
  * used in the `./http/*` functions. Additionally to types I run validations for
