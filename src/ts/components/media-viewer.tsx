@@ -1,3 +1,6 @@
+import "swiper/swiper.min.css";
+import "swiper/components/pagination/pagination.min.css";
+
 import React, {useState} from "react";
 import {Swiper as SwiperType} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
