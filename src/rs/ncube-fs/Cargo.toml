@@ -9,7 +9,7 @@ edition = "2018"
 [dependencies]
 tracing = "0.1"
 flate2 = "1.0.14"
-tar = "0.4.26"
+tar = "0.4.36"
 dirs = "2.0.2"
 
 ncube-errors = { path = "../ncube-errors" }
